@@ -1,0 +1,165 @@
+Entered DemOn,URN,Day,Month,Year,Site code,County code,Cap time,Ring no,Type,Age,Sex,Plum,Wing ini,Wing,Wing Pt,Tars (& toe),Bill,THL,Wht,Time,Moult,P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,Scheme,Ring No,Age (days),Code,LA,LB,RA,RB,Comments
+Y,1,10,06,2021,Pensthorpe,GBNOR,,FA95501,H,3,,,NAC,150,,,43.8,83.1,370.0,1430,,,,,,,,,,,,,,25,0A,YFN(0A)O,,Y,M,
+Y,2,10,06,2021,Pensthorpe,GBNOR,,FA95502,H,3,,,NAC,166,,,45.5,86.2,350.0,1440,,,,,,,,,,,,,,29,0C,YFN(0C)O,,Y,M,
+,3,,,,,Ring destroyed,,FA95503,,3,,,NAC,,,,,,,,,,,,,,,,,,,,,,,,,Y,,
+Y,4,10,06,2021,Pensthorpe,GBNOR,,FA95504,H,3,,,NAC,193,,,56.8,100.4,520.0,1450,,,,,,,,,,,,,,29,0E,YFN(0E)O,,Y,M,
+Y,5,10,06,2021,Pensthorpe,GBNOR,,FA95505,H,3,,,NAC,179,,,55.6,96.7,455.0,1500,,,,,,,,,,,,,,20,0J,YFN(0J)O,,Y,M,
+Y,6,10,06,2021,Pensthorpe,GBNOR,,FA95506,H,3,,,JAC,114,,,42.6,86.0,310.0,1510,,,,,,,,,,,,,,23,0K,YFN(0K)O,,Y,M,
+Y,7,10,06,2021,Pensthorpe,GBNOR,,FA95507,H,3,,,NAC,133,,,43.3,84.1,290.0,1518,,,,,,,,,,,,,,25,0L,YFN(0L)O,,Y,M,
+Y,8,10,06,2021,Pensthorpe,GBNOR,,FA95508,H,3,,,NAC,97,,,43.4,83.1,270.0,1526,,,,,,,,,,,,,,22,0N,YFN(0N)O,,Y,M,
+Y,9,10,06,2021,Pensthorpe,GBNOR,,FA95509,H,3,,,NAC,142,,,48.1,86.9,340.0,1530,,,,,,,,,,,,,,25,0U,YFN(0U)O,,Y,M,
+,10,03,07,2021,Sandringham,GBNOR,,FA95504,R,3,,,JAC,288,,,,,662.0,1055,,,,,,,,,,,,,,,0E,,,,,GPS 203285
+,11,03,07,2021,Sandringham,GBNOR,,FA95505,R,3,,,JAC,277,,,,,585.0,1100,,,,,,,,,,,,,,,0J,,,,,GPS 203286
+,12,03,07,2021,Sandringham,GBNOR,,FA95507,R,3,,,JAC,244,,,,,468.0,1103,,,,,,,,,,,,,,,0L,,,,,
+,13,03,07,2021,Sandringham,GBNOR,,FA95506,R,3,,,JAC,253,,,,,571.0,1106,,,,,,,,,,,,,,,0K,,,,,
+,14,03,07,2021,Sandringham,GBNOR,,FA95501,R,3,,,JAC,255,,,,,485.0,1110,,,,,,,,,,,,,,,0A,,,,,
+,15,03,07,2021,Sandringham,GBNOR,,FA95509,R,3,,,JAC,252,,,,,511.0,1113,,,,,,,,,,,,,,,0U,,,,,
+,16,03,07,2021,Sandringham,GBNOR,,FA95509,R,3,,,JAC,239,,,,,524.0,1115,,,,,,,,,,,,,,,0N,,,,,
+,17,03,07,2021,Sandringham,GBNOR,,FA95502,R,3,,,JAC,270,,,,,512.0,1119,,,,,,,,,,,,,,,0C,,,,,
+Y,18,26,06,2021,Pensthorpe,GBNOR,,FA95510,H,3,,,DJH,204,,132,63.3,106.5,506.0,1005,,,,,,,,,,,,,,35,0P,YFN(0P)O,,Y,M,
+Y,19,26,06,2021,Pensthorpe,GBNOR,,FA95511,H,3,,,DJH,184,,130,56.1,98.1,418.0,1014,,,,,,,,,,,,,,33,0T,YFN(0T)O,,Y,M,
+Y,20,26,06,2021,Pensthorpe,GBNOR,,FA95512,H,3,,,DJH,197,,123,53.0,92.7,395.0,1025,,,,,,,,,,,,,,36,0V,YFN(0V)O,,Y,M,
+Y,21,26,06,2021,Pensthorpe,GBNOR,,FA95513,H,3,,,DJH,185,,128,54.3,94.1,430.0,1031,,,,,,,,,,,,,,33,0X,YFN(0X)O,,Y,M,
+Y,22,26,06,2021,Pensthorpe,GBNOR,,FA95514,H,3,,,DJH,167,,131,55.7,94.3,401.0,1039,,,,,,,,,,,,,,28,0Y,YFN(0Y)O,,Y,M,
+Y,23,26,06,2021,Pensthorpe,GBNOR,,FA95515,H,3,,,DJH,215,,131,68.8,110.4,528.0,1047,,,,,,,,,,,,,,38,2A,YFN(2A)O,,Y,M,
+Y,24,26,06,2021,Pensthorpe,GBNOR,,FA95516,H,3,,,DJH,180,,127,52.5,94.6,401.0,1055,,,,,,,,,,,,,,31,2C,YFN(2C)O,,Y,M,
+Y,25,26,06,2021,Pensthorpe,GBNOR,,FA95517,H,3,,,DJH,191,,131,59.6,99.2,454.0,1102,,,,,,,,,,,,,,37,2E,YFN(2E)O,,Y,M,
+Y,26,26,06,2021,Pensthorpe,GBNOR,,FA95518,H,3,,,DJH,177,,133,54.5,97.4,420.0,1111,,,,,,,,,,,,,,29,2H,YFN(2H)O,,Y,M,Beak curved left 1cm
+Y,27,26,06,2021,Pensthorpe,GBNOR,,FA95519,H,3,,,DJH,190,,129,57.1,98.7,460.0,1152,,,,,,,,,,,,,,34,2J,YFN(2J)O,,Y,M,
+Y,28,26,06,2021,Pensthorpe,GBNOR,,FA95520,H,3,,,DJH,163,,126,41.9,92.5,413.0,1200,,,,,,,,,,,,,,31,2K,YFN(2K)O,,Y,M,
+Y,29,26,06,2021,Pensthorpe,GBNOR,,FA95521,H,3,,,DJH,162,,132,54.2,94.7,401.0,1208,,,,,,,,,,,,,,30,2L,YFN(2L)O,,Y,M,
+Y,30,26,06,2021,Pensthorpe,GBNOR,,FA95522,H,3,,,DJH,191,,132,57.1,99.8,440.0,1216,,,,,,,,,,,,,,32,2N,YFN(2N)O,,Y,M,
+Y,31,26,06,2021,Pensthorpe,GBNOR,,FA95523,H,3,,,DJH,170,,136,51.8,95.1,439.0,1224,,,,,,,,,,,,,,27,2P,YFN(2P)O,,Y,M,
+Y,32,26,06,2021,Pensthorpe,GBNOR,,FA95524,H,3,,,DJH,162,,128,51.2,93.7,378.0,1233,,,,,,,,,,,,,,37,2T,YFN(2T)O,,Y,M,
+Y,33,26,06,2021,Pensthorpe,GBNOR,,FA95525,H,3,,,DJH,174,,132,56.5,98.9,410.0,1249,,,,,,,,,,,,,,34,2U,YFN(2U)O,,Y,M,
+Y,34,26,06,2021,Pensthorpe,GBNOR,,FA95526,H,3,,,DJH,173,,132,52.8,93.0,328.0,1259,,,,,,,,,,,,,,29,2V,YFN(2V)O,,Y,M,
+Y,35,26,06,2021,Pensthorpe,GBNOR,,FA95527,H,3,,,DJH,165,,124,43.4,83.3,365.0,1307,,,,,,,,,,,,,,27,2X,YFN(2X)O,,Y,M,
+,36,08,07,2021,Ken Hill,GBNOR,,FA91515,R,3,,,NAC,260,,128,86.8,,663.0,1307,,,,,,,,,,,,,,50,2A,,,,,
+,37,08,07,2021,Ken Hill,GBNOR,,FA91512,R,3,,,NAC,243,,125,69.2,,496.6,1311,,,,,,,,,,,,,,48,0V,,,,,
+,38,08,07,2021,Ken Hill,GBNOR,,FA91517,R,3,,,NAC,242,,133,76.0,,568.0,1314,,,,,,,,,,,,,,49,2E,,,,,
+,39,08,07,2021,Ken Hill,GBNOR,,FA91510,R,3,,,NAC,251,,133,81.0,,575.0,1316,,,,,,,,,,,,,,47,0P,,,,,
+,40,08,07,2021,Ken Hill,GBNOR,,FA91525,R,3,,,NAC,234,,132,75.0,,560.0,1319,,,,,,,,,,,,,,46,2U,,,,,
+,41,08,07,2021,Ken Hill,GBNOR,,FA91519,R,3,,,NAC,242,,129,73.0,,510.0,1323,,,,,,,,,,,,,,46,2J,,,,,
+,42,08,07,2021,Ken Hill,GBNOR,,,R,3,,,,,,,,,481.0,,,,,,,,,,,,,,,44,2N,,,,,
+,43,08,07,2021,Ken Hill,GBNOR,,,R,3,,,,,,,,,489.0,,,,,,,,,,,,,,,45,0X,,,,,
+,44,08,07,2021,Ken Hill,GBNOR,,,R,3,,,,,,,,,471.0,,,,,,,,,,,,,,,45,0T,,,,,
+,45,08,07,2021,Ken Hill,GBNOR,,,R,3,,,,,,,,,524.0,,,,,,,,,,,,,,,43,2K,,,,,
+,46,08,07,2021,Ken Hill,GBNOR,,,R,3,,,,,,,,,474.0,,,,,,,,,,,,,,,43,2C,,,,,
+,47,08,07,2021,Ken Hill,GBNOR,,,R,3,,,,,,,,,463.0,,,,,,,,,,,,,,,43,2L,,,,,
+,48,08,07,2021,Ken Hill,GBNOR,,,R,3,,,,,,,,,524.0,,,,,,,,,,,,,,,41,2H,,,,,
+,49,08,07,2021,Ken Hill,GBNOR,,,R,3,,,,,,,,,457.0,,,,,,,,,,,,,,,41,2V,,,,,
+,50,08,07,2021,Ken Hill,GBNOR,,,R,3,,,,,,,,,537.0,,,,,,,,,,,,,,,40,0Y,,,,,
+,51,08,07,2021,Ken Hill,GBNOR,,,R,3,,,,,,,,,563.0,,,,,,,,,,,,,,,39,2P,,,,,
+,52,08,07,2021,Ken Hill,GBNOR,,,R,3,,,,,,,,,491.0,,,,,,,,,,,,,,,39,2X,,,,,
+,53,10,07,2021,Pensthorpe,GBNOR,,FA95524,R,3,,,,,,,,,463.0,1109,,,,,,,,,,,,,,,2T,,,,,odd development
+Y,54,10,07,2021,Pensthorpe,GBNOR,,FA95528,H,3,,,SEF,228,,128,59.5,100.6,503.0,1122,,,,,,,,,,,,,,41,2Y,YFN(2Y)O,,Y,M,
+Y,55,10,07,2021,Pensthorpe,GBNOR,,FA95529,H,3,,,SEF,237,,129,59.6,102.5,509.0,1133,,,,,,,,,,,,,,39,3A,YFN(3A)O,,Y,M,
+Y,56,10,07,2021,Pensthorpe,GBNOR,,FA95530,H,3,,,SEF,224,,127,60.0,100.5,403.0,1143,,,,,,,,,,,,,,43,3C,YFN(3C)O,,Y,M,odd under development of feather sheaths
+Y,57,10,07,2021,Pensthorpe,GBNOR,,FA95531,H,3,,,SEF,224,,125,68.0,107.1,499.0,1154,,,,,,,,,,,,,,44,3E,YFN(3E)O,,Y,M,
+Y,58,10,07,2021,Pensthorpe,GBNOR,,FA95532,H,3,,,SEF,196,,127,58.5,108.0,359.0,1206,,,,,,,,,,,,,,40,3H,YFN(3H)O,,Y,M,bad feathers and condition; deemed unfit for release at end of year
+Y,59,10,07,2021,Pensthorpe,GBNOR,,FA95533,H,3,,,SEF,207,,128,61.6,100.6,407.0,1214,,,,,,,,,,,,,,35,3J,YFN(3J)O,,Y,M,"weight originally recorded as 507, think 407 is correct based on second weight at release site; should be 407? bad feathers in the past, now improved"
+Y,60,10,07,2021,Pensthorpe,GBNOR,,FA95534,H,3,,,SEF,230,,135,65.5,110.1,490.0,1226,,,,,,,,,,,,,,40,3K,YFN(3K)O,,Y,M,
+Y,61,10,07,2021,Pensthorpe,GBNOR,,FA95535,H,3,,,SEF,222,,128,64.9,109.2,464.0,1248,,,,,,,,,,,,,,45,3L,YFN(3L)O,,Y,M,
+Y,62,10,07,2021,Pensthorpe,GBNOR,,FA95536,H,3,,,SEF,207,,125,53.6,96.4,408.0,1300,,,,,,,,,,,,,,38,3N,YFN(3N)O,,Y,M,
+Y,63,10,07,2021,Pensthorpe,GBNOR,,FA95537,H,3,,,SEF,213,,126,52.0,94.8,381.0,1305,,,,,,,,,,,,,,45,3P,YFN(3P)O,,Y,M,
+Y,64,10,07,2021,Pensthorpe,GBNOR,,FA95538,H,3,,,SEF,208,,129,56.8,102.4,474.0,1310,,,,,,,,,,,,,,39,3T,YFN(3T)O,,Y,M,
+Y,65,10,07,2021,Pensthorpe,GBNOR,,FA95539,H,3,,,SEF,226,,128,67.4,111.5,494.0,1315,,,,,,,,,,,,,,44,3U,YFN(3U)O,,Y,M,
+Y,66,10,07,2021,Pensthorpe,GBNOR,,FA95540,H,3,,,SEF,203,,134,62.0,105.0,464.0,1323,,,,,,,,,,,,,,39,3V,YFN(3V)O,,Y,M,
+Y,67,10,07,2021,Pensthorpe,GBNOR,,FA95541,H,3,,,SEF,187,,124,57.2,102.9,407.0,1327,,,,,,,,,,,,,,34,3X,YFN(3X)O,,Y,M,
+Y,68,10,07,2021,Pensthorpe,GBNOR,,FA95542,H,3,,,SEF,212,,125,62.0,102.6,471.0,1334,,,,,,,,,,,,,,40,3Y,YFN(3Y)O,,Y,M,
+Y,69,10,07,2021,Pensthorpe,GBNOR,,FA95543,H,3,,,SEF,205,,127,57.4,100.8,462.0,1340,,,,,,,,,,,,,,38,4A,YFN(4A)O,,Y,M,
+Y,70,10,07,2021,Pensthorpe,GBNOR,,FA95544,H,3,,,SEF,188,,128,52.0,95.1,411.0,1346,,,,,,,,,,,,,,35,4C,YFN(4C)O,,Y,M,odd underdeveloped feather sheaths
+Y,71,10,07,2021,Pensthorpe,GBNOR,,FA95545,H,3,,,SEF,192,,120,49.7,91.8,336.0,1350,,,,,,,,,,,,,,40,4E,YFN(4E)O,,Y,M,very underdeveloped
+,72,17,07,2021,Ken Hill,GBNOR,,FA95524,R,3,,,,,,,,,515.0,,,,,,,,,,,,,,,,2T,,,,,
+,73,17,07,2021,Ken Hill,GBNOR,,FA95529,R,3,,,NAC,258,,135,70.0,,551.0,,,,,,,,,,,,,,,,3A,,,,,
+,74,17,07,2021,Ken Hill,GBNOR,,FA95528,R,3,,,NAC,251,,127,69.0,,530.0,,,,,,,,,,,,,,,,2Y,,,,,extensive white feather centres
+,75,17,07,2021,Ken Hill,GBNOR,,FA95535,R,3,,,NAC,243,,127,75.0,,494.0,,,,,,,,,,,,,,,,3L,,,,,"tiny bit pale feather centres, healed nick to top of bill"
+,76,17,07,2021,Ken Hill,GBNOR,,FA95539,R,3,,,NAC,251,,126,80.0,,482.0,,,,,,,,,,,,,,,,3U,,,,,some white mid centre 4 primaries
+,77,17,07,2021,Ken Hill,GBNOR,,FA95531,R,3,,,NAC,248,,122,74.0,,512.0,,,,,,,,,,,,,,,,3E,,,,,
+,78,17,07,2021,Ken Hill,GBNOR,,FA95533,R,3,,,,,,,,,455.0,,,,,,,,,,,,,,,,3J,,,,,not great primaries
+,79,20,07,2021,Sandringham,GBNOR,,FA95541,R,3,,,NAC,232,,126,74.0,,525.0,,,,,,,,,,,,,,,,3X,,,,,primary 1 fault bar mid wing
+,80,20,07,2021,Sandringham,GBNOR,,FA95545,R,3,,,NAC,235,,124,63.0,,426.0,,,,,,,,,,,,,,,,4E,,,,,good
+,81,20,07,2021,Sandringham,GBNOR,,FA95544,R,3,,,NAC,230,,128,66.0,,495.0,,,,,,,,,,,,,,,,4C,,,,,primaries strong but white flecking
+,82,20,07,2021,Sandringham,GBNOR,,FA95536,R,3,,,NAC,245,,124,66.0,,471.0,,,,,,,,,,,,,,,,3N,,,,,good
+,83,20,07,2021,Sandringham,GBNOR,,FA95530,R,3,,,NAC,255,,126,68.0,,446.0,,,,,,,,,,,,,,,,3C,,,,,white corners but strong
+,84,20,07,2021,Sandringham,GBNOR,,FA95537,R,3,,,NAC,248,,123,65.0,,500.0,,,,,,,,,,,,,,,,3P,,,,,good
+,85,20,07,2021,Sandringham,GBNOR,,FA95543,R,3,,,NAC,244,,128,70.0,,515.0,,,,,,,,,,,,,,,,4A,,,,,good; radio tag
+,86,20,07,2021,Sandringham,GBNOR,,FA95538,R,3,,,NAC,247,,129,76.0,,580.0,,,,,,,,,,,,,,,,3T,,,,,"good, normal"
+,87,20,07,2021,Sandringham,GBNOR,,FA95542,R,3,,,NAC,250,,127,77.0,,508.0,,,,,,,,,,,,,,,,3Y,,,,,slightly pale mid wing
+,88,20,07,2021,Sandringham,GBNOR,,FA95534,R,3,,,NAC,264,,132,79.0,,532.0,,,,,,,,,,,,,,,,3K,,,,,good
+,89,20,07,2021,Sandringham,GBNOR,,FA95540,R,3,,,NAC,242,,135,74.0,,554.0,,,,,,,,,,,,,,,,3V,,,,,slight uneveness outer primaries
+Y,90,20,07,2021,Pensthorpe,GBNOR,,FA95546,H,3,,,NAC,197,,134,61.0,,556.0,1545,,,,,,,,,,,,,,37,4H,YFN(4H)O,,Y,M,wing good
+Y,91,20,07,2021,Pensthorpe,GBNOR,,FA95547,H,3,,,NAC,193,,129,55.3,,394.0,1555,,,,,,,,,,,,,,36,4J,YFN(4J)O,,Y,M,"white wing centres, but will prob be ok"
+Y,92,20,07,2021,Pensthorpe,GBNOR,,FA95548,H,3,,,NAC,215,,133,70.7,,507.0,1600,,,,,,,,,,,,,,43,4K,YFN(4K)O,,Y,M,white in primaries + coverts; bit in secondaries
+Y,93,20,07,2021,Pensthorpe,GBNOR,,FA95549,H,3,,,NAC,228,,134,61.0,,442.0,1610,,,,,,,,,,,,,,43,4L,YFN(4L)O,,Y,M,white in primaries
+Y,94,20,07,2021,Pensthorpe,GBNOR,,FA95550,H,3,,,NAC,204,,128,54.0,,435.0,1620,,,,,,,,,,,,,,38,4N,YFN(4N)O,,Y,M,Colour-marks later removed; one primary not great on the edge
+Y,95,20,07,2021,Pensthorpe,GBNOR,,FA95551,H,3,,,NAC,202,,122,55.5,,402.0,1625,,,,,,,,,,,,,,36,4P,YFN(4P)O,,Y,M,bit of white in primaries
+Y,96,20,07,2021,Pensthorpe,GBNOR,,FA95552,H,3,,,NAC,208,,133,67.2,,540.3,1635,,,,,,,,,,,,,,37,4T,YFN(4T)O,,Y,M,quite a bit of white in wing but good bird
+Y,97,20,07,2021,Pensthorpe,GBNOR,,FA95553,H,3,,,NAC,194,,128,54.0,,426.0,1640,,,,,,,,,,,,,,38,4U,YFN(4U)O,,Y,M,"wing not bad, bit of poorer barbules"
+Y,98,20,07,2021,Pensthorpe,GBNOR,,FA95554,H,3,,,NAC,197,,129,57.0,,450.0,1650,,,,,,,,,,,,,,38,4V,YFN(4V)O,,Y,M,wing good
+Y,99,20,07,2021,Pensthorpe,GBNOR,,FA95555,H,3,,,NAC,224,,129,72.8,,485.0,1655,,,,,,,,,,,,,,40,4X,YFN(4X)O,,Y,M,not good wing development
+Y,100,20,07,2021,Pensthorpe,GBNOR,,FA95556,H,3,,,NAC,193,,138,65.0,,475.0,1700,,,,,,,,,,,,,,37,4Y,YFN(4Y)O,,Y,M,"most white yet, almost to the tips"
+Y,101,20,07,2021,Pensthorpe,GBNOR,,FA95557,H,3,,,NAC,213,,137,72.0,,541.0,1710,,,,,,,,,,,,,,40,5A,YFN(5A)O,,Y,M,wing a bit rough barbules in bottom third
+Y,102,20,07,2021,Pensthorpe,GBNOR,,FA95558,H,3,,,NAC,206,,126,62.7,,390.0,1715,,,,,,,,,,,,,,36,5C,YFN(5C)O,,Y,M,"white in wing, moderate amounts"
+Y,103,20,07,2021,Pensthorpe,GBNOR,,FA95559,H,3,,,NAC,207,,127,58.9,,454.0,1725,,,,,,,,,,,,,,35,5E,YFN(5E)O,,Y,M,"wing tips alright + primary coverts, white centres"
+Y,104,20,07,2021,Pensthorpe,GBNOR,,FA95560,H,3,,,NAC,218,,122,60.2,,424.0,1730,,,,,,,,,,,,,,43,5H,YFN(5H)O,,Y,M,
+,105,29,07,2021,Ken Hill,GBNOR,,FA95560,R,3,,,JAC,241,,119,70.3,114.5,456.0,0926,,,,,,,,,,,,,,,5H,,,,,
+,106,29,07,2021,Ken Hill,GBNOR,,FA95551,R,3,,,JAC,240,,121,64.8,106.8,462.0,0929,,,,,,,,,,,,,,,4P,,,,,little white in centres only
+,107,29,07,2021,Ken Hill,GBNOR,,FA95558,R,3,,,JAC,238,,124,70.5,116.2,461.0,0932,,,,,,,,,,,,,,,5C,,,,,"some white centres, bad tips"
+,108,29,07,2021,Ken Hill,GBNOR,,FA95553,R,3,,,JAC,233,,128,67.8,108.0,498.0,0935,,,,,,,,,,,,,,,4U,,,,,slight bill damage; good; few pinched
+,109,29,07,2021,Ken Hill,GBNOR,,FA95559,R,3,,,JAC,242,,125,69.8,116.4,498.0,0938,,,,,,,,,,,,,,,5E,,,,,"lots white all primaries, secondaries; good shape"
+,110,29,07,2021,Ken Hill,GBNOR,,FA95549,R,3,,,JAC,257,,132,73.4,118.5,495.0,0941,,,,,,,,,,,,,,,4L,,,,,"lots white in primaries, secondaries better, tip poorer"
+,111,29,07,2021,Ken Hill,GBNOR,,FA95546,R,3,,,JAC,235,,132,76.6,125.5,598.0,0956,,,,,,,,,,,,,,,4H,,,,,close to normal
+,112,29,07,2021,Ken Hill,GBNOR,,FA95557,R,3,,,JAC,251,,135,84.2,130.8,594.0,1006,,,,,,,,,,,,,,,5A,,,,,"not great, some white, worn tips"
+,113,29,07,2021,Ken Hill,GBNOR,,FA95548,R,3,,,JAC,252,,132,83.5,128.5,534.0,1018,,,,,,,,,,,,,,,4K,,,,,"lots of white all primaries, fault bars, poor tips"
+,114,29,07,2021,Ken Hill,GBNOR,,FA95555,R,3,,,JAC,258,,131,82.4,129.5,530.0,1022,,,,,,,,,,,,,,,4X,,,,,"fault bars, damaged tip, white diffuse primaries"
+,115,29,07,2021,Ken Hill,GBNOR,,FA95554,R,3,,,JAC,237,,127,68.5,111.7,518.0,1035,,,,,,,,,,,,,,,4V,,,,,nice wing!
+Y,116,29,07,2021,Pensthorpe,GBNOR,,FA95561,H,3,,,JAC,233,,131,76.8,125.6,567.0,1305,,,,,,,,,,,,,,45,5J,YFN(5J)O,,Y,M,tips ok; central white
+Y,117,29,07,2021,Pensthorpe,GBNOR,,FA95562,H,3,,,JAC,228,,134,73.1,122.2,599.0,1315,,,,,,,,,,,,,,42,5K,YFN(5K)O,,Y,M,good wing
+Y,118,29,07,2021,Pensthorpe,GBNOR,,FA95563,H,3,,,JAC,218,,135,70.5,116.5,569.0,1320,,,,,,,,,,,,,,43,5L,YFN(5L)O,,Y,M,very good wing
+Y,119,29,07,2021,Pensthorpe,GBNOR,,FA95564,H,3,,,JAC,216,,138,63.8,111.8,572.0,1330,,,,,,,,,,,,,,42,5N,YFN(5N)O,,Y,M,"mid damage, mid third affected"
+Y,120,29,07,2021,Pensthorpe,GBNOR,,FA95565,H,3,,,JAC,232,,135,69.2,116.2,565.0,1338,,,,,,,,,,,,,,42,5P,YFN(5P)O,,Y,M,"fairly good, tips poorer"
+Y,121,29,07,2021,Pensthorpe,GBNOR,,FA95566,H,3,,,JAC,232,,136,67.9,117.1,577.0,1345,,,,,,,,,,,,,,43,5T,YFN(5T)O,,Y,M,"grey tips, wing a big scraggly"
+Y,122,29,07,2021,Pensthorpe,GBNOR,,FA95567,H,3,,,JAC,220,,125,66.2,110.5,497.0,1350,,,,,,,,,,,,,,43,5U,YFN(5U)O,,Y,M,lots of central white; tips ok
+Y,123,29,07,2021,Pensthorpe,GBNOR,,FA95568,H,3,,,JAC,233,,133,68.0,115.1,565.0,1400,,,,,,,,,,,,,,43,5V,YFN(5V)O,,Y,M,pretty good; a little bit of white; fault bars
+,124,29,07,2021,Pensthorpe,GBNOR,,FA95547,R,3,,,JAC,233,,129,67.5,,451.0,1405,,,,,,,,,,,,,,45,4J,,,Y,M,
+,125,29,07,2021,Pensthorpe,GBNOR,,FA95550,R,3,,,,,,,,,,,,,,,,,,,,,,,,,4N,,,Y,M,colour marks removed
+Y,126,29,07,2021,Pensthorpe,GBNOR,,FA95569,H,3,,,JAC,220,,135,62.1,108.0,551.0,1420,,,,,,,,,,,,,,39,5X,YFN(5X)O,,Y,M,tips middling; central white
+Y,127,29,07,2021,Pensthorpe,GBNOR,,FA95570,H,3,,,JAC,208,,139,61.7,107.3,483.0,1429,,,,,,,,,,,,,,40,5Y,YFN(5Y)O,,Y,M,central whites; tips ....?
+Y,128,29,07,2021,Pensthorpe,GBNOR,,FA95571,H,3,,,JAC,220,,131,70.7,116.0,532.0,1436,,,,,,,,,,,,,,30,6A,YFN(6A)O,,Y,M,?? can't read
+,129,29,07,2021,Pensthorpe,GBNOR,,FA95552,R,3,,,JAC,245,,132,84.3,132.5,614.0,1440,,,,,,,,,,,,,,46,4T,,,,,lot s of white in middle; tips not bad
+,130,29,07,2021,Pensthorpe,GBNOR,,FA95556,R,3,,,JAC,232,,135,75.0,125.6,559.0,1444,,,,,,,,,,,,,,46,4Y,,,,,lots of white but better.... had been
+Y,131,29,07,2021,Pensthorpe,GBNOR,,FA95572,H,3,,,JAC,232,,133,61.1,107.2,514.0,1450,,,,,,,,,,,,,,44,6C,YFN(6C)O,,Y,M,wings good
+Y,132,29,07,2021,Pensthorpe,GBNOR,,FA95573,H,3,,,JAC,237,,128,69.2,114.1,539.0,1510,,,,,,,,,,,,,,49,6E,YFN(6E)O,,Y,M,tips not great; otherwise good primaries
+Y,133,29,07,2021,Pensthorpe,GBNOR,,FA95574,H,3,,,JAC,242,,127,66.2,110.5,455.0,1515,,,,,,,,,,,,,,44,6H,YFN(6H)O,,Y,M,"central white, but bottom third / middle third; tips ok"
+Y,134,29,07,2021,Pensthorpe,GBNOR,,FA95575,H,3,,,JAC,226,,135,67.3,115.5,497.0,1525,,,,,,,,,,,,,,42,6J,YFN(6J)O,,Y,M,central quite white; good tips; broad
+Y,135,29,07,2021,Pensthorpe,GBNOR,,FA95576,H,3,,,JAC,223,,123,66.3,108.5,528.0,1530,,,,,,,,,,,,,,43,6K,YFN(6K)O,,Y,M,good wing
+Y,136,29,07,2021,Pensthorpe,GBNOR,,FA95577,H,3,,,JAC,218,,132,66.6,111.6,548.0,1540,,,,,,,,,,,,,,39,6L,YFN(6L)O,,Y,M,good wing
+Y,137,29,07,2021,Pensthorpe,GBNOR,,FA95578,H,3,,,JAC,212,,138,63.2,110.8,498.0,1545,,,,,,,,,,,,,,41,6N,YFN(6N)O,,Y,M,sharp keel; white central third; loose tips
+Y,138,29,07,2021,Pensthorpe,GBNOR,,FA95579,H,3,,,JAC,222,,128,65.5,110.6,517.0,1555,,,,,,,,,,,,,,43,6P,YFN(6P)O,,Y,M,tips middling; central white
+Y,139,29,07,2021,Pensthorpe,GBNOR,,FA95580,H,3,,,JAC,181,,119,47.8,92.6,416.0,1600,,,,,,,,,,,,,,39,6T,YFN(6T)O,,Y,M,very underdeveloped; good wing
+,140,03,08,2021,Sandringham,GBNOR,,FA95562,R,3,,,SEF,252,,135,84.0,129.7,530.0,1647,,,,,,,,,,,,,,,5K,,,,,leg cramp in pen
+,141,03,08,2021,Sandringham,GBNOR,,FA95579,R,3,,,SEF,239,,129,75.6,117.8,494.0,1650,,,,,,,,,,,,,,,6P,,,,,blood on bill
+,142,03,08,2021,Sandringham,GBNOR,,FA95563,R,3,,,SEF,244,,137,82.0,125.2,570.0,1654,,,,,,,,,,,,,,,5L,,,,,
+,143,03,08,2021,Sandringham,GBNOR,,FA95576,R,3,,,SEF,241,,125,71.3,114.2,505.0,1657,,,,,,,,,,,,,,,6K,,,,,
+,144,03,08,2021,Sandringham,GBNOR,,FA95574,R,3,,,SEF,254,,125,70.9,115.2,454.0,1700,,,,,,,,,,,,,,,6H,,,,,
+,145,03,08,2021,Sandringham,GBNOR,,FA95572,R,3,,,SEF,252,,135,71.0,115.5,526.0,1702,,,,,,,,,,,,,,,6C,,,,,
+,146,03,08,2021,Sandringham,GBNOR,,FA95547,R,3,,,JAC,251,,128,72.8,108.2,475.0,1709,,,,,,,,,,,,,,,4J,,,,,
+,147,03,08,2021,Sandringham,GBNOR,,FA95561,R,3,,,JAC,251,,131,87.6,132.9,544.0,1714,,,,,,,,,,,,,,,5J,,,,,
+,148,03,08,2021,Sandringham,GBNOR,,FA95573,R,3,,,JAC,253,,129,74.0,120.0,524.0,1730,,,,,,,,,,,,,,,6E,,,,,
+,149,03,08,2021,Sandringham,GBNOR,,FA95550,R,3,,,JAC,257,,126,72.0,115.4,523.0,1746,,,,,,,,,,,,,,,,,,,,formerly 4N; no colours
+,150,03,08,2021,Sandringham,GBNOR,,FA95556,R,3,,,JAC,246,,137,82.4,133.7,597.0,1752,,,,,,,,,,,,,,,4Y,,,,,really bad wing
+,151,03,08,2021,Sandringham,GBNOR,,FA95552,R,3,,,JAC,260,,129,90.8,140.0,608.0,1758,,,,,,,,,,,,,,,4T,,,,,
+,152,10,08,2021,Ken Hill,GBNOR,,FA95564,R,3,,,LTP,261,,137,82.5,130.5,662.0,0937,,,,,,,,,,,,,,54,5N,,,,,
+,153,10,08,2021,Ken Hill,GBNOR,,FA95578,R,3,,,LTP,257,,137,87.5,130.0,628.0,0946,,,,,,,,,,,,,,53,6N,,,,,
+Y,154,10,08,2021,Ken Hill,GBNOR,,FA95581,H,3,,,LTP,287,,132,93.0,141.0,629.0,0950,,,,,,,,,,,,,,56,6U,YFN(6U)O,,Y,M,
+,155,10,08,2021,Ken Hill,GBNOR,,FA95575,R,3,,,LTP,261,,135,87.0,133.0,574.0,0956,,,,,,,,,,,,,,54,6J,,,,,
+,156,10,08,2021,Ken Hill,GBNOR,,FA95569,R,3,,,LTP,256,,136,83.5,126.5,640.0,0958,,,,,,,,,,,,,,51,5X,,,,,
+,157,10,08,2021,Ken Hill,GBNOR,,FA95567,R,3,,,LTP,253,,126,83.0,125.0,540.0,1011,,,,,,,,,,,,,,55,5U,,,,,
+,158,10,08,2021,Ken Hill,GBNOR,,FA95571,R,3,,,SEF,263,,131,88.5,133.0,597.0,1026,,,,,,,,,,,,,,51,6A,,,,,
+,159,10,08,2021,Ken Hill,GBNOR,,FA95565,R,3,,,SEF,275,,137,92.5,137.5,598.0,1030,,,,,,,,,,,,,,54,5P,,,,,
+,160,10,08,2021,Ken Hill,GBNOR,,FA95566,R,3,,,SEF,275,,135,89.5,133.5,574.0,1034,,,,,,,,,,,,,,55,5T,,,,,
+,161,10,08,2021,Ken Hill,GBNOR,,FA95570,R,3,,,CK,259,,141,86.0,127.5,592.0,1038,,,,,,,,,,,,,,52,5Y,,,,,
+,162,10,08,2021,Ken Hill,GBNOR,,FA95577,R,3,,,CK,263,,134,88.0,131.0,610.0,1051,,,,,,,,,,,,,,51,6L,,,,,
+,163,10,08,2021,Ken Hill,GBNOR,,FA95580,R,3,,,CK,233,,120,66.5,106.5,508.0,1107,,,,,,,,,,,,,,51,6T,,,,,
+,164,10,08,2021,Ken Hill,GBNOR,,FA95568,R,3,,,CK,279,,135,94.5,137.5,605.0,1113,,,,,,,,,,,,,,55,5V,,,,,
