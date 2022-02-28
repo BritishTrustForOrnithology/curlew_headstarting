@@ -1,6 +1,6 @@
 #### NE106 -- Curlew headstarting -- post-release tracking
 ## Draft code - work in progress
-## Gary Clewley 21/12/21
+## Gary Clewley 
 
 
 #### NOTES ####
