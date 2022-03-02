@@ -17,7 +17,7 @@
 
 
 #### LOAD PACKAGES
-load_pkg <- rlang::quos(tidyverse,BTOTrackingTools)  # quos() function to be lazy on "" around each package
+load_pkg <- rlang::quos(tidyverse,BTOTrackingTools, here)  # quos() function to be lazy on "" around each package
 lapply(lapply(load_pkg, rlang::quo_name), library, character.only = TRUE)
 
 
@@ -33,33 +33,65 @@ login<-move::movebankLogin()
 # Set repository
 repo<-"BTO/NE/Pensthorpe/WWT - Eurasian Curlews - headstarted 2021"
 TagID<-c("Yf(0E)O/-:Y/m", "Yf(3A)O/-:Y/m")
-start=NULL
-end=NULL
 
+start<-c("2021-07-03 10:57:18", "2021-07-17 13:56:04")
+end_2<-c("2021-07-17 23:59:59", "2021-07-31 23:59:59") # First 2 weeks post-release
+end_6<-c("2021-08-14 23:59:59", "2021-08-28 23:59:59") # First 6 weeks post-release
+  
 # Loads for all time period
-data <- read_track_MB(TagID=TagID,repo=repo,start=start,end=end) 
+data_all <- read_track_MB(TagID=TagID,repo=repo,start=NULL,end=NULL) 
+data_2 <- read_track_MB(TagID=TagID,repo=repo,start=start,end=end_2)
+data_6 <- read_track_MB(TagID=TagID,repo=repo,start=start,end=end_6)
 
 ## loads OK but now clean_GPS issue to solve
- # %>% clean_GPS()
+ # data<- read_track_MB(TagID=TagID,repo=repo,start=start,end=end) %>% clean_GPS() # workaround below
 
 
 
 
 
 #### BTOTT TASKS ####
+#### TIME IN AREA -- AREA USE UTILISATION DISTRIBUTIONS
 
 
-## TIA
+### clean_gps() workaround...
+
+
+
+# Initial issues using BTOTT to load data and used move:: directly
+## Using Move package 
+data <- move::getMovebankLocationData(study="BTO/NE/Pensthorpe/WWT - Eurasian Curlews - headstarted 2021",
+                                      sensorID=653, login = login)
+
+## Make parsable as a Track object by BTOTT package
+names(data)[names(data)=="individual.local.identifier"]<-"TagID"   # Some tags redeployed multiple times
+names(data)[names(data)=="timestamp"]<-"DateTime"
+names(data)[names(data)=="location.long"]<-"longitude"
+names(data)[names(data)=="location.lat"]<-"latitude"
+names(data)[names(data)=="gps.satellite.count"]<-"satellites_used"
+
+
+## Convert to BTOTT Track object
+data_tt<-Track(data)
+data_tt<-clean_GPS(data_tt, drop_sats = 3, Thres = 30, GAP = 28800)
+data_tt<- data_tt %>% filter(TagID=="Yf(0E)O/-:Y/m"|TagID=="Yf(3A)O/-:Y/m") %>% droplevels()
+
+
+data<-Track2TrackStack(data_tt, by="TagID")
+
+# Coerce required trip column (not running trip definition for this project as not central place)
+data$`Yf(0E)O/-:Y/m`$tripNo<-1; data$`Yf(3A)O/-:Y/m`$tripNo<-1
+
 
 ## Note arbitrary trip, gap and gapsec added for now until clean_gps() function fixed - 
 # confirm if any gaps need dealing with before finalising  GDC 12 Feb
 
-# temp gap fudge?
-data$`Yf(0E)O/-:Y/m`$gap<-0; data$`Yf(3A)O/-:Y/m`$gap<-0
-data$`Yf(0E)O/-:Y/m`$gapsec<-1; data$`Yf(3A)O/-:Y/m`$gapsec<-1
+# temp gap fudge -- ONLY needed if loading through BTOTT and not cleaning
+#data$`Yf(0E)O/-:Y/m`$gap<-0; data$`Yf(3A)O/-:Y/m`$gap<-0
+#data$`Yf(0E)O/-:Y/m`$gapsec<-1; data$`Yf(3A)O/-:Y/m`$gapsec<-1
 
-# Coerce required trip column 
-data$`Yf(0E)O/-:Y/m`$tripNo<-1; data$`Yf(3A)O/-:Y/m`$tripNo<-1
+
+
 
 
 # Set arbitrary 'Colony' location to facilitate later functions. Using central Snettisham location here
@@ -75,6 +107,13 @@ ukmap <- sp::spTransform(ukmap,p4)
 
 # reproject ukmap 
 ukmap <- project_points(ukmap, p4s = p4)
+
+
+# Set time period of interest
+data_all<-data
+
+
+
 
 # get bounds
 llyrb = get_bounds(data, p4s=p4) # Defaults to UK BNG p4s = sp::CRS("+init=epsg:27700")
@@ -106,8 +145,12 @@ lab_long<-seq(new_long_lower, new_long_upper,length.out=length(seq(min(xRa), max
 lab_lat<-seq(new_lat_lower, new_lat_upper,length.out=length(seq(min(yRa), max(yRa),by=5000)))
 
 
-x11() # opening new plot window for manual saving avoided issues occurring 
-# with incorrect aspect ration and x axes displaying in main RStudio panel
+# setwd() to save figures
+
+# Set plot device so daving hi-res base R maps
+jpeg("Plot.jpeg", width = 15, height = 15, units = 'cm', res = 300) # UPDATE FILENAME
+
+
 
 sp::plot(ukmap,xlim=xRa, ylim=yRa,col="darkgreen",border="darkgreen", axes=T, yaxt="n",
          xaxt="n", xlab="Longitude", ylab="Latitude",
@@ -128,7 +171,7 @@ plot_TIA(data=grd_rank_birds$`Yf(0E)O/-:Y/m`,Add=TRUE,
          cont_typ=1)
 
 
-
+dev.off()
 
 
 
@@ -145,26 +188,28 @@ plot_TIA(data=grd_rank_birds$`Yf(0E)O/-:Y/m`,Add=TRUE,
 
 
 #### AMT TASKS ####
+#### Habitat selection 
 
-### bare bones works - needs tidying
+
 
 
 library(amt) 
 
-## LCM2015 Raster
-setwd("C:/Users/gary.clewley/Desktop/BTO - GDC/2019- Wetland and Marine Team/GIS/NE103_lcm")
-landuse <- raster::raster("LCM.tif")
+## Land Cover Map 2020 25m Raster
+landuse <- raster::raster(here("data","NE103_lcm","LCM.tif"))
 landuse <- raster::projectRaster(landuse, crs =("+proj=tmerc +lat_0=49 +lon_0=-2 +k=0.9996012717 +x_0=400000 +y_0=-100000 +ellps=airy +datum=OSGB36 +units=m +no_defs"), method = "ngb") # method nearest neighbour for categorical raster values (opposed to bilinear interpolation)
+
 
 
 ## clean GPS (use BTOTT?)
 
-## Convert to 'amt' track (using Movebank headers)
-trk <- make_track(data, .x = location.long, .y = location.lat, .t = timestamp, id = individual.local.identifier, crs = "+init=epsg:4326")
 
 
-## Filter out two tags with few data
-trk<- trk %>% filter(id!="Yf(0J)O/-:Y/m" & id!="Yf(3K)O/-:Y/m")
+
+## Convert to 'amt' track (using BTOTT headers)
+data<-TrackStack2Track(data) # unlist
+trk <- make_track(data, .x = longitude, .y = latitude, .t = DateTime, id = TagID, crs = "epsg:4326")
+
 
 
 ## Transform to BNG
@@ -232,8 +277,8 @@ avail.pts$used<-fct_recode(avail.pts$used, "Available" = "FALSE", "Used" = "TRUE
 
 ## Tidy LCM variable  
 
-            # redo with some aggregating down the line   
-#### ALSO VERIFY EXTRACTION ACCURATE....lots of linear, move rock to other?
+## redo with some aggregating down the line   
+## ALSO VERIFY EXTRACTION ACCURATE....lots of linear, move rock to other?
 ## check offshore etc - plot all to check
 
 
@@ -241,15 +286,12 @@ avail.pts$used<-fct_recode(avail.pts$used, "Available" = "FALSE", "Used" = "TRUE
 rsfdat <- avail.pts %>%  mutate(
   LCM = as.character(LCM), 
   LCM = fct_collapse(LCM,
-                         "Linear features" = c("3"),
-                         "Arable" = c("4"),
+                         "Arable" = c("3"),
+                         "Grassland" = c("4","5","6","7"),
                          "Open Water" = c("13"),
-                         "Inland Rock" = c("16"),
-                         "Supralittoral Rock" = c("18"),
-                         "Supralittoral Sediment" = c("19"),
-                         "Littoral Rock" = c("20"),
-                         "Littoral Sediment" = c("21"),
-                         "other" = c("1", "2", "5", "6", "7", "8", "9", "10", "11", "12","14","15","17","22")))
+                         "Coastal Rock" = c("18", "20"),
+                         "Coastal Sediment" = c("19", "21"),
+                         "Other" = c("1", "2", "8", "9", "10", "11", "12","14","15","16","17")))
 
 rsfdat$LCM<-forcats::fct_explicit_na(rsfdat$LCM, "Offshore")                         
    
@@ -260,15 +302,16 @@ rsfdat$LCM<-forcats::fct_explicit_na(rsfdat$LCM, "Offshore")
 ## See twitter bookmarks for setting standards preferences in ggplot
 
 ## Plot 
-ggplot(rsfdat,  aes(x=LCM,group=used))+    																                    		    # select data and variables
-  geom_bar(position=position_dodge(), aes(y=..prop.., fill = used), stat="count", colour="black") + 	# select barplot of proportions presented side by side with black outline
-  scale_fill_manual(values=c("grey70", "grey20")) +   												   			                # define colours, plenty of good built in palettes if colour can be used
-  labs(y = "Proportion of fixes\n", fill="used", x="\nHabitat") +   										          		# labels, \n indicates sapce between line and text
-  theme_classic() +    																								                                # remove default grid lines and grey background
-  theme(legend.title=element_blank(),  																	 			                        # remove legend title
-        legend.position = c(0.9,0.8),                                                                 # specify legend position inside plot area
-        axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +                               # rotated x axis labels for individual plots
-  scale_y_continuous(expand = expand_scale(mult = c(0, .1))) +		                                    # remove gap between bars and axis lines
+ggplot(rsfdat,  aes(x=LCM,group=used))                                  +	      # select data and variables
+  geom_bar(position=position_dodge(), aes(y=..prop.., fill = used),
+           stat="count", colour="black")                                +       # select barplot of proportions presented side by side with black outline
+  scale_fill_manual(values=c("grey70", "grey20"))                       + 		  # define colours, plenty of good built in palettes if colour can be used
+  labs(y = "Proportion of fixes\n", fill="used", x="\nHabitat")         + 			# labels, \n indicates sapce between line and text
+  theme_classic()                                                       +       # remove default grid lines and grey background
+  theme(legend.title=element_blank(),  																	 			  # remove legend title
+        legend.position = c(0.9,0.8),                                           # specify legend position inside plot area
+        axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))   +       # rotated x axis labels for individual plots
+  scale_y_continuous(expand = expansion(mult = c(0, .1)))               +       # remove gap between bars and axis lines
   ggtitle("Curlew -- 0E")
   
   
@@ -283,31 +326,31 @@ ggplot(rsfdat,  aes(x=LCM,group=used))+    																                    	
 
 
 
+
+
+
+
+
 #### UNUSED/TEST CODE ####
 
 
-# Initial issues using BTOTT to load data and used move:: directly
-## Using Move package 
-data <- move::getMovebankLocationData(study="BTO/NE/Pensthorpe/WWT - Eurasian Curlews - headstarted 2021",
-                                      sensorID=653, login = login)
+####
 
-## Make parsable as a Track object by BTOTT package
-names(data)[names(data)=="individual.local.identifier"]<-"TagID"   # Some tags redeployed multiple times
-names(data)[names(data)=="timestamp"]<-"DateTime"
-names(data)[names(data)=="location.long"]<-"longitude"
-names(data)[names(data)=="location.lat"]<-"latitude"
-names(data)[names(data)=="gps.satellite.count"]<-"satellites_used"
+x11() # opening new plot window for manual saving avoided issues occurring 
+# with incorrect aspect ration and x axes displaying in main RStudio panel
 
-
-## Convert to BTOTT Track object
-data_tt<-Track(data)
-data_tt<-clean_GPS(data_tt, drop_sats = 3, Thres = 30, GAP = 28800)
-
-
-data_stack<-Track2TrackStack(data_tt, by="TagID")
+# Can open new plot window for manual saving for better aspect:ratio but less contorl over quality
 
 
 
+
+
+
+
+####
+
+# Convert to 'amt' track (using Movebank headers)
+trk <- make_track(data, .x = location.long, .y = location.lat, .t = timestamp, id = individual.local.identifier, crs = "+init=epsg:4326")
 
 
 
