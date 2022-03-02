@@ -34,6 +34,7 @@ login<-move::movebankLogin()
 repo<-"BTO/NE/Pensthorpe/WWT - Eurasian Curlews - headstarted 2021"
 TagID<-c("Yf(0E)O/-:Y/m", "Yf(3A)O/-:Y/m")
 
+# Set dates manually - error if one NULL and other defined - logged issue in Git
 start<-c("2021-07-03 10:57:18", "2021-07-17 13:56:04")
 end_2<-c("2021-07-17 23:59:59", "2021-07-31 23:59:59") # First 2 weeks post-release
 end_6<-c("2021-08-14 23:59:59", "2021-08-28 23:59:59") # First 6 weeks post-release
@@ -82,6 +83,9 @@ data<-Track2TrackStack(data_tt, by="TagID")
 # Coerce required trip column (not running trip definition for this project as not central place)
 data$`Yf(0E)O/-:Y/m`$tripNo<-1; data$`Yf(3A)O/-:Y/m`$tripNo<-1
 
+data_all<-data # backup to filter from 
+
+
 
 ## Note arbitrary trip, gap and gapsec added for now until clean_gps() function fixed - 
 # confirm if any gaps need dealing with before finalising  GDC 12 Feb
@@ -109,8 +113,23 @@ ukmap <- sp::spTransform(ukmap,p4)
 ukmap <- project_points(ukmap, p4s = p4)
 
 
+# Filter work around for each ID to select time period
+dat1<- TrackStack2Track(data_all) %>%  filter(TagID=="Yf(0E)O/-:Y/m") %>% filter(DateTime<"2021-07-17 23:59:59")
+dat2<- TrackStack2Track(data_all) %>%  filter(TagID=="Yf(3A)O/-:Y/m") %>% filter(DateTime<"2021-07-31 23:59:59")
+data_2<-Track2TrackStack(rbind(dat1, dat2), by="TagID")
+
+dat1<- TrackStack2Track(data_all) %>%  filter(TagID=="Yf(0E)O/-:Y/m") %>% filter(DateTime<"2021-08-14 23:59:59")
+dat2<- TrackStack2Track(data_all) %>%  filter(TagID=="Yf(3A)O/-:Y/m") %>% filter(DateTime<"2021-08-28 23:59:59")
+data_6<-Track2TrackStack(rbind(dat1, dat2), by="TagID")
+
+
+
 # Set time period of interest
-data_all<-data
+#data<-data_all # all
+#data<-data_2   # 2 week post-release
+#data<-data_6   # 6 week post-release
+
+
 
 
 
@@ -145,7 +164,7 @@ lab_long<-seq(new_long_lower, new_long_upper,length.out=length(seq(min(xRa), max
 lab_lat<-seq(new_lat_lower, new_lat_upper,length.out=length(seq(min(yRa), max(yRa),by=5000)))
 
 
-# setwd() to save figures
+setwd(here("outputs","figures")) # setwd() to save figures
 
 # Set plot device so daving hi-res base R maps
 jpeg("Plot.jpeg", width = 15, height = 15, units = 'cm', res = 300) # UPDATE FILENAME
@@ -162,7 +181,7 @@ axis(2, at=seq(min(yRa), max(yRa),by=5000), labels=round(lab_lat,2))
 
 
 # UPDATE INDIVIDUAL BETWEEN PLOTS
-plot_TIA(data=grd_rank_birds$`Yf(0E)O/-:Y/m`,Add=TRUE,     
+plot_TIA(data=grd_rank_birds$`Yf(0E)O/-:Y/m`,Add=TRUE,                    # UPDATE ID SELECTION
          xra=xRa, yra=yRa,
          g_levs = c(1,0.95,0.75,0.5),
          c_levs = c(0.95,0.75,0.5),
@@ -261,6 +280,10 @@ trk<-rbind(trk_id1, trk_id2)
 
 
 
+
+
+
+
 ## Example with one individual
 
 ## Generate pseudo points and extract landuse
@@ -276,35 +299,30 @@ avail.pts$used<-fct_recode(avail.pts$used, "Available" = "FALSE", "Used" = "TRUE
 
 
 ## Tidy LCM variable  
-
-## redo with some aggregating down the line   
-## ALSO VERIFY EXTRACTION ACCURATE....lots of linear, move rock to other?
-## check offshore etc - plot all to check
-
-
-
 rsfdat <- avail.pts %>%  mutate(
   LCM = as.character(LCM), 
   LCM = fct_collapse(LCM,
-                         "Arable" = c("3"),
-                         "Grassland" = c("4","5","6","7"),
-                         "Open Water" = c("13"),
-                         "Coastal Rock" = c("18", "20"),
-                         "Coastal Sediment" = c("19", "21"),
-                         "Other" = c("1", "2", "8", "9", "10", "11", "12","14","15","16","17")))
+                     "Arable" = c("3"),
+                     "Grassland" = c("4","5","6","7"),
+                     "Open Water" = c("13"),
+                     "Coastal Rock" = c("18", "20"),
+                     "Coastal Sediment" = c("19", "21"),
+                     "Other" = c("1", "2", "8", "9", "10", "11", "12","14","15","16","17")))
 
 rsfdat$LCM<-forcats::fct_explicit_na(rsfdat$LCM, "Offshore")                         
-   
+
+
+# Need to decide on suitable order across individuals 
+rsfdat$LCM<- factor(rsfdat$LCM, levels=c("Coastal Rock", "Offshore", "Coastal Sediment","Open Water","Arable", "Grassland", "Other" ))
 
 
 
 
-## See twitter bookmarks for setting standards preferences in ggplot
 
 ## Plot 
 ggplot(rsfdat,  aes(x=LCM,group=used))                                  +	      # select data and variables
   geom_bar(position=position_dodge(), aes(y=..prop.., fill = used),
-           stat="count", colour="black")                                +       # select barplot of proportions presented side by side with black outline
+        stat="count", colour="black")                                   +       # select barplot of proportions presented side by side with black outline
   scale_fill_manual(values=c("grey70", "grey20"))                       + 		  # define colours, plenty of good built in palettes if colour can be used
   labs(y = "Proportion of fixes\n", fill="used", x="\nHabitat")         + 			# labels, \n indicates sapce between line and text
   theme_classic()                                                       +       # remove default grid lines and grey background
@@ -315,7 +333,8 @@ ggplot(rsfdat,  aes(x=LCM,group=used))                                  +	      
   ggtitle("Curlew -- 0E")
   
   
-
+# Save plot
+ggsave("plot.jpg", width=15, height=15, units="cm", dpi=300)  ## UPDATE FILENAME
 
 
 
