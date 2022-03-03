@@ -52,12 +52,16 @@ data_6 <- read_track_MB(TagID=TagID,repo=repo,start=start,end=end_6)
 
 
 #### BTOTT TASKS ####
+
+# Basic visualisation of data
+plot_leaflet(data)
+
+
+
 #### TIME IN AREA -- AREA USE UTILISATION DISTRIBUTIONS
 
 
 ### clean_gps() workaround...
-
-
 
 # Initial issues using BTOTT to load data and used move:: directly
 ## Using Move package 
@@ -245,7 +249,6 @@ summarize_sampling_rate_many(trk, cols="id")
 
 
 ## Standardised sampling rate 
-
 
 #(nesting used on NE86 not functional by ID here - need to look into - returns as NULL list)
 # also below doesn't work if 'raster' loaded
