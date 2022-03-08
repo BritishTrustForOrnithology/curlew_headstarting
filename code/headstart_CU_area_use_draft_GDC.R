@@ -50,17 +50,7 @@ data_6 <- read_track_MB(TagID=TagID,repo=repo,start=start,end=end_6)
 
 
 
-
-#### BTOTT TASKS ####
-
-# Basic visualisation of data
-plot_leaflet(data)
-
-
-
-#### TIME IN AREA -- AREA USE UTILISATION DISTRIBUTIONS
-
-
+###
 ### clean_gps() workaround...
 
 # Initial issues using BTOTT to load data and used move:: directly
@@ -74,6 +64,31 @@ names(data)[names(data)=="timestamp"]<-"DateTime"
 names(data)[names(data)=="location.long"]<-"longitude"
 names(data)[names(data)=="location.lat"]<-"latitude"
 names(data)[names(data)=="gps.satellite.count"]<-"satellites_used"
+
+
+
+
+
+## Match tide data - categorical 2 hours either side of high/low (from Port-log.net reports)
+
+# Load data and set Datetime class
+tide_dat <- read_csv("data/Wash_tide_data_Bulldog_July_November_2021.csv", 
+                     col_types = cols(Observed_DateTime = col_datetime(format = "%d/%m/%Y %H:%M"), Predicted_DateTime = col_datetime(format = "%d/%m/%Y %H:%M")))
+
+
+## find closest match to trk timestamp (package MALDIquant)
+closest<-MALDIquant::match.closest(data$DateTime, tide_dat$Observed_DateTime)
+
+## extract nearest tide time, high/low, height 
+data$tide_time<-tide_dat$Observed_DateTime[closest]; data$tide_diff<-difftime(data$DateTime, data$tide_time)
+data$tide<-tide_dat$Tide[closest];data$tide_height<-tide_dat$Observed_Height[closest]
+
+## create categorical tide factor with desired threshold; below annotated fixes 2 hour either side of high or low tide
+data$tide<-as.factor(ifelse(data$tide_diff<7201 & data$tide_diff>-7201,data$tide, "NA"))
+
+
+
+
 
 
 ## Convert to BTOTT Track object
@@ -92,14 +107,28 @@ data_all<-data # backup to filter from
 
 
 ## Note arbitrary trip, gap and gapsec added for now until clean_gps() function fixed - 
-# confirm if any gaps need dealing with before finalising  GDC 12 Feb
+# No significat gaps in data - treat as whole
 
 # temp gap fudge -- ONLY needed if loading through BTOTT and not cleaning
 #data$`Yf(0E)O/-:Y/m`$gap<-0; data$`Yf(3A)O/-:Y/m`$gap<-0
 #data$`Yf(0E)O/-:Y/m`$gapsec<-1; data$`Yf(3A)O/-:Y/m`$gapsec<-1
 
 
+###
+###
 
+
+
+
+
+#### BTOTT TASKS ####
+
+# Basic visualisation of data
+plot_leaflet(data)
+
+
+
+#### TIME IN AREA -- AREA USE UTILISATION DISTRIBUTIONS
 
 
 # Set arbitrary 'Colony' location to facilitate later functions. Using central Snettisham location here
@@ -228,10 +257,9 @@ landuse <- raster::projectRaster(landuse, crs =("+proj=tmerc +lat_0=49 +lon_0=-2
 
 
 
-
 ## Convert to 'amt' track (using BTOTT headers)
 data<-TrackStack2Track(data) # unlist
-trk <- make_track(data, .x = longitude, .y = latitude, .t = DateTime, id = TagID, crs = "epsg:4326")
+trk <- make_track(data, .x = longitude, .y = latitude, .t = DateTime, id = TagID, tide=tide, crs = "epsg:4326")
 
 
 
@@ -316,7 +344,7 @@ rsfdat$LCM<-forcats::fct_explicit_na(rsfdat$LCM, "Offshore")
 
 
 # Need to decide on suitable order across individuals 
-rsfdat$LCM<- factor(rsfdat$LCM, levels=c("Coastal Rock", "Offshore", "Coastal Sediment","Open Water","Arable", "Grassland", "Other" ))
+rsfdat$LCM<- factor(rsfdat$LCM, levels=c("Coastal rock", "Offshore", "Coastal Sediment","Open Water","Arable", "Grassland", "Other" ))
 
 
 
@@ -344,8 +372,23 @@ ggsave("plot.jpg", width=15, height=15, units="cm", dpi=300)  ## UPDATE FILENAME
 
 
 
+## RSF models
+
+# set response to numeric
+rsfdat <- rsfdat %>% mutate(case_ = as.numeric(case_))
+
+# Weight available data 
+rsfdat$w <- ifelse(rsfdat$case_ == 1, 1, 5000)
 
 
+# Separate model for each habitat
+rsfdat$coastal_rock<- ifelse(rsfdat$LCM == "Coastal rock", 1, 0)
+rsfdat$coastal_sediment<- ifelse(rsfdat$LCM == "Coastal sediment", 1, 0)
+rsfdat$arable<- ifelse(rsfdat$LCM == "Arable", 1, 0)
+rsfdat$grassland<- ifelse(rsfdat$LCM == "Grassland", 1, 0)
+
+
+m1<-glm(case_ ~ coastal_rock, data = rsfdat, weight=w,family = binomial)
 
 
 
