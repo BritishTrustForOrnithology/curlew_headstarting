@@ -259,7 +259,7 @@ landuse <- raster::projectRaster(landuse, crs =("+proj=tmerc +lat_0=49 +lon_0=-2
 
 ## Convert to 'amt' track (using BTOTT headers)
 data<-TrackStack2Track(data) # unlist
-trk <- make_track(data, .x = longitude, .y = latitude, .t = DateTime, id = TagID, tide=tide, crs = "epsg:4326")
+trk <- make_track(data, .x = longitude, .y = latitude, .t = DateTime, id = TagID, tide = tide, crs = "epsg:4326")
 
 
 
@@ -335,23 +335,21 @@ rsfdat <- avail.pts %>%  mutate(
   LCM = fct_collapse(LCM,
                      "Arable" = c("3"),
                      "Grassland" = c("4","5","6","7"),
-                     "Open Water" = c("13"),
-                     "Coastal Rock" = c("18", "20"),
-                     "Coastal Sediment" = c("19", "21"),
-                     "Other" = c("1", "2", "8", "9", "10", "11", "12","14","15","16","17")))
-
-rsfdat$LCM<-forcats::fct_explicit_na(rsfdat$LCM, "Offshore")                         
+                     "Coastal Rock" = c("15", "17"),
+                     "Coastal Sediment" = c("16", "18"),
+                     "Saltmarsh" = c("19"),
+                     "Other" = c("1", "2","8", "9", "10", "11", "12","13","14", "20", "21")))
 
 
-# Need to decide on suitable order across individuals 
-rsfdat$LCM<- factor(rsfdat$LCM, levels=c("Coastal rock", "Offshore", "Coastal Sediment","Open Water","Arable", "Grassland", "Other" ))
+# Reorder factor level
+rsfdat$LCM<- factor(rsfdat$LCM, levels=c("Coastal Sediment","Saltmarsh","Coastal Rock","Arable","Grassland","Other"))
 
 
 
 
 
 ## Plot 
-ggplot(rsfdat,  aes(x=LCM,group=used))                                  +	      # select data and variables
+ggplot(na.omit(rsfdat),  aes(x=LCM,group=used))                         +	      # select data and variables - using na.omit() here to exlcude random points offshore outside LCM area
   geom_bar(position=position_dodge(), aes(y=..prop.., fill = used),
         stat="count", colour="black")                                   +       # select barplot of proportions presented side by side with black outline
   scale_fill_manual(values=c("grey70", "grey20"))                       + 		  # define colours, plenty of good built in palettes if colour can be used
@@ -361,8 +359,15 @@ ggplot(rsfdat,  aes(x=LCM,group=used))                                  +	      
         legend.position = c(0.9,0.8),                                           # specify legend position inside plot area
         axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))   +       # rotated x axis labels for individual plots
   scale_y_continuous(expand = expansion(mult = c(0, .1)))               +       # remove gap between bars and axis lines
-  ggtitle("Curlew -- 0E")
+  ggtitle("Curlew -- 0E")                                               +
   
+  
+  ## To sort out###
+  geom_text(aes(label=Number), position=position_dodge(width=0.9), vjust=-0.25) # Model results taken manually
+  
+
+
+
   
 # Save plot
 ggsave("plot.jpg", width=15, height=15, units="cm", dpi=300)  ## UPDATE FILENAME
@@ -372,7 +377,7 @@ ggsave("plot.jpg", width=15, height=15, units="cm", dpi=300)  ## UPDATE FILENAME
 
 
 
-## RSF models
+## RSF models (ran manually for each individual/time period for now)
 
 # set response to numeric
 rsfdat <- rsfdat %>% mutate(case_ = as.numeric(case_))
@@ -380,23 +385,27 @@ rsfdat <- rsfdat %>% mutate(case_ = as.numeric(case_))
 # Weight available data 
 rsfdat$w <- ifelse(rsfdat$case_ == 1, 1, 5000)
 
+# Fit model
+m1<-glm(case_ ~ LCM, data = rsfdat, weight=w,family = binomial)
 
-# Separate model for each habitat
-rsfdat$coastal_rock<- ifelse(rsfdat$LCM == "Coastal rock", 1, 0)
-rsfdat$coastal_sediment<- ifelse(rsfdat$LCM == "Coastal sediment", 1, 0)
-rsfdat$arable<- ifelse(rsfdat$LCM == "Arable", 1, 0)
-rsfdat$grassland<- ifelse(rsfdat$LCM == "Grassland", 1, 0)
-
-
-m1<-glm(case_ ~ coastal_rock, data = rsfdat, weight=w,family = binomial)
-
-
+# Check goodness of fit (requires na to be removed)
+LogisticDx::gof(glm(case_ ~ LCM, data = na.omit(rsfdat), weight=w,family = binomial))
 
 
 
 
 
 #### UNUSED/TEST CODE ####
+
+
+#Ind hab models?
+
+# Poorer fits and estimates similar to all hab model above since the reference level has no points can be ignored
+rsfdat$Saltmarsh <- ifelse(rsfdat$LCM == "Saltmarsh", 1, 0)
+rsfdat$Coastal <- ifelse(rsfdat$LCM == "Coastal sediment", 1, 0)
+rsfdat$Arable <- ifelse(rsfdat$LCM == "Arable", 1, 0)
+rsfdat$Grassland <- ifelse(rsfdat$LCM == "Grassland", 1, 0)
+rsfdat$Other <- ifelse(rsfdat$LCM == "Other", 1, 0)
 
 
 ####
