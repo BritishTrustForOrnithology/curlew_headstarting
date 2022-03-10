@@ -67,8 +67,6 @@ names(data)[names(data)=="gps.satellite.count"]<-"satellites_used"
 
 
 
-
-
 ## Match tide data - categorical 2 hours either side of high/low (from Port-log.net reports)
 
 # Load data and set Datetime class
@@ -105,17 +103,25 @@ data$`Yf(0E)O/-:Y/m`$tripNo<-1; data$`Yf(3A)O/-:Y/m`$tripNo<-1
 data_all<-data # backup to filter from 
 
 
+# Filter work around for each ID to select time period
+dat1<- TrackStack2Track(data_all) %>%  filter(TagID=="Yf(0E)O/-:Y/m") %>% filter(DateTime<"2021-07-17 23:59:59")
+dat2<- TrackStack2Track(data_all) %>%  filter(TagID=="Yf(3A)O/-:Y/m") %>% filter(DateTime<"2021-07-31 23:59:59")
+data_2<-Track2TrackStack(rbind(dat1, dat2), by="TagID")
 
-## Note arbitrary trip, gap and gapsec added for now until clean_gps() function fixed - 
-# No significat gaps in data - treat as whole
-
-# temp gap fudge -- ONLY needed if loading through BTOTT and not cleaning
-#data$`Yf(0E)O/-:Y/m`$gap<-0; data$`Yf(3A)O/-:Y/m`$gap<-0
-#data$`Yf(0E)O/-:Y/m`$gapsec<-1; data$`Yf(3A)O/-:Y/m`$gapsec<-1
+dat1<- TrackStack2Track(data_all) %>%  filter(TagID=="Yf(0E)O/-:Y/m") %>% filter(DateTime<"2021-08-14 23:59:59")
+dat2<- TrackStack2Track(data_all) %>%  filter(TagID=="Yf(3A)O/-:Y/m") %>% filter(DateTime<"2021-08-28 23:59:59")
+data_6<-Track2TrackStack(rbind(dat1, dat2), by="TagID")
 
 
-###
-###
+
+
+# Set time period of interest going forward
+#data<-data_all # all
+#data<-data_2   # 2 week post-release
+#data<-data_6   # 6 week post-release
+
+
+
 
 
 
@@ -144,28 +150,6 @@ ukmap <- sp::spTransform(ukmap,p4)
 
 # reproject ukmap 
 ukmap <- project_points(ukmap, p4s = p4)
-
-
-# Filter work around for each ID to select time period
-dat1<- TrackStack2Track(data_all) %>%  filter(TagID=="Yf(0E)O/-:Y/m") %>% filter(DateTime<"2021-07-17 23:59:59")
-dat2<- TrackStack2Track(data_all) %>%  filter(TagID=="Yf(3A)O/-:Y/m") %>% filter(DateTime<"2021-07-31 23:59:59")
-data_2<-Track2TrackStack(rbind(dat1, dat2), by="TagID")
-
-dat1<- TrackStack2Track(data_all) %>%  filter(TagID=="Yf(0E)O/-:Y/m") %>% filter(DateTime<"2021-08-14 23:59:59")
-dat2<- TrackStack2Track(data_all) %>%  filter(TagID=="Yf(3A)O/-:Y/m") %>% filter(DateTime<"2021-08-28 23:59:59")
-data_6<-Track2TrackStack(rbind(dat1, dat2), by="TagID")
-
-
-
-# Set time period of interest
-#data<-data_all # all
-#data<-data_2   # 2 week post-release
-#data<-data_6   # 6 week post-release
-
-
-
-
-
 
 # get bounds
 llyrb = get_bounds(data, p4s=p4) # Defaults to UK BNG p4s = sp::CRS("+init=epsg:27700")
@@ -242,9 +226,6 @@ dev.off()
 #### AMT TASKS ####
 #### Habitat selection 
 
-
-
-
 library(amt) 
 
 ## Land Cover Map 2020 25m Raster
@@ -278,48 +259,46 @@ summarize_sampling_rate_many(trk, cols="id")
 
 ## Standardised sampling rate 
 
-#(nesting used on NE86 not functional by ID here - need to look into - returns as NULL list)
-# also below doesn't work if 'raster' loaded
+#(nesting used on NE86 not functional by ID here - need to look into new syntax - returns as NULL list)
+# Workaround to use unnest_legacy()
 
+
+# potentially causing issues further on - causes random_points() to fail - luckily sampling consistent anyway in this case
 #trk <- trk %>% nest(data=-"id") %>% 
-#  mutate(data = map(
-#    data, ~ .x %>% 
-#      track_resample(rate = minutes(15), tolerance = minutes(3))))  %>%
-#  unnest(cols=c(data))
+#  mutate(data = map(data, ~ .x %>% 
+#    track_resample(rate = minutes(15), tolerance = minutes(3))))  %>%
+#    unnest_legacy(cols=c(data))
+
+# Revert to class as lost during nesting
+#trk <- make_track(trk, .x = x_, .y = y_, .t = t_, id = id, tide = tide, burst = burst_, crs = "epsg:4326")
 
 
-# Temp fix by individual
-trk_id1<- trk %>%  filter(id=="Yf(0E)O/-:Y/m") %>% 
-  track_resample(rate = minutes(15), tolerance = minutes(3))
-
-trk_id2<- trk %>%  filter(id=="Yf(3A)O/-:Y/m") %>% 
-  track_resample(rate = minutes(15), tolerance = minutes(3))
-
-
-trk<-rbind(trk_id1, trk_id2)
 
 
 
 ## Habitat selection
 
 ## As above nesting issue
-#avail.pts <- trk %>%  nest(data=-"id") %>% 
-#  mutate(rnd_pts = map(data, ~ random_points(., factor = 20, type="regular"))) %>% 		# can also drop type="regular" for true random
-#  select(id, rnd_pts) %>%  # you dont want to have the original point twice, hence drop data
-#  unnest(cols=c(data))
+avail.pts <- trk %>%  nest(data=-"id") %>% 
+        mutate(rnd_pts = map(data, ~ random_points(., factor = 20, type="random"))) %>% 	
+        select(id, rnd_pts) %>%  # you don't want to have the original point twice, hence drop data
+        unnest_legacy(cols=c(rnd_pts))
+
+# If also sampling by tide
+#avail.pts <- trk %>%  nest(data=-c("id", "tide")) %>% 
+#  mutate(rnd_pts = map(data, ~ random_points(., factor = 20, type="random"))) %>% 	
+#  select(id, tide, rnd_pts) %>%  # you don't want to have the original point twice, hence drop data
+#  unnest_legacy(cols=c(rnd_pts))
+
+
+# Assign class as lost during nesting
+class(avail.pts) <- c("random_points", class(avail.pts))
 
 
 
 
 
-
-
-
-## Example with one individual
-
-## Generate pseudo points and extract landuse
-avail.pts <- trk_id1 %>% random_points(factor = 20, type="regular")
-
+## Extract LCM values for random points
 avail.pts <- avail.pts %>% 
   extract_covariates(landuse)
 
@@ -335,44 +314,14 @@ rsfdat <- avail.pts %>%  mutate(
   LCM = fct_collapse(LCM,
                      "Arable" = c("3"),
                      "Grassland" = c("4","5","6","7"),
-                     "Coastal Rock" = c("15", "17"),
-                     "Coastal Sediment" = c("16", "18"),
+                     "Coastal rock" = c("15", "17"),
+                     "Coastal sediment" = c("16", "18"),
                      "Saltmarsh" = c("19"),
                      "Other" = c("1", "2","8", "9", "10", "11", "12","13","14", "20", "21")))
 
 
 # Reorder factor level
-rsfdat$LCM<- factor(rsfdat$LCM, levels=c("Coastal Sediment","Saltmarsh","Coastal Rock","Arable","Grassland","Other"))
-
-
-
-
-
-## Plot 
-ggplot(na.omit(rsfdat),  aes(x=LCM,group=used))                         +	      # select data and variables - using na.omit() here to exlcude random points offshore outside LCM area
-  geom_bar(position=position_dodge(), aes(y=..prop.., fill = used),
-        stat="count", colour="black")                                   +       # select barplot of proportions presented side by side with black outline
-  scale_fill_manual(values=c("grey70", "grey20"))                       + 		  # define colours, plenty of good built in palettes if colour can be used
-  labs(y = "Proportion of fixes\n", fill="used", x="\nHabitat")         + 			# labels, \n indicates sapce between line and text
-  theme_classic()                                                       +       # remove default grid lines and grey background
-  theme(legend.title=element_blank(),  																	 			  # remove legend title
-        legend.position = c(0.9,0.8),                                           # specify legend position inside plot area
-        axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))   +       # rotated x axis labels for individual plots
-  scale_y_continuous(expand = expansion(mult = c(0, .1)))               +       # remove gap between bars and axis lines
-  ggtitle("Curlew -- 0E")                                               +
-  
-  
-  ## To sort out###
-  geom_text(aes(label=Number), position=position_dodge(width=0.9), vjust=-0.25) # Model results taken manually
-  
-
-
-
-  
-# Save plot
-ggsave("plot.jpg", width=15, height=15, units="cm", dpi=300)  ## UPDATE FILENAME
-
-
+rsfdat$LCM<- factor(rsfdat$LCM, levels=c("Coastal sediment","Saltmarsh","Coastal Rock","Arable","Grassland","Other"))
 
 
 
@@ -385,11 +334,102 @@ rsfdat <- rsfdat %>% mutate(case_ = as.numeric(case_))
 # Weight available data 
 rsfdat$w <- ifelse(rsfdat$case_ == 1, 1, 5000)
 
-# Fit model
-m1<-glm(case_ ~ LCM, data = rsfdat, weight=w,family = binomial)
+# Set individual habitat factors (pooling all other habitats into single reference level)
+rsfdat$Coastal <- ifelse(rsfdat$LCM == "Coastal sediment", 1, 0)
+rsfdat$Saltmarsh <- ifelse(rsfdat$LCM == "Saltmarsh", 1, 0)
+rsfdat$Arable <- ifelse(rsfdat$LCM == "Arable", 1, 0)
+rsfdat$Grassland <- ifelse(rsfdat$LCM == "Grassland", 1, 0)
+rsfdat$Other <- ifelse(rsfdat$LCM == "Other", 1, 0)
+
+
+# Fit habitat specific models
+m1<-glm(case_ ~ Coastal, data = na.omit(rsfdat %>% filter(id=="Yf(0E)O/-:Y/m")), weight=w,family = binomial)
+m2<-glm(case_ ~ Coastal, data = na.omit(rsfdat %>% filter(id=="Yf(3A)O/-:Y/m")), weight=w,family = binomial)
+
+m3<-glm(case_ ~ Saltmarsh, data = na.omit(rsfdat %>% filter(id=="Yf(0E)O/-:Y/m")), weight=w,family = binomial)
+m4<-glm(case_ ~ Saltmarsh, data = na.omit(rsfdat %>% filter(id=="Yf(3A)O/-:Y/m")), weight=w,family = binomial)
+
+m5<-glm(case_ ~ Arable, data = na.omit(rsfdat %>% filter(id=="Yf(0E)O/-:Y/m")), weight=w,family = binomial)
+m6<-glm(case_ ~ Arable, data = na.omit(rsfdat %>% filter(id=="Yf(3A)O/-:Y/m")), weight=w,family = binomial)
+
+m7<-glm(case_ ~ Grassland, data = na.omit(rsfdat %>% filter(id=="Yf(0E)O/-:Y/m")), weight=w,family = binomial)
+m8<-glm(case_ ~ Grassland, data = na.omit(rsfdat %>% filter(id=="Yf(3A)O/-:Y/m")), weight=w,family = binomial)
+
+m9<-glm(case_ ~ Other, data = na.omit(rsfdat %>% filter(id=="Yf(0E)O/-:Y/m")), weight=w,family = binomial)
+m10<-glm(case_ ~ Other, data = na.omit(rsfdat %>% filter(id=="Yf(3A)O/-:Y/m")), weight=w,family = binomial)
+
+
 
 # Check goodness of fit (requires na to be removed)
-LogisticDx::gof(glm(case_ ~ LCM, data = na.omit(rsfdat), weight=w,family = binomial))
+LogisticDx::gof(m1)
+
+# Needed to work out long hand for some
+# rsfdat_0E<-rsfdat %>% filter(id=="Yf(0E)O/-:Y/m") %>% na.omit()
+# pROC::auc(pROC::roc(rsfdat_0E$case_~(predict(glm(case_ ~ Grassland, data = na.omit(rsfdat %>% filter(id=="Yf(0E)O/-:Y/m")), weight=w,family = binomial), type=c("response")))))
+#.... extracted manually for each and put into report appendix
+
+
+# Confidence intervals
+c1<-confint(m1); c2<-confint(m2);c3<-confint(m3); c4<-confint(m4);c5<-confint(m5);
+c6<-confint(m6); c7<-confint(m7);c8<-confint(m8); c9<-confint(m9);c10<-confint(m10)
+
+# Manually pull out coefficients and confidence intervals for RSS plot
+id<-c(rep("0E",5), rep("3A",5))
+habitat<-c(rep(c("Coastal sediment", "Saltmarsh", "Arable", "Grassland", "Other"),2))
+conf.low<-c(c1[2], c3[2], c5[2], c7[2], c9[2], c2[2], c4[2], c6[2], c8[2], c10[2])
+conf.high<-c(c1[4], c3[4], c5[4], c7[4], c9[4], c2[4], c4[4], c6[4], c8[4], c10[4])
+coef<-c(coef(m1)[2], coef(m3)[2], coef(m5)[2], coef(m7)[2], coef(m9)[2],
+        coef(m2)[2], coef(m4)[2], coef(m6)[2], coef(m8)[2], coef(m10)[2])
+rss_dat<-data.frame(id, habitat, conf.low, conf.high, coef)
+
+
+
+
+## Available/Used Plot 
+na.omit(rsfdat) %>% filter(id=="Yf(0E)O/-:Y/m") %>%	                          	# filter ID
+ggplot(.,  aes(x=LCM,group=used))                                       +	      # select data and variables - using na.omit() here to exlcude random points offshore outside LCM area
+  geom_bar(position=position_dodge(), aes(y=..prop.., fill = used),
+           stat="count", colour="black")                                +       # select barplot of proportions presented side by side with black outline
+  scale_fill_manual(values=c("grey70", "grey20"))                       + 		  # define colours, plenty of good built in palettes if colour can be used
+  labs(y = "Proportion of fixes\n", fill="used", x="\nHabitat")         + 			# labels, \n indicates sapce between line and text
+  theme_classic()                                                       +       # remove default grid lines and grey background
+  theme(legend.title=element_blank(),  																	 			  # remove legend title
+        legend.position = c(0.9,0.8),                                           # specify legend position inside plot area
+        axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))   +       # rotated x axis labels for individual plots
+  scale_y_continuous(expand = expansion(mult = c(0, .1)))               +       # remove gap between bars and axis lines
+  theme(axis.text.x = element_text(size = 12),axis.text.y = element_text(size = 12),
+        axis.title.x = element_text(size = 14),axis.title.y = element_text(size = 14)) +
+  ggtitle("0E - 6 weeks post-release")       
+
+# facet_grid(rows=vars(id)) # if by individual
+
+
+
+# Save plot
+#setwd()
+ggsave("plot.jpg", width=15, height=15, units="cm", dpi=300)  ## UPDATE FILENAME
+
+
+
+
+
+# Resource selection strength plot
+ggplot(rss_dat, 	aes(x=habitat)) + 
+  geom_point(position=position_dodge(width=0.5), stat="identity", aes(y=exp(coef))) +
+  geom_hline(yintercept=1, linetype="dashed") +
+  geom_errorbar(aes(ymin=exp(conf.low), ymax=exp(conf.high)), colour="black", width=.1) +
+  labs(y = "Resource Selection Strength", x="\nHabitat") +								
+  theme_classic() +    		
+  scale_x_discrete(guide = guide_axis(angle = 45)) +
+  theme(axis.text.x = element_text(size = 12),axis.text.y = element_text(size = 12),
+        axis.title.x = element_text(size = 14),axis.title.y = element_text(size = 14),
+        strip.text.x = element_text(size = 12, face="bold")) + # update facet label
+  facet_grid(cols=vars(id)) +
+  ggtitle("All data") 
+
+# Save plot
+#setwd()
+ggsave("plot.jpg", width=15, height=15, units="cm", dpi=300)  ## UPDATE FILENAME
 
 
 
@@ -398,26 +438,44 @@ LogisticDx::gof(glm(case_ ~ LCM, data = na.omit(rsfdat), weight=w,family = binom
 #### UNUSED/TEST CODE ####
 
 
-#Ind hab models?
+## Note arbitrary trip, gap and gapsec added for now until clean_gps() function fixed - 
+# No significat gaps in data - treat as whole
 
-# Poorer fits and estimates similar to all hab model above since the reference level has no points can be ignored
-rsfdat$Saltmarsh <- ifelse(rsfdat$LCM == "Saltmarsh", 1, 0)
-rsfdat$Coastal <- ifelse(rsfdat$LCM == "Coastal sediment", 1, 0)
-rsfdat$Arable <- ifelse(rsfdat$LCM == "Arable", 1, 0)
-rsfdat$Grassland <- ifelse(rsfdat$LCM == "Grassland", 1, 0)
-rsfdat$Other <- ifelse(rsfdat$LCM == "Other", 1, 0)
+# temp gap fudge -- ONLY needed if loading through BTOTT and not cleaning
+#data$`Yf(0E)O/-:Y/m`$gap<-0; data$`Yf(3A)O/-:Y/m`$gap<-0
+#data$`Yf(0E)O/-:Y/m`$gapsec<-1; data$`Yf(3A)O/-:Y/m`$gapsec<-1
 
 
-####
+
+
+
+
+# Set 'Other' habitat as reference level for all habitat model - difference reference levels had large effect on results
+# so focal hab model against all other habitats pooled as reference used to determine selection
+rsfdat <- within(rsfdat, LCM <- relevel(LCM, ref = "Other"))
+
+m1<-glm(case_ ~ LCM, data = rsfdat %>% filter(id=="Yf(0E)O/-:Y/m"), weight=w,family = binomial)
+
+
+
 
 x11() # opening new plot window for manual saving avoided issues occurring 
 # with incorrect aspect ration and x axes displaying in main RStudio panel
 
-# Can open new plot window for manual saving for better aspect:ratio but less contorl over quality
+# Can open new plot window for manual saving for better aspect:ratio but less control over quality
 
 
 
+# Dummy reference variable?  - Not informative 'used' still comes out as positive and messes with weighting in model
+dummy<-rsfdat[1:400,]
+dummy$id<-c(rep(levels(dummy$id)[1],200), rep(levels(dummy$id)[2],200))
+dummy$case_<-c(rep(FALSE, 100), rep(TRUE, 100), rep(FALSE, 100), rep(TRUE, 100))
+dummy$x_<-555555
+dummy$y_<-333333
+dummy$LCM<-"Dummy"
+dummy$used<-c(rep(levels(dummy$used)[1],100), rep(levels(dummy$used)[2],100),rep(levels(dummy$used)[1],100), rep(levels(dummy$used)[2],100))
 
+  
 
 
 
@@ -460,4 +518,22 @@ sp::plot(ver_1_95[ver_1_95$id == "Yf(0E)O/-:Y/m",],add=TRUE)
 
 #scale_x_discrete(labels = c("Coastal", "Agriculture", "Mussel Bed", "Marine", "Urban", "Other", "Landfill")) +    # rename factor levels without editing original data
 
+
+
+
+
+# Temp nesting fix by individual before using unnest_legacy
+trk_id1<- trk %>%  filter(id=="Yf(0E)O/-:Y/m") %>% 
+  track_resample(rate = minutes(15), tolerance = minutes(3))
+
+trk_id2<- trk %>%  filter(id=="Yf(3A)O/-:Y/m") %>% 
+  track_resample(rate = minutes(15), tolerance = minutes(3))
+
+
+trk<-rbind(trk_id1, trk_id2)
+
+
+
+
+avail.pts <- trk_id2%>% random_points(factor = 20, type="random")
 
