@@ -132,10 +132,14 @@ data_6<-Track2TrackStack(rbind(dat1, dat2), by="TagID")
 # Basic visualisation of data
 plot_leaflet(data)
 
+# Interactive plot with tide data for output
+data$Tide<-as.character(fct_recode(data$tide, "High tide" = "HW", "Low tide" = "LW") )
+plot_leaflet_dev(data, TagID = "Yf(3A)O/-:Y/m", plotby="Tide") 
+
+
 
 
 #### TIME IN AREA -- AREA USE UTILISATION DISTRIBUTIONS
-
 
 # Set arbitrary 'Colony' location to facilitate later functions. Using central Snettisham location here
 # but not used to define trips away from central place for Curlew
