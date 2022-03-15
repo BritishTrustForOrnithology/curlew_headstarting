@@ -38,6 +38,7 @@ TagID<-c("Yf(0E)O/-:Y/m", "Yf(3A)O/-:Y/m")
 start<-c("2021-07-03 10:57:18", "2021-07-17 13:56:04")
 end_2<-c("2021-07-17 23:59:59", "2021-07-31 23:59:59") # First 2 weeks post-release
 end_6<-c("2021-08-14 23:59:59", "2021-08-28 23:59:59") # First 6 weeks post-release
+end_all<-c("2021-11-27 13:30:32","2021-09-27 16:16:11") # All data to end of first collection period when transmission stopped or 3A died
   
 # Loads for all time period
 data_all <- read_track_MB(TagID=TagID,repo=repo,start=NULL,end=NULL) 
@@ -100,7 +101,6 @@ data<-Track2TrackStack(data_tt, by="TagID")
 # Coerce required trip column (not running trip definition for this project as not central place)
 data$`Yf(0E)O/-:Y/m`$tripNo<-1; data$`Yf(3A)O/-:Y/m`$tripNo<-1
 
-data_all<-data # backup to filter from 
 
 
 # Filter work around for each ID to select time period
@@ -112,6 +112,9 @@ dat1<- TrackStack2Track(data_all) %>%  filter(TagID=="Yf(0E)O/-:Y/m") %>% filter
 dat2<- TrackStack2Track(data_all) %>%  filter(TagID=="Yf(3A)O/-:Y/m") %>% filter(DateTime<"2021-08-28 23:59:59")
 data_6<-Track2TrackStack(rbind(dat1, dat2), by="TagID")
 
+dat1<- TrackStack2Track(data_all) %>%  filter(TagID=="Yf(0E)O/-:Y/m") %>% filter(DateTime<"2021-11-27 23:59:59")
+dat2<- TrackStack2Track(data_all) %>%  filter(TagID=="Yf(3A)O/-:Y/m") %>% filter(DateTime<"2021-09-27 23:59:59")
+data_all<-Track2TrackStack(rbind(dat1, dat2), by="TagID")
 
 
 
@@ -132,9 +135,12 @@ data_6<-Track2TrackStack(rbind(dat1, dat2), by="TagID")
 # Basic visualisation of data
 plot_leaflet(data)
 
+
 # Interactive plot with tide data for output
-data$Tide<-as.character(fct_recode(data$tide, "High tide" = "HW", "Low tide" = "LW") )
-plot_leaflet_dev(data, TagID = "Yf(3A)O/-:Y/m", plotby="Tide") 
+data_tide<-TrackStack2Track(data)
+data_tide<-data_tide %>% filter(tide!="NA")
+data_tide$Tide<-as.character(fct_recode(data_tide$tide, "High tide" = "HW", "Low tide" = "LW") )
+plot_leaflet_dev(data_tide, TagID = "Yf(3A)O/-:Y/m", plotby="Tide") 
 
 
 
@@ -403,9 +409,8 @@ ggplot(.,  aes(x=LCM,group=used))                                       +	      
   scale_y_continuous(expand = expansion(mult = c(0, .1)))               +       # remove gap between bars and axis lines
   theme(axis.text.x = element_text(size = 12),axis.text.y = element_text(size = 12),
         axis.title.x = element_text(size = 14),axis.title.y = element_text(size = 14)) +
-  ggtitle("0E - 6 weeks post-release")       
-
-# facet_grid(rows=vars(id)) # if by individual
+  ggtitle("0E - 6 weeks post-release")       # +
+# facet_grid(rows=vars(tide)) # if by tide
 
 
 
