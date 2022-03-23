@@ -1,5 +1,4 @@
-#### NE106 -- Curlew headstarting -- post-release tracking
-## Draft code - work in progress
+#### NE103 -- Curlew headstarting -- post-release tracking
 ## Gary Clewley 
 
 
@@ -41,7 +40,7 @@ end_6<-c("2021-08-14 23:59:59", "2021-08-28 23:59:59") # First 6 weeks post-rele
 end_all<-c("2021-11-27 13:30:32","2021-09-27 16:16:11") # All data to end of first collection period when transmission stopped or 3A died
   
 # Loads for all time period
-data_all <- read_track_MB(TagID=TagID,repo=repo,start=NULL,end=NULL) 
+data_all <- read_track_MB(TagID=TagID,repo=repo,start=start,end=end_all) 
 data_2 <- read_track_MB(TagID=TagID,repo=repo,start=start,end=end_2)
 data_6 <- read_track_MB(TagID=TagID,repo=repo,start=start,end=end_6)
 
@@ -130,6 +129,8 @@ data_all<-Track2TrackStack(rbind(dat1, dat2), by="TagID")
 
 
 
+
+
 #### BTOTT TASKS ####
 
 # Basic visualisation of data
@@ -142,6 +143,12 @@ data_tide<-data_tide %>% filter(tide!="NA")
 data_tide$Tide<-as.character(fct_recode(data_tide$tide, "High tide" = "HW", "Low tide" = "LW") )
 plot_leaflet_dev(data_tide, TagID = "Yf(3A)O/-:Y/m", plotby="Tide") 
 
+
+
+# basic colour mark sightings plot using leaflet:: directly
+col_data<-read_csv("data/NE103_colour ring locations for mapping.csv")
+m<-leaflet(col_data) %>% addTiles()  %>%
+   addCircleMarkers(col_data$Long, col_data$Lat,radius=3, fillOpacity = 1, opacity = 1)
 
 
 
@@ -193,7 +200,7 @@ lab_lat<-seq(new_lat_lower, new_lat_upper,length.out=length(seq(min(yRa), max(yR
 
 setwd(here("outputs","figures")) # setwd() to save figures
 
-# Set plot device so daving hi-res base R maps
+# Set plot device so saving hi-res base R maps
 jpeg("Plot.jpeg", width = 15, height = 15, units = 'cm', res = 300) # UPDATE FILENAME
 
 
@@ -467,11 +474,6 @@ m1<-glm(case_ ~ LCM, data = rsfdat %>% filter(id=="Yf(0E)O/-:Y/m"), weight=w,fam
 
 
 
-
-x11() # opening new plot window for manual saving avoided issues occurring 
-# with incorrect aspect ration and x axes displaying in main RStudio panel
-
-# Can open new plot window for manual saving for better aspect:ratio but less control over quality
 
 
 
