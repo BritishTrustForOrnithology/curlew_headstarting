@@ -12,7 +12,7 @@
 # package_details <- c("package name 1", "package name 2")
 
 project_details <- list(project_name="curlew", output_version_date="2021_headstarting", workspace_version_date="2021_headstarting")
-package_details <- c("sf","tidyverse","patchwork","move","moveVis","RColorBrewer","viridisLite","rcartocolor","lubridate")
+package_details <- c("sf","tidyverse","patchwork","move","moveVis","RColorBrewer","viridisLite","rcartocolor","lubridate", "nlme", "ggeffects", "broom.mixed")
 seed_number <- 1
 
 
@@ -71,7 +71,7 @@ curve_age_mass <- ggplot(data = dt) +
   # scale_fill_carto_d(type = "qualitative", palette = "Bold") +
   scale_color_brewer(type = "qual", palette = "Dark2") +
   scale_fill_brewer(type = "qual", palette = "Dark2") +
-  labs(x = "Age (days)", y = "Weight (g)", title = "Curve of weight vs age per cohort group")
+  labs(x = "Age (days)", y = "Weight (g)", title = "Loess curve of weight vs age per cohort group")
 
 ggsave(paste0("age_weight_per_cohort_", today_date, ".png"), device = "png", path = outputwd, width = 30, height = 20, units = "cm")
 
@@ -81,7 +81,7 @@ curve_age_wing <- ggplot(data = dt) +
   geom_smooth(aes(y = wing, x = days_age, fill = cohort_num, colour = cohort_num)) +
   scale_color_brewer(type = "qual", palette = "Dark2") +
   scale_fill_brewer(type = "qual", palette = "Dark2") +
-  labs(x = "Age (days)", y = "Wing length (mm)", title = "Curve of wing length vs age per cohort group")
+  labs(x = "Age (days)", y = "Wing length (mm)", title = "Loess curve of wing length vs age per cohort group")
 
 ggsave(paste0("age_wing_per_cohort_", today_date, ".png"), device = "png", path = outputwd, width = 30, height = 20, units = "cm")
 
@@ -92,17 +92,19 @@ curve_weight_wing <- ggplot(data = dt) +
   geom_smooth(aes(y = weight, x = wing, fill = cohort_num, colour = cohort_num)) +
   scale_color_brewer(type = "qual", palette = "Dark2") +
   scale_fill_brewer(type = "qual", palette = "Dark2") +
-  labs(x = "Wing length (mm)", y = "Weight (g)", title = "Curve of weight vs wing length per cohort group")
+  labs(x = "Wing length (mm)", y = "Weight (g)", title = "Loess curve of weight vs wing length per cohort group")
 
 ggsave(paste0("weight_wing_per_cohort_", today_date, ".png"), device = "png", path = outputwd, width = 30, height = 20, units = "cm")
 
 hist(dt$age_released)
 
-# =======================    Growth trajectories - 2021 Pensthorpe birds   =================
+# =======================    Growth trajectories - 2021  =================
 
 # 2021 data from Pensthorpe
 
-# Linear weight vs age, with cohorts
+# ------  Exploratory growth trajectory plots & models  ----------
+
+# Linear weight vs age, with cohorts, simple lm
 linear_age_mass <- ggplot(data = dt) +
   geom_point(aes(y = weight, x = days_age, colour = cohort_num)) +
   geom_smooth(aes(y = weight, x = days_age, fill = cohort_num, colour = cohort_num), method = "lm") +
@@ -112,12 +114,12 @@ linear_age_mass <- ggplot(data = dt) +
 
 ggsave(paste0("lm_age_weight_per_cohort_", today_date, ".png"), device = "png", path = outputwd, width = 30, height = 20, units = "cm")
 
-# Weight vs age, no cohort grouping
-linear_age_mass <- ggplot(data = dt) +
-  geom_point(aes(y = weight, x = days_age)) +
-  geom_smooth(aes(y = weight, x = days_age), method = "lm") +
-  labs(x = "Age (days)", y = "Weight (g)", title = "Linear regression of weight vs age overall")
-ggsave(paste0("lm_age_weight_", today_date, ".png"), device = "png", path = outputwd, width = 30, height = 20, units = "cm")
+# # Weight vs age, no cohort grouping
+# linear_age_mass <- ggplot(data = dt) +
+#   geom_point(aes(y = weight, x = days_age)) +
+#   geom_smooth(aes(y = weight, x = days_age), method = "lm") +
+#   labs(x = "Age (days)", y = "Weight (g)", title = "Linear regression of weight vs age overall")
+# ggsave(paste0("lm_age_weight_", today_date, ".png"), device = "png", path = outputwd, width = 30, height = 20, units = "cm")
 
 # Model with cohort interaction
 mod_wt_age_coh <- lm(weight ~ days_age*cohort_num, data = dt)
@@ -128,6 +130,84 @@ mod_wt_age <- lm(weight ~ days_age, data = dt)
 summary(mod_wt_age)
 # Model forumula
 # weight = 222.797 + 6.357*days_age
+
+
+# ------  Formal growth trajectory model for final report  ----------
+
+# includes individual (ring number) as a random effect
+
+# -----  Weight vs age  -----
+# Model with cohort interaction and ring as a random effect
+mod_wt_age_coh_re <- nlme::lme(weight ~ days_age*cohort_num,
+                              random = ~ 1 + days_age|ring,
+                              data = dt)
+summary(mod_wt_age_coh_re)
+mod_coef_table <- summary(mod_wt_age_coh_re)$tTable
+write.csv(mod_coef_table, file.path(outputwd, "wt_age_mod_coef.csv"), row.names = TRUE)
+
+broom.mixed::tidy(mod_wt_age_coh_re) %>% filter(effect == "fixed") %>% dplyr::select(term:p.value)
+broom.mixed::glance(mod_wt_age_coh_re)
+
+# Use ggeffects package to get predicted fits to plot nicely
+mod_wt_re_pred <- ggeffects::ggpredict(mod_wt_age_coh_re,
+                                    terms = c("days_age","cohort_num"))
+plot_wt_mod_re_fits <- plot(mod_wt_re_pred, colors = "set1", add.data = TRUE) +
+  labs(
+    x = "Age (days)", 
+    y = "Weight (g)",
+    title = NULL,
+    colour = "Cohort number"
+  )
+
+png(file.path(outputwd, paste0("lme_age_weight_per_cohort_", today_date, ".png")),
+    width = 30, height = 20, units = "cm", res = 150)
+print(plot_wt_mod_re_fits)
+dev.off()
+
+
+# -----  Wing vs age  -----
+
+# Model with cohort interaction and ring as a random effect
+mod_wing_age_coh_re <- nlme::lme(wing ~ days_age*cohort_num,
+                               random = ~ 1 + days_age|ring,
+                               data = dt,
+                               na.action = na.omit)
+summary(mod_wing_age_coh_re)
+
+mod_coef_table <- summary(mod_wing_age_coh_re)$tTable
+write.csv(mod_coef_table, file.path(outputwd, "wing_age_mod_coef.csv"), row.names = TRUE)
+
+
+# Use ggeffects package to get predicted fits to plot nicely
+mod_wing_re_pred <- ggeffects::ggpredict(mod_wing_age_coh_re,
+                                       terms = c("days_age","cohort_num"))
+plot_wing_mod_re_fits <- plot(mod_wing_re_pred, colors = "set1", add.data = TRUE) +
+  labs(
+    x = "Age (days)", 
+    y = "Wing length (mm)",
+    title = NULL,
+    colour = "Cohort number"
+  )
+
+png(file.path(outputwd, paste0("lme_age_wing_per_cohort_", today_date, ".png")),
+    width = 30, height = 20, units = "cm", res = 150)
+print(plot_wing_mod_re_fits)
+dev.off()
+
+
+all_biometrics_plot <- plot_wt_mod_re_fits + plot_wing_mod_re_fits + 
+  plot_layout(guides = "collect") +
+  plot_annotation(
+    title = "Predicted (a) weight and (b) wing length relative to age for different release cohorts",
+    tag_levels = "a")
+
+png(file.path(outputwd, paste0("lme_age_biometrics_per_cohort_", today_date, ".png")),
+    width = 30, height = 12, units = "cm", res = 150)
+print(all_biometrics_plot)
+dev.off()
+
+# =======================    Growth trajectories - weight at release predictions - 2021   =================
+
 
 predict_weight <- dt %>% 
   filter(tag_gps_radio_none == "gps") %>% 
