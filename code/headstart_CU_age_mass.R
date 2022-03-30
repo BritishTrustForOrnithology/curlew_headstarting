@@ -136,7 +136,8 @@ summary(mod_wt_age)
 
 # includes individual (ring number) as a random effect
 
-# -----  Weight vs age  -----
+# -----  Weight vs age*cohort_num  -----
+
 # Model with cohort interaction and ring as a random effect
 mod_wt_age_coh_re <- nlme::lme(weight ~ days_age*cohort_num,
                               random = ~ 1 + days_age|ring,
@@ -165,7 +166,7 @@ print(plot_wt_mod_re_fits)
 dev.off()
 
 
-# -----  Wing vs age  -----
+# -----  Wing vs age*cohort_num  -----
 
 # Model with cohort interaction and ring as a random effect
 mod_wing_age_coh_re <- nlme::lme(wing ~ days_age*cohort_num,
@@ -204,6 +205,36 @@ all_biometrics_plot <- plot_wt_mod_re_fits + plot_wing_mod_re_fits +
 png(file.path(outputwd, paste0("lme_age_biometrics_per_cohort_", today_date, ".png")),
     width = 30, height = 12, units = "cm", res = 150)
 print(all_biometrics_plot)
+dev.off()
+
+
+
+# -----  Weight vs age  -----
+
+# Model with cohort interaction and ring as a random effect
+mod_wt_age_re <- nlme::lme(weight ~ days_age,
+                               random = ~ 1 + days_age|ring,
+                               data = dt)
+summary(mod_wt_age_re)
+mod_coef_table <- summary(mod_wt_age_re)$tTable
+write.csv(mod_coef_table, file.path(outputwd, "wt_age_mod_coef.csv"), row.names = TRUE)
+
+broom.mixed::tidy(mod_wt_age_re) %>% filter(effect == "fixed") %>% dplyr::select(term:p.value)
+broom.mixed::glance(mod_wt_age_coh_re)
+
+# Use ggeffects package to get predicted fits to plot nicely
+mod_wt_re_pred <- ggeffects::ggpredict(mod_wt_age_re,
+                                       terms = c("days_age"))
+plot_wt_mod_re_fits <- plot(mod_wt_re_pred,  add.data = TRUE) +
+  labs(
+    x = "Age (days)", 
+    y = "Weight (g)",
+    title = NULL
+  )
+
+png(file.path(outputwd, paste0("lme_age_weight_mean_", today_date, ".png")),
+    width = 30, height = 20, units = "cm", res = 150)
+print(plot_wt_mod_re_fits)
 dev.off()
 
 # =======================    Growth trajectories - weight at release predictions - 2021   =================
