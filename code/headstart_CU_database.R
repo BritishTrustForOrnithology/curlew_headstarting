@@ -13,7 +13,7 @@
 # project_details <- list(project_name, output_version_name, workspace_version_name)
 # package_details <- c("package name 1", "package name 2")
 
-project_details <- list(project_name="curlew", output_version_date="2021_headstarting", workspace_version_date="2021_headstarting")
+project_details <- list(project_name="curlew", output_version_date="2022_headstarting", workspace_version_date="2022_headstarting")
 package_details <- c("sf","tidyverse","patchwork","move","moveVis","RColorBrewer","viridisLite","rcartocolor","lubridate")
 seed_number <- 1
 
