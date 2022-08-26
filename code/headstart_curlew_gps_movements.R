@@ -44,13 +44,30 @@ source(file.path("code/source_setup_code_rproj.R"))
 
 current_year <- 2022
 today_date <- Sys.Date()
-cohort_num <- 1
+set_cohort_num <- c(1,2,3,4)
+separate_sites <- TRUE
+set_fix_rate <- 30
+animated_vis <- FALSE
+static_vis <- TRUE
+bird_flag_list <- c("6Y",
+                    "7K",
+                    "8K",
+                    "7Y",
+                    "8L",
+                    "6X",
+                    "7E",
+                    "8E",
+                    "7U",
+                    "8X",
+                    "9L",
+                    "9J")
+migrant_list <- c("6Y")
 
 # mapping controls
 file_format <- "mp4"   # various formats available in MoveVis package, if you've got a long animation, gif file size is huge, mp4s are much smaller
 map_service <- "mapbox"   # choose which map service, I've used osm and mapbox (satellite imagery)
 map_style <- "satellite" # choose map style (terrain vs satellite)
-set_fps <- 20
+set_fps <- 25
 confidential <- TRUE   # strips lat/lon axis labels from map
 
 # =======================    Load data   =================
@@ -98,8 +115,12 @@ all_tags <- all_tags %>%
   mutate(new_datetime_min = format(new_datetime,format='%Y-%m-%d %H:%M')) %>% 
   mutate(flag_id = substr(individual_local_identifier, 4, 5)) %>% 
   left_join(dt_meta_tags, by="flag_id") %>% 
-  mutate(plot_label = paste("bird", flag_id, release_location, sep="_")) %>% 
+  mutate(plot_label = paste(release_location, "cohort", cohort_num, flag_id, sep="_")) %>% 
   mutate(plot_label = str_replace_all(plot_label, " ", "_"))
+
+# manually filter out erroneous point for 8E using event_id
+all_tags <- all_tags %>% 
+  filter(event_id != 23414031453)
 
 # # add time since midnight
 # clocks <-  function(t){hour(t)*3600+minute(t)*60+second(t)}
@@ -129,410 +150,487 @@ all_tags <- all_tags %>%
 
 # =======================    Plot data   =================
 
-site_list <- c("Ken Hill", "Sandringham")
 
-for (s in site_list) {
+# Animated visualisations all birds together & per site -----------------
+
+if (animated_vis) {
   
-  # Ken Hill -----------------
+  # Separate sites -----------------
   
-  # fix rate controls downsampling of data, in minutes
-  # Could set to 15 if you have high res data, but trade off in terms of long rendering time
-  site <- s
-  fix_rate <- 30
-  
-  # filter movement data to site, cohort, post-release date times
-  bird_df <- all_tags %>% 
-    filter(release_location == site) %>% 
-    filter(cohort_num == cohort_num) %>% 
-    filter(new_datetime >= strptime(paste(dmy(release_date), "09:00:00"), format = "%Y-%m-%d %H:%M:%S", tz="UTC"))
-  
-  num_days_vis <- floor(max(bird_df$new_datetime) - min(bird_df$new_datetime))
-  
-  message("Creating visualisation for ", site, " using a fix rate of ", fix_rate, " minutes. Visualisation runs from ", min(bird_df$new_datetime), " to ", max(bird_df$new_datetime), " over a time period of ", num_days_vis, " days.........\n\n\n")
-  
-  # subset to only relevant columns needed to plot movements
-  # filter to high satellite counts only (4+)
-  # convert to move object
-  bird_df_move <- bird_df %>% 
-    filter(gps_satellite_count >= 3) %>% 
-    dplyr::select(plot_label, new_datetime, location_lat, location_long) %>% 
-    df2move(proj = "+init=epsg:4326 +proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0",
-            x = "location_long",
-            y = "location_lat",
-            time = "new_datetime",
-            track_id = "plot_label"
-    )
-  
-  # align move_data to a uniform time scale
-  m <- align_move(bird_df_move, res = fix_rate, unit = "mins")
-  
-  # set path colours
-  path_colours <- viridis(length(bird_df %>%
-                                   distinct(plot_label) %>%
-                                   pull)
-  )
-  # trace_colours <- viridis(length(bird_df %>%
-  #                                   distinct(plot_label) %>%
-  #                                   pull),
-  #                          alpha = 0.2
-  # )
-  
-  # create spatial frames with a OpenStreetMap terrain map
-  frames <- frames_spatial(m, path_colours = path_colours,
-                           map_service = map_service, 
-                           map_type = map_style,
-                           map_token = ifelse(map_service == "mapbox", "pk.eyJ1Ijoic2ZyYW5rczgyIiwiYSI6ImNrcmZkb2QybDVla2wyb254Y2ptZnlqb3UifQ.YNOfGD1SeRMZJDur73Emyg", ""),
-                           alpha = 0.5,
-                           # equidistant = ifelse(site == "Ken Hill", TRUE, FALSE),
-                           
-                           path_legend = TRUE,
-                           path_legend_title = paste(site, "birds"),
-                           
-                           # tail_size = 1.2,
-                           tail_length = 20 #,
-                           # trace_show = TRUE,
-                           # trace_colour = trace_colours
-                           
-  ) %>%
+  if (separate_sites) {
     
-    # add some customizations, such as axis labels
-    # add_labels(x = "Longitude", y = "Latitude") %>% 
-    add_northarrow() %>%
-    add_scalebar() %>%
-    add_timestamps(m, type = "label") %>%
-    add_progress() %>% 
-    add_gg(gg = expr(list(
-      theme(axis.text = element_blank(),
-            axis.title = element_blank(),
-            axis.ticks = element_blank()
-      ))))
-  
-  # bto_logo <- png::readPNG(file.path(datawd, "C1-BTO-master-logo-portrait-(no-strap).png"))
-  # bto_rast <- grid::rasterGrob(bto_logo, interpolate=TRUE)
-  # 
-  # frames <- frames %>% 
-  #   add_gg(frames,
-  #          gg = expr(list(
-  #            annotation_custom(bto_rast,
-  #                              xmin=max(m$x)+0.002, xmax= max(m$x) + 0.009,
-  #                              ymin= max(m$y)-0.005, ymax= max(m$y) + 0.008)
-  #          )))
-  
-  frames <- frames %>% 
-    add_gg(gg = expr(list(
-      labs(caption="\u00A9 British Trust for Ornithology",
-           title = paste("Norfolk headstarted curlew", current_year))
-    )))
-  
-  
-  # preview one of the frames, e.g. the 100th frame
-  frames[[100]]
-  
-  if (file_format %in% "gif") {
-    animate_frames(frames, out_file = file.path(outputwd, paste0(site, "_", map_style, "_with-longer-tail_", today_date, ".", file_format)),
-                   # overwrite = TRUE,
-                   # fps = 10
-    )
+    site_list <- c("Sandringham", "Ken Hill")
+    # site_list <- c("Ken Hill")
+    
+    for (s in site_list) {
+      
+      # fix rate controls downsampling of data, in minutes
+      # Could set to 15 if you have high res data, but trade off in terms of long rendering time
+      site <- s
+      fix_rate <- set_fix_rate
+      
+      # filter movement data to site, cohort, post-release date times
+      bird_df <- all_tags %>% 
+        filter(release_location == site) %>% 
+        # filter(cohort_num %in% set_cohort_num) %>% 
+        filter(new_datetime >= strptime(paste(dmy(release_date), "09:00:00"), format = "%Y-%m-%d %H:%M:%S", tz="UTC"))
+      # filter(new_datetime >= dmy("08-08-2022"))
+      
+      num_days_vis <- floor(max(bird_df$new_datetime) - min(bird_df$new_datetime))
+      
+      message("Creating visualisation for ", site, " using a fix rate of ", fix_rate, " minutes. Includes ", length(unique(bird_df$individual_local_identifier)), " individuals:\n\n",
+              paste(unique(bird_df$individual_local_identifier), collapse = "\n"),
+              "\n\nVisualisation runs from ", min(bird_df$new_datetime), " to ", max(bird_df$new_datetime), " over a time period of ", num_days_vis, " days.........\n\n\n")
+      
+      # subset to only relevant columns needed to plot movements
+      # filter to high satellite counts only (4+)
+      # convert to move object
+      bird_df_move <- bird_df %>% 
+        filter(gps_satellite_count >= 3) %>% 
+        dplyr::select(plot_label, new_datetime, location_lat, location_long) %>% 
+        df2move(proj = "+init=epsg:4326 +proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0",
+                x = "location_long",
+                y = "location_lat",
+                time = "new_datetime",
+                track_id = "plot_label"
+        )
+      
+      # align move_data to a uniform time scale
+      m <- align_move(bird_df_move, res = fix_rate, unit = "mins")
+      
+      # set path colours
+      path_colours <- viridis(length(bird_df %>%
+                                       distinct(plot_label) %>%
+                                       pull)
+      )
+      # trace_colours <- viridis(length(bird_df %>%
+      #                                   distinct(plot_label) %>%
+      #                                   pull),
+      #                          alpha = 0.2
+      # )
+      
+      # create spatial frames with a OpenStreetMap terrain map
+      frames <- frames_spatial(m, path_colours = path_colours,
+                               map_service = map_service, 
+                               map_type = map_style,
+                               map_token = ifelse(map_service == "mapbox", "pk.eyJ1Ijoic2ZyYW5rczgyIiwiYSI6ImNrcmZkb2QybDVla2wyb254Y2ptZnlqb3UifQ.YNOfGD1SeRMZJDur73Emyg", ""),
+                               alpha = 0.5,
+                               # equidistant = ifelse(site == "Ken Hill", TRUE, FALSE),
+                               equidistant = FALSE,
+                               
+                               path_legend = TRUE,
+                               path_legend_title = paste(site, "birds"),
+                               
+                               # tail_size = 1.2,
+                               tail_length = 20 #,
+                               # trace_show = TRUE,
+                               # trace_colour = trace_colours
+                               
+      ) %>%
+        
+        # add some customizations, such as axis labels
+        # add_labels(x = "Longitude", y = "Latitude") %>% 
+        add_northarrow() %>%
+        add_scalebar() %>%
+        add_timestamps(m, type = "label") %>%
+        add_progress() %>% 
+        add_gg(gg = expr(list(
+          theme(axis.text = element_blank(),
+                axis.title = element_blank(),
+                axis.ticks = element_blank()
+          ))))
+      
+      # bto_logo <- png::readPNG(file.path(datawd, "C1-BTO-master-logo-portrait-(no-strap).png"))
+      # bto_rast <- grid::rasterGrob(bto_logo, interpolate=TRUE)
+      # 
+      # frames <- frames %>% 
+      #   add_gg(frames,
+      #          gg = expr(list(
+      #            annotation_custom(bto_rast,
+      #                              xmin=max(m$x)+0.002, xmax= max(m$x) + 0.009,
+      #                              ymin= max(m$y)-0.005, ymax= max(m$y) + 0.008)
+      #          )))
+      
+      frames <- frames %>% 
+        add_gg(gg = expr(list(
+          labs(caption="\u00A9 British Trust for Ornithology",
+               title = paste("Norfolk headstarted curlew", current_year))
+        )))
+      
+      
+      # preview one of the frames, e.g. the 100th frame
+      frames[[800]]
+      
+      if (file_format %in% "gif") {
+        animate_frames(frames, out_file = file.path(outputwd, paste0(site, "_", map_style, "_with-longer-tail_", today_date, ".", file_format)),
+                       height = 800,
+                       width = ifelse(site %in% "Sandringham", 1200, 800),
+        )
+        
+      }
+      
+      if (file_format %in% "mp4") {
+        
+        # animate frames
+        animate_frames(frames,
+                       out_file = file.path(outputwd, paste0(site, "_", map_style, "_with-longer-tail_", today_date, ".", file_format)),
+                       overwrite = TRUE,
+                       height = 800,
+                       width = ifelse(site %in% "Sandringham", 1200, 800),
+                       fps = set_fps
+        )
+      }
+      
+      
+      # # create separate pngs to then stitch together with gifski
+      # move_animation_dir <- file.path(outputwd, site)
+      # if (!dir.exists((move_animation_dir))) dir.create(move_animation_dir)
+      # 
+      # names(frames_Ken_Hill) <- paste0("frame_", 1:length(frames_Ken_Hill))
+      # 
+      # lapply(names(frames_Ken_Hill), function(f) {
+      #   
+      #   ggsave(
+      #     frames_Ken_Hill[[f]],
+      #     filename = paste0(f,".png"),
+      #     device="png",
+      #     path = move_animation_dir,
+      #     height = 8,
+      #     width = 8,
+      #     units = "in",
+      #     dpi=150)
+      #   
+      # }) %>% invisible
+      # 
+      # # use the gifski package to render gif of png files
+      # png_files <- dir(move_animation_dir, pattern = ".*png$", full.names = TRUE)
+      # gifski(png_files, gif_file = file.path(outputwd, paste0(map_i, ".gif")), width = 960, height = 672, delay = 1, loop = TRUE, progress = TRUE)
+      
+    }
     
   }
   
-  if (file_format %in% "mp4") {
+  
+  # Sites together -----------------
+  
+  if (!separate_sites) {
     
-    # animate frames
-    animate_frames(frames,
-                   out_file = file.path(outputwd, paste0(site, "_", map_style, "_with-longer-tail_", today_date, ".", file_format)),
-                   overwrite = TRUE,
-                   fps = set_fps
+    # fix rate controls downsampling of data, in minutes
+    # Could set to 15 if you have high res data, but trade off in terms of long rendering time
+    site <- "all release sites"
+    fix_rate <- set_fix_rate
+    
+    # filter movement data to site, cohort, post-release date times
+    bird_df <- all_tags %>% 
+      # filter(release_location == site) %>% 
+      # filter(cohort_num %in% cohort_num) %>% 
+      filter(new_datetime >= strptime(paste(dmy(release_date), "09:00:00"), format = "%Y-%m-%d %H:%M:%S", tz="UTC"))
+    # filter(new_datetime >= dmy("08-08-2022"))
+    
+    num_days_vis <- floor(max(bird_df$new_datetime) - min(bird_df$new_datetime))
+    
+    message("Creating visualisation for ", site, " using a fix rate of ", fix_rate, " minutes. Includes ", length(unique(bird_df$individual_local_identifier)), " individuals:\n\n",
+            paste(unique(bird_df$individual_local_identifier), collapse = "\n"),
+            "\n\nVisualisation runs from ", min(bird_df$new_datetime), " to ", max(bird_df$new_datetime), " over a time period of ", num_days_vis, " days.........\n\n\n")
+    
+    # subset to only relevant columns needed to plot movements
+    # filter to high satellite counts only (4+)
+    # convert to move object
+    bird_df_move <- bird_df %>% 
+      filter(gps_satellite_count >= 3) %>% 
+      dplyr::select(plot_label, new_datetime, location_lat, location_long) %>% 
+      df2move(proj = "+init=epsg:4326 +proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0",
+              x = "location_long",
+              y = "location_lat",
+              time = "new_datetime",
+              track_id = "plot_label"
+      )
+    
+    # align move_data to a uniform time scale
+    m <- align_move(bird_df_move, res = fix_rate, unit = "mins")
+    
+    # set path colours
+    path_colours <- viridis(length(bird_df %>%
+                                     distinct(plot_label) %>%
+                                     pull)
     )
+    # trace_colours <- viridis(length(bird_df %>%
+    #                                   distinct(plot_label) %>%
+    #                                   pull),
+    #                          alpha = 0.2
+    # )
+    
+    # create spatial frames with a OpenStreetMap terrain map
+    frames <- frames_spatial(m, path_colours = path_colours,
+                             map_service = map_service, 
+                             map_type = map_style,
+                             map_token = ifelse(map_service == "mapbox", "pk.eyJ1Ijoic2ZyYW5rczgyIiwiYSI6ImNrcmZkb2QybDVla2wyb254Y2ptZnlqb3UifQ.YNOfGD1SeRMZJDur73Emyg", ""),
+                             alpha = 0.5,
+                             # equidistant = ifelse(site == "Ken Hill", TRUE, FALSE),
+                             equidistant = FALSE,
+                             
+                             path_legend = TRUE,
+                             path_legend_title = paste(site, "birds"),
+                             
+                             # tail_size = 1.2,
+                             tail_length = 20 #,
+                             # trace_show = TRUE,
+                             # trace_colour = trace_colours
+                             
+    ) %>%
+      
+      # add some customizations, such as axis labels
+      # add_labels(x = "Longitude", y = "Latitude") %>% 
+      add_northarrow() %>%
+      add_scalebar() %>%
+      add_timestamps(m, type = "label") %>%
+      add_progress() %>% 
+      add_gg(gg = expr(list(
+        theme(axis.text = element_blank(),
+              axis.title = element_blank(),
+              axis.ticks = element_blank()
+        ))))
+    
+    # bto_logo <- png::readPNG(file.path(datawd, "C1-BTO-master-logo-portrait-(no-strap).png"))
+    # bto_rast <- grid::rasterGrob(bto_logo, interpolate=TRUE)
+    # 
+    # frames <- frames %>% 
+    #   add_gg(frames,
+    #          gg = expr(list(
+    #            annotation_custom(bto_rast,
+    #                              xmin=max(m$x)+0.002, xmax= max(m$x) + 0.009,
+    #                              ymin= max(m$y)-0.005, ymax= max(m$y) + 0.008)
+    #          )))
+    
+    frames <- frames %>% 
+      add_gg(gg = expr(list(
+        labs(caption="\u00A9 British Trust for Ornithology",
+             title = paste("Norfolk headstarted curlew", current_year))
+      )))
+    
+    
+    # preview one of the frames, e.g. the 100th frame
+    frames[[800]]
+    
+    if (file_format %in% "gif") {
+      animate_frames(frames, out_file = file.path(outputwd, paste0(site, "_", map_style, "_with-longer-tail_", today_date, ".", file_format)),
+                     height = 800,
+                     width = ifelse(site %in% c("Sandringham", "all release sites"), 1200, 800),
+      )
+      
+    }
+    
+    if (file_format %in% "mp4") {
+      
+      # animate frames
+      animate_frames(frames,
+                     out_file = file.path(outputwd, paste0(site, "_", map_style, "_with-longer-tail_", today_date, ".", file_format)),
+                     overwrite = TRUE,
+                     height = 800,
+                     width = ifelse(site %in% c("Sandringham", "all release sites"), 1200, 800),
+                     fps = set_fps
+      )
+    }
+    
+    
+    # # create separate pngs to then stitch together with gifski
+    # move_animation_dir <- file.path(outputwd, site)
+    # if (!dir.exists((move_animation_dir))) dir.create(move_animation_dir)
+    # 
+    # names(frames_Ken_Hill) <- paste0("frame_", 1:length(frames_Ken_Hill))
+    # 
+    # lapply(names(frames_Ken_Hill), function(f) {
+    #   
+    #   ggsave(
+    #     frames_Ken_Hill[[f]],
+    #     filename = paste0(f,".png"),
+    #     device="png",
+    #     path = move_animation_dir,
+    #     height = 8,
+    #     width = 8,
+    #     units = "in",
+    #     dpi=150)
+    #   
+    # }) %>% invisible
+    # 
+    # # use the gifski package to render gif of png files
+    # png_files <- dir(move_animation_dir, pattern = ".*png$", full.names = TRUE)
+    # gifski(png_files, gif_file = file.path(outputwd, paste0(map_i, ".gif")), width = 960, height = 672, delay = 1, loop = TRUE, progress = TRUE)
+    
   }
-  
-  
-  # # create separate pngs to then stitch together with gifski
-  # move_animation_dir <- file.path(outputwd, site)
-  # if (!dir.exists((move_animation_dir))) dir.create(move_animation_dir)
-  # 
-  # names(frames_Ken_Hill) <- paste0("frame_", 1:length(frames_Ken_Hill))
-  # 
-  # lapply(names(frames_Ken_Hill), function(f) {
-  #   
-  #   ggsave(
-  #     frames_Ken_Hill[[f]],
-  #     filename = paste0(f,".png"),
-  #     device="png",
-  #     path = move_animation_dir,
-  #     height = 8,
-  #     width = 8,
-  #     units = "in",
-  #     dpi=150)
-  #   
-  # }) %>% invisible
-  # 
-  # # use the gifski package to render gif of png files
-  # png_files <- dir(move_animation_dir, pattern = ".*png$", full.names = TRUE)
-  # gifski(png_files, gif_file = file.path(outputwd, paste0(map_i, ".gif")), width = 960, height = 672, delay = 1, loop = TRUE, progress = TRUE)
-  
   
 }
 
-# # Sandringham -----------------
-# 
-# # fix rate controls downsampling of data, in minutes
-# # Could set to 15 if you have high res data, but trade off in terms of long rendering time
-# site <- "Sandringham"
-# fix_rate <- 30     
-# 
-# # filter movement data to site, cohort, post-release date times
-# bird_df <- all_tags %>% 
-#   filter(release_location == site) %>% 
-#   filter(cohort_num == cohort_num) %>% 
-#   filter(new_datetime >= strptime(paste(dmy(release_date), "09:00:00"), format = "%Y-%m-%d %H:%M:%S", tz="UTC"))
-# 
-# # subset to only relevant columns needed to plot movements
-# # filter to high satellite counts only (4+)
-# # convert to move object
-# bird_df_move <- bird_df %>% 
-#   filter(gps_satellite_count >= 3) %>% 
-#   dplyr::select(plot_label, new_datetime, location_lat, location_long) %>% 
-#   df2move(proj = "+init=epsg:4326 +proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0",
-#           x = "location_long",
-#           y = "location_lat",
-#           time = "new_datetime",
-#           track_id = "plot_label"
-#   )
-# 
-# # align move_data to a uniform time scale
-# m <- align_move(bird_df_move, res = fix_rate, unit = "mins")
-# 
-# # set path colours
-# path_colours <- viridis(length(bird_df %>% 
-#                                  distinct(plot_label) %>% 
-#                                  pull)
-# )
-# # trace_colours <- viridis(length(bird_df %>% 
-# #                                   distinct(plot_label) %>% 
-# #                                   pull),
-# #                          alpha = 0.5
-# # )
-# 
-# # create spatial frames with a OpenStreetMap terrain map
-# frames_Sandringham <- frames_spatial(m, path_colours = path_colours,
-#                                      map_service = map_service, 
-#                                      map_type = map_style,
-#                                      map_token = ifelse(map_service == "mapbox", "pk.eyJ1Ijoic2ZyYW5rczgyIiwiYSI6ImNrcmZkb2QybDVla2wyb254Y2ptZnlqb3UifQ.YNOfGD1SeRMZJDur73Emyg", ""),
-#                                      alpha = 0.5,
-#                                      equidistant = ifelse(site == "Ken Hill", TRUE, FALSE),
-#                                      
-#                                      path_legend = TRUE,
-#                                      path_legend_title = paste(site, "birds"),
-#                                      
-#                                      # tail_size = 1.2,
-#                                      tail_length = 20 #,
-#                                      # trace_show = TRUE,
-#                                      # trace_colour = trace_colours
-# ) %>%
-#   
-#   # add some customizations, such as axis labels
-#   # add_labels(x = "Longitude", y = "Latitude") %>%
-#   add_northarrow() %>%
-#   add_scalebar() %>%
-#   add_timestamps(m, type = "label") %>%
-#   add_progress() %>% 
-#   add_gg(gg = expr(list(
-#     theme(axis.text = element_blank(),
-#           axis.title = element_blank(),
-#           axis.ticks = element_blank()
-#     ))))
-# 
-# 
-# bto_logo <- png::readPNG(file.path(datawd, "C1-BTO-master-logo-portrait-(no-strap).png"))
-# bto_rast <- grid::rasterGrob(bto_logo, interpolate=TRUE)
-# 
-# frames_Sandringham <- add_gg(frames_Sandringham,
-#                              gg = expr(list(
-#                                annotation_custom(bto_rast,
-#                                                  xmin=max(m$x) - 0.03, xmax= max(m$x) + 0.005,
-#                                                  ymin= max(m$y) - 0.03, ymax= max(m$y) + 0.01)
-#                              ))) %>% 
-#   add_gg(gg = expr(list(
-#     labs(caption="\u00A9 British Trust for Ornithology",
-#          title = paste("Norfolk headstarted curlew", current_year))
-#   )))
-# 
-# # preview one of the frames
-# frames_Sandringham[[300]]
-# 
-# # animate frames
-# animate_frames(frames_Sandringham,
-#                out_file = file.path(outputwd, paste0(site, "_", map_style, "_with-longer-tail_", today_date, ".", file_format)),
-#                overwrite = TRUE,
-#                fps = 10
-# )
 
+# Static visualisation   -----------------
 
-###################################
-###################################
-###################################
-###################################
-###################################
+final_frame_list <- list()
 
+if (static_vis) {
+  
+  for (b in bird_flag_list) {
+    
+    fix_rate <- set_fix_rate
+    
+    # filter movement data to site, cohort, post-release date times
+    bird_df <- all_tags %>% 
+      filter(flag_id %in% b) %>% 
+      filter(new_datetime >= strptime(paste(dmy(release_date), "09:00:00"), format = "%Y-%m-%d %H:%M:%S", tz="UTC"))
+    
+    num_days_vis <- floor(max(bird_df$new_datetime) - min(bird_df$new_datetime))
+    
+    message("Creating visualisation for ", b, " using a fix rate of ", fix_rate, " minutes. Includes ", length(unique(bird_df$individual_local_identifier)), " individual(s):\n\n",
+            paste(unique(bird_df$individual_local_identifier), collapse = "\n"),
+            "\n\nVisualisation runs from ", min(bird_df$new_datetime), " to ", max(bird_df$new_datetime), " over a time period of ", num_days_vis, " days.........\n\n\n")
+    
+    
+    # subset to only relevant columns needed to plot movements
+    # filter to high satellite counts only (4+)
+    # convert to move object
+    bird_df_move <- bird_df %>% 
+      filter(gps_satellite_count >= 3) %>% 
+      dplyr::select(plot_label, new_datetime, location_lat, location_long) %>% 
+      df2move(proj = "+init=epsg:4326 +proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0",
+              x = "location_long",
+              y = "location_lat",
+              time = "new_datetime",
+              track_id = "plot_label"
+      )
+    
+    # align move_data to a uniform time scale
+    m <- align_move(bird_df_move, res = fix_rate, unit = "mins")
+    
+    # set map aesthetics
+    path_col <- "orangered"
+    tail_trace_col <- "orange"
+    
+    # set map extent, conditional on if bird has migrated away from Wash
+    centroid_wash <- data.frame(long = 0.33104897, lat = 52.921168)
+    
+    if (b %in% migrant_list) {
+      set_extent <- extent(centroid_wash$long - 5,
+                           centroid_wash$long + 1,
+                           centroid_wash$lat - 1, 
+                           centroid_wash$lat + 1)
+    } else {
+      set_extent <- extent(centroid_wash$long - 0.5,
+                           centroid_wash$long + 0.6,
+                           centroid_wash$lat - 0.25, 
+                           centroid_wash$lat + 0.25)
+    }
+    
+    
+    
+    
+    # create spatial frames with a OpenStreetMap terrain map
+    frames <- frames_spatial(m, path_colours = path_col,
+                             map_service = map_service,
+                             map_type = map_style,
+                             # map_service = "osm",
+                             # map_type = "watercolor",
+                             map_token = ifelse(map_service == "mapbox", "pk.eyJ1Ijoic2ZyYW5rczgyIiwiYSI6ImNrcmZkb2QybDVla2wyb254Y2ptZnlqb3UifQ.YNOfGD1SeRMZJDur73Emyg", ""),
+                             alpha = 0.8,
+                             equidistant = FALSE,
+                             path_legend = FALSE,
+                             tail_size = 1.2,
+                             trace_show = TRUE,
+                             trace_colour = tail_trace_col,
+                             ext = set_extent,
+                             
+    ) %>%
+      
+      # add some customizations, such as axis labels
+      # add_labels(x = "Longitude", y = "Latitude") %>% 
+      # add_northarrow() %>%
+      add_scalebar(distance = ifelse(b %in% migrant_list, 50, 10)) %>%
+      add_timestamps(m, type = "label") %>%
+      add_progress() %>% 
+      add_gg(gg = expr(list(
+        theme(axis.text = element_blank(),
+              axis.title = element_blank(),
+              axis.ticks = element_blank()
+        ))))
+    
+    # bto_logo <- png::readPNG(file.path(datawd, "C1-BTO-master-logo-portrait-(no-strap).png"))
+    # bto_rast <- grid::rasterGrob(bto_logo, interpolate=TRUE)
+    # 
+    # frames <- frames %>% 
+    #   add_gg(frames,
+    #          gg = expr(list(
+    #            annotation_custom(bto_rast,
+    #                              xmin=max(m$x)+0.002, xmax= max(m$x) + 0.009,
+    #                              ymin= max(m$y)-0.005, ymax= max(m$y) + 0.008)
+    #          )))
+    
+    frames <- frames %>% 
+      add_gg(gg = expr(list(
+        labs(caption="\u00A9 British Trust for Ornithology" ,
+             title = paste(unique(bird_df$plot_label))
+        )
+      )))
+    
+    
+    # preview one of the frames, e.g. the 100th frame
+    frames[[length(frames)]]
+    final_frame_list[[b]] <- frames[[length(frames)]]
+    
+    # create separate pngs to then stitch together with gifski
+    move_static_dir <- file.path(outputwd, "static_vis")
+    if (!dir.exists((move_static_dir))) dir.create(move_static_dir)
+    
+    ggsave(
+      frames[[length(frames)]],
+      filename = paste0("last_frame_", b, ".png"),
+      device="png",
+      path = move_static_dir,
+      height = 8,
+      width = 8,
+      units = "in",
+      dpi=150
+    )
+    
+    # lapply(names(frames_Ken_Hill), function(f) {
+    #   
+    #   ggsave(
+    #     frames_Ken_Hill[[f]],
+    #     filename = paste0(f,".png"),
+    #     device="png",
+    #     path = move_animation_dir,
+    #     height = 8,
+    #     width = 8,
+    #     units = "in",
+    #     dpi=150)
+    #   
+    # }) %>% invisible
+    # 
+    # # use the gifski package to render gif of png files
+    # png_files <- dir(move_animation_dir, pattern = ".*png$", full.names = TRUE)
+    # gifski(png_files, gif_file = file.path(outputwd, paste0(map_i, ".gif")), width = 960, height = 672, delay = 1, loop = TRUE, progress = TRUE)
+    
+    
+    # animate_frames(frames, out_file = file.path(outputwd, paste0("Breckland_2022_", map_style, "_with-longer-tail_", today_date, ".", file_format)),
+    #                # overwrite = TRUE,
+    #                # fps = 10
+    # )
+    
+  }
+  
+}
 
-# # create separate pngs to then stitch together with gifski
-# move_animation_dir <- file.path(outputwd, site)
-# if (!dir.exists((move_animation_dir))) dir.create(move_animation_dir)
-# 
-# names(frames_Sandringham) <- paste0("frame_", 1:length(frames_Sandringham))
-# 
-# lapply(names(frames_Sandringham), function(f) {
-#   
-#   ggsave(
-#     frames_Sandringham[[f]],
-#     filename = paste0(f,".png"),
-#     device="png",
-#     path = move_animation_dir,
-#     height = 8,
-#     width = 8,
-#     units = "in",
-#     dpi=150)
-#   
-# }) %>% invisible
+plot_a_list <- function(master_list_with_plots, no_of_rows, no_of_cols) {
+  patchwork::wrap_plots(master_list_with_plots, 
+                        nrow = no_of_rows, ncol = no_of_cols)
+}
 
-# 
-# if (site %in% "Ken Hill") {
-#   
-#   if (map_style %in% "satellite") {
-#     frames <- m %>% 
-#       frames_spatial(path_colours = c("orangered"),
-#                      map_service = "mapbox",
-#                      map_type = map_style,
-#                      map_token = "pk.eyJ1Ijoic2ZyYW5rczgyIiwiYSI6ImNrcmZkb2QybDVla2wyb254Y2ptZnlqb3UifQ.YNOfGD1SeRMZJDur73Emyg",
-#                      tail_colour = "orange",
-#                      tail_size = 1.2,
-#                      trace_show = TRUE,
-#                      trace_colour = "orange",
-#                      equidistant = FALSE
-#       )  %>% 
-#       add_gg(gg = expr(list(
-#         theme(
-#           legend.position = "none")
-#       ))) %>%  
-#       # add_labels(x = "Longitude", y = "Latitude") %>%
-#       add_northarrow() %>%
-#       add_scalebar() %>%
-#       add_timestamps(m, type = "label") %>%
-#       add_progress()
-#   }
-#   
-#   if (map_style %in% "terrain") {
-#     
-#     if (confidential) {
-#       
-#       frames <- m %>% 
-#         frames_spatial(path_colours = c("orangered"),
-#                        map_service = "osm",
-#                        map_type = map_style,
-#                        tail_colour = "orange",
-#                        tail_size = 1.2,
-#                        trace_show = TRUE,
-#                        trace_colour = "orange",
-#                        equidistant = FALSE
-#         ) %>% 
-#         add_gg(gg = expr(list(
-#           theme(axis.text = element_blank(),
-#                 axis.title = element_blank(),
-#                 axis.ticks = element_blank(),
-#                 legend.position = "none")
-#         ))) %>% 
-#         # add_labels(x = "Longitude", y = "Latitude") %>%
-#         add_northarrow() %>%
-#         add_scalebar() %>%
-#         add_timestamps(m, type = "label") %>%
-#         add_progress()
-#       
-#     } else {
-#       
-#       frames <- m %>% 
-#         frames_spatial(path_colours = c("orangered"),
-#                        map_service = "osm",
-#                        map_type = map_style,
-#                        tail_colour = "orange",
-#                        tail_size = 1.2,
-#                        trace_show = TRUE,
-#                        trace_colour = "orange",
-#                        equidistant = FALSE
-#         ) %>%
-#         add_gg(gg = expr(list(
-#           theme(
-#             legend.position = "none")
-#         ))) %>% 
-#         add_labels(x = "Longitude", y = "Latitude") %>%
-#         add_northarrow() %>%
-#         add_scalebar() %>%
-#         add_timestamps(m, type = "label") %>%
-#         add_progress()
-#     }
-#     
-#   }
-#   
-# }
-# 
-# if (site %in% "Sandringham") {
-#   
-#   if (confidential) {
-#     
-#     frames <- m %>% 
-#       frames_spatial(path_colours = c("orangered"),
-#                      map_service = "osm",
-#                      map_type = map_style,
-#                      tail_colour = "orange",
-#                      tail_size = 1.2,
-#                      trace_show = TRUE,
-#                      trace_colour = "orange",
-#                      equidistant = FALSE
-#       ) %>% 
-#       add_gg(gg = expr(list(
-#         theme(axis.text = element_blank(),
-#               axis.title = element_blank(),
-#               axis.ticks = element_blank(),
-#               legend.position = "none")
-#       ))) %>% 
-#       # add_labels(x = "Longitude", y = "Latitude") %>%
-#       add_northarrow() %>%
-#       add_scalebar() %>%
-#       add_timestamps(m, type = "label") %>%
-#       add_progress()
-#     frames[[100]]
-#     
-#   } else {
-#     
-#     frames <- m %>%
-#       frames_spatial(path_colours = c("orangered"),
-#                      map_service = "mapbox",
-#                      map_type = map_style,
-#                      map_token = "pk.eyJ1Ijoic2ZyYW5rczgyIiwiYSI6ImNrcmZkb2QybDVla2wyb254Y2ptZnlqb3UifQ.YNOfGD1SeRMZJDur73Emyg",
-#                      tail_colour = "orange",
-#                      tail_size = 1.2,
-#                      trace_show = TRUE,
-#                      trace_colour = "orange",
-#                      equidistant = FALSE
-#       ) %>%
-#       add_gg(gg = expr(list(
-#         theme(legend.position = "none")
-#       ))) %>% 
-#       add_labels(x = "Longitude", y = "Latitude") %>%
-#       add_northarrow() %>%
-#       add_scalebar() %>%
-#       add_timestamps(m, type = "label") %>%
-#       add_progress()
-#     
-#   }
-# }
-# 
-# 
-# frames[[100]]
-# 
-# animate_frames(frames, 
-#                out_file = file.path(outputwd, paste0(tag, "_", site, "_", map_style, "_with-longer-tail_", today_date, ".", file_format)), overwrite = TRUE
-# )
+plot_grid_non_migrants <- final_frame_list[!names(final_frame_list) %in% migrant_list]
 
-
-
+ggsave(
+  plot_a_list(plot_grid_non_migrants, 3, 4),
+  filename = paste0("last_frame_all_birds_non-migrants.png"),
+  device="png",
+  path = move_static_dir,
+  height = 8,
+  width = 12,
+  units = "in",
+  dpi=150
+)
