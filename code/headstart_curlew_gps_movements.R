@@ -47,20 +47,23 @@ today_date <- Sys.Date()
 set_cohort_num <- c(1,2,3,4)
 separate_sites <- TRUE
 set_fix_rate <- 30
-animated_vis <- FALSE
-static_vis <- TRUE
-bird_flag_list <- c("6Y",
-                    "7K",
-                    "8K",
-                    "7Y",
-                    "8L",
-                    "6X",
-                    "7E",
-                    "8E",
-                    "7U",
-                    "8X",
-                    "9L",
-                    "9J")
+animated_vis <- TRUE
+static_vis <- FALSE
+animate_migrants <- FALSE
+bird_flag_list <- c(
+  "6Y" ,
+  "7K",
+  "8K",
+  "7Y",
+  "8L",
+  "6X",
+  "7E",
+  "8E",
+  "7U",
+  "8X",
+  "9L",
+  "9J"
+)
 migrant_list <- c("6Y")
 
 # mapping controls
@@ -81,7 +84,7 @@ dt_meta_tags <- dt_meta %>%
   filter(tag_gps_radio_none == "gps") %>% 
   filter(year == current_year)
 
-# ----------------  Get movebank tag data
+# ----------------  Get movebank tag data -----------
 
 # load movebank log details
 source(file.path(codewd, "movebank_log.R"))
@@ -122,40 +125,153 @@ all_tags <- all_tags %>%
 all_tags <- all_tags %>% 
   filter(event_id != 23414031453)
 
-# # add time since midnight
-# clocks <-  function(t){hour(t)*3600+minute(t)*60+second(t)}
-# all_tags$sec_since_midnight <- clocks(all_tags$new_datetime)
-# 
-# # add rough day / night variable (6am UTC to 6pm UTC = day)
-# all_tags <- all_tags %>% 
-#   mutate(day_night = ifelse(sec_since_midnight < 21600 | sec_since_midnight > 64800, "night", "day"))
 
-
-# Choose dates -----------------
-# 
-# # First cohort release date
-# if (cohort_num == 1) {
-#   first_date <- all_tags %>% 
-#     filter(cohort_num == 1) %>% 
-#     distinct(release_date) %>% 
-#     dmy
-# }
-#   
-#   # first_date <- min(all_tags$new_datetime) %>% as.Date()
-#   last_date <- dmy(today_date)
-#   
-#   all_tags_filtered <- all_tags %>% 
-#     filter(new_datetime >= first_date_1 & new_datetime <= last_date)
-#   
-
-# =======================    Plot data   =================
-
-
-# Animated visualisations all birds together & per site -----------------
+# =======================    Plot data - ANIMATED   =================
 
 if (animated_vis) {
   
-  # Separate sites -----------------
+  
+  # Animate migrants individually  ----------------
+  
+  
+  if (animate_migrants) {
+    
+    for (b in migrant_list) {
+      
+      fix_rate <- set_fix_rate
+      
+      # filter movement data to site, cohort, post-release date times
+      bird_df <- all_tags %>% 
+        filter(flag_id %in% b) %>% 
+        # filter(cohort_num %in% set_cohort_num) %>% 
+        filter(new_datetime >= strptime(paste(dmy(migration_date), "09:00:00"), format = "%Y-%m-%d %H:%M:%S", tz="UTC") - 3600*72)
+      # filter(new_datetime >= dmy("08-08-2022"))
+      
+      num_days_vis <- floor(max(bird_df$new_datetime) - min(bird_df$new_datetime))
+      
+      message("Creating visualisation for ", site, " using a fix rate of ", fix_rate, " minutes. Includes ", length(unique(bird_df$individual_local_identifier)), " individuals:\n\n",
+              paste(unique(bird_df$individual_local_identifier), collapse = "\n"),
+              "\n\nVisualisation runs from ", min(bird_df$new_datetime), " to ", max(bird_df$new_datetime), " over a time period of ", num_days_vis, " days.........\n\n\n")
+      
+      # subset to only relevant columns needed to plot movements
+      # filter to high satellite counts only (4+)
+      # convert to move object
+      bird_df_move <- bird_df %>% 
+        filter(gps_satellite_count >= 3) %>% 
+        dplyr::select(plot_label, new_datetime, location_lat, location_long) %>% 
+        df2move(proj = "+init=epsg:4326 +proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0",
+                x = "location_long",
+                y = "location_lat",
+                time = "new_datetime",
+                track_id = "plot_label"
+        )
+      
+      # align move_data to a uniform time scale
+      m <- align_move(bird_df_move, res = fix_rate, unit = "mins")
+      
+      # set map aesthetics
+      path_colours <- "orangered"
+      tail_trace_col <- "orange"
+      
+      # set map extent, conditional on if bird has migrated away from Wash
+      centroid_wash <- data.frame(long = 0.33104897, lat = 52.921168)
+      
+      if (b %in% migrant_list) {
+        set_extent <- extent(centroid_wash$long - 12,
+                             centroid_wash$long + 2,
+                             centroid_wash$lat - 5, 
+                             centroid_wash$lat + 3)
+      } else {
+        set_extent <- extent(centroid_wash$long - 0.5,
+                             centroid_wash$long + 0.6,
+                             centroid_wash$lat - 0.25, 
+                             centroid_wash$lat + 0.25)
+      }
+      
+      
+      # trace_colours <- viridis(length(bird_df %>%
+      #                                   distinct(plot_label) %>%
+      #                                   pull),
+      #                          alpha = 0.2
+      # )
+      
+      # create spatial frames with a OpenStreetMap terrain map
+      frames <- frames_spatial(m, path_colours = path_colours,
+                               map_service = map_service, 
+                               map_type = map_style,
+                               map_token = ifelse(map_service == "mapbox", "pk.eyJ1Ijoic2ZyYW5rczgyIiwiYSI6ImNrcmZkb2QybDVla2wyb254Y2ptZnlqb3UifQ.YNOfGD1SeRMZJDur73Emyg", ""),
+                               alpha = 0.8,
+                               equidistant = FALSE,
+                               path_legend = FALSE,
+                               tail_size = 1.2,
+                               trace_show = TRUE,
+                               trace_colour = tail_trace_col,
+                               ext = set_extent
+      ) %>%
+        
+        # add some customizations, such as axis labels
+        # add_labels(x = "Longitude", y = "Latitude") %>% 
+        add_northarrow() %>%
+        add_scalebar(distance = ifelse(b %in% migrant_list, 100, 10)) %>%
+        add_timestamps(m, type = "label") %>%
+        add_progress() %>% 
+        add_gg(gg = expr(list(
+          theme(axis.text = element_blank(),
+                axis.title = element_blank(),
+                axis.ticks = element_blank()
+          ))))
+      
+      # bto_logo <- png::readPNG(file.path(datawd, "C1-BTO-master-logo-portrait-(no-strap).png"))
+      # bto_rast <- grid::rasterGrob(bto_logo, interpolate=TRUE)
+      # 
+      # frames <- frames %>% 
+      #   add_gg(frames,
+      #          gg = expr(list(
+      #            annotation_custom(bto_rast,
+      #                              xmin=max(m$x)+0.002, xmax= max(m$x) + 0.009,
+      #                              ymin= max(m$y)-0.005, ymax= max(m$y) + 0.008)
+      #          )))
+      
+      frames <- frames %>% 
+        add_gg(gg = expr(list(
+          labs(
+            caption="\u00A9 British Trust for Ornithology" ,
+            title = paste(unique(bird_df$flag_id))
+          )
+        )))
+      
+      
+      # preview one of the frames, e.g. the 100th frame
+      frames[[200]]
+      
+      if (file_format %in% "gif") {
+        animate_frames(frames,
+                       out_file = file.path(outputwd, paste0("mig_", b, "_", map_style, "_with-longer-tail_", today_date, ".", file_format)),
+                       height = 800,
+                       width = 800
+        )
+        
+      }
+      
+      if (file_format %in% "mp4") {
+        
+        # animate frames
+        animate_frames(frames,
+                       out_file = file.path(outputwd, paste0("mig_", b, "_", map_style, "_with-longer-tail_", today_date, ".", file_format)),
+                       overwrite = TRUE,
+                       height = 800,
+                       width = 800,
+                       fps = set_fps
+        )
+      }
+      
+    }
+  }
+  
+  
+  # Animate all others  ----------------
+  
+  # Separate sites  ----------------
   
   if (separate_sites) {
     
@@ -171,6 +287,7 @@ if (animated_vis) {
       
       # filter movement data to site, cohort, post-release date times
       bird_df <- all_tags %>% 
+        filter(!flag_id %in% migrant_list) %>% 
         filter(release_location == site) %>% 
         # filter(cohort_num %in% set_cohort_num) %>% 
         filter(new_datetime >= strptime(paste(dmy(release_date), "09:00:00"), format = "%Y-%m-%d %H:%M:%S", tz="UTC"))
@@ -310,7 +427,6 @@ if (animated_vis) {
     
   }
   
-  
   # Sites together -----------------
   
   if (!separate_sites) {
@@ -322,10 +438,15 @@ if (animated_vis) {
     
     # filter movement data to site, cohort, post-release date times
     bird_df <- all_tags %>% 
-      # filter(release_location == site) %>% 
-      # filter(cohort_num %in% cohort_num) %>% 
+      # filter(!flag_id %in% migrant_list) %>% 
       filter(new_datetime >= strptime(paste(dmy(release_date), "09:00:00"), format = "%Y-%m-%d %H:%M:%S", tz="UTC"))
     # filter(new_datetime >= dmy("08-08-2022"))
+    
+    # bird_df <- all_tags %>% 
+    #   filter(flag_id %in% migrant_list) %>% 
+    #   filter(new_datetime <= strptime(paste(dmy(migration_date), "00:00:00"), format = "%Y-%m-%d %H:%M:%S", tz="UTC")) %>% 
+    #   bind_rows(bird_df) %>% 
+    #   arrange(cohort_num, release_location, flag_id)
     
     num_days_vis <- floor(max(bird_df$new_datetime) - min(bird_df$new_datetime))
     
@@ -354,11 +475,15 @@ if (animated_vis) {
                                      distinct(plot_label) %>%
                                      pull)
     )
-    # trace_colours <- viridis(length(bird_df %>%
-    #                                   distinct(plot_label) %>%
-    #                                   pull),
-    #                          alpha = 0.2
-    # )
+    
+    # set map extent
+    centroid_wash <- data.frame(long = 0.33104897, lat = 52.921168)
+    
+    set_extent <- extent(centroid_wash$long - 0.38,
+                         centroid_wash$long + 0.58,
+                         centroid_wash$lat - 0.19, 
+                         centroid_wash$lat + 0.12
+                         )
     
     # create spatial frames with a OpenStreetMap terrain map
     frames <- frames_spatial(m, path_colours = path_colours,
@@ -370,19 +495,17 @@ if (animated_vis) {
                              equidistant = FALSE,
                              
                              path_legend = TRUE,
-                             path_legend_title = paste(site, "birds"),
-                             
-                             # tail_size = 1.2,
-                             tail_length = 20 #,
-                             # trace_show = TRUE,
-                             # trace_colour = trace_colours
+                             path_legend_title = "All birds",
+                             tail_length = 20,
+                             ext = set_extent
+      
                              
     ) %>%
       
       # add some customizations, such as axis labels
       # add_labels(x = "Longitude", y = "Latitude") %>% 
       add_northarrow() %>%
-      add_scalebar() %>%
+      add_scalebar(distance = 10) %>%
       add_timestamps(m, type = "label") %>%
       add_progress() %>% 
       add_gg(gg = expr(list(
@@ -410,7 +533,7 @@ if (animated_vis) {
     
     
     # preview one of the frames, e.g. the 100th frame
-    frames[[800]]
+    frames[[600]]
     
     if (file_format %in% "gif") {
       animate_frames(frames, out_file = file.path(outputwd, paste0(site, "_", map_style, "_with-longer-tail_", today_date, ".", file_format)),
@@ -508,10 +631,10 @@ if (static_vis) {
     centroid_wash <- data.frame(long = 0.33104897, lat = 52.921168)
     
     if (b %in% migrant_list) {
-      set_extent <- extent(centroid_wash$long - 5,
-                           centroid_wash$long + 1,
-                           centroid_wash$lat - 1, 
-                           centroid_wash$lat + 1)
+      set_extent <- extent(centroid_wash$long - 12,
+                           centroid_wash$long + 2,
+                           centroid_wash$lat - 5, 
+                           centroid_wash$lat + 3)
     } else {
       set_extent <- extent(centroid_wash$long - 0.5,
                            centroid_wash$long + 0.6,
@@ -535,14 +658,14 @@ if (static_vis) {
                              tail_size = 1.2,
                              trace_show = TRUE,
                              trace_colour = tail_trace_col,
-                             ext = set_extent,
+                             ext = set_extent
                              
     ) %>%
       
       # add some customizations, such as axis labels
       # add_labels(x = "Longitude", y = "Latitude") %>% 
       # add_northarrow() %>%
-      add_scalebar(distance = ifelse(b %in% migrant_list, 50, 10)) %>%
+      add_scalebar(distance = ifelse(b %in% migrant_list, 100, 10)) %>%
       add_timestamps(m, type = "label") %>%
       add_progress() %>% 
       add_gg(gg = expr(list(
@@ -564,8 +687,9 @@ if (static_vis) {
     
     frames <- frames %>% 
       add_gg(gg = expr(list(
-        labs(caption="\u00A9 British Trust for Ornithology" ,
-             title = paste(unique(bird_df$plot_label))
+        labs(
+          # caption="\u00A9 British Trust for Ornithology" ,
+          title = paste(unique(bird_df$flag_id))
         )
       )))
     
@@ -629,8 +753,8 @@ ggsave(
   filename = paste0("last_frame_all_birds_non-migrants.png"),
   device="png",
   path = move_static_dir,
-  height = 8,
-  width = 12,
+  height = 10,
+  width = 16,
   units = "in",
   dpi=150
 )
