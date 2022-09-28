@@ -53,7 +53,7 @@ animate_migrants <- FALSE
 bird_flag_list <- c(
   "6Y" ,
   "7K",
-  "8K",
+  "8K", # dead 30/08/2022
   "7Y",
   "8L",
   "6X",
@@ -64,13 +64,16 @@ bird_flag_list <- c(
   "9L",
   "9J"
 )
-migrant_list <- c("6Y")
+migrant_list <- c(
+  # "6Y",
+  "9L"
+  )
 
 # mapping controls
 file_format <- "mp4"   # various formats available in MoveVis package, if you've got a long animation, gif file size is huge, mp4s are much smaller
 map_service <- "mapbox"   # choose which map service, I've used osm and mapbox (satellite imagery)
 map_style <- "satellite" # choose map style (terrain vs satellite)
-set_fps <- 25
+set_fps <- 10
 confidential <- TRUE   # strips lat/lon axis labels from map
 
 # =======================    Load data   =================
@@ -144,12 +147,12 @@ if (animated_vis) {
       bird_df <- all_tags %>% 
         filter(flag_id %in% b) %>% 
         # filter(cohort_num %in% set_cohort_num) %>% 
-        filter(new_datetime >= strptime(paste(dmy(migration_date), "09:00:00"), format = "%Y-%m-%d %H:%M:%S", tz="UTC") - 3600*72)
-      # filter(new_datetime >= dmy("08-08-2022"))
+        # filter(new_datetime >= strptime(paste(dmy(migration_date), "09:00:00"), format = "%Y-%m-%d %H:%M:%S", tz="UTC") - 3600*72)
+      filter(new_datetime >= dmy("16-09-2022"))
       
       num_days_vis <- floor(max(bird_df$new_datetime) - min(bird_df$new_datetime))
       
-      message("Creating visualisation for ", site, " using a fix rate of ", fix_rate, " minutes. Includes ", length(unique(bird_df$individual_local_identifier)), " individuals:\n\n",
+      message("Creating visualisation for ", b, " using a fix rate of ", fix_rate, " minutes. Includes ", length(unique(bird_df$individual_local_identifier)), " individuals:\n\n",
               paste(unique(bird_df$individual_local_identifier), collapse = "\n"),
               "\n\nVisualisation runs from ", min(bird_df$new_datetime), " to ", max(bird_df$new_datetime), " over a time period of ", num_days_vis, " days.........\n\n\n")
       
@@ -176,7 +179,19 @@ if (animated_vis) {
       # set map extent, conditional on if bird has migrated away from Wash
       centroid_wash <- data.frame(long = 0.33104897, lat = 52.921168)
       
-      if (b %in% migrant_list) {
+      if (b %in% "9L") {
+        set_extent <- extent(centroid_wash$long - 10, 
+                             centroid_wash$long + 3,
+                             centroid_wash$lat - 7, 
+                             centroid_wash$lat + 3)
+      } else {
+        set_extent <- extent(centroid_wash$long - 0.5,
+                             centroid_wash$long + 0.6,
+                             centroid_wash$lat - 0.25, 
+                             centroid_wash$lat + 0.25)
+      }
+      
+      if (b %in% "6Y") {
         set_extent <- extent(centroid_wash$long - 12,
                              centroid_wash$long + 2,
                              centroid_wash$lat - 5, 
@@ -631,19 +646,26 @@ if (static_vis) {
     centroid_wash <- data.frame(long = 0.33104897, lat = 52.921168)
     
     if (b %in% migrant_list) {
-      set_extent <- extent(centroid_wash$long - 12,
-                           centroid_wash$long + 2,
-                           centroid_wash$lat - 5, 
-                           centroid_wash$lat + 3)
+      if (b %in% "9L") {
+        set_extent <- extent(centroid_wash$long - 10, 
+                             centroid_wash$long + 3,
+                             centroid_wash$lat - 7, 
+                             centroid_wash$lat + 3)
+      }
+      
+      if (b %in% "6Y") {
+        set_extent <- extent(centroid_wash$long - 12,
+                             centroid_wash$long + 2,
+                             centroid_wash$lat - 5, 
+                             centroid_wash$lat + 3)
+      }
+      
     } else {
       set_extent <- extent(centroid_wash$long - 0.5,
                            centroid_wash$long + 0.6,
                            centroid_wash$lat - 0.25, 
                            centroid_wash$lat + 0.25)
     }
-    
-    
-    
     
     # create spatial frames with a OpenStreetMap terrain map
     frames <- frames_spatial(m, path_colours = path_col,
