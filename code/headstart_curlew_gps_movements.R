@@ -65,7 +65,7 @@ bird_flag_list <- c(
   "9J"
 )
 migrant_list <- c(
-  # "6Y",
+  "6Y",
   "9L"
   )
 
@@ -761,18 +761,52 @@ if (static_vis) {
     
   }
   
+  saveRDS(final_frame_list, file.path(workspacewd, "final_Frame_plots.rds"))
+  
 }
+
+
 
 plot_a_list <- function(master_list_with_plots, no_of_rows, no_of_cols) {
   patchwork::wrap_plots(master_list_with_plots, 
                         nrow = no_of_rows, ncol = no_of_cols)
 }
 
+# plots <- dir(move_static_dir)
+# plots <- plots[!(grepl(paste0(c(migrant_list, "non-migrants"), collapse="|"), plots))]
+# 
+# 
+# 
+# plot_list <- list()
+# 
+# for (p in 1:length(plots)) {
+#  
+#    plot_img <- magick::image_read(file.path(move_static_dir, plots[p]))
+#   
+# # grab_plot <- ggplot() +
+# #   ggpubr::background_image(plot_img) + coord_fixed()
+# 
+# # grab_plot <- ggimage::ggbackground(grab_plot, plog_img)
+# 
+# # plot_grid_non_migrants[[p]] <- grab_plot
+#    plot_list[[p]] <- cowplot::ggdraw() + cowplot::draw_image(plot_img)
+# }
+# 
+# cowplot::plot_grid(plot_list[[1]], plot_list[[2]])
+# cowplot::plot_grid(plot_list[[3]], plot_list[[4]])
+# cowplot::plot_grid(plot_list[[5]], plot_list[[6]])
+# cowplot::plot_grid(plot_list[[7]], plot_list[[8]])
+# cowplot::plot_grid(plot_list[[9]], plot_list[[10]])
+# 
+# 
+# cowplot::plot_grid
+
+
 plot_grid_non_migrants <- final_frame_list[!names(final_frame_list) %in% migrant_list]
 
 ggsave(
   plot_a_list(plot_grid_non_migrants, 3, 4),
-  filename = paste0("last_frame_all_birds_non-migrants.png"),
+  filename = paste0("last_frame_all_birds_non-migrants_", today_date, ".png"),
   device="png",
   path = move_static_dir,
   height = 10,
