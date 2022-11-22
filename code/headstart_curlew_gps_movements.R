@@ -13,7 +13,7 @@
 # package_details <- c("package name 1", "package name 2")
 
 project_details <- list(project_name="curlew_headstarting", output_version_date="2022-11", workspace_version_date="2022-11")
-package_details <- c("sf","tidyverse","patchwork","move","moveVis","RColorBrewer","viridisLite","rcartocolor","lubridate","basemaps")
+package_details <- c("sf","tidyverse","patchwork","move","moveVis","RColorBrewer","viridisLite","rcartocolor","lubridate","basemaps", "RStoolbox", "cowplot")
 seed_number <- 1
 
 
@@ -46,12 +46,12 @@ current_year <- 2022
 today_date <- Sys.Date()
 set_cohort_num <- c(1,2,3,4)
 separate_sites <- TRUE
-set_fix_rate <- 30
-animated_vis <- TRUE
+set_fix_rate <- 120
+animated_vis <- FALSE
 static_vis <- FALSE
 static_inset_vis <- TRUE
 animate_migration <- FALSE
-animate_individuals <- TRUE
+animate_individuals <- FALSE
 bird_flag_list <- c(
   "6Y" ,
   "7K",
@@ -75,7 +75,7 @@ migrant_list <- c(
 file_format <- "mp4"   # various formats available in MoveVis package, if you've got a long animation, gif file size is huge, mp4s are much smaller
 map_service <- "mapbox"   # choose which map service, I've used osm and mapbox (satellite imagery)
 map_style <- "satellite" # choose map style (terrain vs satellite)
-set_fps <- 10
+set_fps <- 25
 confidential <- TRUE   # strips lat/lon axis labels from map
 
 filter_by_date <- TRUE
@@ -151,13 +151,8 @@ if (animated_vis) {
       
       # filter movement data to site, cohort
       bird_df <- all_tags %>% 
-        filter(flag_id %in% b)
-      
-      # filter by date
-      if (filter_by_date) {
-        bird_df <- bird_df %>% 
-          filter(new_datetime >= ymd(first_date) & new_datetime < ymd(last_date))
-      }
+        filter(flag_id %in% b) %>% 
+        filter(new_datetime >= ymd(first_date) & new_datetime < ymd(last_date))
       
       # skip to next bird if no data from the last month
       if (nrow(bird_df) < 1) next
@@ -217,10 +212,10 @@ if (animated_vis) {
       
       current_extent <- extent(m)
       
-      set_extent <- extent(current_extent[1] - 0.2,
-                           current_extent[2] + 0.2,
-                           current_extent[3] - 0.1, 
-                           current_extent[4] + 0.1)
+      set_extent <- extent(current_extent[1] - 0.05,
+                           current_extent[2] + 0.05,
+                           current_extent[3] - 0.02, 
+                           current_extent[4] + 0.02)
       
       
       # trace_colours <- viridis(length(bird_df %>%
@@ -237,7 +232,7 @@ if (animated_vis) {
                                alpha = 0.8,
                                equidistant = FALSE,
                                path_legend = FALSE,
-                               tail_size = 1.2,
+                               tail_size = 0.8,
                                trace_show = TRUE,
                                ext = set_extent,
                                trace_colour = tail_trace_col
@@ -276,12 +271,12 @@ if (animated_vis) {
         )))
       
       
-      # preview one of the frames, e.g. the 100th frame
-      frames[[length(frames)]]
+      # # preview one of the frames, e.g. the 100th frame
+      # frames[[length(frames)]]
       
       if (file_format %in% "gif") {
         animate_frames(frames,
-                       out_file = file.path(outputwd, paste0("mig_", b, "_", map_style, "_with-longer-tail_", today_date, ".", file_format)),
+                       out_file = file.path(outputwd, paste0("anim_", b, "_", map_style, "_with-longer-tail_", today_date, ".", file_format)),
                        height = 800,
                        width = 800
         )
@@ -292,13 +287,16 @@ if (animated_vis) {
         
         # animate frames
         animate_frames(frames,
-                       out_file = file.path(outputwd, paste0("mig_", b, "_", map_style, "_with-longer-tail_", today_date, ".", file_format)),
+                       out_file = file.path(outputwd, paste0("anim_", b, "_", map_style, "_with-longer-tail_", today_date, ".", file_format)),
                        overwrite = TRUE,
                        height = 800,
                        width = 800,
                        fps = set_fps
         )
       }
+      
+      rm(frames)
+      gc()
       
     }
     
@@ -945,36 +943,126 @@ if (static_vis) {
 
 if (static_inset_vis) {
   
-  dt_bbox <- ggmap::make_bbox(lon = bird_df$location_long, lat = bird_df$location_lat, f = 2)
-  base_map <- ggmap::get_map(location = dt_bbox, maptype = "satellite")
+  for (b in bird_flag_list) {
+    
+    # filter movement data to site, cohort
+    bird_df <- all_tags %>% 
+      filter(flag_id %in% b) %>% 
+      filter(new_datetime >= ymd(first_date) & new_datetime < ymd(last_date))
+    
+    # skip to next bird if no data from the last month
+    if (nrow(bird_df) < 1) next
+    
+    num_days_vis <- floor(max(bird_df$new_datetime) - min(bird_df$new_datetime))
+    
+    message("Creating inset map for ", b, 
+            "\n\nVisualisation runs from ", min(bird_df$new_datetime), " to ", max(bird_df$new_datetime), " over a time period of ", num_days_vis, " days.........\n\n\n")
+    
+    # turn bird_df into spatial points
+    bird_df_sf <- bird_df %>% 
+      sf::st_as_sf(.,
+                   coords = c("location_long",
+                              "location_lat"),
+                   crs = 4326) %>% 
+      mutate(lon = st_coordinates(.)[,1],
+             lat = st_coordinates(.)[,2]) %>% 
+      arrange(new_datetime)
+    
+    bird_df_sf_3857 <- st_transform(bird_df_sf, crs = 3857)
+    
+    bird_df_sf <- bird_df_sf %>% 
+      mutate(lon_3857 = st_coordinates(bird_df_sf_3857)[,1],
+             lat_3857 = st_coordinates(bird_df_sf_3857)[,2])
+    
+    current_extent <- st_bbox(bird_df_sf)
+    
+    set_extent <- st_bbox(c(current_extent[1] - 0.5,
+                            current_extent[2] - 0.2, 
+                            current_extent[3] + 0.5,
+                            current_extent[4] + 0.2), crs = st_crs(4326))
+    
+    set_extent_inset <- st_bbox(c(current_extent[1] - 7,
+                                  current_extent[2] - 4, 
+                                  current_extent[3] + 7,
+                                  current_extent[4] + 4), crs = st_crs(4326))
+    
+    # set defaults for the basemap
+    # set_defaults(map_service = "mapbox", map_type = "hybrid", map_token = "pk.eyJ1Ijoic2ZyYW5rczgyIiwiYSI6ImNrcmZkb2QybDVla2wyb254Y2ptZnlqb3UifQ.YNOfGD1SeRMZJDur73Emyg", map_dir = file.path("gis"))
+    set_defaults(map_service = "esri", map_type = "world_imagery", map_dir = file.path("gis"))
+    
+    # Plot inset map wider area
+    basemap_raster_inset <- basemap_raster(set_extent_inset)
+    # plotRGB(basemap_raster_inset)
+    
+    # Plot main map raster
+    basemap_raster <- basemap_raster(set_extent)
+    # plotRGB(basemap_raster)
+    
+    
+    # # Plot png file
+    # png(file.path(outputwd, paste0(b, "_static_inset_map_", today_date, ".png")), width = 1200, units = "px", res = 300, pointsize = 14)
+    # # raster basemap
+    
+    # plotRGB(basemap_raster_inset, add = TRUE)
+    # plot(st_transform(bird_df_sf$geometry, projection(basemap_raster)), add = TRUE, col = "orangered", bg = "orange", pch = 21, cex = 0.2, lwd = 0.2)
+    # dev.off()
+    
+    
+    # Plot RGB rasterbrick with points geom on top
+    gg_main_map <- RStoolbox::ggRGB(basemap_raster, r=1, g=2, b=3) +
+      geom_sf(data = st_transform(bird_df_sf$geometry, projection(basemap_raster)), fill = "orange", col = "orange", size = 0.5) +
+      geom_sf(data = st_as_sfc(st_bbox(basemap_raster)), fill = NA, color = "black", size = 1) +
+      coord_sf(crs = projection(basemap_raster)) +
+      # theme(axis.text.x=element_blank(), #remove x axis labels
+      #       axis.ticks.x=element_blank(), #remove x axis ticks
+      #       axis.text.y=element_blank(),  #remove y axis labels
+      #       axis.ticks.y=element_blank()  #remove y axis ticks
+      # ) +
+      theme_void()
+    
+    # Create rectangle bounding box for buffered area of the zoomed in basemap raster
+    # Buffer by 20000m
+    bb <- st_bbox(basemap_raster)
+    set_extent_buffer <- st_bbox(c(bb[1] - 20000,
+                                   bb[2] - 20000, 
+                                   bb[3] + 20000,
+                                   bb[4] + 20000), crs = projection(basemap_raster))
+    set_extent_buffer <- st_as_sfc(set_extent_buffer)
+    
+    # create rectangle boundary for outline of the inset map
+    outline_box_inset <- st_as_sfc(st_bbox(basemap_raster_inset))
+    
+    # create inset map
+    # plot inset raster basemap using ggplot RGB conversion
+    # plot zoomed in basemap bounding box (white rectangle)
+    # plot black outline around inset map
+    gg_inset_map <-  RStoolbox::ggRGB(basemap_raster_inset, r=1, g=2, b=3) +
+      # geom_sf(data = points_bb, fill = NA, color = "white", size = 0.7) +
+      geom_sf(data = set_extent_buffer, fill = NA, color = "white", size = 0.7) +  
+      geom_sf(data = outline_box_inset, fill = NA, color = "black", size = 1) +
+      theme_void()
+    
+    # use cowplot package to layer ggplots using ggdraw
+    cowplot::ggdraw() +
+      cowplot::draw_plot(gg_main_map) +
+      cowplot::draw_plot(gg_inset_map, -0.08, -0.08, scale = 0.7, width = 0.5, height = 0.5)
+    
+    ggsave(
+      filename = paste0(b, "_static_inset_map_", today_date, ".png"),
+      device="png",
+      path = outputwd,
+      # height = 10,
+      # width = 12,
+      # units = "in",
+      # width = 800,
+      # units = "px",
+      dpi=300
+    )
+    
+    
+  }
   
-  get.Peru<-get_googlemap(location = c(left = -85, bottom = -20, right = -70, top = -5), maptype="satellite") 
   
-  ggmap(get.Peru)
-  
-  ggmap(base_map) + 
-    geom_path(data = bird_df, aes(x = location_long, y = location_lat, color = "orangered"), 
-              size = 1, lineend = "round") +
-    labs(x = " ", y = " ") +
-    theme_minimal() +
-    theme(legend.position = "none")
-  
-  
-  # create spatial frames with a OpenStreetMap terrain map
-  frames <- frames_spatial(m, path_colours = path_colours,
-                           map_service = map_service, 
-                           map_type = map_style,
-                           map_token = ifelse(map_service == "mapbox", "pk.eyJ1Ijoic2ZyYW5rczgyIiwiYSI6ImNrcmZkb2QybDVla2wyb254Y2ptZnlqb3UifQ.YNOfGD1SeRMZJDur73Emyg", ""),
-                           map_dir = file.path("gis","map_tiles"),
-                           alpha = 0.8,
-                           equidistant = FALSE,
-                           path_legend = FALSE,
-                           tail_size = 1.2,
-                           trace_show = TRUE,
-                           ext = set_extent,
-                           trace_colour = tail_trace_col
-                           
-  )
   
 }
 
