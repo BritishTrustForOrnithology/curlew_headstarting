@@ -6,6 +6,7 @@
 workspaces/*
 output/*
 media/*
+gis/*
 
 # specific files
 movebank_log.R
