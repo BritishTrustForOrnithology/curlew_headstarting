@@ -71,7 +71,7 @@ googledrive::drive_download(
 dt_meta <- read.csv(file.path(datawd, "headstart_curlew_individual_metadata.csv"), header = TRUE, stringsAsFactors = FALSE)
 
 # Load biometric data
-dt_biometric <- read.csv(file.path(datawd, "headstart_curlew_biometric_data.csv"), header = TRUE, stringsAsFactors = FALSE) %>% dplyr::select(1:7, 9:11, 13:15, 17:21, 35:41)
+dt_biometric <- read.csv(file.path(datawd, "headstart_curlew_biometric_data.csv"), header = TRUE, stringsAsFactors = FALSE) %>% dplyr::select(1:7, 9:10, 12, 15:16, 18:22, 36:42)
 
 # Rename biometric fields
 biometric_field_names <- c(
@@ -85,7 +85,6 @@ biometric_field_names <- c(
   "ring",
   "type",
   "age",
-  "plumage",
   "wing_initials",
   "wing",
   "tarsus_toe",
@@ -107,9 +106,35 @@ names(dt_biometric) <- biometric_field_names
 dt_biometric_ringing <- dt_biometric %>% filter(type %in% "H")
 
 # Merge metadata with biometric ringing event (type = H, as per DemOn code H)
-dt_all <- merge(dt_biometric_ringing, dt_meta, by = c("flag_id", "year", "ring"))
+# dt_all <- merge(dt_biometric_ringing, dt_meta, by = c("flag_id", "year", "ring"))
+dt_all <- dt_biometric %>% 
+  right_join(dt_meta, by = c("flag_id", "year", "ring"))
+
 
 # Output easily readable data for DemOn data entry
 dt_easy_demon <- dt_all %>% 
-  dplyr::select(entered_demon, type, ring, age, sex, release_date, release_location, LB, RB, LA, RA)
-# write.csv(dt_easy_demon %>% filter(release_location != "not released") %>% filter(entered_demon != "Y"), file.path(outputwd, "easy_demon_data_entry.csv"), row.names = FALSE)
+  filter(year %in% 2022) %>% 
+  filter(type %in% "H") %>% 
+  filter(release_location != "not released") %>%
+  filter(entered_demon != "Y") %>% 
+  arrange(ring) %>% 
+  mutate(scheme = "GBT",
+         species = "Curlew",
+         sexing_method = "DNA",
+         capture_time = "12:00",
+         condition = "H",
+         capture_method = "H",
+         metal_mark_info = "N",
+         colour_mark_info = "U"
+         ) %>% 
+  dplyr::select(entered_demon, type, ring, scheme, species, age, sex, sexing_method, release_date, capture_time, release_location, condition, capture_method, metal_mark_info, wing_initials, colour_mark_info, LB, RB, LA, RA, tag_gps_radio_none)
+
+dt_easy_demon <- dt_easy_demon %>% 
+  rename(vist_date = release_date,
+         location = release_location,
+         extra_text = tag_gps_radio_none) %>% 
+  mutate(location = ifelse(location %in% "Ken Hill", "KH-pen", "SH-pen-02")) %>% 
+  mutate(extra_text = ifelse(extra_text %in% "gps", "gps tag deployed", ifelse(extra_text %in% "radio", "radio tag deployed", "")))
+write.csv(dt_easy_demon, file.path(outputwd, "easy_demon_data_entry_2022.csv"), row.names = FALSE)
+
+
