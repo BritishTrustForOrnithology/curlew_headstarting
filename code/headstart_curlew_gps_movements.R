@@ -90,8 +90,8 @@ dt_meta <- dt_meta %>% as_tibble()
 
 # Filter metadata to only tags, current year
 dt_meta_tags <- dt_meta %>% 
-  filter(tag_gps_radio_none == "gps") %>% 
-  filter(year == current_year)
+  filter(tag_gps_radio_none == "gps") #%>% 
+  # filter(year == current_year)
 
 # ----------------  Get movebank tag data -----------
 
