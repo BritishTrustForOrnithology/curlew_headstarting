@@ -135,6 +135,6 @@ dt_easy_demon <- dt_easy_demon %>%
          extra_text = tag_gps_radio_none) %>% 
   mutate(location = ifelse(location %in% "Ken Hill", "KH-pen", "SH-pen-02")) %>% 
   mutate(extra_text = ifelse(extra_text %in% "gps", "gps tag deployed", ifelse(extra_text %in% "radio", "radio tag deployed", "")))
-write.csv(dt_easy_demon, file.path(outputwd, "easy_demon_data_entry_2022.csv"), row.names = FALSE)
+# write.csv(dt_easy_demon, file.path(outputwd, "easy_demon_data_entry_2022.csv"), row.names = FALSE)
 
 
