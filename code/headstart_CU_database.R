@@ -163,7 +163,9 @@ dt_easy_demon <- dt_easy_demon %>%
   mutate(extra_text = ifelse(extra_text %in% "gps", "gps tag deployed", ifelse(extra_text %in% "radio", "radio tag deployed", "")))
 # write.csv(dt_easy_demon, file.path(outputwd, "easy_demon_data_entry_2022.csv"), row.names = FALSE)
 
+
 # ----- Merge tag deployment data with dt_all  -----
+
 
 
 
