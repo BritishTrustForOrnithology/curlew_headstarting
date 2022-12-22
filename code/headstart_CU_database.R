@@ -65,6 +65,23 @@ googledrive::drive_download(
   path = file.path(datawd, "headstart_curlew_biometric_data.csv")
 )
 
+# gps tag deployment data
+googledrive::drive_download(
+  file = "https://docs.google.com/spreadsheets/d/1V3QMfRHw1Y_yxKeV83CgV-dojuqG0CfIiIy2-D4lK4k/edit?usp=sharing",
+  type = "csv",
+  overwrite = TRUE,
+  path = file.path(datawd, "headstart_curlew_tag_deployment_data_gps.csv")
+)
+
+# radio tag deployment data
+googledrive::drive_download(
+  file = "https://docs.google.com/spreadsheets/d/1_3v4_vnuXvshp3kjDC-U_hzY9-uMuGH4qpJnmmugbNQ/edit?usp=sharing",
+  type = "csv",
+  overwrite = TRUE,
+  path = file.path(datawd, "headstart_curlew_tag_deployment_data_radio.csv")
+)
+
+
 # ----- Load downloaded files  -----
 
 # Load individual metadata
@@ -72,6 +89,15 @@ dt_meta <- read.csv(file.path(datawd, "headstart_curlew_individual_metadata.csv"
 
 # Load biometric data
 dt_biometric <- read.csv(file.path(datawd, "headstart_curlew_biometric_data.csv"), header = TRUE, stringsAsFactors = FALSE) %>% dplyr::select(1:7, 9:10, 12, 15:16, 18:22, 36:42)
+
+# Load gps tag data
+dt_deploy_gps <- read.csv(file.path(datawd, "headstart_curlew_tag_deployment_data_gps.csv"), header = TRUE, stringsAsFactors = FALSE)
+
+# Load radio tag data
+dt_deploy_radio <- read.csv(file.path(datawd, "headstart_curlew_tag_deployment_data_radio.csv"), header = TRUE, stringsAsFactors = FALSE)
+
+
+# ----- Create output for DemOn data entry  -----
 
 # Rename biometric fields
 biometric_field_names <- c(
@@ -135,6 +161,9 @@ dt_easy_demon <- dt_easy_demon %>%
          extra_text = tag_gps_radio_none) %>% 
   mutate(location = ifelse(location %in% "Ken Hill", "KH-pen", "SH-pen-02")) %>% 
   mutate(extra_text = ifelse(extra_text %in% "gps", "gps tag deployed", ifelse(extra_text %in% "radio", "radio tag deployed", "")))
-write.csv(dt_easy_demon, file.path(outputwd, "easy_demon_data_entry_2022.csv"), row.names = FALSE)
+# write.csv(dt_easy_demon, file.path(outputwd, "easy_demon_data_entry_2022.csv"), row.names = FALSE)
+
+# ----- Merge tag deployment data with dt_all  -----
+
 
 
