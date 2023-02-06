@@ -1,24 +1,28 @@
 #### NE103 -- Curlew headstarting -- post-release tracking
-## Gary Clewley 
+## Gary Clewley  
 
 
 #### NOTES ####
-#Individuals 0J and 3K excluded from analyses below as only tracked for <1 week. 
-#Descriptive details included in report only
+# Analysis of 2022 deployments
 
-# Current plan to re-run different time periods from the beginning for all plots
+# Current plan to re-run different time periods from the beginning for all analyses but would be worth
+# time to code correctly to run by each period
+
+# Note repo name changed between 2021 and 2022
+
+# Tide data from Oceanwise - Port-log.net reports
 
 
 
-#### SETUP ####
+
+#### SETUP AND CLEAN DATA ####
 
 ## Checkpoint??
 
 
-#### LOAD PACKAGES
+## LOAD PACKAGES
 load_pkg <- rlang::quos(tidyverse,BTOTrackingTools, here)  # quos() function to be lazy on "" around each package
 lapply(lapply(load_pkg, rlang::quo_name), library, character.only = TRUE)
-
 
 
 
@@ -29,33 +33,8 @@ lapply(lapply(load_pkg, rlang::quo_name), library, character.only = TRUE)
 # Set login credentials
 login<-move::movebankLogin()
 
-# Set repository
-repo<-"BTO/NE/Pensthorpe/WWT - Eurasian Curlews - headstarted 2021"
-TagID<-c("Yf(0E)O/-:Y/m", "Yf(3A)O/-:Y/m")
-
-# Set dates manually - error if one NULL and other defined - logged issue in Git
-start<-c("2021-07-03 10:57:18", "2021-07-17 13:56:04")
-end_2<-c("2021-07-17 23:59:59", "2021-07-31 23:59:59") # First 2 weeks post-release
-end_6<-c("2021-08-14 23:59:59", "2021-08-28 23:59:59") # First 6 weeks post-release
-end_all<-c("2021-11-27 13:30:32","2021-09-27 16:16:11") # All data to end of first collection period when transmission stopped or 3A died
-  
-# Loads for all time period
-data_all <- read_track_MB(TagID=TagID,repo=repo,start=start,end=end_all) 
-data_2 <- read_track_MB(TagID=TagID,repo=repo,start=start,end=end_2)
-data_6 <- read_track_MB(TagID=TagID,repo=repo,start=start,end=end_6)
-
-## loads OK but now clean_GPS issue to solve
- # data<- read_track_MB(TagID=TagID,repo=repo,start=start,end=end) %>% clean_GPS() # workaround below
-
-
-
-
-###
-### clean_gps() workaround...
-
-# Initial issues using BTOTT to load data and used move:: directly
-## Using Move package 
-data <- move::getMovebankLocationData(study="BTO/NE/Pensthorpe/WWT - Eurasian Curlews - headstarted 2021",
+# Ongoing issues using BTOTT to load and clean data. Workaround to use move:: directly
+data <- move::getMovebankLocationData(study="BTO/NE/Pensthorpe/WWT - Eurasian Curlews - headstarted",
                                       sensorID=653, login = login)
 
 ## Make parsable as a Track object by BTOTT package
@@ -67,21 +46,24 @@ names(data)[names(data)=="gps.satellite.count"]<-"satellites_used"
 
 
 
-## Match tide data - categorical 2 hours either side of high/low (from Port-log.net reports)
 
+
+
+
+## Match tide data - categorical 2 hours either side of high/low (from Port-log.net reports)
 # Load data and set Datetime class
-tide_dat <- read_csv("data/Wash_tide_data_Bulldog_July_November_2021.csv", 
+tide_dat <- read_csv("data/Wash_tide_data_Bulldog_July_December_2022.csv", 
                      col_types = cols(Observed_DateTime = col_datetime(format = "%d/%m/%Y %H:%M"), Predicted_DateTime = col_datetime(format = "%d/%m/%Y %H:%M")))
 
 
-## find closest match to trk timestamp (package MALDIquant)
+# Find closest match to trk timestamp (package MALDIquant)
 closest<-MALDIquant::match.closest(data$DateTime, tide_dat$Observed_DateTime)
 
-## extract nearest tide time, high/low, height 
+# Extract nearest tide time, high/low, height 
 data$tide_time<-tide_dat$Observed_DateTime[closest]; data$tide_diff<-difftime(data$DateTime, data$tide_time)
 data$tide<-tide_dat$Tide[closest];data$tide_height<-tide_dat$Observed_Height[closest]
 
-## create categorical tide factor with desired threshold; below annotated fixes 2 hour either side of high or low tide
+# Create categorical tide factor with desired threshold; below annotated fixes 2 hour either side of high or low tide
 data$tide<-as.factor(ifelse(data$tide_diff<7201 & data$tide_diff>-7201,data$tide, "NA"))
 
 
@@ -89,39 +71,85 @@ data$tide<-as.factor(ifelse(data$tide_diff<7201 & data$tide_diff>-7201,data$tide
 
 
 
+
+
+# Coerce required trip and gap columns for later functions (not running trip definition for this project as not central place)
+data$tripNo<-1; data$gap<-0; data$gapsec<-1
+
+
+# Tidy surplus columns from move:: direct loading
+drop_cols<-c("event.id", "visible", "individual.id", "deployment.id", "tag.id", "study.id", "sensor.type.id", "tag.local.identifier", "individual.taxon.canonical.name", "acceleration.raw.x", "acceleration.raw.y", "acceleration.raw.z", "barometric.height", "battery.charge.percent", "battery.charging.current", "gps.hdop", "gps.time.to.fix", "heading", "import.marked.outlier", "light.level", "magnetic.field.raw.x", "magnetic.field.raw.y", "magnetic.field.raw.z", "ornitela.transmission.protocol", "study.name", "sensor.type")
+data<- data %>% select(-!!drop_cols)
+
+
+
+
+
+
+
 ## Convert to BTOTT Track object
-data_tt<-Track(data)
+data_tt<-Track(data) 
 data_tt<-clean_GPS(data_tt, drop_sats = 3, Thres = 30, GAP = 28800)
-data_tt<- data_tt %>% filter(TagID=="Yf(0E)O/-:Y/m"|TagID=="Yf(3A)O/-:Y/m") %>% droplevels()
 
-
-data<-Track2TrackStack(data_tt, by="TagID")
-
-# Coerce required trip column (not running trip definition for this project as not central place)
-data$`Yf(0E)O/-:Y/m`$tripNo<-1; data$`Yf(3A)O/-:Y/m`$tripNo<-1
+# Set ID factor
+data_tt$TagID<-as.factor(as.character(data_tt$TagID)) 
 
 
 
-# Filter work around for each ID to select time period
-dat1<- TrackStack2Track(data_all) %>%  filter(TagID=="Yf(0E)O/-:Y/m") %>% filter(DateTime<"2021-07-17 23:59:59")
-dat2<- TrackStack2Track(data_all) %>%  filter(TagID=="Yf(3A)O/-:Y/m") %>% filter(DateTime<"2021-07-31 23:59:59")
-data_2<-Track2TrackStack(rbind(dat1, dat2), by="TagID")
 
-dat1<- TrackStack2Track(data_all) %>%  filter(TagID=="Yf(0E)O/-:Y/m") %>% filter(DateTime<"2021-08-14 23:59:59")
-dat2<- TrackStack2Track(data_all) %>%  filter(TagID=="Yf(3A)O/-:Y/m") %>% filter(DateTime<"2021-08-28 23:59:59")
-data_6<-Track2TrackStack(rbind(dat1, dat2), by="TagID")
+# Remove 2021 deployments
+data_tt<-data_tt %>% filter(TagID!="Yf(0E)O/-:Y/m" & TagID!="Yf(0J)O/-:Y/m" & TagID!="Yf(3A)O/-:Y/m" & TagID!="Yf(3K)O/-:Y/m") %>% droplevels()
 
-dat1<- TrackStack2Track(data_all) %>%  filter(TagID=="Yf(0E)O/-:Y/m") %>% filter(DateTime<"2021-11-27 23:59:59")
-dat2<- TrackStack2Track(data_all) %>%  filter(TagID=="Yf(3A)O/-:Y/m") %>% filter(DateTime<"2021-09-27 23:59:59")
-data_all<-Track2TrackStack(rbind(dat1, dat2), by="TagID")
+
+# Filter work around for each ID to select time period based on staggered deployments
+
+# Two weeks
+dat1<- data_tt %>% filter(TagID=="Yf(6X)O/-:Y/m_KenHill"|TagID=="Yf(6Y)O/-:Y/m_Sandringham"|TagID=="Yf(7E)O/-:Y/m_KenHill"|TagID=="Yf(7K)O/-:Y/m_Sandringham"|TagID=="Yf(7U)O/-:Y/m_KenHill"|TagID=="Yf(7Y)O/-:Y/m_Sandringham")  %>%
+  filter(DateTime<"2022-07-28 23:59:59")
+dat2<- data_tt %>% filter(TagID=="Yf(8E)O/-:Y/m_Sandringham"|TagID=="Yf(8K)O/-:Y/m_Sandringham"|TagID=="Yf(8L)O/-:Y/m_Sandringham")  %>%
+  filter(DateTime<"2022-08-17 23:59:59")
+dat3<- data_tt %>% filter(TagID=="Yf(8X)O/-:Y/m_KenHill") %>% 
+  filter(DateTime<"2022-08-23 23:59:59")
+dat4<- data_tt %>% filter(TagID=="Yf(9J)O/-:Y/m_KenHill"|TagID=="Yf(9L)O/-:Y/m_KenHill")  %>% 
+ filter(DateTime<"2022-08-30 23:59:59")
+
+data_2<-rbind(dat1, dat2, dat3, dat4); data_2$Period<-"two weeks"
+
+
+
+# Six weeks
+dat1<- data_tt %>% filter(TagID=="Yf(6X)O/-:Y/m_KenHill"|TagID=="Yf(6Y)O/-:Y/m_Sandringham"|TagID=="Yf(7E)O/-:Y/m_KenHill"|TagID=="Yf(7K)O/-:Y/m_Sandringham"|TagID=="Yf(7U)O/-:Y/m_KenHill"|TagID=="Yf(7Y)O/-:Y/m_Sandringham")  %>%
+  filter(DateTime<"2022-08-25 23:59:59")
+dat2<- data_tt %>% filter(TagID=="Yf(8E)O/-:Y/m_Sandringham"|TagID=="Yf(8K)O/-:Y/m_Sandringham"|TagID=="Yf(8L)O/-:Y/m_Sandringham")  %>%
+  filter(DateTime<"2022-09-14 23:59:59")
+dat3<- data_tt %>% filter(TagID=="Yf(8X)O/-:Y/m_KenHill") %>% 
+  filter(DateTime<"2022-09-20 23:59:59")
+dat4<- data_tt %>% filter(TagID=="Yf(9J)O/-:Y/m_KenHill"|TagID=="Yf(9L)O/-:Y/m_KenHill")  %>% 
+  filter(DateTime<"2022-09-27 23:59:59")
+
+data_6<-rbind(dat1, dat2, dat3, dat4); data_6$Period<-"six weeks"
+
+
+
+# End of calendar year
+data_all<- data_tt %>%  filter(DateTime<"2022-12-31 23:59:59")
+data_all$Period<-"all"
+
+
+# Final merge
+data<-Track2TrackMultiStack(rbind(data_2, data_6, data_all), by=c("TagID", "Period"))
+
+
+# Save
+
+
+
+# Load
 
 
 
 # Set time period of interest going forward
-#data<-data_all # all
-#data<-data_2   # 2 week post-release
-#data<-data_6   # 6 week post-release
-
+#data<-data[[1]] # all
 
 
 
@@ -454,8 +482,38 @@ ggsave("plot.jpg", width=15, height=15, units="cm", dpi=300)  ## UPDATE FILENAME
 #### UNUSED/TEST CODE ####
 
 
+# Issues cleaning data when loaded through BTOTT - loading below works OK but workaround using move:: used for now
+
+# Set repository
+repo<-"BTO/NE/Pensthorpe/WWT - Eurasian Curlews - headstarted"
+# TagID<-c("Yf(0E)O/-:Y/m", "Yf(3A)O/-:Y/m") # update to individual 
+
+# Set dates manually - error if one NULL and other defined - logged issue in Git
+start<-c("2022-07-14 00:00:00") # First release data
+
+##UPDATE TO INDIVIDUAL DATES
+#end_2<-c("2021-07-17 23:59:59", "2021-07-31 23:59:59") # First 2 weeks post-release
+#end_6<-c("2021-08-14 23:59:59", "2021-08-28 23:59:59") # First 6 weeks post-release
+
+end_all<-c("2022-12-31 23:59:59") # Arbitrary end of calendar year
+
+# Loads for all time period
+data_all <- read_track_MB(TagID=TagID,repo=repo,start=start,end=end_all) 
+#data_2 <- read_track_MB(TagID=TagID,repo=repo,start=start,end=end_2)
+#data_6 <- read_track_MB(TagID=TagID,repo=repo,start=start,end=end_6)
+
+## loads OK but now clean_GPS issue to solve
+# data<- read_track_MB(TagID=TagID,repo=repo,start=start,end=end) %>% clean_GPS() # workaround below
+
+
+
+
+
+
+
+
 ## Note arbitrary trip, gap and gapsec added for now until clean_gps() function fixed - 
-# No significat gaps in data - treat as whole
+# No significant gaps in data - treat as whole
 
 # temp gap fudge -- ONLY needed if loading through BTOTT and not cleaning
 #data$`Yf(0E)O/-:Y/m`$gap<-0; data$`Yf(3A)O/-:Y/m`$gap<-0
