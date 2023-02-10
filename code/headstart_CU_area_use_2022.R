@@ -3,10 +3,10 @@
 
 
 #### NOTES ####
-# Analysis of 2022 deployments
+# Analysis of 2022 deployments and single individual from 2021 still transmitting
 
 # Current plan to re-run different time periods from the beginning for all analyses but would be worth
-# time to code correctly to run by each period
+# time to code correctly to run by each period more efficiently
 
 # Note repo name changed between 2021 and 2022
 
@@ -52,7 +52,7 @@ names(data)[names(data)=="gps.satellite.count"]<-"satellites_used"
 
 ## Match tide data - categorical 2 hours either side of high/low (from Port-log.net reports)
 # Load data and set Datetime class
-tide_dat <- read_csv("data/Wash_tide_data_Bulldog_July_December_2022.csv", 
+tide_dat <- read_csv(here("data/Wash_tide_data_Bulldog_July_December_2022.csv"), 
                      col_types = cols(Observed_DateTime = col_datetime(format = "%d/%m/%Y %H:%M"), Predicted_DateTime = col_datetime(format = "%d/%m/%Y %H:%M")))
 
 
@@ -70,11 +70,30 @@ data$tide<-as.factor(ifelse(data$tide_diff<7201 & data$tide_diff>-7201,data$tide
 
 
 
-
-
-
 # Coerce required trip and gap columns for later functions (not running trip definition for this project as not central place)
 data$tripNo<-1; data$gap<-0; data$gapsec<-1
+
+
+# Add cohort identifier
+c1<-c("Yf(6X)O/-:Y/m_KenHill","Yf(6Y)O/-:Y/m_Sandringham","Yf(7E)O/-:Y/m_KenHill","Yf(7K)O/-:Y/m_Sandringham","Yf(7U)O/-:Y/m_KenHill","Yf(7Y)O/-:Y/m_Sandringham")
+c2<-c("Yf(8E)O/-:Y/m_Sandringham","Yf(8K)O/-:Y/m_Sandringham","Yf(8L)O/-:Y/m_Sandringham")
+c3<-c("Yf(8X)O/-:Y/m_KenHill", "Yf(9J)O/-:Y/m_KenHill","Yf(9L)O/-:Y/m_KenHill")
+
+data<- mutate(data, cohort = factor(case_when(TagID %in% c1 ~ "1",
+                                              TagID %in% c2 ~ "2",
+                                              TagID %in% c3 ~ "3",
+                                              TRUE~ NA_character_)))
+
+
+# Add release site identifier
+c1<-c("Yf(6X)O/-:Y/m_KenHill","Yf(7E)O/-:Y/m_KenHill","Yf(7U)O/-:Y/m_KenHill","Yf(8X)O/-:Y/m_KenHill", "Yf(9J)O/-:Y/m_KenHill","Yf(9L)O/-:Y/m_KenHill")
+c2<-c("Yf(8E)O/-:Y/m_Sandringham","Yf(8K)O/-:Y/m_Sandringham","Yf(8L)O/-:Y/m_Sandringham","Yf(6Y)O/-:Y/m_Sandringham","Yf(7K)O/-:Y/m_Sandringham","Yf(7Y)O/-:Y/m_Sandringham")
+
+data<- mutate(data, release = factor(case_when(TagID %in% c1 ~ "Ken",
+                                              TagID %in% c2 ~ "Sand",
+                                              TRUE~ NA_character_)))
+
+
 
 
 # Tidy surplus columns from move:: direct loading
@@ -97,11 +116,24 @@ data_tt$TagID<-as.factor(as.character(data_tt$TagID))
 
 
 
-# Remove 2021 deployments
-data_tt<-data_tt %>% filter(TagID!="Yf(0E)O/-:Y/m" & TagID!="Yf(0J)O/-:Y/m" & TagID!="Yf(3A)O/-:Y/m" & TagID!="Yf(3K)O/-:Y/m") %>% droplevels()
+# Remove 2021 deployments with no 2022 data
+data_tt<-data_tt %>% filter(TagID!="Yf(0J)O/-:Y/m" & TagID!="Yf(3A)O/-:Y/m" & TagID!="Yf(3K)O/-:Y/m") %>% droplevels()
 
 
 # Filter work around for each ID to select time period based on staggered deployments
+
+# One week
+dat1<- data_tt %>% filter(TagID=="Yf(6X)O/-:Y/m_KenHill"|TagID=="Yf(6Y)O/-:Y/m_Sandringham"|TagID=="Yf(7E)O/-:Y/m_KenHill"|TagID=="Yf(7K)O/-:Y/m_Sandringham"|TagID=="Yf(7U)O/-:Y/m_KenHill"|TagID=="Yf(7Y)O/-:Y/m_Sandringham")  %>%
+  filter(DateTime<"2022-07-21 23:59:59")
+dat2<- data_tt %>% filter(TagID=="Yf(8E)O/-:Y/m_Sandringham"|TagID=="Yf(8K)O/-:Y/m_Sandringham"|TagID=="Yf(8L)O/-:Y/m_Sandringham")  %>%
+  filter(DateTime<"2022-08-10 23:59:59")
+dat3<- data_tt %>% filter(TagID=="Yf(8X)O/-:Y/m_KenHill") %>% 
+  filter(DateTime<"2022-08-16 23:59:59")
+dat4<- data_tt %>% filter(TagID=="Yf(9J)O/-:Y/m_KenHill"|TagID=="Yf(9L)O/-:Y/m_KenHill")  %>% 
+  filter(DateTime<"2022-08-23 23:59:59")
+
+data_1<-rbind(dat1, dat2, dat3, dat4); data_1$Period<-"one week"
+
 
 # Two weeks
 dat1<- data_tt %>% filter(TagID=="Yf(6X)O/-:Y/m_KenHill"|TagID=="Yf(6Y)O/-:Y/m_Sandringham"|TagID=="Yf(7E)O/-:Y/m_KenHill"|TagID=="Yf(7K)O/-:Y/m_Sandringham"|TagID=="Yf(7U)O/-:Y/m_KenHill"|TagID=="Yf(7Y)O/-:Y/m_Sandringham")  %>%
@@ -114,7 +146,6 @@ dat4<- data_tt %>% filter(TagID=="Yf(9J)O/-:Y/m_KenHill"|TagID=="Yf(9L)O/-:Y/m_K
  filter(DateTime<"2022-08-30 23:59:59")
 
 data_2<-rbind(dat1, dat2, dat3, dat4); data_2$Period<-"two weeks"
-
 
 
 # Six weeks
@@ -130,26 +161,34 @@ dat4<- data_tt %>% filter(TagID=="Yf(9J)O/-:Y/m_KenHill"|TagID=="Yf(9L)O/-:Y/m_K
 data_6<-rbind(dat1, dat2, dat3, dat4); data_6$Period<-"six weeks"
 
 
-
-# End of calendar year
-data_all<- data_tt %>%  filter(DateTime<"2022-12-31 23:59:59")
+# End of calendar year (2022 deployments only)
+data_all<- data_tt %>%  filter(TagID!="Yf(0E)O/-:Y/m" & DateTime<"2022-12-31 23:59:59")
 data_all$Period<-"all"
 
 
+# 2021 deployment for 2022
+data_21<- data_tt %>% filter(TagID=="Yf(0E)O/-:Y/m") %>% filter(DateTime>"2022-01-01 00:00:00")
+data_21$Period<-"21_dep_all"
+
+
+
 # Final merge
-data<-Track2TrackMultiStack(rbind(data_2, data_6, data_all), by=c("TagID", "Period"))
+data<-Track2TrackMultiStack(rbind(data_1, data_2, data_6, data_all, data_21), by=c("TagID", "Period"))
 
 
 # Save
-
+setwd("C:/Users/gary.clewley/Desktop/BTO - GDC/2019- Wetland and Marine Team/_NE103 -- Headstarted Curlew tracking/Data/")
+save(data, file="NE103_2022 report_clean tracking data.RData")
 
 
 # Load
+setwd("C:/Users/gary.clewley/Desktop/BTO - GDC/2019- Wetland and Marine Team/_NE103 -- Headstarted Curlew tracking/Data/")
+load("NE103_2022 report_clean tracking data.RData")
 
 
 
-# Set time period of interest going forward
-#data<-data[[1]] # all
+# Set time period of interest going forward for TIA or remove TrackMultiStack and group_by for habitat work
+# data_all<-data[["all"]] # ...etc
 
 
 
@@ -159,24 +198,30 @@ data<-Track2TrackMultiStack(rbind(data_2, data_6, data_all), by=c("TagID", "Peri
 
 
 
-#### BTOTT TASKS ####
+
+#### TIME IN AREA ####
+# Using BTOTT::
 
 # Basic visualisation of data
-plot_leaflet(data)
+plot_leaflet_dev(data[["all"]], lines=FALSE)
 
 
 # Interactive plot with tide data for output
-data_tide<-TrackStack2Track(data)
+data_tide<-TrackStack2Track(data[["all"]])
 data_tide<-data_tide %>% filter(tide!="NA")
 data_tide$Tide<-as.character(fct_recode(data_tide$tide, "High tide" = "HW", "Low tide" = "LW") )
-plot_leaflet_dev(data_tide, TagID = "Yf(3A)O/-:Y/m", plotby="Tide") 
+plot_leaflet_dev(data_tide, plotby="Tide", lines=FALSE, col=c("#31688EFF","#35B779FF")) 
 
 
 
+
+#NOT UPDATED YET FOR 2022
 # basic colour mark sightings plot using leaflet:: directly
 col_data<-read_csv("data/NE103_colour ring locations for mapping.csv")
 m<-leaflet(col_data) %>% addTiles()  %>%
    addCircleMarkers(col_data$Long, col_data$Lat,radius=3, fillOpacity = 1, opacity = 1)
+
+
 
 
 
@@ -196,28 +241,36 @@ ukmap <- sp::spTransform(ukmap,p4)
 # reproject ukmap 
 ukmap <- project_points(ukmap, p4s = p4)
 
+
+
+# Set time period         ##### UPDATE MANUALLY
+tia_dat<-data[["all"]]
+
+
+
 # get bounds
-llyrb = get_bounds(data, p4s=p4) # Defaults to UK BNG p4s = sp::CRS("+init=epsg:27700")
+llyrb = get_bounds(tia_dat, p4s=p4) # Defaults to UK BNG p4s = sp::CRS("+init=epsg:27700")
 
 # run TIA (trial and error on suitable cell size)
-indata_grd <- get_TIA_grd(data, xRa=llyrb$xRa, yRa=llyrb$yRa, cellsize = 250, p4s=p4)
+indata_grd <- get_TIA_grd(tia_dat, xRa=llyrb$xRa, yRa=llyrb$yRa, cellsize = 500, p4s=p4) # Laptop will not process next step if smaller grid size
 
-# rank the time cumulatively for plotting for each bird. Not running population TIA for NE103
-grd_rank_birds<- rank_time(indata_grd, population = FALSE)
+# rank the time cumulatively for plotting for each bird. 
+grd_rank_all<- rank_time(indata_grd, population = TRUE) # Population level
+grd_rank_birds<- rank_time(indata_grd, population = FALSE) # Individual level
 
 
 
 # PLOTTING 
 
 # Set axes limit (units m here) - trial and error to set suitable bounds
-xRa<-c(-35000,10000)
+xRa<-c(-35000,28000)
 yRa<-c(-15000,25000)
 
 # prepare new axes in lat/long
 earth <- 6378.137
 m <- (1 / ((2 * pi / 360) * earth)) /1000
 
-new_lat_lower <- round(ColLat + (min(yRa) * m),1)     ## multiple xyRa by 100 if working in p4 units km
+new_lat_lower <- round(ColLat + (min(yRa) * m),1)     ## multiply xyRa by 100 if working in p4 units km
 new_lat_upper <- round(ColLat + (max(yRa) * m),1)
 new_long_lower <- round(ColLon + (min(xRa) * m) / cos(ColLat * (pi / 180)),1)
 new_long_upper <- round(ColLon + (max(xRa) * m) / cos(ColLat * (pi / 180)),1)	
@@ -226,29 +279,39 @@ lab_long<-seq(new_long_lower, new_long_upper,length.out=length(seq(min(xRa), max
 lab_lat<-seq(new_lat_lower, new_lat_upper,length.out=length(seq(min(yRa), max(yRa),by=5000)))
 
 
-setwd(here("outputs","figures")) # setwd() to save figures
 
-# Set plot device so saving hi-res base R maps
-jpeg("Plot.jpeg", width = 15, height = 15, units = 'cm', res = 300) # UPDATE FILENAME
+# Get colours
+# Get hex colours from viridis (colour blind friendly)
+#scales::viridis_pal()(3)
+#   "#440154FF" "#21908CFF" "#FDE725FF"                 # For GPS plots
+#   "#440154FF" "#31688EFF" "#35B779FF" "#FDE725FF"     # For TIA plots
 
 
 
-sp::plot(ukmap,xlim=xRa, ylim=yRa,col="darkgreen",border="darkgreen", axes=T, yaxt="n",
+
+# Set directory (outside of Github here)
+dir<-"C:/Users/gary.clewley/Desktop/BTO - GDC/2019- Wetland and Marine Team/_NE103 -- Headstarted Curlew tracking/Outputs/"
+plot.name<-"NE106_Headstart CURLE_all data 2022_TIA.tiff"
+
+# Set plot device (saving hi-res base R maps)
+tiff(paste0(dir,plot.name), width=25, height=23, units="cm", pointsize=18, res=600, compression ="lzw")
+
+
+sp::plot(ukmap,xlim=xRa, ylim=yRa,col="grey80",border="grey80", axes=T, yaxt="n",
          xaxt="n", xlab="Longitude", ylab="Latitude",
-         main="Curlew -- 0E") # (manually for each individual)e.g. main=paste("May_",names(grd_rank_birds[2]), sep="")
+         main="July-December 2022")                     # UPDATE MANUALLY
 
 axis(1, at=seq(min(xRa), max(xRa),by=5000), labels=round(lab_long,2)) 
 axis(2, at=seq(min(yRa), max(yRa),by=5000), labels=round(lab_lat,2))
 
 
-
 # UPDATE INDIVIDUAL BETWEEN PLOTS
-plot_TIA(data=grd_rank_birds$`Yf(0E)O/-:Y/m`,Add=TRUE,                    # UPDATE ID SELECTION
+plot_TIA(data=grd_rank_all,Add=TRUE,                    # UPDATE ID SELECTION
          xra=xRa, yra=yRa,
          g_levs = c(1,0.95,0.75,0.5),
          c_levs = c(0.95,0.75,0.5),
-         col_ramp_grd =c("lightblue","blue","yellow","red"),
-         col_ramp_con =c("blue","yellow","red"),
+         col_ramp_grd =c("#440154FF", "#31688EFF", "#35B779FF", "#FDE725FF"),
+         col_ramp_con =c("#31688EFF", "#35B779FF", "#FDE725FF"),
          cont_typ=1)
 
 
@@ -268,41 +331,46 @@ dev.off()
 
 
 
-#### AMT TASKS ####
-#### Habitat selection 
+#### HABITAT SELECTION ####
 
+#### Data prep ####
+# Load amt:: package
 library(amt) 
 
-## Land Cover Map 2020 25m Raster
-landuse <- raster::raster(here("data","NE103_lcm","LCM.tif"))
+
+## Load Land Cover Map 2021 25m Raster
+landuse <- raster::raster(here("data","NE103_LCM2021","LCM.tif"))
 landuse <- raster::projectRaster(landuse, crs =("+proj=tmerc +lat_0=49 +lon_0=-2 +k=0.9996012717 +x_0=400000 +y_0=-100000 +ellps=airy +datum=OSGB36 +units=m +no_defs"), method = "ngb") # method nearest neighbour for categorical raster values (opposed to bilinear interpolation)
 
 
 
-## clean GPS (use BTOTT?)
+
+## ## ## ## ## ## ##
+# Unlist and SET TIME PERIOD
+trk_dat<-TrackStack2Track(data[["all"]]) # Redo manually for all time periods
 
 
 
-## Convert to 'amt' track (using BTOTT headers)
-data<-TrackStack2Track(data) # unlist
-trk <- make_track(data, .x = longitude, .y = latitude, .t = DateTime, id = TagID, tide = tide, crs = "epsg:4326")
 
 
+# Convert to 'amt' track (using BTOTT headers) 
+trk <- make_track(trk_dat, .x = longitude, .y = latitude, .t = DateTime, id = TagID, tide = tide, release=release, cohort=cohort, speed=ground.speed, crs = "epsg:4326")
 
-## Transform to BNG
+
+# Transform to BNG
 trk <- transform_coords(trk, "+proj=tmerc +lat_0=49 +lon_0=-2 +k=0.9996012717 +x_0=400000 +y_0=-100000 +ellps=airy +datum=OSGB36 +units=m +no_defs")
 
 
-## Extract LCM variables
+# Extract LCM variables
 trk <- trk %>% 
   extract_covariates(landuse)
 
 
-## Check sampling rate
+# Check sampling rate
 summarize_sampling_rate_many(trk, cols="id")
 
 
-## Standardised sampling rate 
+# Standardise sampling rate 
 
 #(nesting used on NE86 not functional by ID here - need to look into new syntax - returns as NULL list)
 # Workaround to use unnest_legacy()
@@ -311,49 +379,43 @@ summarize_sampling_rate_many(trk, cols="id")
 # potentially causing issues further on - causes random_points() to fail - luckily sampling consistent anyway in this case
 #trk <- trk %>% nest(data=-"id") %>% 
 #  mutate(data = map(data, ~ .x %>% 
-#    track_resample(rate = minutes(15), tolerance = minutes(3))))  %>%
+#    track_resample(rate = minutes(30), tolerance = minutes(3))))  %>%
 #    unnest_legacy(cols=c(data))
 
 # Revert to class as lost during nesting
-#trk <- make_track(trk, .x = x_, .y = y_, .t = t_, id = id, tide = tide, burst = burst_, crs = "epsg:4326")
+#trk <- make_track(trk, .x = x_, .y = y_, .t = t_, id = id, tide = tide, release=release, cohort=cohort, speed=ground.speed, burst = burst_, crs = "epsg:4326")
 
 
 
 
+# Speed filter to remove likely flight/commuting fixes - using ground.speed from Movebank (not amt calculation)
+trk<-trk %>% filter(speed<4)
 
-## Habitat selection
 
-## As above nesting issue
-avail.pts <- trk %>%  nest(data=-"id") %>% 
-        mutate(rnd_pts = map(data, ~ random_points(., factor = 20, type="random"))) %>% 	
-        select(id, rnd_pts) %>%  # you don't want to have the original point twice, hence drop data
-        unnest_legacy(cols=c(rnd_pts))
 
-# If also sampling by tide
-#avail.pts <- trk %>%  nest(data=-c("id", "tide")) %>% 
-#  mutate(rnd_pts = map(data, ~ random_points(., factor = 20, type="random"))) %>% 	
-#  select(id, tide, rnd_pts) %>%  # you don't want to have the original point twice, hence drop data
-#  unnest_legacy(cols=c(rnd_pts))
+# Create random points for each individual (As above nesting issue)
+
+avail.pts <- trk %>%  nest(data=-c("id", "tide", "cohort", "release")) %>% 
+  mutate(rnd_pts = map(data, ~ random_points(., factor = 20, type="random"))) %>% 	
+  select(id, tide,cohort,release, rnd_pts) %>%  # you don't want to have the original point twice, hence drop data
+  unnest_legacy(cols=c(rnd_pts))
 
 
 # Assign class as lost during nesting
 class(avail.pts) <- c("random_points", class(avail.pts))
 
 
-
-
-
-## Extract LCM values for random points
+# Extract LCM values for random points
 avail.pts <- avail.pts %>% 
   extract_covariates(landuse)
 
 
-## Make factor plotting friendly
+# Make factor plotting friendly
 avail.pts$used<-as.factor(avail.pts$case_)
 avail.pts$used<-fct_recode(avail.pts$used, "Available" = "FALSE", "Used" = "TRUE")
 
 
-## Tidy LCM variable  
+# Tidy LCM variable  # variable name 'layer' with new landuse data for 2022
 rsfdat <- avail.pts %>%  mutate(
   LCM = as.character(LCM), 
   LCM = fct_collapse(LCM,
@@ -369,15 +431,13 @@ rsfdat <- avail.pts %>%  mutate(
 rsfdat$LCM<- factor(rsfdat$LCM, levels=c("Coastal sediment","Saltmarsh","Coastal Rock","Arable","Grassland","Other"))
 
 
-
-
-## RSF models (ran manually for each individual/time period for now)
-
 # set response to numeric
 rsfdat <- rsfdat %>% mutate(case_ = as.numeric(case_))
 
+
 # Weight available data 
 rsfdat$w <- ifelse(rsfdat$case_ == 1, 1, 5000)
+
 
 # Set individual habitat factors (pooling all other habitats into single reference level)
 rsfdat$Coastal <- ifelse(rsfdat$LCM == "Coastal sediment", 1, 0)
@@ -387,56 +447,40 @@ rsfdat$Grassland <- ifelse(rsfdat$LCM == "Grassland", 1, 0)
 rsfdat$Other <- ifelse(rsfdat$LCM == "Other", 1, 0)
 
 
-# Fit habitat specific models
-m1<-glm(case_ ~ Coastal, data = na.omit(rsfdat %>% filter(id=="Yf(0E)O/-:Y/m")), weight=w,family = binomial)
-m2<-glm(case_ ~ Coastal, data = na.omit(rsfdat %>% filter(id=="Yf(3A)O/-:Y/m")), weight=w,family = binomial)
 
-m3<-glm(case_ ~ Saltmarsh, data = na.omit(rsfdat %>% filter(id=="Yf(0E)O/-:Y/m")), weight=w,family = binomial)
-m4<-glm(case_ ~ Saltmarsh, data = na.omit(rsfdat %>% filter(id=="Yf(3A)O/-:Y/m")), weight=w,family = binomial)
-
-m5<-glm(case_ ~ Arable, data = na.omit(rsfdat %>% filter(id=="Yf(0E)O/-:Y/m")), weight=w,family = binomial)
-m6<-glm(case_ ~ Arable, data = na.omit(rsfdat %>% filter(id=="Yf(3A)O/-:Y/m")), weight=w,family = binomial)
-
-m7<-glm(case_ ~ Grassland, data = na.omit(rsfdat %>% filter(id=="Yf(0E)O/-:Y/m")), weight=w,family = binomial)
-m8<-glm(case_ ~ Grassland, data = na.omit(rsfdat %>% filter(id=="Yf(3A)O/-:Y/m")), weight=w,family = binomial)
-
-m9<-glm(case_ ~ Other, data = na.omit(rsfdat %>% filter(id=="Yf(0E)O/-:Y/m")), weight=w,family = binomial)
-m10<-glm(case_ ~ Other, data = na.omit(rsfdat %>% filter(id=="Yf(3A)O/-:Y/m")), weight=w,family = binomial)
+# Save rsfdat for each time period
+setwd("C:/Users/gary.clewley/Desktop/BTO - GDC/2019- Wetland and Marine Team/_NE103 -- Headstarted Curlew tracking/Data/")
+save(rsfdat_all, file="NE103_2022 report_RSF_data_all.RData")
+save(rsfdat_6, file="NE103_2022 report_RSF_data_six weeks.RData")
+save(rsfdat_2, file="NE103_2022 report_RSF_data_two weeks.RData")
+save(rsfdat_1, file="NE103_2022 report_RSF_data_one week.RData")
+save(rsfdat_0E_22, file="NE103_2022 report_RSF_data_0E_22.RData")
 
 
-
-# Check goodness of fit (requires na to be removed)
-LogisticDx::gof(m1)
-
-# Needed to work out long hand for some
-# rsfdat_0E<-rsfdat %>% filter(id=="Yf(0E)O/-:Y/m") %>% na.omit()
-# pROC::auc(pROC::roc(rsfdat_0E$case_~(predict(glm(case_ ~ Grassland, data = na.omit(rsfdat %>% filter(id=="Yf(0E)O/-:Y/m")), weight=w,family = binomial), type=c("response")))))
-#.... extracted manually for each and put into report appendix
-
-
-# Confidence intervals
-c1<-confint(m1); c2<-confint(m2);c3<-confint(m3); c4<-confint(m4);c5<-confint(m5);
-c6<-confint(m6); c7<-confint(m7);c8<-confint(m8); c9<-confint(m9);c10<-confint(m10)
-
-# Manually pull out coefficients and confidence intervals for RSS plot
-id<-c(rep("0E",5), rep("3A",5))
-habitat<-c(rep(c("Coastal sediment", "Saltmarsh", "Arable", "Grassland", "Other"),2))
-conf.low<-c(c1[2], c3[2], c5[2], c7[2], c9[2], c2[2], c4[2], c6[2], c8[2], c10[2])
-conf.high<-c(c1[4], c3[4], c5[4], c7[4], c9[4], c2[4], c4[4], c6[4], c8[4], c10[4])
-coef<-c(coef(m1)[2], coef(m3)[2], coef(m5)[2], coef(m7)[2], coef(m9)[2],
-        coef(m2)[2], coef(m4)[2], coef(m6)[2], coef(m8)[2], coef(m10)[2])
-rss_dat<-data.frame(id, habitat, conf.low, conf.high, coef)
+# Load rsfdat for each time period
+setwd("C:/Users/gary.clewley/Desktop/BTO - GDC/2019- Wetland and Marine Team/_NE103 -- Headstarted Curlew tracking/Data/")
+load("NE103_2022 report_RSF_data_all.RData")
+load("NE103_2022 report_RSF_data_six weeks.RData")
+load("NE103_2022 report_RSF_data_two weeks.RData")
+load("NE103_2022 report_RSF_data_one week.RData")
+load("NE103_2022 report_RSF_data_0E_22.RData")
 
 
 
+
+
+
+
+
+#### RSF plotting ####
 
 ## Available/Used Plot 
-na.omit(rsfdat) %>% filter(id=="Yf(0E)O/-:Y/m") %>%	                          	# filter ID
-ggplot(.,  aes(x=LCM,group=used))                                       +	      # select data and variables - using na.omit() here to exlcude random points offshore outside LCM area
+na.omit(rsfdat_all) %>% #filter(id=="Yf(0E)O/-:Y/m") %>%	                          	# Update period or ID
+  ggplot(.,  aes(x=LCM,group=used))                                       +	      # select data and variables - using na.omit() here to exlcude random points offshore outside LCM area
   geom_bar(position=position_dodge(), aes(y=..prop.., fill = used),
            stat="count", colour="black")                                +       # select barplot of proportions presented side by side with black outline
   scale_fill_manual(values=c("grey70", "grey20"))                       + 		  # define colours, plenty of good built in palettes if colour can be used
-  labs(y = "Proportion of fixes\n", fill="used", x="\nHabitat")         + 			# labels, \n indicates sapce between line and text
+  labs(y = "Proportion of fixes\n", fill="used", x="\nHabitat")         + 			# labels, \n indicates space between line and text
   theme_classic()                                                       +       # remove default grid lines and grey background
   theme(legend.title=element_blank(),  																	 			  # remove legend title
         legend.position = c(0.9,0.8),                                           # specify legend position inside plot area
@@ -444,36 +488,190 @@ ggplot(.,  aes(x=LCM,group=used))                                       +	      
   scale_y_continuous(expand = expansion(mult = c(0, .1)))               +       # remove gap between bars and axis lines
   theme(axis.text.x = element_text(size = 12),axis.text.y = element_text(size = 12),
         axis.title.x = element_text(size = 14),axis.title.y = element_text(size = 14)) +
-  ggtitle("0E - 6 weeks post-release")       # +
+  ggtitle("Jul-Dec 2022")       # +
 # facet_grid(rows=vars(tide)) # if by tide
 
 
 
-# Save plot
-#setwd()
-ggsave("plot.jpg", width=15, height=15, units="cm", dpi=300)  ## UPDATE FILENAME
+# Save plot (outside of Github)
+setwd("C:/Users/gary.clewley/Desktop/BTO - GDC/2019- Wetland and Marine Team/_NE103 -- Headstarted Curlew tracking/Outputs/")
+ggsave("NE103_Headstart CURLE_RSF plot_all data.jpg", width=15, height=15, units="cm", dpi=300)  ## UPDATE FILENAME
+
+
+
+## ## ## ## ## ## ##
+# Calculate error bars (in progress - clunky)
+x<-as.data.frame(rsfdat_all %>% with(table(id,used,LCM)))
+x<-x %>% filter (id!="Yf(0E)O/-:Y/m" & LCM!="Coastal Rock")
+x1<-x %>% filter(used=="Used") %>% group_by(LCM) %>% mutate(prop=Freq/y$Used)
+x2<-x %>% filter(used=="Available") %>% group_by(LCM) %>% mutate(prop=Freq/y$Available)
+
+
+## work out denominator for each individual
+y<-tapply(x$Freq, list(x$id, x$used), sum)
+y<-as.data.frame(y[-1,])
+
+#note differs from flexible plots combining all birds above)
+#prop_u<-x1 %>% group_by(LCM) %>% mutate(mean_prop=mean(prop)) %>% select(LCM, mean_prop) %>% distinct()
+#prop_a<-x2 %>% group_by(LCM) %>% mutate(mean_prop=mean(prop)) %>% select(LCM, mean_prop) %>% distinct()
+
+
+sd_u<-x1 %>% group_by(LCM) %>% mutate(sd=round(sd(prop)/sqrt(12),2)) %>% select(LCM, sd) %>% distinct()
+sd_a<-x2 %>% group_by(LCM) %>% mutate(sd=round(sd(prop)/sqrt(12),2)) %>% select(LCM, sd) %>% distinct()
+
+##### Need to sense check if best to use these proportions for plotting (done by individual rather than combined)
+# then create new simple plot dataframe e.g. below (from NE86) rather than plotting code used above
+# with two rows for each habitat alternating between used and available as per plot
+
+
+
+fig_3_newdf<-as.data.frame(cbind(prop, conf.low, conf.high, se))
+fig_3_newdf$used<-as.factor(rep(c("Available", "Used"), 7))
+fig_3_newdf$lcm_mod<-as.factor(as.character(c("coastal", "coastal", "agriculture","agriculture", "mussel","mussel", "marine", "marine","urban", "urban","other", "other","landfill","landfill")))
+fig_3_newdf$lcm_mod<- factor(fig_3_newdf$lcm_mod, levels=c("coastal", "agriculture", "mussel", "marine", "urban", "other", "landfill"))
+## ## ## ## ## ## ##
 
 
 
 
 
-# Resource selection strength plot
-ggplot(rss_dat, 	aes(x=habitat)) + 
-  geom_point(position=position_dodge(width=0.5), stat="identity", aes(y=exp(coef))) +
-  geom_hline(yintercept=1, linetype="dashed") +
-  geom_errorbar(aes(ymin=exp(conf.low), ymax=exp(conf.high)), colour="black", width=.1) +
-  labs(y = "Resource Selection Strength", x="\nHabitat") +								
-  theme_classic() +    		
-  scale_x_discrete(guide = guide_axis(angle = 45)) +
+
+
+
+
+
+
+
+#### RSS models and plotting####
+## Relative Selection Strength models (ran manually for time period and habitat for now)
+# exp(estimate) for Relative Selection Strength from RSF models
+
+
+
+# Select time period
+rsfdat<-rsfdat_6
+
+# Fit habitat model for each habitat to each individual
+rsffits <- rsfdat  %>% nest(data=-"id") %>%   mutate(mod = map(data, function(x) glm(case_ ~ Coastal, data = x, weight=w,family = binomial)))
+
+## DO NOT open rsffits object from R Studio panel view(rsffits) - keep crashing on 3.6.1
+
+
+# Check goodness of fit
+#rsf_gof <- rsfdat  %>% nest(data=-"id") %>%   mutate(auc_test = map(data, function(x) pROC::auc(pROC::roc(x$case_~(predict(glm(case_ ~ Coastal, data = x, weight=w,family = binomial), type=c("response"))))))) #edit response var
+## ## Running issues for larger datasets for now - to be checked 10.02.23
+
+# tidy model outputs
+rsffits <- rsffits %>%
+   dplyr::mutate(tidy = purrr::map(mod, broom::tidy),
+                 n = purrr::map(data, nrow))
+
+# Unnest and tidy outputs
+rsf_coefs<-rsffits %>% unnest(c(tidy)) %>%  
+       select(-(std.error:p.value))
+
+# rm data from coefs object for efficiency
+rsf_coefs<-within(rsf_coefs, rm(data))
+rsf_coefs<-within(rsf_coefs, rm(mod))
+
+
+# Name for habitat and repeat
+rsf_coefs_coast<-rsf_coefs
+
+
+# Combine and save RSF model outputs
+rsf_coefs_hab<-bind_rows(rsf_coefs_coast, rsf_coefs_grass, rsf_coefs_salt, rsf_coefs_arable, rsf_coefs_other)
+
+setwd("C:/Users/gary.clewley/Desktop/BTO - GDC/2019- Wetland and Marine Team/_NE103 -- Headstarted Curlew tracking/Data/")
+save(rsf_coefs_hab_all, file="NE103_2022 report_RSF_models_all.RData")
+save(rsf_coefs_hab_6, file="NE103_2022 report_RSF_models_six weeks.RData")
+save(rsf_coefs_hab_2, file="NE103_2022 report_RSF_models_two weeks.RData")
+save(rsf_coefs_hab_1, file="NE103_2022 report_RSF_models_one week.RData")
+save(rsf_coefs_hab_0E_22, file="NE103_2022 report_RSF_models_0E_22.RData")
+
+
+# Load RSS data
+setwd("C:/Users/gary.clewley/Desktop/BTO - GDC/2019- Wetland and Marine Team/_NE103 -- Headstarted Curlew tracking/Data/")
+load("NE103_2022 report_RSF_models_all.RData")
+load("NE103_2022 report_RSF_models_six weeks.RData")
+load("NE103_2022 report_RSF_models_two weeks.RData")
+load("NE103_2022 report_RSF_models_one week.RData")
+load("NE103_2022 report_RSF_models_0E_22.RData")
+
+
+
+
+
+## Set data
+rsf_coefs_hab<-rsf_coefs_hab_6
+
+# remove outliers (tbc...)
+
+# One week
+rsf_coefs_hab<- rsf_coefs_hab %>% filter(id!="Yf(6Y)O/-:Y/m_Sandringham"&id!="Yf(7Y)O/-:Y/m_Sandringham"&id!="Yf(8L)O/-:Y/m_Sandringham")
+# Two weeks
+rsf_coefs_hab<- rsf_coefs_hab %>% filter(id!="Yf(8E)O/-:Y/m_Sandringham")
+# Six weeks
+rsf_coefs_hab<- rsf_coefs_hab %>% filter(id!="Yf(8X)O/-:Y/m_KenHill"&id!="Yf(8L)O/-:Y/m_Sandringham")
+# all data
+rsf_coefs_hab<- rsf_coefs_hab %>% filter(id!="Yf(7K)O/-:Y/m_Sandringham"&id!="Yf(8L)O/-:Y/m_Sandringham"&id!="Yf(8X)O/-:Y/m_KenHill")
+
+
+
+# Reorder factor levels
+rsf_coefs_hab$term<- factor(rsf_coefs_hab$term, levels=c("Saltmarsh", "Coastal sediment", "Arable", "Grassland", "Other"))
+
+
+# Set mean and sd around individual selection coefficients
+d2a <- na.omit(rsf_coefs_hab) %>%
+  filter(term!="(Intercept)") %>% 
+  mutate(id = factor(id)) %>% group_by(term) %>%
+  summarize(
+    mean = mean(exp(estimate)),
+    ymin = mean - 1.96 * sd(exp(estimate)),
+    ymax = mean + 1.96 * sd(exp(estimate)))
+
+# Add column for number of factors in plot
+d2a$x <- 1:nrow(d2a) 
+
+
+
+# Plot (habitat factor listed under term from model outputs)
+rsf_coefs_hab %>% filter(term!="(Intercept)") %>%	ggplot(., ) +
+  geom_point(aes(x = term, y = exp(estimate), group = id, col = id),
+             position = position_dodge(width = 0.7))+
+  scale_colour_viridis_d() +
+  geom_rect(mapping = aes(xmin = x - .4, xmax = x + .4, ymin = ymin,
+                          ymax = ymax), data = d2a, inherit.aes = FALSE,
+            fill = "grey90", alpha=0.5) +
+  geom_segment(mapping = aes(x = x - .4, xend = x + .4,
+                             y = mean, yend = mean), data = d2a, inherit.aes = FALSE,
+               size = 1) +
+  geom_hline(yintercept = 0, lty = 2) +
+  labs(x = "Habitat", y = "Relative Selection Strength") +
+  theme(legend.position="none") +
   theme(axis.text.x = element_text(size = 12),axis.text.y = element_text(size = 12),
         axis.title.x = element_text(size = 14),axis.title.y = element_text(size = 14),
-        strip.text.x = element_text(size = 12, face="bold")) + # update facet label
-  facet_grid(cols=vars(id)) +
-  ggtitle("All data") 
+        strip.text.x = element_text(size = 12, face="bold")) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+      panel.background = element_blank(), axis.line = element_line(colour = "black"))+
+  ggtitle("One week post-release")   ## UPDATE MANUALLY
+
+
+
 
 # Save plot
-#setwd()
-ggsave("plot.jpg", width=15, height=15, units="cm", dpi=300)  ## UPDATE FILENAME
+setwd("C:/Users/gary.clewley/Desktop/BTO - GDC/2019- Wetland and Marine Team/_NE103 -- Headstarted Curlew tracking/Outputs/")
+ggsave("NE103_Headtsart CURLE_RSS plot_one week.jpg", width=15, height=15, units="cm", dpi=300)  ## UPDATE FILENAME
+
+
+
+
+
+
+
+
+
 
 
 
@@ -512,12 +710,11 @@ data_all <- read_track_MB(TagID=TagID,repo=repo,start=start,end=end_all)
 
 
 
-## Note arbitrary trip, gap and gapsec added for now until clean_gps() function fixed - 
-# No significant gaps in data - treat as whole
 
-# temp gap fudge -- ONLY needed if loading through BTOTT and not cleaning
-#data$`Yf(0E)O/-:Y/m`$gap<-0; data$`Yf(3A)O/-:Y/m`$gap<-0
-#data$`Yf(0E)O/-:Y/m`$gapsec<-1; data$`Yf(3A)O/-:Y/m`$gapsec<-1
+
+
+
+
 
 
 
@@ -548,61 +745,20 @@ dummy$used<-c(rep(levels(dummy$used)[1],100), rep(levels(dummy$used)[2],100),rep
 
 
 
-####
-
-# Convert to 'amt' track (using Movebank headers)
-trk <- make_track(data, .x = location.long, .y = location.lat, .t = timestamp, id = individual.local.identifier, crs = "+init=epsg:4326")
-
-
-
-
-#### KDE test
-## BELOW ISSUES NOT PLOTTING USING BTOTT BUT;  CLUNKY BUT WORKS OK WOTH OLD NE82 CODE
-
-data_stack<-Track2TrackStack(data_tt, by="TagID")
-
-indata <- track_multi_stack(list(data_stack)) %>% define_trips(method="rect", plot=TRUE, lls = c(0.43, 52.86,0.46, 52.83), p4s = p4)
-
-indata <- track_subsamp(indata, dt = 1800)
-
-k_prep <- kernelUD_prep(data = indata, Choice = 20)
-
-xy <- kernelUD_grid(data = indata,  Choice=20, res=500, ADJVAL = 20000)
-
-oneUD <- adehabitatHR::kernelUD(k_prep,h = "href", grid=xy, same4all = FALSE, kern = "bivnorm")
-#oneUD <- minhref(data = k_prep, grid = xy)
-
-
-ver_1 <- adehabitatHR::getvolumeUD(oneUD)
-ver_1_95 <- adehabitatHR::getverticeshr(oneUD, 95)
-
-sp::plot(ver_1[[1]])
-sp::plot(ver_1_95[ver_1_95$id == "Yf(0E)O/-:Y/m",],add=TRUE)
 
 
 
 
 
-## Plots
-
-#scale_x_discrete(labels = c("Coastal", "Agriculture", "Mussel Bed", "Marine", "Urban", "Other", "Landfill")) +    # rename factor levels without editing original data
 
 
 
 
 
-# Temp nesting fix by individual before using unnest_legacy
-trk_id1<- trk %>%  filter(id=="Yf(0E)O/-:Y/m") %>% 
-  track_resample(rate = minutes(15), tolerance = minutes(3))
-
-trk_id2<- trk %>%  filter(id=="Yf(3A)O/-:Y/m") %>% 
-  track_resample(rate = minutes(15), tolerance = minutes(3))
-
-
-trk<-rbind(trk_id1, trk_id2)
 
 
 
 
-avail.pts <- trk_id2%>% random_points(factor = 20, type="random")
+
+
 
