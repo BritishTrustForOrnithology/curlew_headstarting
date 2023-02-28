@@ -12,7 +12,7 @@
 # package_details <- c("package name 1", "package name 2")
 
 project_details <- list(project_name="curlew", output_version_date="2022_headstarting", workspace_version_date="2022_headstarting")
-package_details <- c("sf","tidyverse","patchwork","move","moveVis","RColorBrewer","viridisLite","rcartocolor","lubridate", "nlme", "lmer", "ggeffects", "broom.mixed", "patchwork")
+package_details <- c("sf","tidyverse","patchwork","move","moveVis","RColorBrewer","viridisLite","rcartocolor","lubridate", "nlme", "lme4", "ggeffects", "broom.mixed", "patchwork")
 seed_number <- 1
 
 
@@ -172,10 +172,11 @@ for (y in year_list) {
   
   # Model with cohort interaction and ring as a random effect
   mod_wt_age_coh_re <- nlme::lme(weight ~ days_age*cohort_num,
-                                 random = ~ 1 + days_age|ring,
+                                 # random = ~ 1 + days_age|ring,
+                                 random = ~ 1|ring,
                                  data = dt_sub)
   
-  lmer::lme4(weight ~ days_age*cohort_num + (1 + days_age))
+  # mod_wt_age_coh_re <- lme4::lmer(weight ~ days_age*cohort_num + (1|ring), data = dt_sub)
   summary(mod_wt_age_coh_re)
   mod_coef_table <- summary(mod_wt_age_coh_re)$tTable
   write.csv(mod_coef_table, file.path(outputwd, paste0("wt_age_mod_coef_", current_year,  ".csv")), row.names = TRUE)
@@ -204,7 +205,8 @@ for (y in year_list) {
   
   # Model with cohort interaction and ring as a random effect
   mod_wing_age_coh_re <- nlme::lme(wing ~ days_age*cohort_num,
-                                   random = ~ 1 + days_age|ring,
+                                   # random = ~ 1 + days_age|ring,
+                                   random = ~ 1|ring,
                                    data = dt_sub,
                                    na.action = na.omit)
   summary(mod_wing_age_coh_re)
@@ -248,7 +250,8 @@ for (y in year_list) {
   
   # Model with cohort interaction and ring as a random effect
   mod_wt_age_re <- nlme::lme(weight ~ days_age,
-                             random = ~ 1 + days_age|ring,
+                             # random = ~ 1 + days_age|ring,
+                             random = ~ 1|ring,
                              data = dt_sub)
   summary(mod_wt_age_re)
   mod_coef_table <- summary(mod_wt_age_re)$tTable
