@@ -123,36 +123,36 @@ ggsave(biom_all,
 
 # =======================    Growth trajectories - 2021  =================
 
-# 2021 data from Pensthorpe
-
-# ------  Exploratory growth trajectory plots & models  ----------
-
-# Linear weight vs age, with cohorts, simple lm
-linear_age_mass <- ggplot(data = dt) +
-  geom_point(aes(y = weight, x = days_age, colour = cohort_num)) +
-  geom_smooth(aes(y = weight, x = days_age, fill = cohort_num, colour = cohort_num), method = "lm") +
-  scale_color_brewer(type = "qual", palette = "Dark2") +
-  scale_fill_brewer(type = "qual", palette = "Dark2") +
-  labs(x = "Age (days)", y = "Weight (g)", title = "Linear regression of weight vs age per cohort group")
-
-ggsave(paste0("lm_age_weight_per_cohort_", today_date, ".png"), device = "png", path = outputwd, width = 30, height = 20, units = "cm")
-
-# # Weight vs age, no cohort grouping
+# # 2021 data from Pensthorpe
+# 
+# # ------  Exploratory growth trajectory plots & models  ----------
+# 
+# # Linear weight vs age, with cohorts, simple lm
 # linear_age_mass <- ggplot(data = dt) +
-#   geom_point(aes(y = weight, x = days_age)) +
-#   geom_smooth(aes(y = weight, x = days_age), method = "lm") +
-#   labs(x = "Age (days)", y = "Weight (g)", title = "Linear regression of weight vs age overall")
-# ggsave(paste0("lm_age_weight_", today_date, ".png"), device = "png", path = outputwd, width = 30, height = 20, units = "cm")
-
-# Model with cohort interaction
-mod_wt_age_coh <- lm(weight ~ days_age*cohort_num, data = dt)
-summary(mod_wt_age_coh)
-
-# Model without cohort interaction
-mod_wt_age <- lm(weight ~ days_age, data = dt)
-summary(mod_wt_age)
-# Model forumula
-# weight = 222.797 + 6.357*days_age
+#   geom_point(aes(y = weight, x = days_age, colour = cohort_num)) +
+#   geom_smooth(aes(y = weight, x = days_age, fill = cohort_num, colour = cohort_num), method = "lm") +
+#   scale_color_brewer(type = "qual", palette = "Dark2") +
+#   scale_fill_brewer(type = "qual", palette = "Dark2") +
+#   labs(x = "Age (days)", y = "Weight (g)", title = "Linear regression of weight vs age per cohort group")
+# 
+# ggsave(paste0("lm_age_weight_per_cohort_", today_date, ".png"), device = "png", path = outputwd, width = 30, height = 20, units = "cm")
+# 
+# # # Weight vs age, no cohort grouping
+# # linear_age_mass <- ggplot(data = dt) +
+# #   geom_point(aes(y = weight, x = days_age)) +
+# #   geom_smooth(aes(y = weight, x = days_age), method = "lm") +
+# #   labs(x = "Age (days)", y = "Weight (g)", title = "Linear regression of weight vs age overall")
+# # ggsave(paste0("lm_age_weight_", today_date, ".png"), device = "png", path = outputwd, width = 30, height = 20, units = "cm")
+# 
+# # Model with cohort interaction
+# mod_wt_age_coh <- lm(weight ~ days_age*cohort_num, data = dt)
+# summary(mod_wt_age_coh)
+# 
+# # Model without cohort interaction
+# mod_wt_age <- lm(weight ~ days_age, data = dt)
+# summary(mod_wt_age)
+# # Model forumula
+# # weight = 222.797 + 6.357*days_age
 
 
 # ------  Formal growth trajectory model for final report  ----------
@@ -164,14 +164,17 @@ year_list <- list(2021, 2022)
 for (y in year_list) {
   
   current_year <- y
+  not_zeroed <- c("8T","8U","8V")
   
-  dt_sub <- dt %>% filter(year == current_year)
+  dt_sub <- dt %>% 
+    filter(year == current_year) %>% 
+    mutate(new_weight = ifelse((current_year == 2022 & cohort_num == 3 & site_code == "Pensthorpe" & flag_id %in% not_zeroed), weight - 56, weight))
   
   
   # -----  Weight vs age*cohort_num  -----
   
   # Model with cohort interaction and ring as a random effect
-  mod_wt_age_coh_re <- nlme::lme(weight ~ days_age*cohort_num,
+  mod_wt_age_coh_re <- nlme::lme(new_weight ~ days_age*cohort_num,
                                  # random = ~ 1 + days_age|ring,
                                  random = ~ 1|ring,
                                  data = dt_sub)
