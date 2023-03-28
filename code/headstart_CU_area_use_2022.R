@@ -215,9 +215,9 @@ plot_leaflet_dev(data_tide, plotby="Tide", lines=FALSE, col=c("#31688EFF","#35B7
 
 
 
-#NOT UPDATED YET FOR 2022
+
 # basic colour mark sightings plot using leaflet:: directly
-col_data<-read_csv("data/NE103_colour ring locations for mapping.csv")
+col_data<-read_csv("data/NE103_2022 colour ring sighting map locations.csv")
 m<-leaflet(col_data) %>% addTiles()  %>%
    addCircleMarkers(col_data$Long, col_data$Lat,radius=3, fillOpacity = 1, opacity = 1)
 
@@ -291,7 +291,7 @@ lab_lat<-seq(new_lat_lower, new_lat_upper,length.out=length(seq(min(yRa), max(yR
 
 # Set directory (outside of Github here)
 dir<-"C:/Users/gary.clewley/Desktop/BTO - GDC/2019- Wetland and Marine Team/_NE103 -- Headstarted Curlew tracking/Outputs/"
-plot.name<-"NE106_Headstart CURLE_all data 2022_TIA.tiff"
+plot.name<-"NE103_Headstart CURLE_all data 2022_TIA.tiff"
 
 # Set plot device (saving hi-res base R maps)
 tiff(paste0(dir,plot.name), width=25, height=23, units="cm", pointsize=18, res=600, compression ="lzw")
