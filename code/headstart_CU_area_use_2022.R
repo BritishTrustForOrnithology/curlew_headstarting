@@ -204,6 +204,8 @@ load("NE103_2022 report_clean tracking data.RData")
 
 # Basic visualisation of data
 plot_leaflet_dev(data[["all"]], lines=FALSE)
+plot_leaflet_dev(data[[1]], lines=FALSE) # 0E plot
+
 
 
 # Interactive plot with tide data for output
