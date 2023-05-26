@@ -182,7 +182,7 @@ for (y in year_list) {
   # mod_wt_age_coh_re <- lme4::lmer(weight ~ days_age*cohort_num + (1|ring), data = dt_sub)
   summary(mod_wt_age_coh_re)
   mod_coef_table <- summary(mod_wt_age_coh_re)$tTable
-  write.csv(mod_coef_table, file.path(outputwd, paste0("wt_age_mod_coef_", current_year,  ".csv")), row.names = TRUE)
+  write.csv(mod_coef_table, file.path(outputwd, paste0("wt_age_coh_mod_coef_", current_year,  ".csv")), row.names = TRUE)
   
   broom.mixed::tidy(mod_wt_age_coh_re) %>% filter(effect == "fixed") %>% dplyr::select(term:p.value)
   broom.mixed::glance(mod_wt_age_coh_re)
@@ -215,7 +215,7 @@ for (y in year_list) {
   summary(mod_wing_age_coh_re)
   
   mod_coef_table <- summary(mod_wing_age_coh_re)$tTable
-  write.csv(mod_coef_table, file.path(outputwd, paste0("wing_age_mod_coef_", current_year, ".csv")), row.names = TRUE)
+  write.csv(mod_coef_table, file.path(outputwd, paste0("wing_age_coh_mod_coef_", current_year, ".csv")), row.names = TRUE)
   
   
   # Use ggeffects package to get predicted fits to plot nicely
