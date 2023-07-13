@@ -81,6 +81,14 @@ googledrive::drive_download(
   path = file.path(datawd, "headstart_curlew_tag_deployment_data_radio.csv")
 )
 
+# resighting data
+googledrive::drive_download(
+  file = "https://docs.google.com/spreadsheets/d/1v-U_m87Nza0P3fcQiEkwOaELwlbwTdaiepFyXUJQhpU/edit?usp=sharing",
+  type = "csv",
+  overwrite = TRUE,
+  path = file.path(datawd, "headstart_curlew_resighting_data.csv")
+)
+
 
 # ----- Load downloaded files  -----
 
@@ -96,6 +104,8 @@ dt_deploy_gps <- read.csv(file.path(datawd, "headstart_curlew_tag_deployment_dat
 # Load radio tag data
 dt_deploy_radio <- read.csv(file.path(datawd, "headstart_curlew_tag_deployment_data_radio.csv"), header = TRUE, stringsAsFactors = FALSE)
 
+# Load resighting data
+dt_resighting <- read.csv(file.path(datawd, "headstart_curlew_resighting_data.csv"), header = TRUE, stringsAsFactors = FALSE)
 
 # ----- Create output for DemOn data entry  -----
 
@@ -190,14 +200,14 @@ dt_biometric %>%
 # ----- playing around  -----
 
 
-dt_all <- dt_biometric %>%
-  right_join(dt_meta, by = c("flag_id",  "ring"))
-
-dt_all %>% 
-  filter(tag_gps_radio_none %in% "gps") %>% 
-  filter(type %in% "R") %>% 
-  filter(year.x %in% "2022") %>% 
-  dplyr::select(flag_id, tagged_date, days_age, weight, wing) %>% 
-  group_by(tagged_date) %>% 
-  summarise(mean_age = mean(days_age), sd_age = sd(days_age), min_age = min(days_age), max_age = max(days_age), mean_weight = mean(weight), mean_wing = mean(wing)) %>% 
-  arrange(tagged_date)
+# dt_all <- dt_biometric %>%
+#   right_join(dt_meta, by = c("flag_id",  "ring"))
+# 
+# dt_all %>% 
+#   filter(tag_gps_radio_none %in% "gps") %>% 
+#   filter(type %in% "R") %>% 
+#   filter(year.x %in% "2022") %>% 
+#   dplyr::select(flag_id, tagged_date, days_age, weight, wing) %>% 
+#   group_by(tagged_date) %>% 
+#   summarise(mean_age = mean(days_age), sd_age = sd(days_age), min_age = min(days_age), max_age = max(days_age), mean_weight = mean(weight), mean_wing = mean(wing)) %>% 
+#   arrange(tagged_date)
