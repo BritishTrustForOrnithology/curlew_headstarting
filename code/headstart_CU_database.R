@@ -89,6 +89,21 @@ googledrive::drive_download(
   path = file.path(datawd, "headstart_curlew_resighting_data.csv")
 )
 
+# egg collection data
+googledrive::drive_download(
+  file = "https://docs.google.com/spreadsheets/d/18JzojuDbjbuqsboZ5clSNgtX5iOXu1ikR_J8FQptzUA/edit?usp=sharing",
+  type = "csv",
+  overwrite = TRUE,
+  path = file.path(datawd, "headstart_curlew_egg_collection_data.csv")
+)
+
+# rearing data
+googledrive::drive_download(
+  file = "https://docs.google.com/spreadsheets/d/1cpXhZwueeV5TqP4wANnWIxW6U8KSdmCvClKf4E-To2Y/edit?usp=sharing",
+  type = "csv",
+  overwrite = TRUE,
+  path = file.path(datawd, "headstart_curlew_rearing_data.csv")
+)
 
 # ----- Load downloaded files  -----
 
@@ -106,6 +121,12 @@ dt_deploy_radio <- read.csv(file.path(datawd, "headstart_curlew_tag_deployment_d
 
 # Load resighting data
 dt_resighting <- read.csv(file.path(datawd, "headstart_curlew_resighting_data.csv"), header = TRUE, stringsAsFactors = FALSE)
+
+# Load egg collection data
+dt_eggs <- read.csv(file.path(datawd, "headstart_curlew_egg_collection_data.csv"), header = TRUE, stringsAsFactors = FALSE)
+
+# Load rearing data
+dt_rearing <- read.csv(file.path(datawd, "headstart_curlew_rearing_data.csv"), header = TRUE, stringsAsFactors = FALSE)
 
 # ----- Create output for DemOn data entry  -----
 
@@ -211,3 +232,17 @@ dt_biometric %>%
 #   group_by(tagged_date) %>% 
 #   summarise(mean_age = mean(days_age), sd_age = sd(days_age), min_age = min(days_age), max_age = max(days_age), mean_weight = mean(weight), mean_wing = mean(wing)) %>% 
 #   arrange(tagged_date)
+
+
+# ----- Merge individual metadata with egg & rearing data (released birds only)  ------
+
+dt_meta_rear <- dt_meta %>% 
+  right_join(dt_rearing, by = c("flag_id", "year"))
+
+dt_meta_rear_egg <- dt_meta_rear %>% 
+  right_join(dt_eggs, by = c("year", "clutch_num"))
+
+# tally of released birds only by airfield
+dt_meta_rear_egg %>% 
+  group_by(year, airfield_name) %>% 
+  tally()
