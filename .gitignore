@@ -5,6 +5,7 @@
 # folders
 workspaces/*
 output/*
+exported_map/*
 media/*
 gis/*
 
