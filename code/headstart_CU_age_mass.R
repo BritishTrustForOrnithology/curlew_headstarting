@@ -11,7 +11,7 @@
 # project_details <- list(project_name, output_version_name, workspace_version_name)
 # package_details <- c("package name 1", "package name 2")
 
-project_details <- list(project_name="curlew", output_version_date="2022_headstarting", workspace_version_date="2022_headstarting")
+project_details <- list(project_name="curlew", output_version_date="2023_headstarting", workspace_version_date="2023_headstarting")
 package_details <- c("sf","tidyverse","patchwork","move","moveVis","RColorBrewer","viridisLite","rcartocolor","lubridate", "nlme", "lme4", "ggeffects", "broom.mixed", "patchwork")
 seed_number <- 1
 
@@ -62,7 +62,7 @@ dt <- dt %>%
 
 # =======================    Figures - 2021 Pensthorpe birds   =================
 
-year_list <- list(2021, 2022)
+year_list <- list(2021, 2022, 2023)
 age_mass <- list()
 age_wing <- list()
 weight_wing <- list()

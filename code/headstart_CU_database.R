@@ -6,39 +6,39 @@
 ##############################
 
 
-# ======================   Variables to pass to setup code source  ===========
-
-# Header code to install and load packages, set directory paths, set seed, capture session info
-
-# project_details <- list(project_name, output_version_name, workspace_version_name)
-# package_details <- c("package name 1", "package name 2")
-
-project_details <- list(project_name="curlew", output_version_date="2022-11", workspace_version_date="2022-11")
-package_details <- c("sf","tidyverse","patchwork","move","moveVis","RColorBrewer","viridisLite","rcartocolor","lubridate")
-seed_number <- 1
-
-
-
-# =======================    Read header source code   =================
-
-# header code source:
-# 1. sets working directories
-# 2. loads required packages
-# 3. prints session info to file
-# 4. sets seed for reproducibility
-
-# should run on either PC or Mac if using .Rproj
-source(file.path("code/source_setup_code_rproj.R"))
-
-# project directories created:
-# parentwd = Git
-# projectwd = eurasian_african_bird_migration_atlas
-# codewd = directory containing code, functions, source, etc
-# datawd = directory containing data
-# outputwd = directory containing outputs and results (within the appropriate version date)
-# workspacewd = directory containing workspace files (.rds, .rda, .RData; within the appropriate version date)
-# topoutputwd = top level output directory
-# topworkspacewd= top level workspace directory
+# # ======================   Variables to pass to setup code source  ===========
+# 
+# # Header code to install and load packages, set directory paths, set seed, capture session info
+# 
+# # project_details <- list(project_name, output_version_name, workspace_version_name)
+# # package_details <- c("package name 1", "package name 2")
+# 
+# project_details <- list(project_name="curlew", output_version_date="2023-07", workspace_version_date="2023-07")
+# package_details <- c("sf","tidyverse","patchwork","move","moveVis","RColorBrewer","viridisLite","rcartocolor","lubridate")
+# seed_number <- 1
+# 
+# 
+# 
+# # =======================    Read header source code   =================
+# 
+# # header code source:
+# # 1. sets working directories
+# # 2. loads required packages
+# # 3. prints session info to file
+# # 4. sets seed for reproducibility
+# 
+# # should run on either PC or Mac if using .Rproj
+# source(file.path("code/source_setup_code_rproj.R"))
+# 
+# # project directories created:
+# # parentwd = Git
+# # projectwd = eurasian_african_bird_migration_atlas
+# # codewd = directory containing code, functions, source, etc
+# # datawd = directory containing data
+# # outputwd = directory containing outputs and results (within the appropriate version date)
+# # workspacewd = directory containing workspace files (.rds, .rda, .RData; within the appropriate version date)
+# # topoutputwd = top level output directory
+# # topworkspacewd= top level workspace directory
 
 
 
