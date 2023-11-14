@@ -162,61 +162,12 @@ names(dt_biometric) <- biometric_field_names
 
 # add date to biometric data
 dt_biometric <- dt_biometric %>% 
-  mutate(across(.cols = c("day", "month", "year"), .fns = as.character)) %>% 
+  filter(!is.na(urn)) %>% 
+  mutate(across(.cols = c("day", "month", "year", "LB"), .fns = as.character)) %>% 
   mutate(date = ifelse(is.na(year), NA, paste(day, month, year, sep="/"))) %>% 
-  mutate(new_date = as.Date(date, tz = "BST", format = c("%d/%m/%Y")))
-
-# # ----- Create output for DemOn data entry  -----
-# 
-# dt_biometric_ringing <- dt_biometric %>% filter(type %in% "H")
-# 
-# # Merge metadata with biometric ringing event (type = H, as per DemOn code H)
-# # dt_all <- merge(dt_biometric_ringing, dt_meta, by = c("flag_id", "year", "ring"))
-# dt_all <- dt_biometric %>% 
-#   right_join(dt_meta, by = c("flag_id", "year", "ring"))
-# 
-# 
-# # Output easily readable data for DemOn data entry
-# dt_easy_demon <- dt_all %>% 
-#   filter(year %in% 2022) %>% 
-#   filter(type %in% "H") %>% 
-#   filter(release_location != "not released") %>%
-#   filter(entered_demon != "Y") %>% 
-#   arrange(ring) %>% 
-#   mutate(scheme = "GBT",
-#          species = "Curlew",
-#          sexing_method = "DNA",
-#          capture_time = "12:00",
-#          condition = "H",
-#          capture_method = "H",
-#          metal_mark_info = "N",
-#          colour_mark_info = "U"
-#          ) %>% 
-#   dplyr::select(entered_demon, type, ring, scheme, species, age, sex, sexing_method, release_date, capture_time, release_location, condition, capture_method, metal_mark_info, wing_initials, colour_mark_info, LB, RB, LA, RA, tag_gps_radio_none)
-# 
-# dt_easy_demon <- dt_easy_demon %>% 
-#   rename(vist_date = release_date,
-#          location = release_location,
-#          extra_text = tag_gps_radio_none) %>% 
-#   mutate(location = ifelse(location %in% "Ken Hill", "KH-pen", "SH-pen-02")) %>% 
-#   mutate(extra_text = ifelse(extra_text %in% "gps", "gps tag deployed", ifelse(extra_text %in% "radio", "radio tag deployed", "")))
-# # write.csv(dt_easy_demon, file.path(outputwd, "easy_demon_data_entry_2022.csv"), row.names = FALSE)
-
-
-# ----- Merge tag deployment data with dt_biometric  -----
-
-# choose latest biometrics date for each individual
-dt_biometric %>% 
-  filter(type %in% "R") %>% 
-  group_by(ring) %>% 
-  summarise(max_date = max(new_date), weight, wing, tarsus_toe) %>% 
-  right_join(dt_deploy_gps, by = c("ring")) %>% 
-  filter(year %in% "2022") %>% 
-  dplyr::select(ring, flag_id,tagged_date, release_location, weight.x, wing.x, tarsus_toe) %>% 
-  as.data.frame() %>% 
-  arrange(flag_id) %>% 
-  write.csv(file.path(outputwd, "easy_gps_sm_reporting.csv"), row.names = FALSE)
-
+  mutate(new_date = as.Date(date, tz = "BST", format = c("%d/%m/%Y"))) %>% 
+  mutate(across(.cols = c("day", "month", "year"), .fns = as.integer))
+  
 
 # ----- playing around  -----
 

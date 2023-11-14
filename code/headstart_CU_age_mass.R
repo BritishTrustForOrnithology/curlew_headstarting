@@ -48,7 +48,10 @@ today_date <- format(Sys.Date(), "%d-%b-%Y")
 source(file.path("code", "headstart_CU_database.R"))
 
 # Merge biometric with metadata
-dt_all <- merge(dt_meta, dt_biometric %>% filter(!is.na(weight)), by = c("ring", "year", "flag_id"))
+# In previous seasons, removed rows with no weights, but in 2023 birds were handled / measured multiple times to check feather growth, but weights not always taken (only wing measurements)
+# dt_all <- merge(dt_meta, dt_biometric %>% filter(!is.na(weight)), by = c("ring", "year", "flag_id"))
+dt_all <- merge(dt_meta, dt_biometric, by = c("ring", "year", "flag_id"))
+
 
 dt <- dt_all %>% 
   mutate(cohort_num = as.factor(cohort_num)) %>% 
