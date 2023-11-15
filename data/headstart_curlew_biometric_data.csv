@@ -1,11 +1,7 @@
 Entered DemOn,URN,Day,Month,Year,Site code,County code,Cap time,Ring no,Type,Cohort,Age,Sex,Plum,Wing ini,Wing,Wing Pt,Tars (& toe),Bill,THL,Wht,Time,Moult,P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,Scheme,Ring No,Age (days),Code,LA,LB,RA,RB,Comments
 Y,1,10,06,2021,Pensthorpe,GBNOR,,FA95501,H,,3,,,NAC,150,,,43.8,83.1,370.0,1430,,,,,,,,,,,,,,25,0A,YFN(0A)O,,Y,M,
 Y,2,10,06,2021,Pensthorpe,GBNOR,,FA95502,H,,3,,,NAC,166,,,45.5,86.2,350.0,1440,,,,,,,,,,,,,,29,0C,YFN(0C)O,,Y,M,
-<<<<<<< HEAD
 Ring destroyed,,,,,,,,FA95503,,,3,,,NAC,,,,,,,,,,,,,,,,,,,,,,,,,Y,,
-=======
-,3,,,,,Ring destroyed,,FA95503,,,3,,,NAC,,,,,,,,,,,,,,,,,,,,,,,,,Y,,
->>>>>>> 4e6e453704612065faf22e9f71c67b6cf3c35d58
 Y,4,10,06,2021,Pensthorpe,GBNOR,,FA95504,H,,3,,,NAC,193,,,56.8,100.4,520.0,1450,,,,,,,,,,,,,,29,0E,YFN(0E)O,,Y,M,
 Y,5,10,06,2021,Pensthorpe,GBNOR,,FA95505,H,,3,,,NAC,179,,,55.6,96.7,455.0,1500,,,,,,,,,,,,,,20,0J,YFN(0J)O,,Y,M,
 Y,6,10,06,2021,Pensthorpe,GBNOR,,FA95506,H,,3,,,JAC,114,,,42.6,86.0,310.0,1510,,,,,,,,,,,,,,23,0K,YFN(0K)O,,Y,M,
@@ -60,11 +56,7 @@ Y,54,10,07,2021,Pensthorpe,GBNOR,,FA95528,H,,3,,,SEF,228,,128,59.5,100.6,503.0,1
 Y,55,10,07,2021,Pensthorpe,GBNOR,,FA95529,H,,3,,,SEF,237,,129,59.6,102.5,509.0,1133,,,,,,,,,,,,,,39,3A,YFN(3A)O,,Y,M,
 Y,56,10,07,2021,Pensthorpe,GBNOR,,FA95530,H,,3,,,SEF,224,,127,60.0,100.5,403.0,1143,,,,,,,,,,,,,,43,3C,YFN(3C)O,,Y,M,odd under development of feather sheaths
 Y,57,10,07,2021,Pensthorpe,GBNOR,,FA95531,H,,3,,,SEF,224,,125,68.0,107.1,499.0,1154,,,,,,,,,,,,,,44,3E,YFN(3E)O,,Y,M,
-<<<<<<< HEAD
 Not released,58,10,07,2021,Pensthorpe,GBNOR,,FA95532,H,,3,,,SEF,196,,127,58.5,108.0,359.0,1206,,,,,,,,,,,,,,40,3H,YFN(3H)O,,Y,M,bad feathers and condition; DEEMED UNFIT FOR RELEASE
-=======
-Y,58,10,07,2021,Pensthorpe,GBNOR,,FA95532,H,,3,,,SEF,196,,127,58.5,108.0,359.0,1206,,,,,,,,,,,,,,40,3H,YFN(3H)O,,Y,M,bad feathers and condition; DEEMED UNFIT FOR RELEASE
->>>>>>> 4e6e453704612065faf22e9f71c67b6cf3c35d58
 Y,59,10,07,2021,Pensthorpe,GBNOR,,FA95533,H,,3,,,SEF,207,,128,61.6,100.6,407.0,1214,,,,,,,,,,,,,,35,3J,YFN(3J)O,,Y,M,"weight originally recorded as 507, think 407 is correct based on second weight at release site; should be 407? bad feathers in the past, now improved"
 Y,60,10,07,2021,Pensthorpe,GBNOR,,FA95534,H,,3,,,SEF,230,,135,65.5,110.1,490.0,1226,,,,,,,,,,,,,,40,3K,YFN(3K)O,,Y,M,
 Y,61,10,07,2021,Pensthorpe,GBNOR,,FA95535,H,,3,,,SEF,222,,128,64.9,109.2,464.0,1248,,,,,,,,,,,,,,45,3L,YFN(3L)O,,Y,M,
@@ -214,22 +206,14 @@ Y,154,10,08,2021,Ken Hill,GBNOR,,FA95581,H,,3,,,LTP,287,,132,93.0,141.0,629.0,09
 ,205,20,07,2022,Pensthorpe,GBNOR,,FJ78404,H,2,3,M,,CBG,293,,137,80.6,120.3,490.3,1506,,,,,,,,,,,,,,56,8K,YFN(8K)O,,Y,M,right P8 = 2; right P3 = 3; left P8 = 3; left P9-10 = 4
 ,206,20,07,2022,Pensthorpe,GBNOR,,FJ78405,H,2,3,F,,CBG,241,,140,104.2,151.0,569.0,1519,,,,,,,,,,,,,,52,8L,YFN(8L)O,,Y,M,P7-10 still growing
 ,207,20,07,2022,Pensthorpe,GBNOR,,FJ78406,H,2,3,F,,CBG,237,,140,111.8,156.0,676.8,1530,,,,,,,,,,,,,,53,8N,YFN(8N)O,,Y,M,"right P6-10 growing; left P5 missing, 6-10 growing"
-<<<<<<< HEAD
 Not released,208,20,07,2022,Pensthorpe,GBNOR,,FJ78407,H,2,3,M,,CBG,224,,135,82.8,124.7,507.5,1542,,,,,,,,,,,,,,55,8P,YFN(8P)O,,Y,M,right P7-10 growing; DEEMED UNFIT FOR RELEASE
-=======
-,208,20,07,2022,Pensthorpe,GBNOR,,FJ78407,H,2,3,M,,CBG,224,,135,82.8,124.7,507.5,1542,,,,,,,,,,,,,,55,8P,YFN(8P)O,,Y,M,right P7-10 growing; DEEMED UNFIT FOR RELEASE
->>>>>>> 4e6e453704612065faf22e9f71c67b6cf3c35d58
 ,209,03,08,2022,Sandringham,GBNOR,,FJ78404,R,2,3,M,,JAG,292,,133,89.0,132.9,529.5,1000,,,,,,,,,,,,,,70,8K,YFN(8K)O,,Y,M,"gps; fit small male, otherwise ok"
 ,210,03,08,2022,Sandringham,GBNOR,,FJ78405,R,2,3,F,,JAG,282,,139,116.8,166.0,749.6,1000,,,,,,,,,,,,,,66,8L,YFN(8L)O,,Y,M,"gps; slight nick one primary, otherwise good"
 ,211,03,08,2022,Sandringham,GBNOR,,FJ78402,R,2,3,M,,JAG,269,,123,74.3,112.7,509.5,1000,,,,,,,,,,,,,,48,8H,YFN(8H)O,,Y,M,radio; P10 still growing (both sides)
 ,212,03,08,2022,Sandringham,GBNOR,,FA95600,R,2,3,M,,JAG,260,,130,87.3,129.5,537.8,1000,,,,,,,,,,,,,,69,8C,YFN(8C)O,,Y,M,radio; Had previous issues (white 19); LEFT - P2 missing; P3/4 still growing; P9/10 short; RIGHT - P10 short
 ,213,03,08,2022,Sandringham,GBNOR,,FJ78401,R,2,3,M,,JAG,282,,136,79.1,123.9,539.4,1000,,,,,,,,,,,,,,52,8E,YFN(8E)O,,Y,M,gps; ok
 ,214,03,08,2022,Sandringham,GBNOR,,FJ78403,R,2,3,M,,HTE,275,,133,98.8,141.4,635.7,1000,,,,,,,,,,,,,,69,8J,YFN(8J)O,,Y,M,right P7 broken; otherwise same feather condition as 20/07
-<<<<<<< HEAD
 Not released,215,03,08,2022,Pensthorpe,GBNOR,,FJ78407,R,2,3,M,,,,,,,,504.4,1000,,,,,,,,,,,,,,69,8P,YFN(8P)O,,Y,M,"held back; Limping after release back into pen following weighing; right P8 crap; P9 missing; P10 = 2; losing weight subsequently, deemed unfit for release"
-=======
-,215,03,08,2022,Pensthorpe,GBNOR,,FJ78407,R,2,3,M,,,,,,,,504.4,1000,,,,,,,,,,,,,,69,8P,YFN(8P)O,,Y,M,"held back; Limping after release back into pen following weighing; right P8 crap; P9 missing; P10 = 2; losing weight subsequently, deemed unfit for release"
->>>>>>> 4e6e453704612065faf22e9f71c67b6cf3c35d58
 ,216,03,08,2022,Sandringham,GBNOR,,FJ78406,R,2,3,F,,JAG,280,,138,126.9,183.0,805.4,1000,,,,,,,,,,,,,,67,8N,YFN(8N)O,,Y,M,"radio; Right P10 = 4; Left P5 = missing, P9 = 4, P10 = 4"
 ,217,03,08,2022,Pensthorpe,GBNOR,,FJ78408,H,3,3,,,CBG,256,,134,79.2,122.0,532.2,1510,,,,,,,,,,,,,,46,8T,YFN(8T)O,,Y,M,Right P10 = 4
 ,218,03,08,2022,Pensthorpe,GBNOR,,FJ78409,H,3,3,,,CBG,271,,139,92.6,134.0,597.3,1520,,,,,,,,,,,,,,47,8U,YFN(8U)O,,Y,M,Right P10 = 4
@@ -254,7 +238,6 @@ Not released,215,03,08,2022,Pensthorpe,GBNOR,,FJ78407,R,2,3,M,,,,,,,,504.4,1000,
 ,237,15,08,2022,Ken Hill,GBNOR,,FJ78415,R,4,3,,,KMB,269,,134,81.0,124.0,619.0,,,,,,,,,,,,,,,55,9E,YFN(9E)O,,Y,M,radio 173.940
 ,238,15,08,2022,Ken Hill,GBNOR,,FJ78416,R,4,3,,,KMB,272,,127,90.0,131.0,593.0,,,,,,,,,,,,,,,58,9H,YFN(9H)O,,Y,M,radio 173.818
 ,239,15,08,2022,Ken Hill,GBNOR,,FJ78413,R,4,3,,,KMB,288,,139,106.0,147.0,635.0,,,,,,,,,,,,,,,58,9A,YFN(9A)O,,Y,M,radio 173.857
-<<<<<<< HEAD
 ,240,15,08,2022,Ken Hill,GBNOR,,FJ78418,R,4,3,,,KMB,277,,135,87.0,133.0,558.0,,,,,,,,,,,,,,,57,9K,YFN(9K)O,,Y,M,radio 173.762
 ,241,26,06,2023,Pensthorpe,GBNOR,,FJ78437,H,1,3,,,KMB,199,,137,61.4,104.6,465.6,1351,,,,,,,,,,,,,,31,XA,YFN(XA)O,,Y,M,
 ,242,26,06,2023,Pensthorpe,GBNOR,,FJ78438,H,1,3,,,KMB,190,,139,57.3,102.9,456.1,1358,,,,,,,,,,,,,,31,XC,YFN(XC)O,,Y,M,
@@ -363,6 +346,3 @@ Euthanised,331,17,08,2023,Pensthorpe,GBNOR,,FJ78488,H,,3,F,,NAC,273,,,104.0,,,,,
 ,345,13,10,2023,Pensthorpe,GBNOR,,FJ78483,R,,3,F,,SEF,295,,132,122.0,170.0,685.8,,,,,,,,,,,,,,,,KK,YFN(KK)O,,Y,M,left = 297
 ,346,13,10,2023,Pensthorpe,GBNOR,,FJ78464,R,,3,F,,SEF,295,,129,118.0,162.0,669.2,,,,,,,,,,,,,,,,YY,YFN(YY)O,,Y,M,left = 263
 ,347,13,10,2023,Pensthorpe,GBNOR,,FJ78467,R,,3,,,SEF,271,,,,,739.1,,,,,,,,,,,,,,,,LE,YFN(LE)O,,Y,M,left = 241
-=======
-,240,15,08,2022,Ken Hill,GBNOR,,FJ78418,R,4,3,,,KMB,277,,135,87.0,133.0,558.0,,,,,,,,,,,,,,,57,9K,YFN(9K)O,,Y,M,radio 173.762
->>>>>>> 4e6e453704612065faf22e9f71c67b6cf3c35d58
