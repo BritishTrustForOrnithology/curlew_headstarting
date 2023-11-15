@@ -11,7 +11,7 @@
 # project_details <- list(project_name, output_version_name, workspace_version_name)
 # package_details <- c("package name 1", "package name 2")
 
-project_details <- list(project_name="curlew", output_version_date="2022_headstarting", workspace_version_date="2022_headstarting")
+project_details <- list(project_name="curlew", output_version_date="2023_headstarting", workspace_version_date="2023_headstarting")
 package_details <- c("sf","tidyverse","patchwork","move","moveVis","RColorBrewer","viridisLite","rcartocolor","lubridate", "nlme", "lme4", "ggeffects", "broom.mixed", "patchwork")
 seed_number <- 1
 
@@ -48,7 +48,10 @@ today_date <- format(Sys.Date(), "%d-%b-%Y")
 source(file.path("code", "headstart_CU_database.R"))
 
 # Merge biometric with metadata
-dt_all <- merge(dt_meta, dt_biometric %>% filter(!is.na(weight)), by = c("ring", "year", "flag_id"))
+# In previous seasons, removed rows with no weights, but in 2023 birds were handled / measured multiple times to check feather growth, but weights not always taken (only wing measurements)
+# dt_all <- merge(dt_meta, dt_biometric %>% filter(!is.na(weight)), by = c("ring", "year", "flag_id"))
+dt_all <- merge(dt_meta, dt_biometric, by = c("ring", "year", "flag_id"))
+
 
 dt <- dt_all %>% 
   mutate(cohort_num = as.factor(cohort_num)) %>% 
@@ -62,7 +65,7 @@ dt <- dt %>%
 
 # =======================    Figures - 2021 Pensthorpe birds   =================
 
-year_list <- list(2021, 2022)
+year_list <- list(2021, 2022, 2023)
 age_mass <- list()
 age_wing <- list()
 weight_wing <- list()
@@ -182,7 +185,7 @@ for (y in year_list) {
   # mod_wt_age_coh_re <- lme4::lmer(weight ~ days_age*cohort_num + (1|ring), data = dt_sub)
   summary(mod_wt_age_coh_re)
   mod_coef_table <- summary(mod_wt_age_coh_re)$tTable
-  write.csv(mod_coef_table, file.path(outputwd, paste0("wt_age_mod_coef_", current_year,  ".csv")), row.names = TRUE)
+  write.csv(mod_coef_table, file.path(outputwd, paste0("wt_age_coh_mod_coef_", current_year,  ".csv")), row.names = TRUE)
   
   broom.mixed::tidy(mod_wt_age_coh_re) %>% filter(effect == "fixed") %>% dplyr::select(term:p.value)
   broom.mixed::glance(mod_wt_age_coh_re)
@@ -215,7 +218,7 @@ for (y in year_list) {
   summary(mod_wing_age_coh_re)
   
   mod_coef_table <- summary(mod_wing_age_coh_re)$tTable
-  write.csv(mod_coef_table, file.path(outputwd, paste0("wing_age_mod_coef_", current_year, ".csv")), row.names = TRUE)
+  write.csv(mod_coef_table, file.path(outputwd, paste0("wing_age_coh_mod_coef_", current_year, ".csv")), row.names = TRUE)
   
   
   # Use ggeffects package to get predicted fits to plot nicely

@@ -204,6 +204,8 @@ load("NE103_2022 report_clean tracking data.RData")
 
 # Basic visualisation of data
 plot_leaflet_dev(data[["all"]], lines=FALSE)
+plot_leaflet_dev(data[[1]], lines=FALSE) # 0E plot
+
 
 
 # Interactive plot with tide data for output
@@ -215,9 +217,9 @@ plot_leaflet_dev(data_tide, plotby="Tide", lines=FALSE, col=c("#31688EFF","#35B7
 
 
 
-#NOT UPDATED YET FOR 2022
+
 # basic colour mark sightings plot using leaflet:: directly
-col_data<-read_csv("data/NE103_colour ring locations for mapping.csv")
+col_data<-read_csv("data/NE103_2022 colour ring sighting map locations.csv")
 m<-leaflet(col_data) %>% addTiles()  %>%
    addCircleMarkers(col_data$Long, col_data$Lat,radius=3, fillOpacity = 1, opacity = 1)
 
@@ -291,7 +293,7 @@ lab_lat<-seq(new_lat_lower, new_lat_upper,length.out=length(seq(min(yRa), max(yR
 
 # Set directory (outside of Github here)
 dir<-"C:/Users/gary.clewley/Desktop/BTO - GDC/2019- Wetland and Marine Team/_NE103 -- Headstarted Curlew tracking/Outputs/"
-plot.name<-"NE106_Headstart CURLE_all data 2022_TIA.tiff"
+plot.name<-"NE103_Headstart CURLE_all data 2022_TIA.tiff"
 
 # Set plot device (saving hi-res base R maps)
 tiff(paste0(dir,plot.name), width=25, height=23, units="cm", pointsize=18, res=600, compression ="lzw")
@@ -333,7 +335,7 @@ dev.off()
 
 #### HABITAT SELECTION ####
 
-#### Data prep ####
+#### Data prep 
 # Load amt:: package
 library(amt) 
 
@@ -557,9 +559,14 @@ rsffits <- rsfdat  %>% nest(data=-"id") %>%   mutate(mod = map(data, function(x)
 ## DO NOT open rsffits object from R Studio panel view(rsffits) - keep crashing on 3.6.1
 
 
+
 # Check goodness of fit
-#rsf_gof <- rsfdat  %>% nest(data=-"id") %>%   mutate(auc_test = map(data, function(x) pROC::auc(pROC::roc(x$case_~(predict(glm(case_ ~ Coastal, data = x, weight=w,family = binomial), type=c("response"))))))) #edit response var
-## ## Running issues for larger datasets for now - to be checked 10.02.23
+# Running issues originally due to na.action = argument not set. Ran later and daved manually (writeClipboard(as.character(rsf_gof$auc_test)))
+# Could integrate into tidy output if needed
+
+#rsf_gof <- rsfdat  %>% nest(data=-"id") %>%   mutate(auc_test = map(data, function(x) pROC::auc(pROC::roc(x$case_~(predict(glm(case_ ~ Coastal, data = x, weight=w,family = binomial, na.action=na.exclude), type=c("response"))))))) #edit response var
+
+
 
 # tidy model outputs
 rsffits <- rsffits %>%
@@ -590,7 +597,7 @@ save(rsf_coefs_hab_1, file="NE103_2022 report_RSF_models_one week.RData")
 save(rsf_coefs_hab_0E_22, file="NE103_2022 report_RSF_models_0E_22.RData")
 
 
-# Load RSS data
+# Load RSF models
 setwd("C:/Users/gary.clewley/Desktop/BTO - GDC/2019- Wetland and Marine Team/_NE103 -- Headstarted Curlew tracking/Data/")
 load("NE103_2022 report_RSF_models_all.RData")
 load("NE103_2022 report_RSF_models_six weeks.RData")
@@ -601,7 +608,37 @@ load("NE103_2022 report_RSF_models_0E_22.RData")
 
 
 
+#### Stat testing RSF - two-stage modeling
 
+library(emmeans)
+
+# Set data
+x<-rsf_coefs_hab_all
+
+# Set factor
+x$term<-as.factor(as.character(x$term))
+
+# Filter intercept
+x<- x %>% filter(term!="(Intercept)")
+
+# Run linear model
+m1<-lm(x$estimate~x$term)
+summary(m1)
+
+# Check contrasts
+mytest <- emmeans(m1, ~ term)
+contrast(regrid(mytest))
+
+
+## Note - following advice from Fieberg RSF/amt course (2019) but needs considering how to better
+# carry out testing when many model fits are poor (and coefficients then include outliers)
+
+
+
+
+
+
+## RSS PLOTS
 ## Set data
 rsf_coefs_hab<-rsf_coefs_hab_6
 
@@ -618,8 +655,11 @@ rsf_coefs_hab<- rsf_coefs_hab %>% filter(id!="Yf(7K)O/-:Y/m_Sandringham"&id!="Yf
 
 
 
+
 # Reorder factor levels
-rsf_coefs_hab$term<- factor(rsf_coefs_hab$term, levels=c("Saltmarsh", "Coastal sediment", "Arable", "Grassland", "Other"))
+rsf_coefs_hab$term<- factor(rsf_coefs_hab$term, levels=c("Saltmarsh", "Coastal", "Arable", "Grassland", "Other"))
+
+
 
 
 # Set mean and sd around individual selection coefficients
@@ -633,6 +673,11 @@ d2a <- na.omit(rsf_coefs_hab) %>%
 
 # Add column for number of factors in plot
 d2a$x <- 1:nrow(d2a) 
+
+
+
+
+
 
 
 
@@ -671,6 +716,19 @@ ggsave("NE103_Headtsart CURLE_RSS plot_one week.jpg", width=15, height=15, units
 
 
 
+#### Misc plotting ####
+
+#### Colour ring plots (saved from interactive plot)
+
+data <- read.csv("C:/Users/gary.clewley/Desktop/BTO - GDC/2019- Wetland and Marine Team/_NE103 -- Headstarted Curlew tracking/Data/NE103_2022 colour ring sighting map locations.csv")
+
+
+leaflet(data) %>% addTiles() %>%
+       addCircleMarkers(lng = ~longitude, lat = ~latitude, radius =1, opacity=1)
+
+
+
+
 
 
 
@@ -678,6 +736,13 @@ ggsave("NE103_Headtsart CURLE_RSS plot_one week.jpg", width=15, height=15, units
 
 
 #### UNUSED/TEST CODE ####
+
+
+# Convert DateTime class
+data$DateTime<-as.POSIXct(data$DateTime, format="%Y-%m-%d %H:%M:%S" )
+
+
+
 
 
 # Issues cleaning data when loaded through BTOTT - loading below works OK but workaround using move:: used for now
@@ -746,9 +811,20 @@ dummy$used<-c(rep(levels(dummy$used)[1],100), rep(levels(dummy$used)[2],100),rep
 
 
 
+## Issues with GOF test for RSF
+# Tried extracting individual model tests
+
+## individual
+
+dat<-rsfdat %>% filter(id=="Yf(9J)O/-:Y/m_KenHill")
+pROC::auc(pROC::roc(dat$case_~(predict(glm(case_ ~ Coastal, data = dat, weight=w,family = binomial), type=c("response")))))
+pROC::auc(pROC::roc(dat$case_~(predict(glm(case_ ~ Arable, data = dat, weight=w,family = binomial), type=c("response")))))
+pROC::auc(pROC::roc(dat$case_~(predict(glm(case_ ~ Saltmarsh, data = dat, weight=w,family = binomial), type=c("response")))))
+pROC::auc(pROC::roc(dat$case_~(predict(glm(case_ ~ Grassland, data = dat, weight=w,family = binomial), type=c("response")))))
+pROC::auc(pROC::roc(dat$case_~(predict(glm(case_ ~ Other, data = dat, weight=w,family = binomial), type=c("response")))))
 
 
-
+## Resolved by adding na.action=na.exclude to the rsf_gof<- line within the GLM to ensure predict() output was same length as data
 
 
 

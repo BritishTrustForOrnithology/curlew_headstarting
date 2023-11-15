@@ -12,8 +12,8 @@
 # project_details <- list(project_name, output_version_name, workspace_version_name)
 # package_details <- c("package name 1", "package name 2")
 
-project_details <- list(project_name="curlew_headstarting", output_version_date="2022-11", workspace_version_date="2022-11")
-package_details <- c("sf","tidyverse","patchwork","move","moveVis","RColorBrewer","viridisLite","rcartocolor","lubridate","basemaps", "RStoolbox", "cowplot")
+project_details <- list(project_name="curlew_headstarting", output_version_date="2023-07", workspace_version_date="2023-07")
+package_details <- c("sf","tidyverse","patchwork","move","moveVis","RColorBrewer","viridisLite","rcartocolor","lubridate","basemaps", "RStoolbox", "cowplot","sfheaders")
 seed_number <- 1
 
 
@@ -42,16 +42,18 @@ source(file.path("code/source_setup_code_rproj.R"))
 
 # =======================    Control values   =================
 
-current_year <- 2022
+current_year <- 2023
+# current_year <- 2022
 today_date <- Sys.Date()
 set_cohort_num <- c(1,2,3,4)
+set_cohort_num <- c(1,2)
 
 set_fix_rate <- 120
 
 # set which vis to output
-animated_vis <- TRUE
-static_vis <- FALSE
-static_inset_vis <- FALSE
+animated_vis <- FALSE
+static_vis_final_frame <- FALSE
+static_inset_vis <- TRUE
 animate_multiple <- FALSE
 animate_migration <- FALSE
 animate_individuals <- TRUE
@@ -65,26 +67,34 @@ set_fps <- 25
 confidential <- TRUE   # strips lat/lon axis labels from map
 no_labels <- TRUE
 
-filter_by_date <- TRUE
+filter_by_date <- FALSE
 # last_date <- ymd(Sys.Date())
-last_date <- ymd("2022-11-15")
+last_date <- ymd("2023-07-13")
 first_date <- last_date - 30
+
+
+# ====  Load functions  =================================
+
+## Load any functions here
+
+source(paste(codewd, "functions", "run_all_functions.R", sep="/"))
+
 
 # =======================    Individuals to map   =================
 
 bird_flag_list <- c(
-  # "6Y" ,
-  # "7K",
+  "6Y" ,
+  "7K",
   # # "8K", # dead 30/08/2022
-  # "7Y",
-  # "8L",
-  # "6X",
-  # "7E",
-  "8E",
-  # "7U",
-  # "8X",
-  "9L"#,
-  # "9J"
+  # # "7Y",
+  "8L",
+  "6X",
+  # # "7E",
+  # # "8E",
+  # # "7U",
+  "8X",
+  "9L",
+  "9J"
 )
 migrant_list <- c(
   "6Y",
@@ -95,6 +105,7 @@ migrant_list <- c(
 
 # Load individual metadata (pulls live Google sheet data) from current year
 source(file.path("code", "headstart_CU_database.R"))
+
 dt_meta <- dt_meta %>% as_tibble()
 
 # Filter metadata to only tags, current year
@@ -140,9 +151,10 @@ all_tags <- all_tags %>%
   mutate(plot_label = paste(release_location, "cohort", cohort_num, flag_id, sep="_")) %>% 
   mutate(plot_label = str_replace_all(plot_label, " ", "_"))
 
-# manually filter out erroneous point for 8E using event_id
+# manually filter out erroneous point for 8E and 7K using event_id
 all_tags <- all_tags %>% 
-  filter(event_id != 23414031453)
+  filter(event_id != 23414031453) %>% 
+  filter(event_id != 26788471078)
 
 
 # =======================    Plot data - ANIMATED   =================
@@ -321,19 +333,27 @@ if (animated_vis) {
       
       fix_rate <- set_fix_rate
       
-      # filter movement data to site, cohort
+      # filter movement data individual
       bird_df <- all_tags %>% 
         filter(flag_id %in% b)
-      # filter(cohort_num %in% set_cohort_num) %>% 
-      # filter(new_datetime >= strptime(paste(dmy(migration_date), "09:00:00"), format = "%Y-%m-%d %H:%M:%S", tz="UTC") - 3600*72)
-      # filter(new_datetime >= dmy("16-09-2022"))
       
-      # filter by date
-      if (filter_by_date) {
-        bird_df <- bird_df %>% 
-          filter(new_datetime >= ymd(first_date) & new_datetime < ymd(last_date))
-      }
+      # set the migration date (first mig only)
+      mig_date <- bird_df %>% 
+        pull(migration_date) %>% 
+        head(1) %>% 
+        dmy(.) %>% 
+        paste(., "01:00:00") %>% 
+        strptime(., format = "%Y-%m-%d %H:%M:%S", tz="UTC")
       
+      # filter data to 3 day window around migration
+      bird_df <- bird_df %>% 
+        filter(new_datetime >= mig_date - 3600*72 & new_datetime < mig_date + 3600*72)
+      
+      # # filter by date
+      # if (filter_by_date) {
+      #   bird_df <- bird_df %>% 
+      #     filter(new_datetime >= first_date & new_datetime < last_date)
+      # }
       
       num_days_vis <- floor(max(bird_df$new_datetime) - min(bird_df$new_datetime))
       
@@ -793,9 +813,9 @@ if (animated_vis) {
 
 # =======================    Plot data - STATIC   =================
 
-# Static visualisation per individual - final frame   -----------------
+# Static visualisation per individual - final frame of animation   -----------------
 
-if (static_vis) {
+if (static_vis_final_frame) {
   
   final_frame_list <- list()
   
@@ -1014,118 +1034,13 @@ if (static_inset_vis) {
   for (b in bird_flag_list) {
     
     # filter movement data to site, cohort
-    bird_df <- all_tags %>% 
-      filter(flag_id %in% b) %>% 
-      filter(new_datetime >= ymd(first_date) & new_datetime < ymd(last_date))
+    individual_df <- all_tags %>% 
+      filter(flag_id %in% b)
     
     # skip to next bird if no data from the last month
-    if (nrow(bird_df) < 1) next
+    if (nrow(individual_df) < 1) next
     
-    num_days_vis <- floor(max(bird_df$new_datetime) - min(bird_df$new_datetime))
-    
-    message("Creating inset map for ", b, 
-            "\n\nVisualisation runs from ", min(bird_df$new_datetime), " to ", max(bird_df$new_datetime), " over a time period of ", num_days_vis, " days.........\n\n\n")
-    
-    # turn bird_df into spatial points
-    bird_df_sf <- bird_df %>% 
-      sf::st_as_sf(.,
-                   coords = c("location_long",
-                              "location_lat"),
-                   crs = 4326) %>% 
-      mutate(lon = st_coordinates(.)[,1],
-             lat = st_coordinates(.)[,2]) %>% 
-      arrange(new_datetime)
-    
-    bird_df_sf_3857 <- st_transform(bird_df_sf, crs = 3857)
-    
-    bird_df_sf <- bird_df_sf %>% 
-      mutate(lon_3857 = st_coordinates(bird_df_sf_3857)[,1],
-             lat_3857 = st_coordinates(bird_df_sf_3857)[,2])
-    
-    current_extent <- st_bbox(bird_df_sf)
-    
-    set_extent <- st_bbox(c(current_extent[1] - 0.5,
-                            current_extent[2] - 0.2, 
-                            current_extent[3] + 0.5,
-                            current_extent[4] + 0.2), crs = st_crs(4326))
-    
-    set_extent_inset <- st_bbox(c(current_extent[1] - 7,
-                                  current_extent[2] - 4, 
-                                  current_extent[3] + 7,
-                                  current_extent[4] + 4), crs = st_crs(4326))
-    
-    # set defaults for the basemap
-    # set_defaults(map_service = "mapbox", map_type = "hybrid", map_token = "pk.eyJ1Ijoic2ZyYW5rczgyIiwiYSI6ImNrcmZkb2QybDVla2wyb254Y2ptZnlqb3UifQ.YNOfGD1SeRMZJDur73Emyg", map_dir = file.path("gis"))
-    set_defaults(map_service = "esri", map_type = "world_imagery", map_dir = file.path("gis"))
-    
-    # Plot inset map wider area
-    basemap_raster_inset <- basemap_raster(set_extent_inset)
-    # plotRGB(basemap_raster_inset)
-    
-    # Plot main map raster
-    basemap_raster <- basemap_raster(set_extent)
-    # plotRGB(basemap_raster)
-    
-    
-    # # Plot png file
-    # png(file.path(outputwd, paste0(b, "_static_inset_map_", today_date, ".png")), width = 1200, units = "px", res = 300, pointsize = 14)
-    # # raster basemap
-    
-    # plotRGB(basemap_raster_inset, add = TRUE)
-    # plot(st_transform(bird_df_sf$geometry, projection(basemap_raster)), add = TRUE, col = "orangered", bg = "orange", pch = 21, cex = 0.2, lwd = 0.2)
-    # dev.off()
-    
-    
-    # Plot RGB rasterbrick with points geom on top
-    gg_main_map <- RStoolbox::ggRGB(basemap_raster, r=1, g=2, b=3) +
-      geom_sf(data = st_transform(bird_df_sf$geometry, projection(basemap_raster)), fill = "orange", col = "orange", size = 0.5) +
-      geom_sf(data = st_as_sfc(st_bbox(basemap_raster)), fill = NA, color = "black", size = 1) +
-      coord_sf(crs = projection(basemap_raster)) +
-      # theme(axis.text.x=element_blank(), #remove x axis labels
-      #       axis.ticks.x=element_blank(), #remove x axis ticks
-      #       axis.text.y=element_blank(),  #remove y axis labels
-      #       axis.ticks.y=element_blank()  #remove y axis ticks
-      # ) +
-      theme_void()
-    
-    # Create rectangle bounding box for buffered area of the zoomed in basemap raster
-    # Buffer by 20000m
-    bb <- st_bbox(basemap_raster)
-    set_extent_buffer <- st_bbox(c(bb[1] - 20000,
-                                   bb[2] - 20000, 
-                                   bb[3] + 20000,
-                                   bb[4] + 20000), crs = projection(basemap_raster))
-    set_extent_buffer <- st_as_sfc(set_extent_buffer)
-    
-    # create rectangle boundary for outline of the inset map
-    outline_box_inset <- st_as_sfc(st_bbox(basemap_raster_inset))
-    
-    # create inset map
-    # plot inset raster basemap using ggplot RGB conversion
-    # plot zoomed in basemap bounding box (white rectangle)
-    # plot black outline around inset map
-    gg_inset_map <-  RStoolbox::ggRGB(basemap_raster_inset, r=1, g=2, b=3) +
-      # geom_sf(data = points_bb, fill = NA, color = "white", size = 0.7) +
-      geom_sf(data = set_extent_buffer, fill = NA, color = "white", size = 0.7) +  
-      geom_sf(data = outline_box_inset, fill = NA, color = "black", size = 1) +
-      theme_void()
-    
-    # use cowplot package to layer ggplots using ggdraw
-    cowplot::ggdraw() +
-      cowplot::draw_plot(gg_main_map) +
-      cowplot::draw_plot(gg_inset_map, -0.08, -0.08, scale = 0.7, width = 0.5, height = 0.5)
-    
-    ggsave(
-      filename = paste0(b, "_static_inset_map_", today_date, ".png"),
-      device="png",
-      path = outputwd,
-      # height = 10,
-      # width = 12,
-      # units = "in",
-      # width = 800,
-      # units = "px",
-      dpi=300
-    )
+    draw_movement_map(individual_df, map_type = "path", inset_map = FALSE, filter_date = filter_by_date)
     
     
   }
