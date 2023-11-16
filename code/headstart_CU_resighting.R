@@ -43,7 +43,10 @@ source(file.path("code/source_setup_code_rproj.R"))
 
 # =======================    Control values   =================
 
-individual_id <- "4P"
+# which individual for resighting history
+individual_list <- c("2X","5U","6H","6X","7K","8H","8N","YJ","XX","YE","XP","XV","XU","YN","YC","YA","9K","XL","KK","LV","LC")
+
+individual_id <- "8H"
 
 
 # =======================    Load functions   =================
@@ -156,7 +159,9 @@ dt_lat_lon <- dt_lat_lon %>%
           rename(lat = V1, lon = V2)) %>% 
   dplyr::select(flag_id, date, time, lat, lon, new_datetime)
 
-# convert OSGB grid references into eastings and northings
+# convert any OSGB grid references into eastings and northings
+if (dt_location %>% 
+    filter(!is.na(grid_ref)) %>% nrow > 0) {
 dt_osgb <- dt_location %>% 
   filter(!is.na(grid_ref)) %>% 
   mutate(easting = osg_parse(grid_ref)[[1]]) %>% 
@@ -171,15 +176,38 @@ dt_osgb_wgs84 <- dt_osgb %>%
   rename(lat = Y, lon = X) %>% 
   cbind(dt_osgb) %>% 
   dplyr::select(flag_id, date, time, lat, lon, new_datetime)
+
   
 # rbind former grid refs back together with lat-lon rows and arrange earliest to most recent sighting
-dt_all <- rbind(dt_lat_lon, dt_osgb_wgs84) %>% 
+dt_resight_all <- rbind(dt_lat_lon, dt_osgb_wgs84) %>% 
   arrange(new_datetime)
+
+} else {
+
+# if only lat-lon rows, then just use those for resighting history
+dt_resight_all <- rbind(dt_lat_lon) %>% 
+  arrange(new_datetime)
+}
+
+dt_resight_all
+
+# rbind original release data with resighting data
+# Sandringham 1 10km square = TF62; Wolferton village lat lon = 52.828315, 0.456422
+# Sandringham 2 10km square = TF73; Great Bircham lat lon = 52.861603, 0.625233
+# Ken Hill 1 and 2 10km square = TF63; Ken Hill estate office lat lon = 52.893391, 0.497013
+dt_all <- dt_meta %>%
+  filter(flag_id == individual_id) %>% 
+  rename(date = release_date) %>% 
+  mutate(lat = ifelse("Sandringham 1" %in% release_location, 52.828315, ifelse("Sandringham 2" %in% release_location, 52.861603, 52.893391))) %>% 
+  mutate(lon = ifelse("Sandringham 1" %in% release_location, 0.456422, ifelse("Sandringham 2" %in% release_location, 0.625233, 0.497013))) %>% 
+  dplyr::select(flag_id, date, lat, lon) %>% 
+  rbind(., dt_resight_all %>% dplyr::select(flag_id, date, lat, lon))
 
 dt_all
 
+
 # output final sightings table
-write.csv(dt_all %>% dplyr::select(flag_id, date, time, lat, lon), file = file.path(outputwd, paste0(individual_id, "_resighting_history.csv")), row.names = FALSE)
+write.csv(dt_all %>% dplyr::select(flag_id, date, lat, lon), file = file.path(outputwd, paste0(individual_id, "_resighting_history.csv")), row.names = FALSE)
 
 
 # =======================    Generate map png  =================
@@ -189,14 +217,14 @@ write.csv(dt_all %>% dplyr::select(flag_id, date, time, lat, lon), file = file.p
 # --------- Prepare bird data into spatial and set mapping extents ------
 
 # turn bird_df into spatial points
-bird_df_sf <- dt_all %>% 
+bird_df_sf <- dt_resight_all %>% 
   sf::st_as_sf(.,
                coords = c("lon",
                           "lat"),
                crs = 4326) %>% 
   mutate(lon = st_coordinates(.)[,1],
          lat = st_coordinates(.)[,2]) %>% 
-  arrange(new_datetime)
+  arrange(date)
 
 bird_df_sf_3857 <- st_transform(bird_df_sf, crs = 3857)
 
@@ -225,18 +253,19 @@ set_extent_inset <- st_bbox(c(current_extent[1] - 7,
 set_defaults(map_service = "esri", map_type = "world_imagery", map_dir = file.path("gis"))
 
 # OSM 
+set_defaults(map_service = "osm", map_type = "streets", map_dir = file.path("gis"))
 
 # Mapbox
-set_defaults(map_service = "mapbox", map_type = "hybrid", map_token = "pk.eyJ1Ijoic2ZyYW5rczgyIiwiYSI6ImNrcmZkb2QybDVla2wyb254Y2ptZnlqb3UifQ.YNOfGD1SeRMZJDur73Emyg", map_dir = file.path("gis"))
+set_defaults(map_service = "mapbox", map_type = "satellite", map_token = "pk.eyJ1Ijoic2ZyYW5rczgyIiwiYSI6ImNrcmZkb2QybDVla2wyb254Y2ptZnlqb3UifQ.YNOfGD1SeRMZJDur73Emyg", map_dir = file.path("gis"))
 
 
 # Plot inset map wider area
 basemap_raster_inset <- basemap_raster(set_extent_inset)
-# plotRGB(basemap_raster_inset)
+plotRGB(basemap_raster_inset)
 
 # Plot main map raster
 basemap_raster <- basemap_raster(set_extent)
-# plotRGB(basemap_raster)
+plotRGB(basemap_raster)
 
 
 # ------- Plot main map & inset map  --------
