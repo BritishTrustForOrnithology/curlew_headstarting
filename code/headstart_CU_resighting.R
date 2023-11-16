@@ -14,7 +14,7 @@
 # package_details <- c("package name 1", "package name 2")
 
 project_details <- list(project_name="curlew", output_version_date="resighting_histories", workspace_version_date="2023-07")
-package_details <- c("sf","tidyverse","patchwork","move","moveVis","RColorBrewer","viridisLite","rcartocolor","lubridate","rnrfa","basemaps", "RStoolbox", "cowplot")
+package_details <- c("sf","tidyverse","patchwork","move","RColorBrewer","viridisLite","rcartocolor","lubridate","rnrfa", "RStoolbox", "cowplot", "maptiles", "tidyterra")
 seed_number <- 1
 
 
@@ -234,6 +234,17 @@ bird_df_sf <- bird_df_sf %>%
 
 current_extent <- st_bbox(bird_df_sf)
 
+# set extents in 3857
+buffdist_width <- 50*1000
+buffdist_height <- buffdist_width / 1.5
+
+current_extent <- st_bbox(bird_df_sf_3857)
+set_extent <- st_bbox(c(current_extent[1] - buffdist_width,
+                        current_extent[2] - buffdist_height, 
+                        current_extent[3] + buffdist_width,
+                        current_extent[4] + buffdist_height), crs = st_crs(3857))
+
+# set extents in 4326
 set_extent <- st_bbox(c(current_extent[1] - 0.5,
                         current_extent[2] - 0.2, 
                         current_extent[3] + 0.5,
@@ -245,33 +256,121 @@ set_extent_inset <- st_bbox(c(current_extent[1] - 7,
                               current_extent[4] + 4), crs = st_crs(4326))
 
 
-# ----- Get basemap -------
+# testing Simon's code for making a bbox of standard square extent
+buffdist <- 30*1000
+mapzone_3857 <- st_buffer(bird_df_sf_3857, dist = buffdist)
 
-# set defaults for the basemap
+#make a square polygon to cover this
+bbox <- st_bbox(mapzone_3857)
+width <- bbox$xmax - bbox$xmin
+height <- bbox$ymax - bbox$ymin
+aspect <- as.numeric(height/width)
 
-# Esri aerial imagery
-set_defaults(map_service = "esri", map_type = "world_imagery", map_dir = file.path("gis"))
+#modify the bbox depending if the default bbox is tall or wide
+if(aspect>1) {
+  #cat('make wider\n')
+  offset  <- 0.5 * (bbox$xmax - bbox$xmin)
+  centre <- bbox$xmin + offset
+  bbox[1] <- centre - (offset * aspect)
+  bbox[3] <- centre + (offset * aspect)
+}
+if(aspect<1) {
+  #cat('make taller\n')
+  offset  <- 0.5 * (bbox$ymax - bbox$ymin)
+  centre <- bbox$ymin + offset
+  bbox[2] <- centre - (offset / aspect)
+  bbox[4] <- centre + (offset / aspect)
+}
 
-# OSM 
-set_defaults(map_service = "osm", map_type = "streets", map_dir = file.path("gis"))
+#convert to 4326 for getting bbox for zoom level
+mapzone_4326 <- st_transform(mapzone_3857, 4326)
 
-# Mapbox
-set_defaults(map_service = "mapbox", map_type = "satellite", map_token = "pk.eyJ1Ijoic2ZyYW5rczgyIiwiYSI6ImNrcmZkb2QybDVla2wyb254Y2ptZnlqb3UifQ.YNOfGD1SeRMZJDur73Emyg", map_dir = file.path("gis"))
+# ----- Get basemap (package 'maptiles' and 'tidyterra') -------
 
+# MAIN MAP (SPECIFIC AREA)
 
-# Plot inset map wider area
-basemap_raster_inset <- basemap_raster(set_extent_inset)
-plotRGB(basemap_raster_inset)
+# estimate best zoom level
+bbox <- st_bbox(mapzone_4326)
+names(bbox) <- c('left','bottom','right','top')
+best_zoom <- ggmap::calc_zoom(bbox, adjust = as.integer(-1))
 
-# Plot main map raster
-basemap_raster <- basemap_raster(set_extent)
-plotRGB(basemap_raster)
+# get the tiles ESRI satellite imagery
+# change provider = "OpenStreetMap" for OSM tiles
+tile_map <- maptiles::get_tiles(set_extent, provider = "Esri.WorldImagery", zoom = 9)
+
+# crop exactly to extent
+tile_crop_map <- terra::crop(tile_map, set_extent)
+
+# make the basemap
+basemap_main <- ggplot() +
+  tidyterra::geom_spatraster_rgb(data = tile_crop_map) +
+  coord_sf(expand = FALSE) + theme_void()
+
+basemap_main
+
+# INSET MAP (WIDER CONTEXT)
+
+# estimate best zoom level
+names(set_extent_inset) <- c('left','bottom','right','top')
+best_zoom_inset <- ggmap::calc_zoom(set_extent_inset, adjust = as.integer(-1))
+
+# get the tiles ESRI satellite imagery
+tile_map_inset <- maptiles::get_tiles(set_extent_inset, provider = 'Esri.WorldImagery', zoom = 6)
+
+# crop exactly to extent
+tile_crop_map_inset <- terra::crop(tile_map_inset, set_extent_inset)
+
+# make the basemap
+basemap_inset <- ggplot() +
+  tidyterra::geom_spatraster_rgb(data = tile_crop_map_inset) +
+  coord_sf(expand = FALSE) + theme_void()
+
+# ----- Get basemap (package 'basemaps') -------
+
+##########  Below code uses the basemaps package for map tiles  ##########
+
+# # Recent issue logged here (https://github.com/16EAGLE/basemaps/issues/22) indicates that recent updates in package terra have resulted in tiling not rendering correctly
+# # Simon Gillings has suggested alternative packages as a workaround, which he has successfully implemented in the Data Reports workflow
+# 
+# # set defaults for the basemap
+# 
+# # Esri aerial imagery
+# set_defaults(map_service = "esri", map_type = "world_imagery", map_dir = file.path("gis"))
+# 
+# # OSM 
+# set_defaults(map_service = "osm", map_type = "streets", map_dir = file.path("gis"))
+# 
+# # Mapbox
+# set_defaults(map_service = "mapbox", map_type = "satellite", map_token = "pk.eyJ1Ijoic2ZyYW5rczgyIiwiYSI6ImNrcmZkb2QybDVla2wyb254Y2ptZnlqb3UifQ.YNOfGD1SeRMZJDur73Emyg", map_dir = file.path("gis"))
+# 
+# 
+# # Plot inset map wider area
+# basemap_raster_inset <- basemap_raster(set_extent_inset)
+# plotRGB(basemap_raster_inset)
+# 
+# # Plot main map raster
+# basemap_raster <- basemap_raster(set_extent)
+# plotRGB(basemap_raster)
+# 
+# # Plot RGB rasterbrick with points geom on top
+# gg_main_map <- RStoolbox::ggRGB(basemap_raster, r=1, g=2, b=3) +
+#   geom_sf(data = st_transform(bird_df_sf$geometry, projection(basemap_raster)), fill = "magenta", col = "magenta", size = 2) +
+#   geom_sf(data = st_as_sfc(st_bbox(basemap_raster)), fill = NA, color = "black", size = 1) +
+#   coord_sf(crs = projection(basemap_raster)) +
+#   # theme(axis.text.x=element_blank(), #remove x axis labels
+#   #       axis.ticks.x=element_blank(), #remove x axis ticks
+#   #       axis.text.y=element_blank(),  #remove y axis labels
+#   #       axis.ticks.y=element_blank()  #remove y axis ticks
+#   # ) +
+#   theme_void()
+
+######################################################################
 
 
 # ------- Plot main map & inset map  --------
 
-# Plot RGB rasterbrick with points geom on top
-gg_main_map <- RStoolbox::ggRGB(basemap_raster, r=1, g=2, b=3) +
+# Plot basemap with points geom on top
+gg_main_map <- basemap_main +
   geom_sf(data = st_transform(bird_df_sf$geometry, projection(basemap_raster)), fill = "magenta", col = "magenta", size = 2) +
   geom_sf(data = st_as_sfc(st_bbox(basemap_raster)), fill = NA, color = "black", size = 1) +
   coord_sf(crs = projection(basemap_raster)) +
@@ -282,9 +381,11 @@ gg_main_map <- RStoolbox::ggRGB(basemap_raster, r=1, g=2, b=3) +
   # ) +
   theme_void()
 
+gg_main_map
+
 # Create rectangle bounding box for buffered area of the zoomed in basemap raster
 # Buffer by 20000m
-bb <- st_bbox(basemap_raster)
+bb <- st_bbox(tile_crop_map)
 set_extent_buffer <- st_bbox(c(bb[1] - 20000,
                                bb[2] - 20000, 
                                bb[3] + 20000,
