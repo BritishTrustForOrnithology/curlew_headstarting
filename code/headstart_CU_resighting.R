@@ -48,7 +48,6 @@ individual_list <- c("2X","5U","6H","6X","7K","8H","8N","YJ","XX","YE","XP","XV"
 
 # "2X","5U","6H","6X","7K","8H","8N","YJ","XX","YE","XP","XV","XU","YN","YC","YA","9K","XL","KK","LV","LC"
 
-# 8N lat lon mixed up?? FIX
 individual_id <- "YJ"
 
 
@@ -139,8 +138,9 @@ if (dt_location %>%
     filter(!is.na(grid_ref)) %>% nrow > 0) {
   dt_osgb <- dt_location %>% 
     filter(!is.na(grid_ref)) %>% 
-    mutate(easting = osg_parse(grid_ref)[[1]]) %>% 
-    mutate(northing = osg_parse(grid_ref)[[2]])
+    mutate(grid_ref = str_replace_all(grid_ref, fixed(" "), "")) %>% 
+    mutate(easting = osg_parse(grid_ref)$easting) %>% 
+    mutate(northing = osg_parse(grid_ref)$northing)
   
   # transform OSGB spatial points into WGS84 spatial points and back to datafraem
   dt_osgb_wgs84 <- dt_osgb %>% 

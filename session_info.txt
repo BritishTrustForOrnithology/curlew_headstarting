@@ -1,7 +1,7 @@
 
 # =============== Session info ==================
 
-# ----  Date:  16-Nov-2023  --------
+# ----  Date:  17-Nov-2023  --------
 
 R version 4.2.1 (2022-06-23)
 Platform: aarch64-apple-darwin20 (64-bit)
@@ -17,36 +17,35 @@ attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
- [1] cowplot_1.1.1      RStoolbox_0.3.0    basemaps_0.0.5     rnrfa_2.1.0        lubridate_1.9.3   
- [6] rcartocolor_2.0.0  viridisLite_0.4.2  RColorBrewer_1.1-3 moveVis_0.10.5     move_4.2.4        
+ [1] tidyterra_0.4.0    maptiles_0.6.1     cowplot_1.1.1      RStoolbox_0.3.0    rnrfa_2.1.0       
+ [6] lubridate_1.9.3    rcartocolor_2.0.0  viridisLite_0.4.2  RColorBrewer_1.1-3 move_4.2.4        
 [11] raster_3.6-26      sp_2.1-1           geosphere_1.5-18   patchwork_1.1.1    forcats_0.5.1     
 [16] stringr_1.5.1      dplyr_1.1.3        purrr_1.0.2        readr_2.1.4        tidyr_1.3.0       
 [21] tibble_3.2.1       ggplot2_3.4.4      tidyverse_1.3.1    sf_1.0-14         
 
 loaded via a namespace (and not attached):
-  [1] colorspace_2.1-0     class_7.3-20         fs_1.6.3             rstudioapi_0.15.0   
-  [5] proxy_0.4-27         listenv_0.8.0        prodlim_2019.11.13   fansi_1.0.5         
-  [9] xml2_1.3.5           codetools_0.2-18     splines_4.2.1        doParallel_1.0.17   
- [13] cachem_1.0.8         jsonlite_1.8.7       pROC_1.18.0          caret_6.0-93        
- [17] broom_1.0.0          dbplyr_2.2.1         png_0.1-8            compiler_4.2.1      
- [21] httr_1.4.7           backports_1.4.1      assertthat_0.2.1     Matrix_1.5-1        
- [25] fastmap_1.1.1        cli_3.6.1            tools_4.2.1          ggmap_3.0.2         
- [29] gtable_0.3.4         glue_1.6.2           reshape2_1.4.4       Rcpp_1.0.11         
- [33] cellranger_1.1.0     vctrs_0.6.4          nlme_3.1-157         av_0.7.0            
- [37] iterators_1.0.14     timeDate_4021.106    lwgeom_0.2-8         exactextractr_0.9.1 
- [41] gower_1.0.0          globals_0.16.2       rvest_1.0.2          timechange_0.2.0    
- [45] lifecycle_1.0.4      XML_3.99-0.12        future_1.29.0        terra_1.7-55        
- [49] zoo_1.8-12           MASS_7.3-57          scales_1.2.1         ipred_0.9-13        
- [53] hms_1.1.3            slippymath_0.3.1     parallel_4.2.1       curl_5.1.0          
- [57] memoise_2.0.1        pbapply_1.5-0        rpart_4.1.16         stringi_1.8.1       
- [61] foreach_1.5.2        e1071_1.7-13         gifski_1.6.6-1       hardhat_1.2.0       
- [65] lava_1.7.0           bitops_1.0-7         RgoogleMaps_1.4.5.3  rlang_1.1.2         
- [69] pkgconfig_2.0.3      lattice_0.20-45      recipes_1.0.3        tidyselect_1.2.0    
+  [1] googledrive_2.1.1    colorspace_2.1-0     class_7.3-20         fs_1.6.3            
+  [5] rstudioapi_0.15.0    proxy_0.4-27         listenv_0.8.0        furrr_0.3.1         
+  [9] prodlim_2019.11.13   fansi_1.0.5          xml2_1.3.5           codetools_0.2-18    
+ [13] splines_4.2.1        doParallel_1.0.17    cachem_1.0.8         jsonlite_1.8.7      
+ [17] ggeffects_1.2.0      pROC_1.18.0          caret_6.0-93         broom_1.0.0         
+ [21] dbplyr_2.2.1         png_0.1-8            broom.mixed_0.2.9.4  compiler_4.2.1      
+ [25] httr_1.4.7           backports_1.4.1      assertthat_0.2.1     Matrix_1.5-1        
+ [29] fastmap_1.1.1        gargle_1.5.2         cli_3.6.1            tools_4.2.1         
+ [33] ggmap_3.0.2          gtable_0.3.4         glue_1.6.2           reshape2_1.4.4      
+ [37] Rcpp_1.0.11          cellranger_1.1.0     vctrs_0.6.4          nlme_3.1-157        
+ [41] iterators_1.0.14     timeDate_4021.106    exactextractr_0.9.1  gower_1.0.0         
+ [45] globals_0.16.2       rvest_1.0.2          timechange_0.2.0     lifecycle_1.0.4     
+ [49] XML_3.99-0.12        future_1.29.0        terra_1.7-55         zoo_1.8-12          
+ [53] MASS_7.3-57          scales_1.2.1         ipred_0.9-13         hms_1.1.3           
+ [57] parallel_4.2.1       curl_5.1.0           memoise_2.0.1        rpart_4.1.16        
+ [61] stringi_1.8.1        foreach_1.5.2        e1071_1.7-13         hardhat_1.2.0       
+ [65] lava_1.7.0           RgoogleMaps_1.4.5.3  rlang_1.1.2          pkgconfig_2.0.3     
+ [69] bitops_1.0-7         lattice_0.20-45      recipes_1.0.3        tidyselect_1.2.0    
  [73] parallelly_1.32.1    plyr_1.8.9           magrittr_2.0.3       R6_2.5.1            
- [77] magick_2.7.3         generics_0.1.3       DBI_1.1.3            pillar_1.9.0        
- [81] haven_2.5.0          withr_2.5.2          units_0.8-4          survival_3.4-0      
- [85] nnet_7.3-17          future.apply_1.10.0  modelr_0.1.8         crayon_1.5.2        
- [89] KernSmooth_2.23-20   utf8_1.2.4           tzdb_0.4.0           jpeg_0.1-9          
- [93] grid_4.2.1           readxl_1.4.0         data.table_1.14.8    ModelMetrics_1.2.2.2
- [97] reprex_2.0.1         digest_0.6.33        classInt_0.4-10      stats4_4.2.1        
-[101] munsell_0.5.0       
+ [77] generics_0.1.3       DBI_1.1.3            pillar_1.9.0         haven_2.5.0         
+ [81] withr_2.5.2          units_0.8-4          survival_3.4-0       nnet_7.3-17         
+ [85] future.apply_1.10.0  modelr_0.1.8         crayon_1.5.2         KernSmooth_2.23-20  
+ [89] utf8_1.2.4           tzdb_0.4.0           jpeg_0.1-9           grid_4.2.1          
+ [93] readxl_1.4.0         data.table_1.14.8    ModelMetrics_1.2.2.2 reprex_2.0.1        
+ [97] digest_0.6.33        classInt_0.4-10      stats4_4.2.1         munsell_0.5.0       
