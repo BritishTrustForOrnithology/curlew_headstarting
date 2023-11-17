@@ -1,7 +1,7 @@
 ##############################
 #
 #    NE103: Headstarted Curlew Resighting
-#    13/07/2023
+#    13/07/2023, 16/11/2023
 #
 ##############################
 
@@ -46,48 +46,15 @@ source(file.path("code/source_setup_code_rproj.R"))
 # which individual for resighting history
 individual_list <- c("2X","5U","6H","6X","7K","8H","8N","YJ","XX","YE","XP","XV","XU","YN","YC","YA","9K","XL","KK","LV","LC")
 
-individual_id <- "8H"
+# "2X","5U","6H","6X","7K","8H","8N","YJ","XX","YE","XP","XV","XU","YN","YC","YA","9K","XL","KK","LV","LC"
+
+# 8N lat lon mixed up?? FIX
+individual_id <- "YJ"
 
 
 # =======================    Load functions   =================
 
-# Function to convert coordinates in degrees, minutes, seconds to decimal degrees
-
-dms2dec <- function(dms, separators = c("º", "°", "\'", "’", "’’", "\"", "\'\'", "\\?", "′")) {
-  
-  # version 1.4 (2 Feb 2022)
-  # dms: a vector of latitude or longitude in degrees-minutes-seconds-hemisfere, e.g. 41° 34' 10.956" N (with or without spaces)
-  # separators: the characters that are separating degrees, minutes and seconds in 'dms'; mind these are taken in the order in which they appear and not interpreted individually, i.e. 7'3º will be taken as 7 degrees, 3 minutes! input data are assumed to be properly formatted
-  
-  dms <- as.character(dms)
-  dms <- gsub(pattern = " ", replacement = "", x = dms)
-  for (s in separators) dms <- gsub(pattern = s, replacement = "_splitHere_", x = dms)
-  
-  splits <- strsplit(dms, split = "_splitHere_")
-  n <- length(dms)
-  deg <- min <- sec <- hem <- vector("character", n)
-  
-  for (i in 1:n) {
-    deg[i] <- splits[[i]][1]
-    min[i] <- splits[[i]][2]
-    
-    if (length(splits[[i]]) < 4) {
-      hem[i] <- splits[[i]][3]
-    } else {
-      sec[i] <- splits[[i]][3]
-      hem[i] <- splits[[i]][4]
-    }
-  }
-  
-  dec <- colSums(rbind(as.numeric(deg), (as.numeric(min) / 60), (as.numeric(sec) / 3600)), na.rm = TRUE)
-  sign <- ifelse (hem %in% c("N", "E"), 1, -1)
-  hem_miss <- which(is.na(hem))
-  if (length(hem_miss) > 0) {
-    warning("Hemisphere not specified at position(s) ", hem_miss, ", so the sign of the resulting coordinates may be wrong.")
-  }
-  dec <- sign * dec
-  return(dec)
-}  # end dms2dec function
+source(paste(codewd, "functions", "run_all_functions.R", sep="/"))
 
 
 # =======================    Load data   =================
@@ -96,6 +63,9 @@ today_date <- format(Sys.Date(), "%d-%b-%Y")
 
 # Load data
 source(file.path("code", "headstart_CU_database.R"))
+
+
+# =======================    Prepare resighting data   =================
 
 resighting_field_names <- c(
   "qa_qc_comments",
@@ -113,13 +83,18 @@ resighting_field_names <- c(
   "privacy_agreement"
 )
 
-  
 names(dt_resighting) <- resighting_field_names
 
 dt_resighting_filtered <- dt_resighting %>% 
   filter(flag_id != "")
 
 # =======================    Generate history text file  =================
+
+# FIRST
+# Tidy up the Google sheet of form responses, and convert any 'descriptive' locations or locations which include text to a OSGB grid ref or rough lat lon location
+# E.g. if observer enters "Snettisham Pits mudflats opposite Shore Hide" for location, use Gooogle Maps or similar to determine a rough position and replace the observer descriptive location with a spatial one
+# Similarly, if observer includes text with a spatial location, remove the text leaving only the spatial location; e.g. Change "52.4976, 0.62823 Heacham Beach" to just "52.4976, 0.62823"
+# Make a note in the column QA-QC comments on the Google sheet if you make any manual changes, retaining the information of what the observer originally entered in the form
 
 dt_history <- dt_resighting_filtered %>% 
   filter(flag_id == individual_id) %>% 
@@ -162,31 +137,31 @@ dt_lat_lon <- dt_lat_lon %>%
 # convert any OSGB grid references into eastings and northings
 if (dt_location %>% 
     filter(!is.na(grid_ref)) %>% nrow > 0) {
-dt_osgb <- dt_location %>% 
-  filter(!is.na(grid_ref)) %>% 
-  mutate(easting = osg_parse(grid_ref)[[1]]) %>% 
-  mutate(northing = osg_parse(grid_ref)[[2]])
-
-# transform OSGB spatial points into WGS84 spatial points and back to datafraem
-dt_osgb_wgs84 <- dt_osgb %>% 
-  st_as_sf(coords = c("easting", "northing"), crs = 27700) %>%
-  st_transform(4326) %>%
-  st_coordinates() %>%
-  as.data.frame() %>% 
-  rename(lat = Y, lon = X) %>% 
-  cbind(dt_osgb) %>% 
-  dplyr::select(flag_id, date, time, lat, lon, new_datetime)
-
+  dt_osgb <- dt_location %>% 
+    filter(!is.na(grid_ref)) %>% 
+    mutate(easting = osg_parse(grid_ref)[[1]]) %>% 
+    mutate(northing = osg_parse(grid_ref)[[2]])
   
-# rbind former grid refs back together with lat-lon rows and arrange earliest to most recent sighting
-dt_resight_all <- rbind(dt_lat_lon, dt_osgb_wgs84) %>% 
-  arrange(new_datetime)
-
+  # transform OSGB spatial points into WGS84 spatial points and back to datafraem
+  dt_osgb_wgs84 <- dt_osgb %>% 
+    st_as_sf(coords = c("easting", "northing"), crs = 27700) %>%
+    st_transform(4326) %>%
+    st_coordinates() %>%
+    as.data.frame() %>% 
+    rename(lat = Y, lon = X) %>% 
+    cbind(dt_osgb) %>% 
+    dplyr::select(flag_id, date, time, lat, lon, new_datetime)
+  
+  
+  # rbind former grid refs back together with lat-lon rows and arrange earliest to most recent sighting
+  dt_resight_all <- rbind(dt_lat_lon, dt_osgb_wgs84) %>% 
+    arrange(new_datetime)
+  
 } else {
-
-# if only lat-lon rows, then just use those for resighting history
-dt_resight_all <- rbind(dt_lat_lon) %>% 
-  arrange(new_datetime)
+  
+  # if only lat-lon rows, then just use those for resighting history
+  dt_resight_all <- rbind(dt_lat_lon) %>% 
+    arrange(new_datetime)
 }
 
 dt_resight_all
@@ -210,21 +185,22 @@ dt_all
 write.csv(dt_all %>% dplyr::select(flag_id, date, lat, lon), file = file.path(outputwd, paste0(individual_id, "_resighting_history.csv")), row.names = FALSE)
 
 
-# =======================    Generate map png  =================
+
+
+# =======================    Generate map of resightings  =================
 
 # provide a map using static cowplot png code in headstart_curlew_gps_movements.R
 
-# --------- Prepare bird data into spatial and set mapping extents ------
+# --------- Prepare bird data into spatial  ------
 
 # turn bird_df into spatial points
-bird_df_sf <- dt_resight_all %>% 
+bird_df_sf <- dt_all %>% 
   sf::st_as_sf(.,
                coords = c("lon",
                           "lat"),
                crs = 4326) %>% 
   mutate(lon = st_coordinates(.)[,1],
-         lat = st_coordinates(.)[,2]) %>% 
-  arrange(date)
+         lat = st_coordinates(.)[,2])
 
 bird_df_sf_3857 <- st_transform(bird_df_sf, crs = 3857)
 
@@ -232,178 +208,71 @@ bird_df_sf <- bird_df_sf %>%
   mutate(lon_3857 = st_coordinates(bird_df_sf_3857)[,1],
          lat_3857 = st_coordinates(bird_df_sf_3857)[,2])
 
-current_extent <- st_bbox(bird_df_sf)
 
-# set extents in 3857
-buffdist_width <- 50*1000
-buffdist_height <- buffdist_width / 1.5
-
-current_extent <- st_bbox(bird_df_sf_3857)
-set_extent <- st_bbox(c(current_extent[1] - buffdist_width,
-                        current_extent[2] - buffdist_height, 
-                        current_extent[3] + buffdist_width,
-                        current_extent[4] + buffdist_height), crs = st_crs(3857))
-
-# set extents in 4326
-set_extent <- st_bbox(c(current_extent[1] - 0.5,
-                        current_extent[2] - 0.2, 
-                        current_extent[3] + 0.5,
-                        current_extent[4] + 0.2), crs = st_crs(4326))
-
-set_extent_inset <- st_bbox(c(current_extent[1] - 7,
-                              current_extent[2] - 4, 
-                              current_extent[3] + 7,
-                              current_extent[4] + 4), crs = st_crs(4326))
+# # turn bird_df into spatial points
+# bird_release_sf <- dt_all[1,] %>% 
+#   sf::st_as_sf(.,
+#                coords = c("lon",
+#                           "lat"),
+#                crs = 4326) %>% 
+#   mutate(lon = st_coordinates(.)[,1],
+#          lat = st_coordinates(.)[,2])
+# 
+# bird_release_sf_3857 <- st_transform(bird_release_sf, crs = 3857)
 
 
-# testing Simon's code for making a bbox of standard square extent
-buffdist <- 30*1000
-mapzone_3857 <- st_buffer(bird_df_sf_3857, dist = buffdist)
+# --------- Create basemaps for main & inset maps  ------
 
-#make a square polygon to cover this
-bbox <- st_bbox(mapzone_3857)
-width <- bbox$xmax - bbox$xmin
-height <- bbox$ymax - bbox$ymin
-aspect <- as.numeric(height/width)
+# sf_data = spatial points or polygon
+# buff_dist_main = buffer distance (in metres) around sf_data for giving main map some padding; 30km about right
+# buff_dist_inset = buffer distance around sf_data for wider context; 500-800km about right
+# maptype = "main" for main map showing resightings, or "inset" for showing wider geographic context
+# map_provider = see ?maptiles::get_tiles for list of providers
+# returns a list where [[1]] is the ggplot map, and [[2]] is the geom object of the map bbox
 
-#modify the bbox depending if the default bbox is tall or wide
-if(aspect>1) {
-  #cat('make wider\n')
-  offset  <- 0.5 * (bbox$xmax - bbox$xmin)
-  centre <- bbox$xmin + offset
-  bbox[1] <- centre - (offset * aspect)
-  bbox[3] <- centre + (offset * aspect)
-}
-if(aspect<1) {
-  #cat('make taller\n')
-  offset  <- 0.5 * (bbox$ymax - bbox$ymin)
-  centre <- bbox$ymin + offset
-  bbox[2] <- centre - (offset / aspect)
-  bbox[4] <- centre + (offset / aspect)
-}
-
-#convert to 4326 for getting bbox for zoom level
-mapzone_4326 <- st_transform(mapzone_3857, 4326)
-
-# ----- Get basemap (package 'maptiles' and 'tidyterra') -------
-
-# MAIN MAP (SPECIFIC AREA)
-
-# estimate best zoom level
-bbox <- st_bbox(mapzone_4326)
-names(bbox) <- c('left','bottom','right','top')
-best_zoom <- ggmap::calc_zoom(bbox, adjust = as.integer(-1))
-
-# get the tiles ESRI satellite imagery
-# change provider = "OpenStreetMap" for OSM tiles
-tile_map <- maptiles::get_tiles(set_extent, provider = "Esri.WorldImagery", zoom = 9)
-
-# crop exactly to extent
-tile_crop_map <- terra::crop(tile_map, set_extent)
-
-# make the basemap
-basemap_main <- ggplot() +
-  tidyterra::geom_spatraster_rgb(data = tile_crop_map) +
-  coord_sf(expand = FALSE) + theme_void()
+basemap_main <- make_basemap(sf_data = bird_df_sf_3857,
+                             buff_dist = 30*1000,
+                             map_type = "main",
+                             map_provider = "Esri.WorldImagery")
 
 basemap_main
 
-# INSET MAP (WIDER CONTEXT)
+basemap_inset <- make_basemap(sf_data = bird_df_sf_3857,
+                             buff_dist = 800*1000,
+                             map_type = "inset",
+                             map_provider = "Esri.WorldImagery")
 
-# estimate best zoom level
-names(set_extent_inset) <- c('left','bottom','right','top')
-best_zoom_inset <- ggmap::calc_zoom(set_extent_inset, adjust = as.integer(-1))
+basemap_inset
 
-# get the tiles ESRI satellite imagery
-tile_map_inset <- maptiles::get_tiles(set_extent_inset, provider = 'Esri.WorldImagery', zoom = 6)
-
-# crop exactly to extent
-tile_crop_map_inset <- terra::crop(tile_map_inset, set_extent_inset)
-
-# make the basemap
-basemap_inset <- ggplot() +
-  tidyterra::geom_spatraster_rgb(data = tile_crop_map_inset) +
-  coord_sf(expand = FALSE) + theme_void()
-
-# ----- Get basemap (package 'basemaps') -------
-
-##########  Below code uses the basemaps package for map tiles  ##########
-
-# # Recent issue logged here (https://github.com/16EAGLE/basemaps/issues/22) indicates that recent updates in package terra have resulted in tiling not rendering correctly
-# # Simon Gillings has suggested alternative packages as a workaround, which he has successfully implemented in the Data Reports workflow
-# 
-# # set defaults for the basemap
-# 
-# # Esri aerial imagery
-# set_defaults(map_service = "esri", map_type = "world_imagery", map_dir = file.path("gis"))
-# 
-# # OSM 
-# set_defaults(map_service = "osm", map_type = "streets", map_dir = file.path("gis"))
-# 
-# # Mapbox
-# set_defaults(map_service = "mapbox", map_type = "satellite", map_token = "pk.eyJ1Ijoic2ZyYW5rczgyIiwiYSI6ImNrcmZkb2QybDVla2wyb254Y2ptZnlqb3UifQ.YNOfGD1SeRMZJDur73Emyg", map_dir = file.path("gis"))
-# 
-# 
-# # Plot inset map wider area
-# basemap_raster_inset <- basemap_raster(set_extent_inset)
-# plotRGB(basemap_raster_inset)
-# 
-# # Plot main map raster
-# basemap_raster <- basemap_raster(set_extent)
-# plotRGB(basemap_raster)
-# 
-# # Plot RGB rasterbrick with points geom on top
-# gg_main_map <- RStoolbox::ggRGB(basemap_raster, r=1, g=2, b=3) +
-#   geom_sf(data = st_transform(bird_df_sf$geometry, projection(basemap_raster)), fill = "magenta", col = "magenta", size = 2) +
-#   geom_sf(data = st_as_sfc(st_bbox(basemap_raster)), fill = NA, color = "black", size = 1) +
-#   coord_sf(crs = projection(basemap_raster)) +
-#   # theme(axis.text.x=element_blank(), #remove x axis labels
-#   #       axis.ticks.x=element_blank(), #remove x axis ticks
-#   #       axis.text.y=element_blank(),  #remove y axis labels
-#   #       axis.ticks.y=element_blank()  #remove y axis ticks
-#   # ) +
-#   theme_void()
-
-######################################################################
 
 
 # ------- Plot main map & inset map  --------
 
-# Plot basemap with points geom on top
-gg_main_map <- basemap_main +
-  geom_sf(data = st_transform(bird_df_sf$geometry, projection(basemap_raster)), fill = "magenta", col = "magenta", size = 2) +
-  geom_sf(data = st_as_sfc(st_bbox(basemap_raster)), fill = NA, color = "black", size = 1) +
-  coord_sf(crs = projection(basemap_raster)) +
-  # theme(axis.text.x=element_blank(), #remove x axis labels
-  #       axis.ticks.x=element_blank(), #remove x axis ticks
-  #       axis.text.y=element_blank(),  #remove y axis labels
-  #       axis.ticks.y=element_blank()  #remove y axis ticks
-  # ) +
-  theme_void()
+# Main map
 
+gg_main_map <- basemap_main$map +
+  geom_sf(data = bird_df_sf_3857[2:nrow(bird_df_sf_3857),], shape = 21, fill = "magenta", col = "white", size = 3, stroke = 0.5) +
+  geom_sf(data = bird_df_sf_3857[1,], shape = 21, fill = "cyan", col = "white", size = 3, stroke = 0.5, show.legend = TRUE) +
+  geom_sf_text(data = bird_df_sf_3857[1,], hjust = -0.2, vjust = 0, size = 3, col = "white", aes(label = "release site")) +
+  theme_void()
 gg_main_map
 
-# Create rectangle bounding box for buffered area of the zoomed in basemap raster
-# Buffer by 20000m
-bb <- st_bbox(tile_crop_map)
-set_extent_buffer <- st_bbox(c(bb[1] - 20000,
-                               bb[2] - 20000, 
-                               bb[3] + 20000,
-                               bb[4] + 20000), crs = projection(basemap_raster))
-set_extent_buffer <- st_as_sfc(set_extent_buffer)
 
-# create rectangle boundary for outline of the inset map
-outline_box_inset <- st_as_sfc(st_bbox(basemap_raster_inset))
+# Inset map
 
-# create inset map
-# plot inset raster basemap using ggplot RGB conversion
-# plot zoomed in basemap bounding box (white rectangle)
-# plot black outline around inset map
-gg_inset_map <-  RStoolbox::ggRGB(basemap_raster_inset, r=1, g=2, b=3) +
-  # geom_sf(data = points_bb, fill = NA, color = "white", size = 0.7) +
-  geom_sf(data = set_extent_buffer, fill = NA, color = "white", size = 0.7) +  
-  geom_sf(data = outline_box_inset, fill = NA, color = "black", size = 1) +
+# create rectangle boundary for outline of the main map region to show on the inset map
+outline_box_main <- st_as_sfc(st_bbox(basemap_main$geom))
+
+gg_inset_map <- basemap_inset$map +
+  geom_sf(data = outline_box_main, fill = NA, color = "white", size = 0.7) +  
   theme_void()
+gg_inset_map
+
+# extract the legend from one of the plots
+legend <- get_legend(
+  # create some space to the left of the legend
+  gg_main_map + theme(legend.box.margin = margin(0, 0, 0, 12))
+)
 
 # use cowplot package to layer ggplots using ggdraw
 cowplot::ggdraw() +
