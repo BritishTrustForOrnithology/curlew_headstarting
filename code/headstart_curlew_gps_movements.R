@@ -5,7 +5,7 @@
 #
 ##############################
 
-# 17/11/2023: Major code updates to remove use of moveVis and basemaps due to issues with terra dependency and map tiles not plotting properly
+# 17/11/2023: Major code updates to remove use of moveVis and basemaps due to issues with terra dependency and raster map tiles not plotting properly
 
 
 # ======================   Variables to pass to setup code source  ===========
@@ -15,8 +15,8 @@
 # project_details <- list(project_name, output_version_name, workspace_version_name)
 # package_details <- c("package name 1", "package name 2")
 
-project_details <- list(project_name="curlew_headstarting", output_version_date="2023-11", workspace_version_date="2023-07")
-package_details <- c("sf","tidyverse","patchwork","move","moveVis","RColorBrewer","viridisLite","rcartocolor","lubridate","basemaps", "RStoolbox", "cowplot","sfheaders", "maptiles", "tidyterra")
+project_details <- list(project_name="curlew_headstarting", output_version_date="2023-11", workspace_version_date="2023-11")
+package_details <- c("sf","tidyverse","move2","ggmap","RColorBrewer","viridisLite","rcartocolor","lubridate", "cowplot","sfheaders", "maptiles", "tidyterra")
 seed_number <- 1
 
 
@@ -46,35 +46,10 @@ source(file.path("code/source_setup_code_rproj.R"))
 # =======================    Control values   =================
 
 current_year <- 2023
-# current_year <- 2022
 today_date <- Sys.Date()
-set_cohort_num <- c(1,2,3,4)
-set_cohort_num <- c(1,2)
 
-# set_fix_rate <- 120
-
-# set which vis to output
-# animated_vis <- FALSE
-static_vis_final_frame <- FALSE
 static_inset_vis <- TRUE
-# animate_multiple <- FALSE
-# animate_migration <- FALSE
-# animate_individuals <- TRUE
-# separate_sites <- FALSE
-
-# map aesthetic output controls
-# file_format <- "mp4"   # various formats available in MoveVis package, if you've got a long animation, gif file size is huge, mp4s are much smaller
-# map_service <- "mapbox"   # choose which map service, I've used osm and mapbox (satellite imagery)
-# map_style <- "satellite" # choose map style (terrain vs satellite)
-# set_fps <- 25
-# confidential <- TRUE   # strips lat/lon axis labels from map
-# no_labels <- TRUE
-
 filter_by_date <- FALSE
-# last_date <- ymd(Sys.Date())
-# last_date <- ymd("2023-11-01")
-# first_date <- last_date - 60
-
 
 # ====  Load functions  =================================
 
@@ -85,40 +60,17 @@ source(paste(codewd, "functions", "run_all_functions.R", sep="/"))
 
 # =======================    Individuals to map   =================
 
-bird_flag_list_2022 <- c(
-  # "6Y" ,
-  "7K",
-  # # "8K", # dead 30/08/2022
-  # # "7Y",
-  "8L",
-  "6X",
-  # # "7E",
-  # # "8E",
-  # # "7U",
-  "8X",
-  "9L",
-  "9J"
-)
+# copied and pasted all ostensibly 'live' (or recently live) tags from Google sheet: headstart_curlew_individual_metadata (https://docs.google.com/spreadsheets/d/10mZu0PAjuIXtCZMSYFUFxa2j-2QxlDDlTQDfNTArf-8/edit#gid=0)
 
-migrant_list_2022 <- c(
-  "6Y",
-  "9L"
+bird_flag_list <- data.frame(
+  stringsAsFactors = FALSE,
+  year = c(2022L,2022L,2022L,2022L,
+           2022L,2023L,2023L,2023L,2023L,2023L,2023L,2023L,
+           2023L,2023L,2023L,2023L,2023L,2023L),
+  flag_id = c("7K","8L","8X","9J","9L",
+              "LJ","LU","LV","XA","XE","XH","XJ","XL","XP","XX",
+              "YH","YJ","YK")
 )
-
-bird_flag_list_2023 <- 
-  c("LJ",
-    "LU",
-    "LV",
-    "XA",
-    "XE",
-    "XH",
-    "XJ",
-    "XL",
-    "XP",
-    "XX",
-    "YH",
-    "YJ",
-    "YK")
 
 
 # =======================    Load data   =================
@@ -128,7 +80,7 @@ source(file.path("code", "headstart_CU_database.R"))
 
 dt_meta <- dt_meta %>% as_tibble()
 
-# Filter metadata to only tags, current year
+# Filter metadata to 'live' or recently live tags
 dt_meta_tags <- dt_meta %>% 
   filter(tag_gps_radio_none == "gps") %>% 
   filter(dead %in% "")
@@ -139,49 +91,119 @@ dt_meta_tags <- dt_meta %>%
 # load movebank log details
 source(file.path(codewd, "movebank_log.R"))
 
-# get info out of movebank
-mb_study_name <- searchMovebankStudies(x="Curlews - headstarted", login=loginStored)
-mb_study_id <- getMovebankID(mb_study_name, login=loginStored)
-mb_study_animals <- getMovebankAnimals(study = mb_study_id, login=loginStored)
-mb_individual_id <- mb_study_animals[grep(paste(dt_meta_tags$flag_id, collapse = "|"), mb_study_animals$animalName), "local_identifier"]
+# get info out of movebank - 'live' or recently live tags only
+# study ID for headstarting project = 1678739528
+# mb_study_name <- movebank_download_study_info (x="Curlews - headstarted", login=loginStored)
+mb_study_id <- movebank_get_study_id("BTO/NE/Pensthorpe - Eurasian Curlews - headstarted")
+mb_study_animals <- movebank_download_deployment(mb_study_id)
+mb_individual_id <- mb_study_animals[grep(paste(dt_meta_tags$flag_id, collapse = "|"), mb_study_animals$individual_local_identifier), "individual_local_identifier"] %>% pull %>% as.character
 
-# summarise data for 'live' tags
-mb_study_animals %>% 
-  filter(local_identifier %in% mb_individual_id) %>% 
-  dplyr::select(local_identifier, timestamp_start, timestamp_end, number_of_events)
+# automatic Movebank download - live or recently live tags only
+# (doesn't work if tags are redeployed - not sure if this applies in move2 packages)
+all_tags <- movebank_download_study(
+  study_id = mb_study_id,
+  sensor_type_id  = "gps",
+  individual_local_identifier = mb_individual_id #,
+  # as.POSIXct("2008-08-01 00:00:00"),
+  # timestamp_end = as.POSIXct("2008-08-03 00:00:00"),
+  # removeDuplicatedTimestamps = TRUE
+)
 
-# automatic Movebank download - doesn't work if tags are redeployed
-all_tags <- getMovebankData(
-  study = mb_study_name,
-  login = loginStored,
-  sensorID = "GPS",
-  animalName = mb_individual_id,
-  removeDuplicatedTimestamps = TRUE
-) %>% 
-  as.data.frame()
+# save as rds file
+saveRDS(all_tags, file = file.path(workspacewd, "movebank_live_tags_download.rds"))
 
 # # read in Movebank data as downloaded csv
 # all_tags <- read.csv(file.path(datawd, "BTO_NE_Pensthorpe_WWT - Eurasian Curlews - headstarted.csv"), header = TRUE, stringsAsFactors = FALSE) %>% 
 #   as_tibble
 
-# replace all '.' from Movebank column names with '_'
-names(all_tags) <- names(all_tags) %>% 
-  str_replace_all("[.]", "_")
+# summarise data for 'live' tags
+all_tags %>% 
+  st_drop_geometry %>% 
+  group_by(individual_local_identifier) %>% 
+  summarise(min_date = min(timestamp), max_date = max(timestamp)) %>% 
+  left_join(all_tags %>% st_drop_geometry %>% group_by(individual_local_identifier) %>% tally, by = "individual_local_identifier")
 
-# merge metadata with tag data
+
+# # replace all '.' from Movebank column names with '_'
+# names(all_tags) <- names(all_tags) %>%
+#   str_replace_all("[.]", "_")
+
+# # merge metadata with tag data
+# all_tags_meta <- all_tags %>% 
+#   mutate(new_datetime = as.POSIXct(strptime(timestamp, format = "%Y-%m-%d %H:%M:%S", tz="UTC"))) %>% 
+#   mutate(new_datetime_min = format(new_datetime,format='%Y-%m-%d %H:%M')) %>% 
+# mutate(flag_id = substr(local_identifier, 4, 5)) %>%
+# right_join(dt_meta_tags, by="flag_id") %>%
+# mutate(plot_label = paste(release_location, flag_id, name, sep="_")) %>%
+# mutate(plot_label = str_replace_all(plot_label, " ", "_"))
+
 all_tags_meta <- all_tags %>% 
-  mutate(new_datetime = as.POSIXct(strptime(timestamp, format = "%Y-%m-%d %H:%M:%S", tz="UTC"))) %>% 
-  mutate(new_datetime_min = format(new_datetime,format='%Y-%m-%d %H:%M')) %>% 
-  mutate(flag_id = substr(local_identifier, 4, 5)) %>% 
-  right_join(dt_meta_tags, by="flag_id") %>% 
-  mutate(plot_label = paste(release_location, flag_id, name, sep="_")) %>% 
+  mutate(flag_id = substr(individual_local_identifier, 4, 5)) %>%
+  right_join(dt_meta_tags, by="flag_id") %>%
+  mutate(plot_label = paste(release_location, flag_id, name, sep="_")) %>%
   mutate(plot_label = str_replace_all(plot_label, " ", "_"))
 
-# manually filter out erroneous point for 8E and 7K using event_id
-all_tags_meta <- all_tags_meta %>% 
-  filter(event_id != 23414031453) %>% 
-  filter(event_id != 26788471078) %>% 
-  filter(event_id != 30038596753)
+# filter out to only ground speeds > 1 m/s to look for turning points in speed data
+# nice turning point between stationary and active flight data at ca. 4.2 m/s
+# use this value to filter subsequent data to active flight only
+ggplot(all_tags_meta %>% filter(as.numeric(ground_speed) > 1), aes(as.numeric(ground_speed))) +
+  geom_density() +
+  scale_x_continuous(n.breaks = 20)
+
+active_flight_threshold <- 4.2
+
+
+ggplot(all_tags_meta %>% filter(as.numeric(height_above_msl) > -50 & as.numeric(height_above_msl) < 0), aes(as.numeric(height_above_msl))) +
+  geom_density() +
+  scale_x_continuous(n.breaks = 20)
+
+ggplot(all_tags_meta %>% filter(as.numeric(height_above_msl) > 250), aes(as.numeric(height_above_msl))) +
+  geom_density() +
+  scale_x_continuous(n.breaks = 20)
+
+ggplot(all_tags_meta %>% filter(as.numeric(height_above_msl) > 250), aes(as.numeric(height_above_msl))) +
+  geom_histogram()
+
+all_tags_meta %>% filter(as.numeric(height_above_msl) < -20) %>% as.data.frame
+
+# Clean tag data - generic  -----------------
+
+# manually filter out erroneous points using event_id
+all_tags_cleaned <- all_tags_meta %>% 
+  filter(event_id != 23414031453) %>% # 8E
+  filter(event_id != 26788471078) %>% # 7K
+  filter(event_id != 30038596753) %>% # XP
+  filter(as.numeric(gps_satellite_count) >= 4) %>%  # filter out low sat counts
+  filter(as.numeric(height_above_msl) >= 0 & as.numeric(height_above_msl) <= 2000) %>% # filter out altitudes that are unlikely
+  filter(as.numeric(ground_speed) >= 0) # filter out negative ground_speeds
+
+
+all_tags_meta %>% 
+  filter(as.numeric(gps_satellite_count) >= 4) %>%  # filter out low sat counts
+  filter(as.numeric(height_above_msl) < 0) # & as.numeric(height_above_msl) <= 2000)
+
+
+
+# Add sunrise / sunset times ---------------------
+
+# add sunrise / sunset times using suncalc package
+# https://github.com/datastorm-open/suncalc
+
+all_tags_filtered <- cbind(all_tags_filtered,
+                           suncalc::getSunlightTimes(
+                             data = all_tags_filtered %>% 
+                               rename(lat = location_lat, lon = location_long),
+                             keep = c(
+                               "sunrise",
+                               "sunset"
+                             )) %>% 
+                             dplyr::select(sunrise:sunset))
+
+all_tags_filtered <- all_tags_filtered %>% 
+  mutate(day_night = ifelse(new_datetime >= sunrise & new_datetime <= sunset, "day", "night"))
+
+
+
 
 
 
@@ -205,6 +227,7 @@ if (static_inset_vis) {
     if (nrow(individual_df) < 1) next
     
     draw_movement_map(individual_df, map_type = "path", inset_map = TRUE, filter_date = filter_by_date)
+    draw_movement_map(individual_df, map_type = "points", inset_map = TRUE, filter_date = filter_by_date)
     
     
   }

@@ -5,6 +5,36 @@
 # This is almost certainly caused by the same issue logged at https://github.com/16EAGLE/basemaps/issues/22for the basemaps package, caused by major changes in the terra package
 
 
+# =======================    Control values   =================
+
+current_year <- 2023
+today_date <- Sys.Date()
+
+# set_fix_rate <- 120
+
+# set which vis to output
+# animated_vis <- FALSE
+static_vis_final_frame <- FALSE
+static_inset_vis <- TRUE
+# animate_multiple <- FALSE
+# animate_migration <- FALSE
+# animate_individuals <- TRUE
+# separate_sites <- FALSE
+
+# map aesthetic output controls
+# file_format <- "mp4"   # various formats available in MoveVis package, if you've got a long animation, gif file size is huge, mp4s are much smaller
+# map_service <- "mapbox"   # choose which map service, I've used osm and mapbox (satellite imagery)
+# map_style <- "satellite" # choose map style (terrain vs satellite)
+# set_fps <- 25
+# confidential <- TRUE   # strips lat/lon axis labels from map
+# no_labels <- TRUE
+
+filter_by_date <- FALSE
+# last_date <- ymd(Sys.Date())
+# last_date <- ymd("2023-11-01")
+# first_date <- last_date - 60
+
+
 # =======================    Plot data - ANIMATED   =================
 
 if (animated_vis) {
