@@ -6,7 +6,7 @@
 ##############################
 
 # 17/11/2023: Major code updates to remove use of moveVis and basemaps due to issues with terra dependency and raster map tiles not plotting properly
-
+# 21/11/2023: Major code revisions to use move2 package instead of move to interface with Movebank
 
 # ======================   Variables to pass to setup code source  ===========
 
@@ -16,7 +16,7 @@
 # package_details <- c("package name 1", "package name 2")
 
 project_details <- list(project_name="curlew_headstarting", output_version_date="2023-11", workspace_version_date="2023-11")
-package_details <- c("sf","tidyverse","move2","ggmap","RColorBrewer","viridisLite","rcartocolor","lubridate", "cowplot","sfheaders", "maptiles", "tidyterra")
+package_details <- c("sf","tidyverse","move2","ggmap","RColorBrewer","viridisLite","rcartocolor","lubridate","suncalc","cowplot","sfheaders", "maptiles", "tidyterra","rnaturalearth","rnaturalearthdata")
 seed_number <- 1
 
 
@@ -49,7 +49,10 @@ current_year <- 2023
 today_date <- Sys.Date()
 
 static_inset_vis <- TRUE
-filter_by_date <- FALSE
+filter_by_date <- TRUE
+update_gdrive_data <- FALSE
+
+filter_height_speed <- FALSE
 
 # ====  Load functions  =================================
 
@@ -75,8 +78,10 @@ bird_flag_list <- data.frame(
 
 # =======================    Load data   =================
 
-# Load individual metadata (pulls live Google sheet data) from current year
-source(file.path("code", "headstart_CU_database.R"))
+# Load individual metadata from current year
+# Toggle logic value above if fresh download of google drive data is needed
+if (update_gdrive_data) source(file.path("code", "source", "download_gdrive_data.R"))
+source(file.path("code", "source", "load_gdrive_data.R"))
 
 dt_meta <- dt_meta %>% as_tibble()
 
@@ -86,7 +91,7 @@ dt_meta_tags <- dt_meta %>%
   filter(dead %in% "")
 # filter(year == current_year)
 
-# ----------------  Get movebank tag data -----------
+# ---- Get movebank tag data -----------
 
 # load movebank log details
 source(file.path(codewd, "movebank_log.R"))
@@ -137,11 +142,20 @@ all_tags %>%
 # mutate(plot_label = paste(release_location, flag_id, name, sep="_")) %>%
 # mutate(plot_label = str_replace_all(plot_label, " ", "_"))
 
+
+# ---- Merge with individual metadata -----------
+
+# also add lon/lat values not as a geometry for use later
 all_tags_meta <- all_tags %>% 
   mutate(flag_id = substr(individual_local_identifier, 4, 5)) %>%
   right_join(dt_meta_tags, by="flag_id") %>%
   mutate(plot_label = paste(release_location, flag_id, name, sep="_")) %>%
-  mutate(plot_label = str_replace_all(plot_label, " ", "_"))
+  mutate(plot_label = str_replace_all(plot_label, " ", "_")) # %>% 
+# mutate(lon = st_coordinates(.)[,1],
+#        lat = st_coordinates(.)[,2])
+
+
+# ---- Explore data to add filtering criteria for dodgy observations -----------
 
 # filter out to only ground speeds > 1 m/s to look for turning points in speed data
 # nice turning point between stationary and active flight data at ca. 4.2 m/s
@@ -152,7 +166,6 @@ ggplot(all_tags_meta %>% filter(as.numeric(ground_speed) > 1), aes(as.numeric(gr
 
 active_flight_threshold <- 4.2
 
-
 ggplot(all_tags_meta %>% filter(as.numeric(height_above_msl) > -50 & as.numeric(height_above_msl) < 0), aes(as.numeric(height_above_msl))) +
   geom_density() +
   scale_x_continuous(n.breaks = 20)
@@ -161,73 +174,86 @@ ggplot(all_tags_meta %>% filter(as.numeric(height_above_msl) > 250), aes(as.nume
   geom_density() +
   scale_x_continuous(n.breaks = 20)
 
-ggplot(all_tags_meta %>% filter(as.numeric(height_above_msl) > 250), aes(as.numeric(height_above_msl))) +
+ggplot(all_tags_meta %>% filter(as.numeric(height_above_msl) < 0), aes(as.numeric(height_above_msl))) +
   geom_histogram()
 
-all_tags_meta %>% filter(as.numeric(height_above_msl) < -20) %>% as.data.frame
+ggplot(all_tags_meta %>% filter(as.numeric(height_above_msl) > -50 & as.numeric(height_above_msl) < 0), aes(as.numeric(height_above_msl))) +
+  geom_histogram()
 
-# Clean tag data - generic  -----------------
+# quite a few records have negative altitudes
+# still quite a few which are probably valid location data have heights less than -20
+all_tags_meta %>% filter(as.numeric(height_above_msl) <= -20) %>% as.data.frame %>% nrow
 
-# manually filter out erroneous points using event_id
-all_tags_cleaned <- all_tags_meta %>% 
+# ----  Clean tag data - generic  -----------------
+
+all_tags_filtered <- all_tags_meta %>% 
+  # manually filter out erroneous points using event_id
   filter(event_id != 23414031453) %>% # 8E
   filter(event_id != 26788471078) %>% # 7K
   filter(event_id != 30038596753) %>% # XP
-  filter(as.numeric(gps_satellite_count) >= 4) %>%  # filter out low sat counts
-  filter(as.numeric(height_above_msl) >= 0 & as.numeric(height_above_msl) <= 2000) %>% # filter out altitudes that are unlikely
-  filter(as.numeric(ground_speed) >= 0) # filter out negative ground_speeds
+  filter(as.numeric(gps_satellite_count) >= 4)  %>% # filter out low sat counts
+  filter(!st_is_empty(.)) # omit empty locations
 
+# ----  Filter tag data - altitude/ground speed  -----------------
 
-all_tags_meta %>% 
-  filter(as.numeric(gps_satellite_count) >= 4) %>%  # filter out low sat counts
-  filter(as.numeric(height_above_msl) < 0) # & as.numeric(height_above_msl) <= 2000)
+if (filter_height_speed) {
+  
+  # for relevant analyses, filter out unlikely flight height and ground speed values
+  # for analyses only using gps locational data, these records are probably fine
+  all_tags_filtered <- all_tags_filtered %>% 
+    filter(as.numeric(height_above_msl) >= -20 & as.numeric(height_above_msl) <= 2000) %>% # filter out altitudes that are unlikely
+    filter(as.numeric(ground_speed) >= 0) %>% # filter out negative ground_speeds
+    mutate(in_flight = ifelse(ground_speed >= active_flight_threshold, TRUE, FALSE)) # add flying / stationary column flag
+  
+}
 
-
-
-# Add sunrise / sunset times ---------------------
+# ----  Add sunrise / sunset times ---------------------
 
 # add sunrise / sunset times using suncalc package
 # https://github.com/datastorm-open/suncalc
 
-all_tags_filtered <- cbind(all_tags_filtered,
-                           suncalc::getSunlightTimes(
-                             data = all_tags_filtered %>% 
-                               rename(lat = location_lat, lon = location_long),
-                             keep = c(
-                               "sunrise",
-                               "sunset"
-                             )) %>% 
-                             dplyr::select(sunrise:sunset))
-
 all_tags_filtered <- all_tags_filtered %>% 
-  mutate(day_night = ifelse(new_datetime >= sunrise & new_datetime <= sunset, "day", "night"))
-
-
-
-
-
-
+  mutate(suncalc::getSunlightTimes(
+    data = all_tags_filtered %>% 
+      mutate(date = as.Date(timestamp),
+             lon = st_coordinates(.)[,1],
+             lat = st_coordinates(.)[,2]
+      )
+  )) %>% 
+  mutate(day_night = ifelse(timestamp >= sunrise & timestamp <= sunset, "day", "night")) %>% 
+  arrange(individual_local_identifier, timestamp)
 
 
 # =======================    Static maps   =================
 
-bird_flag_list <- unique(all_tags_meta$flag_id)
+# Quick look at all tracks together
+ggplot() +
+  geom_sf(data = ne_coastline(returnclass = "sf", 10)) +
+  theme_linedraw() +
+  geom_sf(data = all_tags_filtered) +
+  geom_sf(data = mt_track_lines(all_tags_filtered), aes(color = `individual_local_identifier`)) +
+  coord_sf(xlim = c(0.1, 1),
+           ylim = c(52.6, 53.2)
+  )
 
-# Static visualisation - inset maps   -----------------
+
+# Static visualisation with inset maps   -----------------
+
+bird_flag_list <- unique(all_tags_meta$flag_id)
 
 if (static_inset_vis) {
   
   for (b in bird_flag_list) {
     
     # filter movement data to site, cohort
-    individual_df <- all_tags_meta %>% 
+    individual_df <- all_tags_filtered %>% 
       filter(flag_id %in% b)
     
     # skip to next bird if no data from the last month
     if (nrow(individual_df) < 1) next
     
-    draw_movement_map(individual_df, map_type = "path", inset_map = TRUE, filter_date = filter_by_date)
-    draw_movement_map(individual_df, map_type = "points", inset_map = TRUE, filter_date = filter_by_date)
+    draw_movement_map(individual_df, map_type = "path", filter_date = filter_by_date, map_colour="magenta", map_dpi = 150)
+    draw_movement_map(individual_df, map_type = "points", filter_date = filter_by_date, map_colour="magenta", map_dpi = 150)
     
     
   }
