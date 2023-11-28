@@ -209,18 +209,6 @@ bird_df_sf <- bird_df_sf %>%
          lat_3857 = st_coordinates(bird_df_sf_3857)[,2])
 
 
-# # turn bird_df into spatial points
-# bird_release_sf <- dt_all[1,] %>% 
-#   sf::st_as_sf(.,
-#                coords = c("lon",
-#                           "lat"),
-#                crs = 4326) %>% 
-#   mutate(lon = st_coordinates(.)[,1],
-#          lat = st_coordinates(.)[,2])
-# 
-# bird_release_sf_3857 <- st_transform(bird_release_sf, crs = 3857)
-
-
 # --------- Create basemaps for main & inset maps  ------
 
 # sf_data = spatial points or polygon
@@ -267,12 +255,6 @@ gg_inset_map <- basemap_inset$map +
   geom_sf(data = outline_box_main, fill = NA, color = "white", size = 0.7) +  
   theme_void()
 gg_inset_map
-
-# extract the legend from one of the plots
-legend <- get_legend(
-  # create some space to the left of the legend
-  gg_main_map + theme(legend.box.margin = margin(0, 0, 0, 12))
-)
 
 # use cowplot package to layer ggplots using ggdraw
 cowplot::ggdraw() +
