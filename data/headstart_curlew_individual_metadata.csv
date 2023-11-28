@@ -1,83 +1,83 @@
 urn,year,flag_id,ring,sex,name,cohort_num,tag_gps_radio_none,tag_serial,radio_tag_freq,tagged_date,release_location,release_date,migration_date,dead,dead_date,comments
 1,2021,0E,FA95504,F,,1,gps,203285,,03/07/2021,Sandringham 1,06/07/2021,,unknown,,Still transmitting mid-March 2022
 2,2021,0J,FA95505,F,,1,gps,203286,,03/07/2021,Sandringham 1,06/07/2021,,y,,"Found dead 8/07/2021 on Sandringhambare plowed field. Possible power line fatality and subsequently scavenged. bird was predated between 1530-1600 yesterday, 7th July. It was predated AT the location where it was found, not carried there from elsewhere. It went to this spot around 45 minutes before the predation event, at 1445. It was along the edge of the field at 1430. Whatever predated it then spent about 3 hours playing with the carcass, presumably plucking it, before leaving it at 1845, which is when the accelerometer data flatlines. Tag redeployed on 3K"
-3,2021,0L,FA95507,M,,1,none,,,,Sandringham 1,06/07/2021,,,,
-4,2021,0K,FA95506,F,,1,none,,,,Sandringham 1,06/07/2021,,,,
-5,2021,0A,FA95501,M,,1,none,,,,Sandringham 1,06/07/2021,,,,
-6,2021,0U,FA95509,M,,1,none,,,,Sandringham 1,06/07/2021,,,,
-7,2021,0N,FA95508,F,,1,none,,,,Sandringham 1,06/07/2021,,,,
-8,2021,0C,FA95502,M,,1,none,,,,Sandringham 1,06/07/2021,,,,
+3,2021,0L,FA95507,M,,1,,,,,Sandringham 1,06/07/2021,,,,
+4,2021,0K,FA95506,F,,1,,,,,Sandringham 1,06/07/2021,,,,
+5,2021,0A,FA95501,M,,1,,,,,Sandringham 1,06/07/2021,,,,
+6,2021,0U,FA95509,M,,1,,,,,Sandringham 1,06/07/2021,,,,
+7,2021,0N,FA95508,F,,1,,,,,Sandringham 1,06/07/2021,,,,
+8,2021,0C,FA95502,M,,1,,,,,Sandringham 1,06/07/2021,,,,
 9,2021,2A,FA95515,F,,2,gps,203287,,08/07/2021,Ken Hill 1,15/07/2021,,tag removed,,"tag wasn't charging, so took off and redeployed on 3A"
 10,2021,2E,FA95517,F,,2,radio,BB318,173.846,08/07/2021,Ken Hill 1,15/07/2021,,y,,Possibly dead; looked for 27/08/2021 by AG but not found
 11,2021,2J,FA95519,M,,2,radio,BB320,173.994,08/07/2021,Ken Hill 1,15/07/2021,,y,,Heard 16/07/2021; 20/07/2021; Found predated 27/07/2021 on Ken Hill in wood adjacent to Beach Road and track down to release pen; likely dead for at least 4-5 days
 12,2021,0V,FA95512,M,,2,radio,BB317,173.715,08/07/2021,Ken Hill 1,15/07/2021,,,,"Heard 16/07/2021; Still wearing radio on 08/09/2021, seen by GQA on Wolferton saltmarsh pool"
 13,2021,2U,FA95525,F,,2,radio,BB316,173.311,08/07/2021,Ken Hill 1,15/07/2021,,,,Heard 16/07/2021; 20/07/2021
 14,2021,0P,FA95510,F,,2,radio,BB319,173.931,08/07/2021,Ken Hill 1,15/07/2021,,,,Heard 16/07/2021; 20/07/2021; 02/08/2021
-15,2021,2N,FA95522,M,,2,none,,,,Ken Hill 1,15/07/2021,,,,
-16,2021,0X,FA95513,M,,2,none,,,,Ken Hill 1,15/07/2021,,,,
-17,2021,0T,FA95511,F,,2,none,,,,Ken Hill 1,15/07/2021,,,,
-18,2021,2K,FA95520,F,,2,none,,,,Ken Hill 1,15/07/2021,,,,
-19,2021,2C,FA95516,M,,2,none,,,,Ken Hill 1,15/07/2021,,,,
-20,2021,2L,FA95521,F,,2,none,,,,Ken Hill 1,15/07/2021,,,,
-21,2021,2H,FA95518,F,,2,none,,,,Ken Hill 1,15/07/2021,,,,
-22,2021,2V,FA95526,F,,2,none,,,,Ken Hill 1,15/07/2021,,,,
-23,2021,0Y,FA95514,F,,2,none,,,,Ken Hill 1,15/07/2021,,,,
-24,2021,2P,FA95523,F,,2,none,,,,Ken Hill 1,15/07/2021,,,,
-25,2021,2X,FA95527,M,,2,none,,,,Ken Hill 1,15/07/2021,,,,Seen late Dec 2021
+15,2021,2N,FA95522,M,,2,,,,,Ken Hill 1,15/07/2021,,,,
+16,2021,0X,FA95513,M,,2,,,,,Ken Hill 1,15/07/2021,,,,
+17,2021,0T,FA95511,F,,2,,,,,Ken Hill 1,15/07/2021,,,,
+18,2021,2K,FA95520,F,,2,,,,,Ken Hill 1,15/07/2021,,,,
+19,2021,2C,FA95516,M,,2,,,,,Ken Hill 1,15/07/2021,,,,
+20,2021,2L,FA95521,F,,2,,,,,Ken Hill 1,15/07/2021,,,,
+21,2021,2H,FA95518,F,,2,,,,,Ken Hill 1,15/07/2021,,,,
+22,2021,2V,FA95526,F,,2,,,,,Ken Hill 1,15/07/2021,,,,
+23,2021,0Y,FA95514,F,,2,,,,,Ken Hill 1,15/07/2021,,,,
+24,2021,2P,FA95523,F,,2,,,,,Ken Hill 1,15/07/2021,,,,
+25,2021,2X,FA95527,M,,2,,,,,Ken Hill 1,15/07/2021,,,,Seen late Dec 2021
 26,2021,3L,FA95535,M,,3,radio,BB384,173.291,17/07/2021,Ken Hill 1,20/07/2021,,,,Heard 02/08/2021
-27,2021,2T,FA95524,F,,3,none,,,,Ken Hill 1,20/07/2021,,,,
+27,2021,2T,FA95524,F,,3,,,,,Ken Hill 1,20/07/2021,,,,
 28,2021,3A,FA95529,M,,3,gps,203287,,17/07/2021,Ken Hill 1,20/07/2021,,y,,likely predated (definitely dead) on 27 Sep. Tag recovered on 29/09 from Heacham North Beach by Wayne Stewart. Ring recovered on 29/09/21 Caroline Bellenberg: https://app.bto.org//ringingteam/ring-prints/FA95529-34763849-R-29092021-34788411
-29,2021,2Y,FA95528,M,,3,none,,,,Ken Hill 1,20/07/2021,,,,
-30,2021,3U,FA95539,F,,3,none,,,,Ken Hill 1,20/07/2021,,,,
+29,2021,2Y,FA95528,M,,3,,,,,Ken Hill 1,20/07/2021,,,,
+30,2021,3U,FA95539,F,,3,,,,,Ken Hill 1,20/07/2021,,,,
 31,2021,3E,FA95531,M,,3,radio,BB387,173.750,17/07/2021,Ken Hill 1,20/07/2021,,,,"Seen Middlemarsh Farm, Skegness 15/01/2022. Radio tag still attached."
-32,2021,3J,FA95533,M,,3,none,,,,Ken Hill 1,20/07/2021,,,,
+32,2021,3J,FA95533,M,,3,,,,,Ken Hill 1,20/07/2021,,,,
 33,2021,3K,FA95534,F,,3,gps,203286,,20/07/2021,Sandringham 1,27/07/2021,,y,,"Probably dead, not checked in since 28/07/2021"
 34,2021,3T,FA95538,F,,3,radio,BB392,173.871,20/07/2021,Sandringham 1,27/07/2021,,,,
 35,2021,4A,FA95543,F,,3,radio,BB389,173.786,20/07/2021,Sandringham 1,27/07/2021,,,,
-36,2021,3X,FA95541,F,,3,none,,,,Sandringham 1,27/07/2021,,,,
-37,2021,4E,FA95545,M,,3,none,,,,Sandringham 1,27/07/2021,,,,
-38,2021,4C,FA95544,M,,3,none,,,,Sandringham 1,27/07/2021,,,,
-39,2021,3N,FA95536,M,,3,none,,,,Sandringham 1,27/07/2021,,,,
-40,2021,3C,FA95530,M,,3,none,,,,Sandringham 1,27/07/2021,,,,
-41,2021,3P,FA95537,M,,3,none,,,,Sandringham 1,27/07/2021,,,,
-42,2021,3Y,FA95542,F,,3,none,,,,Sandringham 1,27/07/2021,,,,
-43,2021,3V,FA95540,F,,3,none,,,,Sandringham 1,27/07/2021,,,,
-44,2021,5H,FA95560,M,,4,none,,,,Ken Hill 1,03/08/2021,,,,
-45,2021,4P,FA95551,M,,4,none,,,,Ken Hill 1,03/08/2021,,,,
-46,2021,5C,FA95558,M,,4,none,,,,Ken Hill 1,03/08/2021,,,,
-47,2021,4U,FA95553,M,,4,none,,,,Ken Hill 1,03/08/2021,,,,
-48,2021,5E,FA95559,M,,4,none,,,,Ken Hill 1,03/08/2021,,y,,"Found dead 27/08/2021 in field south of pen field (TF656338), 15m south of 5X"
+36,2021,3X,FA95541,F,,3,,,,,Sandringham 1,27/07/2021,,,,
+37,2021,4E,FA95545,M,,3,,,,,Sandringham 1,27/07/2021,,,,
+38,2021,4C,FA95544,M,,3,,,,,Sandringham 1,27/07/2021,,,,
+39,2021,3N,FA95536,M,,3,,,,,Sandringham 1,27/07/2021,,,,
+40,2021,3C,FA95530,M,,3,,,,,Sandringham 1,27/07/2021,,,,
+41,2021,3P,FA95537,M,,3,,,,,Sandringham 1,27/07/2021,,,,
+42,2021,3Y,FA95542,F,,3,,,,,Sandringham 1,27/07/2021,,,,
+43,2021,3V,FA95540,F,,3,,,,,Sandringham 1,27/07/2021,,,,
+44,2021,5H,FA95560,M,,4,,,,,Ken Hill 1,03/08/2021,,,,
+45,2021,4P,FA95551,M,,4,,,,,Ken Hill 1,03/08/2021,,,,
+46,2021,5C,FA95558,M,,4,,,,,Ken Hill 1,03/08/2021,,,,
+47,2021,4U,FA95553,M,,4,,,,,Ken Hill 1,03/08/2021,,,,
+48,2021,5E,FA95559,M,,4,,,,,Ken Hill 1,03/08/2021,,y,,"Found dead 27/08/2021 in field south of pen field (TF656338), 15m south of 5X"
 49,2021,4L,FA95549,M,,4,radio,BB383,173.271,29/07/2021,Ken Hill 1,03/08/2021,,,,"Seen by LG 08/09/2021 52.8934252, 0.4651222. Seen CR 05/02/22 footpath field Ken Hill, TF359681. Seen multiple times around Ken Hill office mid-Feb 2022. No evidence in photos that radio tag is still attached."
 50,2021,4H,FA95546,F,,4,radio,BB393,173.895,29/07/2021,Ken Hill 1,03/08/2021,,y,,"Found dead 18/8/21 - raptor predation, field south of pen (Ken Hill)"
 51,2021,5A,FA95557,F,,4,radio,BB381,173.223,29/07/2021,Ken Hill 1,03/08/2021,,,,
-52,2021,4K,FA95548,F,,4,none,,,,Ken Hill 1,03/08/2021,,,,
+52,2021,4K,FA95548,F,,4,,,,,Ken Hill 1,03/08/2021,,,,
 53,2021,4X,FA95555,F,,4,radio,BB385,173.344,29/07/2021,Ken Hill 1,03/08/2021,,,,Heard 18/08/2021
-54,2021,4V,FA95554,M,,4,none,,,,Ken Hill 1,03/08/2021,,,,
-55,2021,5K,FA95562,F,,5,none,,,,Sandringham 1,10/08/2021,,,,
-56,2021,6P,FA95579,M,,5,none,,,,Sandringham 1,10/08/2021,,,,
-57,2021,5L,FA95563,F,,5,none,,,,Sandringham 1,10/08/2021,,,,
-58,2021,6K,FA95576,M,,5,none,,,,Sandringham 1,10/08/2021,,,,
-59,2021,6H,FA95574,M,,5,none,,,,Sandringham 1,10/08/2021,,,,
-60,2021,6C,FA95572,F,,5,none,,,,Sandringham 1,10/08/2021,,,,
-61,2021,4J,FA95547,M,,4,none,,,,Sandringham 1,10/08/2021,,,,
+54,2021,4V,FA95554,M,,4,,,,,Ken Hill 1,03/08/2021,,,,
+55,2021,5K,FA95562,F,,5,,,,,Sandringham 1,10/08/2021,,,,
+56,2021,6P,FA95579,M,,5,,,,,Sandringham 1,10/08/2021,,,,
+57,2021,5L,FA95563,F,,5,,,,,Sandringham 1,10/08/2021,,,,
+58,2021,6K,FA95576,M,,5,,,,,Sandringham 1,10/08/2021,,,,
+59,2021,6H,FA95574,M,,5,,,,,Sandringham 1,10/08/2021,,,,
+60,2021,6C,FA95572,F,,5,,,,,Sandringham 1,10/08/2021,,,,
+61,2021,4J,FA95547,M,,4,,,,,Sandringham 1,10/08/2021,,,,
 62,2021,5J,FA95561,F,,5,radio,BB391,173.834,03/08/2021,Sandringham 1,10/08/2021,,,,
 63,2021,6E,FA95573,M,,5,radio,BB388,173.768,03/08/2021,Sandringham 1,10/08/2021,,,,"Seen 12/08/2021 at TF656338, but tag not apparently transmitting as no signal heard"
-64,2021,4N flag removed,FA95550,M,,4,none,,,,Sandringham 1,10/08/2021,,,,"flag removed before transfer to release pen, ring number is FA95550"
-65,2021,4Y,FA95556,F,,4,none,,,,Sandringham 1,10/08/2021,,,,
+64,2021,4N flag removed,FA95550,M,,4,,,,,Sandringham 1,10/08/2021,,,,"flag removed before transfer to release pen, ring number is FA95550"
+65,2021,4Y,FA95556,F,,4,,,,,Sandringham 1,10/08/2021,,,,
 66,2021,4T,FA95552,F,,4,radio,BB395,173.970,03/08/2021,Sandringham 1,10/08/2021,,,,
 67,2021,5N,FA95564,F,,5,radio,BB382,173.251,10/08/2021,Ken Hill 1,15/08/2021,,,,
-68,2021,6N,FA95578,F,,5,none,,,,Ken Hill 1,15/08/2021,,,,
-69,2021,6U,FA95581,,,5,none,,,,Ken Hill 1,15/08/2021,,,,
-70,2021,6J,FA95575,F,,5,none,,,,Ken Hill 1,15/08/2021,,,,
+68,2021,6N,FA95578,F,,5,,,,,Ken Hill 1,15/08/2021,,,,
+69,2021,6U,FA95581,,,5,,,,,Ken Hill 1,15/08/2021,,,,
+70,2021,6J,FA95575,F,,5,,,,,Ken Hill 1,15/08/2021,,,,
 71,2021,5X,FA95569,F,,5,radio,BB386,173.726,10/08/2021,Ken Hill 1,15/08/2021,,y,,"Found dead 27/08/2021 in field south of pen field (TF656338), quite long dead approx 2 weeks"
 72,2021,5U,FA95567,M,,5,radio,BB320,173.994,10/08/2021,Ken Hill 1,15/08/2021,,,,"Heard 18/08/2021; 27/08/2021 by AG, TF673356, then TF681362"
-73,2021,6A,FA95571,F,,5,none,,,,Ken Hill 1,15/08/2021,,,,
-74,2021,5P,FA95565,F,,5,none,,,,Ken Hill 1,15/08/2021,,,,
-75,2021,5T,FA95566,F,,5,none,,,,Ken Hill 1,15/08/2021,,,,
+73,2021,6A,FA95571,F,,5,,,,,Ken Hill 1,15/08/2021,,,,
+74,2021,5P,FA95565,F,,5,,,,,Ken Hill 1,15/08/2021,,,,
+75,2021,5T,FA95566,F,,5,,,,,Ken Hill 1,15/08/2021,,,,
 76,2021,5Y,FA95570,F,,5,radio,BB390,173.815,10/08/2021,Ken Hill 1,15/08/2021,,,,
 77,2021,6L,FA95577,F,,5,radio,BB394,173.945,10/08/2021,Ken Hill 1,15/08/2021,,,,
-78,2021,6T,FA95580,M,,5,none,,,,Ken Hill 1,15/08/2021,,,,
-79,2021,5V,FA95568,F,,5,none,,,,Ken Hill 1,15/08/2021,,y,,"Found dead on Ken Hill fresh marsh 30/08/2021 by LP, TF66237 34791. Picked clean, likely raptor predation."
+78,2021,6T,FA95580,M,,5,,,,,Ken Hill 1,15/08/2021,,,,
+79,2021,5V,FA95568,F,,5,,,,,Ken Hill 1,15/08/2021,,y,,"Found dead on Ken Hill fresh marsh 30/08/2021 by LP, TF66237 34791. Picked clean, likely raptor predation."
 81,2022,7A,FA95585,M,,1,radio,262480,173.282,14/07/2022,Sandringham 2,20/07/2022,,,,last heard 24/07/2022 release area
 82,2022,6Y,FA95584,M,Nemo,1,gps,223959,,14/07/2022,Sandringham 2,20/07/2022,24/08/2022,unknown,,tag last attached to bird 04/07/2023 19:30:00 UTC. Tag possibly fell off?
 83,2022,6V,FA95582,F,,1,radio,262478,173.239,14/07/2022,Sandringham 2,20/07/2022,,,,last heard 02/08/2022 release area
@@ -134,18 +134,18 @@ urn,year,flag_id,ring,sex,name,cohort_num,tag_gps_radio_none,tag_serial,radio_ta
 123,2023,YK,FJ78456,F,Cassandra,1,gps,234315,,19/07/2023,Sandringham 2,27/07/2023,,,,
 124,2023,YC,FJ78452,M,,2,,,,,Ken Hill 2,10/08/2023,,,,
 125,2023,YE,FJ78453,F,,2,,,,,Ken Hill 2,10/08/2023,,,,
-126,2023,YU,FJ78461,F,Crescent,2,gps,234326,,04/08/2023,Ken Hill 2,10/08/2023,,y,11/08/2023,Likely predated. Carcass recovered near Ken Hill 1 pen by Cathy Ryden
-127,2023,YN,FJ78457,F,Carrot,2,gps,234328,,04/08/2023,Ken Hill 2,10/08/2023,,y,11/08/2023,"Likely predated, possibly stoat. Found down a hole on fresh marsh near Ken Hill 2 pen."
+126,2023,YU,FJ78461,F,Crescent,2,gps,234326,,04/08/2023,Ken Hill 2,10/08/2023,,y,11/08/2023,"Died 11/08/2023 from accelerometer data. Found, likely predated, by Cathy Ryden 13/08/2023 near original Ken Hill pen."
+127,2023,YN,FJ78457,F,Carrot,2,gps,234328,,04/08/2023,Ken Hill 2,10/08/2023,,y,11/08/2023,"Found down a burrow on fresh marsh on 03/09/2023 by DJH. Probably predated / died 11/08/2023. Down a hole of some sort, possibly stoat or rat. Found with all rings, legs, bones and plenty of feathers."
 128,2023,YL,FJ78459,M,,2,,,,,Ken Hill 2,10/08/2023,,,,
 129,2023,YP,FJ78458,M,,2,,,,,Ken Hill 2,10/08/2023,,,,
 130,2023,LJ,FJ78469,,Chester,3,gps,234324,,10/08/2023,Ken Hill 1,17/08/2023,,,,
-131,2023,LP,FJ78472,,Corvus,3,gps,234329,,10/08/2023,Ken Hill 1,17/08/2023,,y,11/09/2023,"dead on Wolferton saltmarsh. Possibly predated or scavenged, hard to tell from accelerometer data as low fix rate. Recovered 15/09/2023 by Jeff Kew."
+131,2023,LP,FJ78472,,Corvus,3,gps,234329,,10/08/2023,Ken Hill 1,17/08/2023,,y,11/09/2023,"Dead on Wolferton saltmarsh 11/09/2023 about 14:00. Possibly predated or scavenged, hard to tell from accelerometer data. Recovered 15/09/2023 by Jeff Kew."
 132,2023,LN,FJ78471,,,3,,,,,Ken Hill 1,17/08/2023,,,,
 133,2023,LL,FJ78470,M,,3,,,,,Ken Hill 1,17/08/2023,,,,
 134,2023,LK,FJ78446,,,3,,,,,Ken Hill 1,17/08/2023,,,,
 135,2023,LC,FJ78466,M,,4,,,,,Sandringham 2,17/08/2023,,,,
-136,2023,LA,FJ78465,M,Ceto,4,gps,234330,,17/08/2023,Sandringham 2,17/08/2023,,y,,"dead, run over on B1153"
-137,2023,YX,FJ78463,F,Chutney,4,gps,234327,,17/08/2023,Sandringham 2,17/08/2023,,y,22/09/2023,Likely predated. Carcass recovered on Wolferton saltmarsh by Jeff Kew on 26/09/2023.
+136,2023,LA,FJ78465,M,Ceto,4,gps,234330,,17/08/2023,Sandringham 2,17/08/2023,,y,25/08/2023,"Dead, run over on B1153 on 25/08/2023 about 18:00. Found by NAC on 30/08/2023 in roadside ditch."
+137,2023,YX,FJ78463,F,Chutney,4,gps,234327,,17/08/2023,Sandringham 2,17/08/2023,,y,22/09/2023,Dead on Wolferton saltmarsh 22/09/2023 about 14:30. Likely predated. Carcass recovered by Jeff Kew on 26/09/2023.
 138,2023,KL,FJ78484,M,,5,,,,,Sandringham 2,01/09/2023,,,,
 139,2023,LU,FJ78474,,Chronos,5,gps,234325,,25/08/2023,Sandringham 2,01/09/2023,,,,
 140,2023,KE,FJ78480,F,,5,,,,,Sandringham 2,01/09/2023,,,,
