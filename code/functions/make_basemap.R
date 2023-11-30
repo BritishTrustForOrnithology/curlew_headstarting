@@ -9,7 +9,7 @@
 # buff_dist_inset = buffer distance around sf_data for wider context; 500-800km about right
 # maptype = "main" for main map showing resightings, or "inset" for showing wider geographic context
 # map_provider = see ?maptiles::get_tiles for list of providers
-make_basemap <- function(sf_data, buff_dist, map_type, map_provider) {
+make_basemap <- function(sf_data, buff_dist, map_type, map_provider, alpha_level) {
   
   # Set the bounding box for the basemap
   
@@ -105,7 +105,7 @@ make_basemap <- function(sf_data, buff_dist, map_type, map_provider) {
   
   # make the basemap
   basemap <- ggplot() +
-    tidyterra::geom_spatraster_rgb(data = tile_crop_map) +
+    tidyterra::geom_spatraster_rgb(data = tile_crop_map, alpha = alpha_level) +
     geom_sf(data = st_as_sfc(st_bbox(basemap_bbox)), fill = NA, color = "black", size = 2) +
     coord_sf(expand = FALSE) + theme_void()
   

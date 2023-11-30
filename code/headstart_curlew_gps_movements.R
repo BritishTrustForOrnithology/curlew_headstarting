@@ -48,9 +48,11 @@ source(file.path("code/source_setup_code_rproj.R"))
 current_year <- 2023
 today_date <- Sys.Date()
 
-static_inset_vis <- TRUE
+filter_birds <- TRUE
+map_all_birds_together <- TRUE
+wash_obs_only <- TRUE
 filter_by_date <- TRUE
-update_gdrive_data <- FALSE
+update_gdrive_data <- TRUE
 
 filter_height_speed <- FALSE
 
@@ -85,11 +87,18 @@ source(file.path("code", "source", "load_gdrive_data.R"))
 
 dt_meta <- dt_meta %>% as_tibble()
 
+
 # Filter metadata to 'live' or recently live tags
-dt_meta_tags <- dt_meta %>% 
-  filter(tag_gps_radio_none == "gps") %>% 
-  filter(dead %in% "")
-# filter(year == current_year)
+if (filter_birds) {
+  dt_meta_tags <- dt_meta %>% 
+    filter(tag_gps_radio_none == "gps") %>% 
+    filter(dead %in% "")
+  # filter(year == current_year)
+} else {
+  dt_meta_tags <- dt_meta %>% 
+    filter(tag_gps_radio_none == "gps")
+  # filter(year == current_year)
+}
 
 # ---- Get movebank tag data -----------
 
@@ -99,7 +108,7 @@ source(file.path(codewd, "movebank_log.R"))
 # get info out of movebank - 'live' or recently live tags only
 # study ID for headstarting project = 1678739528
 # mb_study_name <- movebank_download_study_info (x="Curlews - headstarted", login=loginStored)
-mb_study_id <- movebank_get_study_id("BTO/NE/Pensthorpe - Eurasian Curlews - headstarted")
+mb_study_id <- movebank_get_study_id("BTO-NE-Pensthorpe - Eurasian Curlews - headstarted")
 mb_study_animals <- movebank_download_deployment(mb_study_id)
 mb_individual_id <- mb_study_animals[grep(paste(dt_meta_tags$flag_id, collapse = "|"), mb_study_animals$individual_local_identifier), "individual_local_identifier"] %>% pull %>% as.character
 
@@ -241,7 +250,12 @@ ggplot() +
 
 bird_flag_list <- unique(all_tags_meta$flag_id)
 
-if (static_inset_vis) {
+if (map_all_birds_together) {
+  draw_movement_map_all_birds(all_tags_filtered, map_type = "path", filter_date = filter_by_date, basemap_alpha = 0.8, out_type = "jpg", map_dpi = 150)
+  draw_movement_map_all_birds(all_tags_filtered, map_type = "points", filter_date = filter_by_date, basemap_alpha = 0.8, out_type = "jpg", map_dpi = 150)
+  draw_movement_map_all_birds(all_tags_filtered, map_type = "path points", filter_date = filter_by_date, basemap_alpha = 0.8, out_type = "png", map_dpi = 150)
+  
+} else {
   
   for (b in bird_flag_list) {
     
@@ -252,11 +266,38 @@ if (static_inset_vis) {
     # skip to next bird if no data from the last month
     if (nrow(individual_df) < 1) next
     
-    draw_movement_map(individual_df, map_type = "path", filter_date = filter_by_date, map_colour="magenta", map_dpi = 150)
-    draw_movement_map(individual_df, map_type = "points", filter_date = filter_by_date, map_colour="magenta", map_dpi = 150)
+    draw_movement_map(individual_df, map_type = "path", filter_date = filter_by_date, map_colour="magenta", basemap_alpha = 1, out_type = "png", map_dpi = 150)
+    draw_movement_map(individual_df, map_type = "points", filter_date = filter_by_date, map_colour="magenta", basemap_alpha = 1, out_type = "png", map_dpi = 150)
+    draw_movement_map(individual_df, map_type = "path points", filter_date = filter_by_date, map_colour="magenta", basemap_alpha = 1, out_type = "jpg", map_dpi = 150)
+    
     
     
   }
   
-  
 }
+
+
+# plot all obs for only the Wash area polygon
+
+if (wash_obs_only) {
+  
+  # bounding box polygon around the Wash / North Norfolk coast
+  gis_wash_dir <- file.path("../../GIS/curlew/headstarting") # Sam's computer GIS filepath
+  
+  # Load WWRG Wash study shapefile -----------------
+  wash_area <- st_read(file.path(gis_wash_dir, "wash_north_norfolk_study_area_polygon.shp"))
+  
+  # filter all_tags_points (sf object)
+  # clip to only those points falling within the Wash study area
+  bird_df_sf <-  all_tags_filtered %>% 
+    # filter(individual_local_identifier %in% unique_birds_study_area) %>% 
+    st_intersection(., wash_area) %>% 
+    mutate(year_as_factor = as.factor(year))
+  
+  draw_movement_map_all_birds(bird_df_sf, map_type = "path points", filter_date = filter_by_date, basemap_alpha = 0.8, out_type = "png", map_dpi = 150)
+  
+  
+  
+ }
+
+
