@@ -14,7 +14,7 @@
 # package_details <- c("package name 1", "package name 2")
 
 project_details <- list(project_name="curlew", output_version_date="2023_headstarting", workspace_version_date="2023_headstarting")
-package_details <- c("sf","tidyverse","patchwork","move","moveVis","RColorBrewer","viridisLite","rcartocolor","lubridate", "nlme", "lme4", "ggeffects", "broom.mixed", "patchwork")
+package_details <- c("sf","tidyverse","patchwork","move","RColorBrewer","viridisLite","rcartocolor","lubridate", "nlme", "lme4", "ggeffects", "broom.mixed", "patchwork")
 seed_number <- 1
 
 
@@ -121,6 +121,17 @@ dt_easy_demon
 
 # Output csv file
 write.csv(dt_easy_demon, file.path(outputwd, "easy_demon_data_entry_2023.csv"), row.names = FALSE)
+
+
+# ----- Merge dt_easy_demon with dt_biometric  -----
+
+dt_fill_gps_deploy <- dt_meta %>% 
+  filter(year %in% 2023) %>% 
+  filter(tag_gps_radio_none %in% "gps") %>% 
+  left_join(., dt_biometric %>% filter(type %in% "R"), by = c("ring", "flag_id")) %>% 
+  dplyr::select(flag_id, ring, tagged_date, release_location, weight, wing, tarsus_toe, day, month)
+
+write.csv(dt_fill_gps_deploy, file.path(outputwd, "easy_fill_gps_deploy_data_entry_2023.csv"), row.names = FALSE)
 
 
 # ----- Merge tag deployment data with dt_biometric  -----
