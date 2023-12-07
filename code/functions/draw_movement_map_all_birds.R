@@ -54,12 +54,23 @@ draw_movement_map_all_birds <- function(bird_df_sf, map_type = c("path", "points
     
     # Main map
     
+    # Path + terminus point coloured
     gg_main_map <- basemap_main$map +
       geom_path(data = bird_df_sf_3857, aes(x = lon_3857, y = lat_3857, col = flag_id), linewidth = 0.5) +
+      geom_sf(data = bird_df_sf_3857 %>% group_by(flag_id) %>% 
+                slice(which.max(timestamp)), size = 1.5, aes(colour = flag_id)) +
       scale_colour_viridis_d(name = "Flag code", option = "magma") +
-      coord_sf(xlim = xlims, ylim = ylims) +
-      theme_void()
+      coord_sf(xlim = xlims, ylim = ylims) #+
+      # theme_void()
     # gg_main_map
+      
+      # Terminus point white outline
+      gg_main_map <- gg_main_map +
+        geom_sf(data = bird_df_sf_3857 %>% group_by(flag_id) %>%
+                  slice(which.max(timestamp)), colour="white", shape=21, size = 1.5, stroke = 0.2) #+
+      # coord_sf(xlim = xlims, ylim = ylims) #+
+      # theme_void()
+      # gg_main_map
     
     
     # # Inset map

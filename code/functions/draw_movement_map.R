@@ -3,7 +3,7 @@
 
 # FUNCTION to draw a static movement map (path or points) for individual birds
 
-draw_movement_map <- function(bird_df_sf, map_type = c("path", "point"), filter_date = filter_by_date, basemap_alpha, map_colour, out_type = c("png", "jpg"), map_dpi) {
+draw_movement_map <- function(bird_df_sf, map_type = c("path", "point"), filter_date = filter_by_date, basemap_alpha, map_colour, out_type = c("png", "jpg"), map_dpi, map_buffer_km = 30, path_alpha = 1) {
   
   last_date <- max(bird_df_sf$timestamp)
   first_date <- last_date - 60*86400
@@ -42,7 +42,7 @@ draw_movement_map <- function(bird_df_sf, map_type = c("path", "point"), filter_
   
   # create basemaps for main & inset maps
   basemap_main <- make_basemap(sf_data = bird_df_sf_3857,
-                               buff_dist = 30*1000,
+                               buff_dist = map_buffer_km*1000,
                                map_type = "main",
                                map_provider = "Esri.WorldImagery",
                                alpha_level = basemap_alpha)
@@ -51,7 +51,7 @@ draw_movement_map <- function(bird_df_sf, map_type = c("path", "point"), filter_
                                 buff_dist = 800*1000,
                                 map_type = "inset",
                                 map_provider = "Esri.WorldImagery",
-                                alpha_level = basemap_alpha)
+                                alpha_level = 1)
   
   
   # ----- Map aesthetics  -------
@@ -67,8 +67,10 @@ draw_movement_map <- function(bird_df_sf, map_type = c("path", "point"), filter_
     
     # Main map
     
+    # Path + terminus point coloured with white outline
     gg_main_map <- basemap_main$map +
-      geom_path(data = bird_df_sf_3857, aes(x = lon_3857, y = lat_3857), col = map_colour, linewidth = 0.5) +
+      geom_path(data = bird_df_sf_3857, aes(x = lon_3857, y = lat_3857), col = map_colour, linewidth = 0.5, alpha = path_alpha) +
+      geom_sf(data = bird_df_sf_3857 %>% slice(which.max(timestamp)), shape=21, size = 3, stroke = 0.8, col="white", fill=map_colour) +
       coord_sf(xlim = xlims, ylim = ylims) +
       theme_void()
     # gg_main_map
@@ -96,9 +98,9 @@ draw_movement_map <- function(bird_df_sf, map_type = c("path", "point"), filter_
       filename = paste0(b, "_gps_static_inset_map_", today_date, ".", out_type),
       device=out_type,
       path = map_dir,
-      # height = 10,
-      # width = 12,
-      # units = "in",
+      height = 200,
+      width = 350,
+      units = "mm",
       # width = 800,
       # units = "px",
       dpi=map_dpi
@@ -141,9 +143,9 @@ draw_movement_map <- function(bird_df_sf, map_type = c("path", "point"), filter_
       filename = paste0(b, "_gps_static_inset_map_", today_date, ".", out_type),
       device=out_type,
       path = map_dir,
-      # height = 10,
-      # width = 12,
-      # units = "in",
+      height = 200,
+      width = 350,
+      units = "mm",
       # width = 800,
       # units = "px",
       dpi=map_dpi
@@ -157,9 +159,11 @@ draw_movement_map <- function(bird_df_sf, map_type = c("path", "point"), filter_
     
     # Main map
     
+    # Path + points + large terminus point
     gg_main_map <- basemap_main$map +
-      geom_path(data = bird_df_sf_3857, aes(x = lon_3857, y = lat_3857), col = map_colour, linewidth = 0.5) +
+      geom_path(data = bird_df_sf_3857, aes(x = lon_3857, y = lat_3857), col = map_colour, linewidth = 0.5, alpha = path_alpha) +
       geom_sf(data = bird_df_sf_3857, col = map_colour, size = 0.2) +
+      geom_sf(data = bird_df_sf_3857 %>% slice(which.max(timestamp)), shape=21, size = 3, stroke = 0.8, col="white", fill=map_colour) +
       coord_sf(xlim = xlims, ylim = ylims) +
       theme_void()
     # gg_main_map
@@ -183,7 +187,7 @@ draw_movement_map <- function(bird_df_sf, map_type = c("path", "point"), filter_
     dir.create(map_dir, recursive = TRUE, showWarnings = FALSE)
     
     ggsave(
-      gg_main_map,
+      # gg_main_map,
       filename = paste0(b, "_gps_static_inset_map_", today_date, ".", out_type),
       device=out_type,
       path = map_dir,

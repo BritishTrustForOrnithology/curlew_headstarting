@@ -5,6 +5,9 @@
 #
 ##############################
 
+# Code to create visualisations of GPS tracking data
+
+
 # 17/11/2023: Major code updates to remove use of moveVis and basemaps due to issues with terra dependency and raster map tiles not plotting properly
 # 21/11/2023: Major code revisions to use move2 package instead of move to interface with Movebank
 
@@ -48,34 +51,19 @@ source(file.path("code/source_setup_code_rproj.R"))
 current_year <- 2023
 today_date <- Sys.Date()
 
-filter_birds <- TRUE
-map_all_birds_together <- TRUE
-wash_obs_only <- TRUE
-filter_by_date <- TRUE
-update_gdrive_data <- TRUE
+filter_birds <- TRUE # filter birds for mapping
+map_all_birds_together <- TRUE # individual maps or all together
+wash_obs_only <- TRUE # show only Wash-area GPS data on map
+filter_by_date <- TRUE # filter GPS data by date
+update_gdrive_data <- TRUE # download fresh data from google drive
 
-filter_height_speed <- FALSE
+filter_height_speed <- FALSE # filter flight heights & speeds
 
 # ====  Load functions  =================================
 
 ## Load any functions here
 
 source(paste(codewd, "functions", "run_all_functions.R", sep="/"))
-
-
-# =======================    Individuals to map   =================
-
-# copied and pasted all ostensibly 'live' (or recently live) tags from Google sheet: headstart_curlew_individual_metadata (https://docs.google.com/spreadsheets/d/10mZu0PAjuIXtCZMSYFUFxa2j-2QxlDDlTQDfNTArf-8/edit#gid=0)
-
-bird_flag_list <- data.frame(
-  stringsAsFactors = FALSE,
-  year = c(2022L,2022L,2022L,2022L,
-           2022L,2023L,2023L,2023L,2023L,2023L,2023L,2023L,
-           2023L,2023L,2023L,2023L,2023L,2023L),
-  flag_id = c("7K","8L","8X","9J","9L",
-              "LJ","LU","LV","XA","XE","XH","XJ","XL","XP","XX",
-              "YH","YJ","YK")
-)
 
 
 # =======================    Load data   =================
@@ -87,6 +75,8 @@ source(file.path("code", "source", "load_gdrive_data.R"))
 
 dt_meta <- dt_meta %>% as_tibble()
 
+
+# =======================    Individuals to map   =================
 
 # Filter metadata to 'live' or recently live tags
 if (filter_birds) {
@@ -124,13 +114,15 @@ all_tags <- movebank_download_study(
 )
 
 # save as rds file
-saveRDS(all_tags, file = file.path(workspacewd, "movebank_live_tags_download.rds"))
+if (filter_birds) saveRDS(all_tags, file = file.path(workspacewd, "movebank_live_tags_download.rds"))
+if (!filter_birds) saveRDS(all_tags, file = file.path(workspacewd, "movebank_all_tags_download.rds"))
 
-# # read in Movebank data as downloaded csv
-# all_tags <- read.csv(file.path(datawd, "BTO_NE_Pensthorpe_WWT - Eurasian Curlews - headstarted.csv"), header = TRUE, stringsAsFactors = FALSE) %>% 
-#   as_tibble
+# # read in Movebank data as last downloaded RDS file (can be used if Movebank is down)
+# # load rds file
+# if (filter_birds) all_tags <- readRDS(file.path(workspacewd, "movebank_live_tags_download.rds"))
+# if (!filter_birds) all_tags <- readRDS(file.path(workspacewd, "movebank_all_tags_download.rds"))
 
-# summarise data for 'live' tags
+# summarise tag data for tags
 all_tags %>% 
   st_drop_geometry %>% 
   group_by(individual_local_identifier) %>% 
@@ -142,14 +134,6 @@ all_tags %>%
 # names(all_tags) <- names(all_tags) %>%
 #   str_replace_all("[.]", "_")
 
-# # merge metadata with tag data
-# all_tags_meta <- all_tags %>% 
-#   mutate(new_datetime = as.POSIXct(strptime(timestamp, format = "%Y-%m-%d %H:%M:%S", tz="UTC"))) %>% 
-#   mutate(new_datetime_min = format(new_datetime,format='%Y-%m-%d %H:%M')) %>% 
-# mutate(flag_id = substr(local_identifier, 4, 5)) %>%
-# right_join(dt_meta_tags, by="flag_id") %>%
-# mutate(plot_label = paste(release_location, flag_id, name, sep="_")) %>%
-# mutate(plot_label = str_replace_all(plot_label, " ", "_"))
 
 
 # ---- Merge with individual metadata -----------
@@ -164,39 +148,39 @@ all_tags_meta <- all_tags %>%
 #        lat = st_coordinates(.)[,2])
 
 
-# ---- Explore data to add filtering criteria for dodgy observations -----------
-
-# filter out to only ground speeds > 1 m/s to look for turning points in speed data
-# nice turning point between stationary and active flight data at ca. 4.2 m/s
-# use this value to filter subsequent data to active flight only
-ggplot(all_tags_meta %>% filter(as.numeric(ground_speed) > 1), aes(as.numeric(ground_speed))) +
-  geom_density() +
-  scale_x_continuous(n.breaks = 20)
-
-active_flight_threshold <- 4.2
-
-ggplot(all_tags_meta %>% filter(as.numeric(height_above_msl) > -50 & as.numeric(height_above_msl) < 0), aes(as.numeric(height_above_msl))) +
-  geom_density() +
-  scale_x_continuous(n.breaks = 20)
-
-ggplot(all_tags_meta %>% filter(as.numeric(height_above_msl) > 250), aes(as.numeric(height_above_msl))) +
-  geom_density() +
-  scale_x_continuous(n.breaks = 20)
-
-ggplot(all_tags_meta %>% filter(as.numeric(height_above_msl) < 0), aes(as.numeric(height_above_msl))) +
-  geom_histogram()
-
-ggplot(all_tags_meta %>% filter(as.numeric(height_above_msl) > -50 & as.numeric(height_above_msl) < 0), aes(as.numeric(height_above_msl))) +
-  geom_histogram()
-
-# quite a few records have negative altitudes
-# still quite a few which are probably valid location data have heights less than -20
-all_tags_meta %>% filter(as.numeric(height_above_msl) <= -20) %>% as.data.frame %>% nrow
+# # ---- Explore data to add filtering criteria for dodgy observations -----------
+# 
+# # filter out to only ground speeds > 1 m/s to look for turning points in speed data
+# # nice turning point between stationary and active flight data at ca. 4.2 m/s
+# # use this value to filter subsequent data to active flight only
+# ggplot(all_tags_meta %>% filter(as.numeric(ground_speed) > 1), aes(as.numeric(ground_speed))) +
+#   geom_density() +
+#   scale_x_continuous(n.breaks = 20)
+# 
+# active_flight_threshold <- 4.2
+# 
+# ggplot(all_tags_meta %>% filter(as.numeric(height_above_msl) > -50 & as.numeric(height_above_msl) < 0), aes(as.numeric(height_above_msl))) +
+#   geom_density() +
+#   scale_x_continuous(n.breaks = 20)
+# 
+# ggplot(all_tags_meta %>% filter(as.numeric(height_above_msl) > 250), aes(as.numeric(height_above_msl))) +
+#   geom_density() +
+#   scale_x_continuous(n.breaks = 20)
+# 
+# ggplot(all_tags_meta %>% filter(as.numeric(height_above_msl) < 0), aes(as.numeric(height_above_msl))) +
+#   geom_histogram()
+# 
+# ggplot(all_tags_meta %>% filter(as.numeric(height_above_msl) > -50 & as.numeric(height_above_msl) < 0), aes(as.numeric(height_above_msl))) +
+#   geom_histogram()
+# 
+# # quite a few records have negative altitudes
+# # still quite a few which are probably valid location data have heights less than -20
+# all_tags_meta %>% filter(as.numeric(height_above_msl) <= -20) %>% as.data.frame %>% nrow
 
 # ----  Clean tag data - generic  -----------------
 
 all_tags_filtered <- all_tags_meta %>% 
-  # manually filter out erroneous points using event_id
+  # manually filter out erroneous points using event_id (picked out from kml files)
   filter(event_id != 23414031453) %>% # 8E
   filter(event_id != 26788471078) %>% # 7K
   filter(event_id != 30038596753) %>% # XP
@@ -235,24 +219,34 @@ all_tags_filtered <- all_tags_filtered %>%
 
 # =======================    Static maps   =================
 
-# Quick look at all tracks together
-ggplot() +
-  geom_sf(data = ne_coastline(returnclass = "sf", 10)) +
-  theme_linedraw() +
-  geom_sf(data = all_tags_filtered) +
-  geom_sf(data = mt_track_lines(all_tags_filtered), aes(color = `individual_local_identifier`)) +
-  coord_sf(xlim = c(0.1, 1),
-           ylim = c(52.6, 53.2)
-  )
+# # Quick look at all tracks together Wash-area
+# ggplot() +
+#   geom_sf(data = ne_coastline(returnclass = "sf", 10)) +
+#   theme_linedraw() +
+#   geom_sf(data = all_tags_filtered) +
+#   geom_sf(data = mt_track_lines(all_tags_filtered), aes(color = `individual_local_identifier`)) +
+#   coord_sf(xlim = c(0.1, 1),
+#            ylim = c(52.6, 53.2)
+#   )
+
+
+# List of birds to create maps for  -----------------
+
+bird_flag_list <- unique(all_tags_meta$flag_id)
+bird_flag_list
 
 
 # Static visualisation with inset maps   -----------------
 
-bird_flag_list <- unique(all_tags_meta$flag_id)
-
 if (map_all_birds_together) {
+  
+  # path map
   draw_movement_map_all_birds(all_tags_filtered, map_type = "path", filter_date = filter_by_date, basemap_alpha = 0.8, out_type = "jpg", map_dpi = 150)
+  
+  # point map
   draw_movement_map_all_birds(all_tags_filtered, map_type = "points", filter_date = filter_by_date, basemap_alpha = 0.8, out_type = "jpg", map_dpi = 150)
+  
+  # path + point map
   draw_movement_map_all_birds(all_tags_filtered, map_type = "path points", filter_date = filter_by_date, basemap_alpha = 0.8, out_type = "png", map_dpi = 150)
   
 } else {
@@ -266,9 +260,23 @@ if (map_all_birds_together) {
     # skip to next bird if no data from the last month
     if (nrow(individual_df) < 1) next
     
-    draw_movement_map(individual_df, map_type = "path", filter_date = filter_by_date, map_colour="magenta", basemap_alpha = 1, out_type = "png", map_dpi = 150)
-    draw_movement_map(individual_df, map_type = "points", filter_date = filter_by_date, map_colour="magenta", basemap_alpha = 1, out_type = "png", map_dpi = 150)
-    draw_movement_map(individual_df, map_type = "path points", filter_date = filter_by_date, map_colour="magenta", basemap_alpha = 1, out_type = "jpg", map_dpi = 150)
+    # map aesthetics can be controlled by function arguments
+    # filter_date = TRUE will filter to last 60 days of data
+    # map_colour = colour of path / points
+    # basemap_alpha = alpha level of the main basemap
+    # out_type = image file output type (png or jpg)
+    # map_dpi = DPI of image output
+    # map_buffer_km = basemap buffer around GPS track data, in km
+    # path_alpha = alpha level of the path
+    
+    # path map
+    draw_movement_map(individual_df, map_type = "path", filter_date = filter_by_date, map_colour="magenta", basemap_alpha = 1, out_type = "png", map_dpi = 150, map_buffer_km = 30, path_alpha = 0.5)
+    
+    # point map
+    draw_movement_map(individual_df, map_type = "points", filter_date = filter_by_date, map_colour="magenta", basemap_alpha = 1, out_type = "png", map_dpi = 150, map_buffer_km = 30)
+    
+    # path + point map
+    draw_movement_map(individual_df, map_type = "path points", filter_date = filter_by_date, map_colour="magenta", basemap_alpha = 1, out_type = "jpg", map_dpi = 150, map_buffer_km = 30, path_alpha = 0.5)
     
     
     
@@ -294,7 +302,9 @@ if (wash_obs_only) {
     st_intersection(., wash_area) %>% 
     mutate(year_as_factor = as.factor(year))
   
-  draw_movement_map_all_birds(bird_df_sf, map_type = "path points", filter_date = filter_by_date, basemap_alpha = 0.8, out_type = "png", map_dpi = 150)
+  # should not be mapped as path or path/points with terminus point as this gives false impression that it is the 'end of the track'
+  # map only as points
+  draw_movement_map_all_birds(bird_df_sf, map_type = "points", filter_date = filter_by_date, basemap_alpha = 0.8, out_type = "png", map_dpi = 150)
   
   
   
