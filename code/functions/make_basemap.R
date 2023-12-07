@@ -9,7 +9,7 @@
 # buff_dist_inset = buffer distance around sf_data for wider context; 500-800km about right
 # maptype = "main" for main map showing resightings, or "inset" for showing wider geographic context
 # map_provider = see ?maptiles::get_tiles for list of providers
-make_basemap <- function(sf_data, buff_dist, map_type, map_provider, alpha_level) {
+make_basemap <- function(sf_data, buff_dist, map_type, map_provider, alpha_level = 1) {
   
   # Set the bounding box for the basemap
   

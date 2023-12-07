@@ -6,6 +6,9 @@
 ##############################
 
 
+# Code for outputting csv resighting histories & maps for individual birds or all birds combined
+
+
 # ======================   Variables to pass to setup code source  ===========
 
 # Header code to install and load packages, set directory paths, set seed, capture session info
@@ -44,11 +47,23 @@ source(file.path("code/source_setup_code_rproj.R"))
 # =======================    Control values   =================
 
 # which individual for resighting history
-individual_list <- c("2X","5U","6H","6X","7K","8H","8N","YJ","XX","YE","XP","XV","XU","YN","YC","YA","9K","XL","KK","LV","LC")
 
-# "2X","5U","6H","6X","7K","8H","8N","YJ","XX","YE","XP","XV","XU","YN","YC","YA","9K","XL","KK","LV","LC"
+# individual_list <- c("2X","5U","6H","6X","7K","8H","8N","YJ","XX","YE","XP","XV","XU","YN","YC","YA","9K","XL","KK","LV","LC")
 
-individual_id <- "YJ"
+# FALSE = show locations of all individuals
+# TRUE = show locations of single individuals
+# individual_id = give flag_id if by_individual is TRUE
+by_individual <- TRUE
+individual_id <- "4L"
+
+# TRUE = fresh download of google drive data
+update_gdrive_data <- TRUE
+
+# if maps should focus on records around the Wash / N Norfolk only
+wash_obs_only <- TRUE
+
+# if maps should focus on resightings only, without the release site
+focus_resightings_no_release_site <- TRUE
 
 
 # =======================    Load functions   =================
@@ -61,10 +76,24 @@ source(paste(codewd, "functions", "run_all_functions.R", sep="/"))
 today_date <- format(Sys.Date(), "%d-%b-%Y")
 
 # Load data
-source(file.path("code", "headstart_CU_database.R"))
+# Toggle logic value above if fresh download of google drive data is needed
+# will need to provide authentication for R to access Google Drive
+if (update_gdrive_data) source(file.path("code", "source", "download_gdrive_data.R"))
+source(file.path("code", "source", "load_gdrive_data.R"))
 
 
 # =======================    Prepare resighting data   =================
+
+# FIRST (before running any code!)  ---------------------
+
+# Tidy up the Google sheet form responses
+# Check the flag / colour combo column to verify it is indeed a Norfolk headstart
+# If yes, then enter the flag code in the flag_id column
+# WWRG birds and headstarts from other projects sometimes get submitted to the Google Form
+# Check the 'location' column particularly: convert any 'descriptive' locations or locations which include text to a OSGB grid ref or rough lat lon location
+# E.g. if observer enters "Snettisham Pits mudflats opposite Shore Hide" for location, use Gooogle Maps or similar to determine a rough position and replace the observer descriptive location with a spatial one
+# Similarly, if observer includes text with a spatial location, remove the text leaving only the spatial location; e.g. Change "52.4976, 0.62823 Heacham Beach" to just "52.4976, 0.62823"
+# Make a note in the column QA-QC comments on the Google sheet if you make any manual changes, retaining the information of what the observer originally entered in the form
 
 resighting_field_names <- c(
   "qa_qc_comments",
@@ -84,27 +113,42 @@ resighting_field_names <- c(
 
 names(dt_resighting) <- resighting_field_names
 
+# get rid of any rows which don't have a filled flag_id value
 dt_resighting_filtered <- dt_resighting %>% 
   filter(flag_id != "")
 
 # =======================    Generate history text file  =================
 
-# FIRST
-# Tidy up the Google sheet of form responses, and convert any 'descriptive' locations or locations which include text to a OSGB grid ref or rough lat lon location
-# E.g. if observer enters "Snettisham Pits mudflats opposite Shore Hide" for location, use Gooogle Maps or similar to determine a rough position and replace the observer descriptive location with a spatial one
-# Similarly, if observer includes text with a spatial location, remove the text leaving only the spatial location; e.g. Change "52.4976, 0.62823 Heacham Beach" to just "52.4976, 0.62823"
-# Make a note in the column QA-QC comments on the Google sheet if you make any manual changes, retaining the information of what the observer originally entered in the form
 
-dt_history <- dt_resighting_filtered %>% 
-  filter(flag_id == individual_id) %>% 
-  dplyr::select(flag_id, date, time, location) %>% 
-  mutate(datetime = paste(date, time)) %>% 
-  mutate(new_datetime = strptime(datetime, format = "%d/%m/%Y %H:%M:%S", tz="UTC")) %>% 
-  arrange(new_datetime)
+# Prepare resighting data  -------------------
+
+# either filter by individual, or use all resighting data
+if (by_individual) {
+  
+  # Filter to only required columns, individual, R-friendly datetime
+  dt_history <- dt_resighting_filtered %>% 
+    filter(flag_id == individual_id) %>% 
+    mutate(time = ifelse(time %in% "", "12:00:00", time)) %>% 
+    dplyr::select(flag_id, date, time, location) %>% 
+    mutate(datetime = paste(date, time)) %>% 
+    mutate(new_datetime = strptime(datetime, format = "%d/%m/%Y %H:%M:%S", tz="UTC")) %>% 
+    arrange(new_datetime)
+  
+} else {
+  
+  dt_history <- dt_resighting_filtered %>% 
+    dplyr::select(flag_id, date, time, location) %>% 
+    mutate(time = ifelse(time %in% "", "12:00:00", time)) %>% 
+    mutate(datetime = paste(date, time)) %>% 
+    mutate(new_datetime = strptime(datetime, format = "%d/%m/%Y %H:%M:%S", tz="UTC")) %>% 
+    arrange(new_datetime)
+  
+}
 
 dt_history
 
 # do quite a bit of manipulation to get grid refs and lat/lons in different formats (dms and dec degrees) into WGS84 lat/lon coordinates only
+# uses bespoke dms2dec function in functions folder
 dt_location <- dt_history %>% 
   mutate(grid_ref = ifelse(substr(location, 1, 1) %in% LETTERS, location, "")) %>% 
   mutate(grid_ref = ifelse(grid_ref == "", NA, grid_ref)) %>%
@@ -166,24 +210,43 @@ if (dt_location %>%
 
 dt_resight_all
 
-# rbind original release data with resighting data
-# Sandringham 1 10km square = TF62; Wolferton village lat lon = 52.828315, 0.456422
-# Sandringham 2 10km square = TF73; Great Bircham lat lon = 52.861603, 0.625233
-# Ken Hill 1 and 2 10km square = TF63; Ken Hill estate office lat lon = 52.893391, 0.497013
-dt_all <- dt_meta %>%
-  filter(flag_id == individual_id) %>% 
-  rename(date = release_date) %>% 
-  mutate(lat = ifelse("Sandringham 1" %in% release_location, 52.828315, ifelse("Sandringham 2" %in% release_location, 52.861603, 52.893391))) %>% 
-  mutate(lon = ifelse("Sandringham 1" %in% release_location, 0.456422, ifelse("Sandringham 2" %in% release_location, 0.625233, 0.497013))) %>% 
-  dplyr::select(flag_id, date, lat, lon) %>% 
-  rbind(., dt_resight_all %>% dplyr::select(flag_id, date, lat, lon))
+
+# Final data for mapping  -------------------
+
+# if by individual, then rbind original release data with resighting data
+# otherwise, just use resighting data for mapping step
+
+if (by_individual) {
+  
+  # give only an approximate location for each release pen site, using a known landmark, as below
+  # Sandringham 1 10km square = TF62; Wolferton village lat lon = 52.828315, 0.456422
+  # Sandringham 2 10km square = TF73; Great Bircham lat lon = 52.861603, 0.625233
+  # Ken Hill 1 and 2 10km square = TF63; Ken Hill estate office lat lon = 52.893391, 0.497013
+  
+  dt_all <- dt_meta %>%
+    filter(flag_id == individual_id) %>% 
+    rename(date = release_date) %>% 
+    mutate(lat = ifelse("Sandringham 1" %in% release_location, 52.828315, ifelse("Sandringham 2" %in% release_location, 52.861603, 52.893391))) %>% 
+    mutate(lon = ifelse("Sandringham 1" %in% release_location, 0.456422, ifelse("Sandringham 2" %in% release_location, 0.625233, 0.497013))) %>% 
+    dplyr::select(flag_id, date, lat, lon) %>% 
+    rbind(., dt_resight_all %>% dplyr::select(flag_id, date, lat, lon)) %>% 
+    arrange(date)
+  
+  # output final sightings table
+  write.csv(dt_all, file = file.path(outputwd, paste0(individual_id, "_resighting_history.csv")), row.names = FALSE)
+  
+} else {
+  
+  dt_all <- dt_resight_all %>% 
+    dplyr::select(flag_id, date, lat, lon) %>% 
+    arrange(flag_id, date)
+  
+  # output final sightings table
+  write.csv(dt_all, file = file.path(outputwd, paste0("all_birds_resighting_history.csv")), row.names = FALSE)
+  
+}
 
 dt_all
-
-
-# output final sightings table
-write.csv(dt_all %>% dplyr::select(flag_id, date, lat, lon), file = file.path(outputwd, paste0(individual_id, "_resighting_history.csv")), row.names = FALSE)
-
 
 
 
@@ -193,7 +256,7 @@ write.csv(dt_all %>% dplyr::select(flag_id, date, lat, lon), file = file.path(ou
 
 # --------- Prepare bird data into spatial  ------
 
-# turn bird_df into spatial points
+# turn dataset into spatial points
 bird_df_sf <- dt_all %>% 
   sf::st_as_sf(.,
                coords = c("lon",
@@ -202,6 +265,30 @@ bird_df_sf <- dt_all %>%
   mutate(lon = st_coordinates(.)[,1],
          lat = st_coordinates(.)[,2])
 
+if (by_individual & focus_resightings_no_release_site) {
+    bird_df_sf <- bird_df_sf[2:nrow(bird_df_sf),]
+}
+
+# if wanting to focus on Wash area only, use this shapefile
+# Can be found in Google Drive 3. Data > gis_shapefiles https://drive.google.com/drive/folders/1fF0__azUoCUOO8yW2nnkdRJjBfrjVs4C
+
+if (wash_obs_only) {
+  # bounding box polygon around the Wash / North Norfolk coast
+  gis_wash_dir <- file.path("../../GIS/curlew/wwrg") # Sam's computer GIS filepath
+  
+  # Load WWRG Wash study shapefile -----------------
+  wash_area <- st_read(file.path(gis_wash_dir, "wwrg_wash_study_area_polygon.shp"))
+  
+  # filter all_tags_points (sf object)
+  # clip to only those points falling within the Wash study area
+  bird_df_sf <- bird_df_sf %>% 
+    # filter(individual_local_identifier %in% unique_birds_study_area) %>% 
+    st_intersection(., wash_area)
+}
+
+
+
+# transform to epsg 3857 used by base maps
 bird_df_sf_3857 <- st_transform(bird_df_sf, crs = 3857)
 
 bird_df_sf <- bird_df_sf %>% 
@@ -226,9 +313,9 @@ basemap_main <- make_basemap(sf_data = bird_df_sf_3857,
 basemap_main
 
 basemap_inset <- make_basemap(sf_data = bird_df_sf_3857,
-                             buff_dist = 800*1000,
-                             map_type = "inset",
-                             map_provider = "Esri.WorldImagery")
+                              buff_dist = 800*1000,
+                              map_type = "inset",
+                              map_provider = "Esri.WorldImagery")
 
 basemap_inset
 
@@ -238,12 +325,30 @@ basemap_inset
 
 # Main map
 
-gg_main_map <- basemap_main$map +
-  geom_sf(data = bird_df_sf_3857[2:nrow(bird_df_sf_3857),], shape = 21, fill = "magenta", col = "white", size = 3, stroke = 0.5) +
-  geom_sf(data = bird_df_sf_3857[1,], shape = 21, fill = "cyan", col = "white", size = 3, stroke = 0.5, show.legend = TRUE) +
-  geom_sf_text(data = bird_df_sf_3857[1,], hjust = -0.2, vjust = 0, size = 3, col = "white", aes(label = "release site")) +
+if (by_individual) {
+  
+  if (focus_resightings_no_release_site) {
+    
+    gg_main_map <- basemap_main$map +
+      geom_sf(data = bird_df_sf_3857, shape = 21, fill = "magenta", col = "white", size = 3, stroke = 0.5)
+      theme_void()
+      
+  } else {
+    
+    gg_main_map <- basemap_main$map +
+      geom_sf(data = bird_df_sf_3857[2:nrow(bird_df_sf_3857),], shape = 21, fill = "magenta", col = "white", size = 3, stroke = 0.5) +
+      geom_sf(data = bird_df_sf_3857[1,], shape = 21, fill = "cyan", col = "white", size = 3, stroke = 0.5, show.legend = TRUE) +
+      geom_sf_text(data = bird_df_sf_3857[1,], hjust = -0.2, vjust = 0, size = 3, col = "white", aes(label = "release site")) +
+      theme_void()
+  }
+  
+} else {
+  
+  gg_main_map <- basemap_main$map +
+    geom_sf(data = bird_df_sf_3857, shape = 21, fill = "magenta", col = "white", size = 3, stroke = 0.5)
   theme_void()
-gg_main_map
+  
+}
 
 
 # Inset map
@@ -261,14 +366,58 @@ cowplot::ggdraw() +
   cowplot::draw_plot(gg_main_map) +
   cowplot::draw_plot(gg_inset_map, -0.08, -0.08, scale = 0.7, width = 0.5, height = 0.5)
 
-ggsave(
-  filename = paste0(individual_id, "_static_inset_map_", today_date, ".png"),
-  device="png",
-  path = outputwd,
-  # height = 10,
-  # width = 12,
-  # units = "in",
-  # width = 800,
-  # units = "px",
-  dpi=300
-)
+# ------- Output map  --------
+
+# output plot (either individual, or all, with / without inset map)
+
+if (by_individual & focus_resightings_no_release_site & wash_obs_only) out_file <- paste0(individual_id, "_static_inset_map_RESIGHTINGS_WASH_", today_date, ".png")
+if (by_individual & !focus_resightings_no_release_site & !wash_obs_only) out_file <- paste0(individual_id, "_static_inset_map_", today_date, ".png")
+if (by_individual & !focus_resightings_no_release_site & wash_obs_only) out_file <- paste0(individual_id, "_static_inset_map_WASH_", today_date, ".png")
+if (by_individual & focus_resightings_no_release_site & !wash_obs_only) out_file <- paste0(individual_id, "_static_inset_map_RESIGHTINGS_", today_date, ".png")
+out_file
+
+if (!by_individual & wash_obs_only) out_file <- paste0("all_resighting_obs_static_map_WASH_",  today_date, ".png")
+if (!by_individual & !wash_obs_only) out_file <- paste0("all_resighting_obs_static_map_",  today_date, ".png")
+
+if (by_individual) {
+  
+  ggsave(
+    filename = out_file,
+    device="png",
+    path = outputwd,
+    # height = 10,
+    # width = 12,
+    # units = "in",
+    # width = 800,
+    # units = "px",
+    dpi=300
+  )
+  
+} else {
+  
+  # ggsave(
+  #   filename = out_file,
+  #   device="png",
+  #   path = outputwd,
+  #   # height = 10,
+  #   # width = 12,
+  #   # units = "in",
+  #   # width = 800,
+  #   # units = "px",
+  #   dpi=300
+  # )
+  
+  ggsave(
+    gg_main_map,
+    filename = out_file,
+    device="png",
+    path = outputwd,
+    # height = 10,
+    # width = 12,
+    # units = "in",
+    # width = 800,
+    # units = "px",
+    dpi=300
+  )
+  
+}
