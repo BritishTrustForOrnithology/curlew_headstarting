@@ -54,16 +54,16 @@ source(file.path("code/source_setup_code_rproj.R"))
 # TRUE = show locations of single individuals
 # individual_id = give flag_id if by_individual is TRUE
 by_individual <- TRUE
-individual_id <- "4L"
+individual_id <- "YA"
 
 # TRUE = fresh download of google drive data
 update_gdrive_data <- TRUE
 
 # if maps should focus on records around the Wash / N Norfolk only
-wash_obs_only <- TRUE
+wash_obs_only <- FALSE
 
 # if maps should focus on resightings only, without the release site
-focus_resightings_no_release_site <- TRUE
+focus_resightings_no_release_site <- FALSE
 
 
 # =======================    Load functions   =================
