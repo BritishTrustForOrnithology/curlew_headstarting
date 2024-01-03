@@ -6,6 +6,10 @@
 ##############################
 
 
+# TO DO ###########
+# add seconds to WWRG times (which have only hours / minutes and so strptime doesn't work)
+# remove duplicate WWRG records that have also been entered in NE103 google form sheet - inspect by eye and remove duplicate records from the same day / same observer
+
 # Code for outputting csv resighting histories & maps for individual birds or all birds combined
 
 
@@ -54,10 +58,10 @@ source(file.path("code/source_setup_code_rproj.R"))
 # TRUE = show locations of single individuals
 # individual_id = give flag_id if by_individual is TRUE
 by_individual <- TRUE
-individual_id <- "YA"
+individual_id <- "YC"
 
 # TRUE = fresh download of google drive data
-update_gdrive_data <- TRUE
+update_gdrive_data <- FALSE
 
 # if maps should focus on records around the Wash / N Norfolk only
 wash_obs_only <- FALSE
@@ -230,6 +234,7 @@ if (by_individual) {
     mutate(lon = ifelse("Sandringham 1" %in% release_location, 0.456422, ifelse("Sandringham 2" %in% release_location, 0.625233, 0.497013))) %>% 
     dplyr::select(flag_id, date, lat, lon) %>% 
     rbind(., dt_resight_all %>% dplyr::select(flag_id, date, lat, lon)) %>% 
+    mutate(date = strptime(date, format = "%d/%m/%Y", tz="UTC")) %>%
     arrange(date)
   
   # output final sightings table
@@ -239,6 +244,7 @@ if (by_individual) {
   
   dt_all <- dt_resight_all %>% 
     dplyr::select(flag_id, date, lat, lon) %>% 
+    mutate(date = strptime(date, format = "%d/%m/%Y", tz="UTC")) %>%
     arrange(flag_id, date)
   
   # output final sightings table
