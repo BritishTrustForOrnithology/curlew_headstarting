@@ -1,16 +1,28 @@
 ##############################
 #
-#    NE103: Headstarted Curlew Resighting
+#    NE103: Headstarted Curlew Map of All Resightings
 #    13/07/2023, 16/11/2023
 #
 ##############################
 
 
-# TO DO ###########
-# add seconds to WWRG times (which have only hours / minutes and so strptime doesn't work)
-# remove duplicate WWRG records that have also been entered in NE103 google form sheet - inspect by eye and remove duplicate records from the same day / same observer
+# Code for outputting map of all resightings from the project combined
 
-# Code for outputting csv resighting histories & maps for individual birds or all birds combined
+
+# Done 04/01/2023
+# removed duplicate WWRG records that have also been entered in NE103 google form sheet - inspected by eye and removed duplicate records from the same day / time / location / observer
+
+
+# =======================    Control values   =================
+
+# TRUE = fresh download of google drive data
+update_gdrive_data <- FALSE
+
+# if maps should focus on records around the Wash / N Norfolk only
+wash_obs_only <- FALSE
+
+# create mapped points coloured by month of resighting
+month_map <- FALSE
 
 
 # ======================   Variables to pass to setup code source  ===========
@@ -48,27 +60,6 @@ source(file.path("code/source_setup_code_rproj.R"))
 # topworkspacewd= top level workspace directory
 
 
-# =======================    Control values   =================
-
-# which individual for resighting history
-
-# individual_list <- c("2X","5U","6H","6X","7K","8H","8N","YJ","XX","YE","XP","XV","XU","YN","YC","YA","9K","XL","KK","LV","LC")
-
-# FALSE = show locations of all individuals
-# TRUE = show locations of single individuals
-# individual_id = give flag_id if by_individual is TRUE
-by_individual <- TRUE
-individual_id <- "YC"
-
-# TRUE = fresh download of google drive data
-update_gdrive_data <- FALSE
-
-# if maps should focus on records around the Wash / N Norfolk only
-wash_obs_only <- FALSE
-
-# if maps should focus on resightings only, without the release site
-focus_resightings_no_release_site <- FALSE
-
 
 # =======================    Load functions   =================
 
@@ -94,9 +85,10 @@ source(file.path("code", "source", "load_gdrive_data.R"))
 # Check the flag / colour combo column to verify it is indeed a Norfolk headstart
 # If yes, then enter the flag code in the flag_id column
 # WWRG birds and headstarts from other projects sometimes get submitted to the Google Form
+# NE103 birds are sometimes submitted to the WWRG Shiny app - these sightings have all been extracted and transferred to the NE103 Google sheet up to 02/01/2024
 # Check the 'location' column particularly: convert any 'descriptive' locations or locations which include text to a OSGB grid ref or rough lat lon location
 # E.g. if observer enters "Snettisham Pits mudflats opposite Shore Hide" for location, use Gooogle Maps or similar to determine a rough position and replace the observer descriptive location with a spatial one
-# Similarly, if observer includes text with a spatial location, remove the text leaving only the spatial location; e.g. Change "52.4976, 0.62823 Heacham Beach" to just "52.4976, 0.62823"
+# Similarly, if observer includes text in the field together with a georeferenced location, remove the text leaving only the spatial location; e.g. Change "52.4976, 0.62823 Heacham Beach" to just "52.4976, 0.62823"
 # Make a note in the column QA-QC comments on the Google sheet if you make any manual changes, retaining the information of what the observer originally entered in the form
 
 resighting_field_names <- c(
@@ -126,28 +118,13 @@ dt_resighting_filtered <- dt_resighting %>%
 
 # Prepare resighting data  -------------------
 
-# either filter by individual, or use all resighting data
-if (by_individual) {
-  
-  # Filter to only required columns, individual, R-friendly datetime
-  dt_history <- dt_resighting_filtered %>% 
-    filter(flag_id == individual_id) %>% 
-    mutate(time = ifelse(time %in% "", "12:00:00", time)) %>% 
-    dplyr::select(flag_id, date, time, location) %>% 
-    mutate(datetime = paste(date, time)) %>% 
-    mutate(new_datetime = strptime(datetime, format = "%d/%m/%Y %H:%M:%S", tz="UTC")) %>% 
-    arrange(new_datetime)
-  
-} else {
-  
-  dt_history <- dt_resighting_filtered %>% 
-    dplyr::select(flag_id, date, time, location) %>% 
-    mutate(time = ifelse(time %in% "", "12:00:00", time)) %>% 
-    mutate(datetime = paste(date, time)) %>% 
-    mutate(new_datetime = strptime(datetime, format = "%d/%m/%Y %H:%M:%S", tz="UTC")) %>% 
-    arrange(new_datetime)
-  
-}
+
+dt_history <- dt_resighting_filtered %>% 
+  dplyr::select(flag_id, date, time, location) %>% 
+  mutate(time = ifelse(time %in% "", "12:00:00", time)) %>% 
+  mutate(datetime = paste(date, time)) %>% 
+  mutate(new_datetime = strptime(datetime, format = "%d/%m/%Y %H:%M:%S", tz="UTC")) %>% 
+  arrange(new_datetime)
 
 dt_history
 
@@ -217,40 +194,16 @@ dt_resight_all
 
 # Final data for mapping  -------------------
 
-# if by individual, then rbind original release data with resighting data
 # otherwise, just use resighting data for mapping step
 
-if (by_individual) {
-  
-  # give only an approximate location for each release pen site, using a known landmark, as below
-  # Sandringham 1 10km square = TF62; Wolferton village lat lon = 52.828315, 0.456422
-  # Sandringham 2 10km square = TF73; Great Bircham lat lon = 52.861603, 0.625233
-  # Ken Hill 1 and 2 10km square = TF63; Ken Hill estate office lat lon = 52.893391, 0.497013
-  
-  dt_all <- dt_meta %>%
-    filter(flag_id == individual_id) %>% 
-    rename(date = release_date) %>% 
-    mutate(lat = ifelse("Sandringham 1" %in% release_location, 52.828315, ifelse("Sandringham 2" %in% release_location, 52.861603, 52.893391))) %>% 
-    mutate(lon = ifelse("Sandringham 1" %in% release_location, 0.456422, ifelse("Sandringham 2" %in% release_location, 0.625233, 0.497013))) %>% 
-    dplyr::select(flag_id, date, lat, lon) %>% 
-    rbind(., dt_resight_all %>% dplyr::select(flag_id, date, lat, lon)) %>% 
-    mutate(date = strptime(date, format = "%d/%m/%Y", tz="UTC")) %>%
-    arrange(date)
-  
-  # output final sightings table
-  write.csv(dt_all, file = file.path(outputwd, paste0(individual_id, "_resighting_history.csv")), row.names = FALSE)
-  
-} else {
-  
-  dt_all <- dt_resight_all %>% 
-    dplyr::select(flag_id, date, lat, lon) %>% 
-    mutate(date = strptime(date, format = "%d/%m/%Y", tz="UTC")) %>%
-    arrange(flag_id, date)
-  
-  # output final sightings table
-  write.csv(dt_all, file = file.path(outputwd, paste0("all_birds_resighting_history.csv")), row.names = FALSE)
-  
-}
+dt_all <- dt_resight_all %>% 
+  dplyr::select(flag_id, date, lat, lon) %>% 
+  mutate(date = strptime(date, format = "%d/%m/%Y", tz="UTC")) %>%
+  mutate(month = lubridate::month(date, label = TRUE, abbr = TRUE)) %>% 
+  arrange(flag_id, date)
+
+# output final sightings table
+write.csv(dt_all %>% dplyr::select(-month), file = file.path(outputwd, paste0("all_birds_resighting_history.csv")), row.names = FALSE)
 
 dt_all
 
@@ -270,10 +223,6 @@ bird_df_sf <- dt_all %>%
                crs = 4326) %>% 
   mutate(lon = st_coordinates(.)[,1],
          lat = st_coordinates(.)[,2])
-
-if (by_individual & focus_resightings_no_release_site) {
-    bird_df_sf <- bird_df_sf[2:nrow(bird_df_sf),]
-}
 
 # if wanting to focus on Wash area only, use this shapefile
 # Can be found in Google Drive 3. Data > gis_shapefiles https://drive.google.com/drive/folders/1fF0__azUoCUOO8yW2nnkdRJjBfrjVs4C
@@ -331,30 +280,28 @@ basemap_inset
 
 # Main map
 
-if (by_individual) {
-  
-  if (focus_resightings_no_release_site) {
-    
-    gg_main_map <- basemap_main$map +
-      geom_sf(data = bird_df_sf_3857, shape = 21, fill = "magenta", col = "white", size = 3, stroke = 0.5)
-      theme_void()
-      
-  } else {
-    
-    gg_main_map <- basemap_main$map +
-      geom_sf(data = bird_df_sf_3857[2:nrow(bird_df_sf_3857),], shape = 21, fill = "magenta", col = "white", size = 3, stroke = 0.5) +
-      geom_sf(data = bird_df_sf_3857[1,], shape = 21, fill = "cyan", col = "white", size = 3, stroke = 0.5, show.legend = TRUE) +
-      geom_sf_text(data = bird_df_sf_3857[1,], hjust = -0.2, vjust = 0, size = 3, col = "white", aes(label = "release site")) +
-      theme_void()
-  }
+if (!month_map) {
+  # single colour for points
+  gg_main_map <- basemap_main$map +
+    geom_sf(data = bird_df_sf_3857, shape = 21, fill = "magenta", col = "white", size = 3, stroke = 0.5) +
+    theme_void()
   
 } else {
   
-  gg_main_map <- basemap_main$map +
-    geom_sf(data = bird_df_sf_3857, shape = 21, fill = "magenta", col = "white", size = 3, stroke = 0.5)
-  theme_void()
+  # month colour palette
+  month_pal <- c(viridisLite::viridis(12/2, begin = 0.2, end = 0.9), viridisLite::inferno(12/2, begin = 0.2, end = 0.9, direction=-1))
+  month_pal[6:7] <- "#F6D645FF" # both Jun/Jul = Jul inferno hue; preference for this one; should hopefully show ok on positron maps
+  month_pal[c(1,12)] <- "#420A68FF"
+  scales::show_col(month_pal)
   
+  # map coloured by month of sighting
+  gg_main_map <- basemap_main$map +
+    geom_sf(data = bird_df_sf_3857, aes(fill = month), shape = 21, col = "white", size = 3, stroke = 0.5) +
+    scale_fill_manual(values = month_pal, name = "Month") +
+    theme_void()
 }
+
+gg_main_map
 
 
 # Inset map
@@ -365,65 +312,31 @@ outline_box_main <- st_as_sfc(st_bbox(basemap_main$geom))
 gg_inset_map <- basemap_inset$map +
   geom_sf(data = outline_box_main, fill = NA, color = "white", size = 0.7) +  
   theme_void()
-gg_inset_map
 
-# use cowplot package to layer ggplots using ggdraw
-cowplot::ggdraw() +
-  cowplot::draw_plot(gg_main_map) +
-  cowplot::draw_plot(gg_inset_map, -0.08, -0.08, scale = 0.7, width = 0.5, height = 0.5)
+# # use cowplot package to layer ggplots using ggdraw
+# cowplot::ggdraw() +
+#   cowplot::draw_plot(gg_main_map) +
+#   cowplot::draw_plot(gg_inset_map, -0.08, -0.08, scale = 0.7, width = 0.5, height = 0.5)
 
 # ------- Output map  --------
 
-# output plot (either individual, or all, with / without inset map)
+# output plot
 
-if (by_individual & focus_resightings_no_release_site & wash_obs_only) out_file <- paste0(individual_id, "_static_inset_map_RESIGHTINGS_WASH_", today_date, ".png")
-if (by_individual & !focus_resightings_no_release_site & !wash_obs_only) out_file <- paste0(individual_id, "_static_inset_map_", today_date, ".png")
-if (by_individual & !focus_resightings_no_release_site & wash_obs_only) out_file <- paste0(individual_id, "_static_inset_map_WASH_", today_date, ".png")
-if (by_individual & focus_resightings_no_release_site & !wash_obs_only) out_file <- paste0(individual_id, "_static_inset_map_RESIGHTINGS_", today_date, ".png")
-out_file
+if (wash_obs_only) out_file <- paste0("all_resighting_obs_static_map_WASH")
+if (!wash_obs_only) out_file <- paste0("all_resighting_obs_static_map")
+if (month_map) out_file <- paste0(out_file, "_by_month")
+out_file <- paste0(out_file, "_", today_date, ".png")
 
-if (!by_individual & wash_obs_only) out_file <- paste0("all_resighting_obs_static_map_WASH_",  today_date, ".png")
-if (!by_individual & !wash_obs_only) out_file <- paste0("all_resighting_obs_static_map_",  today_date, ".png")
+ggsave(
+  gg_main_map,
+  filename = out_file,
+  device="png",
+  path = outputwd,
+  # height = 10,
+  # width = 12,
+  # units = "in",
+  # width = 800,
+  # units = "px",
+  dpi=300
+)
 
-if (by_individual) {
-  
-  ggsave(
-    filename = out_file,
-    device="png",
-    path = outputwd,
-    # height = 10,
-    # width = 12,
-    # units = "in",
-    # width = 800,
-    # units = "px",
-    dpi=300
-  )
-  
-} else {
-  
-  # ggsave(
-  #   filename = out_file,
-  #   device="png",
-  #   path = outputwd,
-  #   # height = 10,
-  #   # width = 12,
-  #   # units = "in",
-  #   # width = 800,
-  #   # units = "px",
-  #   dpi=300
-  # )
-  
-  ggsave(
-    gg_main_map,
-    filename = out_file,
-    device="png",
-    path = outputwd,
-    # height = 10,
-    # width = 12,
-    # units = "in",
-    # width = 800,
-    # units = "px",
-    dpi=300
-  )
-  
-}
