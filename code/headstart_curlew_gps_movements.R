@@ -52,8 +52,8 @@ current_year <- 2023
 today_date <- Sys.Date()
 
 filter_birds <- TRUE # filter birds for mapping
-map_all_birds_together <- TRUE # individual maps or all together
-wash_obs_only <- TRUE # show only Wash-area GPS data on map
+map_all_birds_together <- F # individual maps or all together
+wash_obs_only <- F # show only Wash-area GPS data on map
 filter_by_date <- TRUE # filter GPS data by date
 update_gdrive_data <- TRUE # download fresh data from google drive
 
@@ -82,7 +82,7 @@ dt_meta <- dt_meta %>% as_tibble()
 if (filter_birds) {
   dt_meta_tags <- dt_meta %>% 
     filter(tag_gps_radio_none == "gps") %>% 
-    filter(dead %in% "")
+    filter(state %in% "")
   # filter(year == current_year)
 } else {
   dt_meta_tags <- dt_meta %>% 
@@ -290,10 +290,12 @@ if (map_all_birds_together) {
 if (wash_obs_only) {
   
   # bounding box polygon around the Wash / North Norfolk coast
-  gis_wash_dir <- file.path("../../GIS/curlew/headstarting") # Sam's computer GIS filepath
+  #gis_wash_dir <- file.path("../../GIS/curlew/headstarting") # Sam's computer GIS filepath
+  gis_wash_dir <- file.path("../GIS/wwrg_wash_study_area_polygon") # Katharine's computer GIS path
   
   # Load WWRG Wash study shapefile -----------------
-  wash_area <- st_read(file.path(gis_wash_dir, "wash_north_norfolk_study_area_polygon.shp"))
+  #wash_area <- st_read(file.path(gis_wash_dir, "wash_north_norfolk_study_area_polygon.shp"))
+  wash_area <- st_read(file.path(gis_wash_dir, "wwrg_wash_study_area_polygon.shp"))
   
   # filter all_tags_points (sf object)
   # clip to only those points falling within the Wash study area

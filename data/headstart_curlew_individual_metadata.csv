@@ -1,8 +1,8 @@
-urn,year,flag_id,ring,sex,name,cohort_num,tag_gps_radio_none,tag_serial,radio_tag_freq,tagged_date,release_location,release_date,migration_date,dead,dead_date,comments
+urn,year,flag_id,ring,sex,name,cohort_num,tag_gps_radio_none,tag_serial,radio_tag_freq,tagged_date,release_location,release_date,migration_date,state,dead_date,comments
 5,2021,0A,FA95501,M,,1,,,,,Sandringham 1,06/07/2021,,,,
 8,2021,0C,FA95502,M,,1,,,,,Sandringham 1,06/07/2021,,,,
-1,2021,0E,FA95504,F,,1,gps,203285,,03/07/2021,Sandringham 1,06/07/2021,,unknown,,Still transmitting mid-March 2022
-2,2021,0J,FA95505,F,,1,gps,203286,,03/07/2021,Sandringham 1,06/07/2021,,y,,"Found dead 8/07/2021 on Sandringhambare plowed field. Possible power line fatality and subsequently scavenged. bird was predated between 1530-1600 yesterday, 7th July. It was predated AT the location where it was found, not carried there from elsewhere. It went to this spot around 45 minutes before the predation event, at 1445. It was along the edge of the field at 1430. Whatever predated it then spent about 3 hours playing with the carcass, presumably plucking it, before leaving it at 1845, which is when the accelerometer data flatlines. Tag redeployed on 3K"
+1,2021,0E,FA95504,F,,1,gps,203285,,03/07/2021,Sandringham 1,06/07/2021,,unknown,,Last transmission 10/06/2023. Intermittently logging GPS from Aug 2022.
+2,2021,0J,FA95505,F,,1,gps,203286,,03/07/2021,Sandringham 1,06/07/2021,,dead,08/07/2021,"Found dead 8/07/2021 on Sandringhambare plowed field. Possible power line fatality and subsequently scavenged. bird was predated between 1530-1600 yesterday, 7th July. It was predated AT the location where it was found, not carried there from elsewhere. It went to this spot around 45 minutes before the predation event, at 1445. It was along the edge of the field at 1430. Whatever predated it then spent about 3 hours playing with the carcass, presumably plucking it, before leaving it at 1845, which is when the accelerometer data flatlines. Tag redeployed on 3K"
 4,2021,0K,FA95506,F,,1,,,,,Sandringham 1,06/07/2021,,,,
 3,2021,0L,FA95507,M,,1,,,,,Sandringham 1,06/07/2021,,,,
 7,2021,0N,FA95508,F,,1,,,,,Sandringham 1,06/07/2021,,,,
@@ -26,11 +26,11 @@ urn,year,flag_id,ring,sex,name,cohort_num,tag_gps_radio_none,tag_serial,radio_ta
 22,2021,2V,FA95526,F,,2,,,,,Ken Hill 1,15/07/2021,,,,
 25,2021,2X,FA95527,M,,2,,,,,Ken Hill 1,15/07/2021,,,,Seen late Dec 2021
 29,2021,2Y,FA95528,M,,3,,,,,Ken Hill 1,20/07/2021,,,,
-28,2021,3A,FA95529,M,,3,gps,203287,,17/07/2021,Ken Hill 1,20/07/2021,,y,,likely predated (definitely dead) on 27 Sep. Tag recovered on 29/09 from Heacham North Beach by Wayne Stewart. Ring recovered on 29/09/21 Caroline Bellenberg: https://app.bto.org//ringingteam/ring-prints/FA95529-34763849-R-29092021-34788411
+28,2021,3A,FA95529,M,,3,gps,203287,,17/07/2021,Ken Hill 1,20/07/2021,,dead,27/09/2021,likely predated (definitely dead) on 27 Sep. Tag recovered on 29/09 from Heacham North Beach by Wayne Stewart. Ring recovered on 29/09/21 Caroline Bellenberg: https://app.bto.org//ringingteam/ring-prints/FA95529-34763849-R-29092021-34788411
 40,2021,3C,FA95530,M,,3,,,,,Sandringham 1,27/07/2021,,,,
 31,2021,3E,FA95531,M,,3,radio,BB387,173.750,17/07/2021,Ken Hill 1,20/07/2021,,,,"Seen Middlemarsh Farm, Skegness 15/01/2022. Radio tag still attached."
 32,2021,3J,FA95533,M,,3,,,,,Ken Hill 1,20/07/2021,,,,
-33,2021,3K,FA95534,F,,3,gps,203286,,20/07/2021,Sandringham 1,27/07/2021,,y,,"Probably dead, not checked in since 28/07/2021"
+33,2021,3K,FA95534,F,,3,gps,203286,,20/07/2021,Sandringham 1,27/07/2021,,unknown,,"Probably dead, not checked in since 28/07/2021"
 26,2021,3L,FA95535,M,,3,radio,BB384,173.291,17/07/2021,Ken Hill 1,20/07/2021,,,,Heard 02/08/2021
 39,2021,3N,FA95536,M,,3,,,,,Sandringham 1,27/07/2021,,,,
 41,2021,3P,FA95537,M,,3,,,,,Sandringham 1,27/07/2021,,,,
@@ -94,7 +94,7 @@ urn,year,flag_id,ring,sex,name,cohort_num,tag_gps_radio_none,tag_serial,radio_ta
 92,2022,7C,FA95586,M,,1,,,,,Ken Hill 1,20/07/2022,,,,
 91,2022,8C,FA95600,M,,2,radio,262491,173.736,03/08/2022,Sandringham 2,09/08/2022,,,,last heard 19/08/2022 release area
 92,2022,8E,FJ78401,M,Billy,2,gps,233952,,03/08/2022,Sandringham 2,09/08/2022,,unknown,,last transmission 15/12/2022
-88,2022,8K,FJ78404,M,Douglas,2,gps,233960,,03/08/2022,Sandringham 2,09/08/2022,,y,,"Dead based on GPS 30/08/2022 09:30:00 UTC on Wolferton saltmarsh. Inspection of remains showed no evidence of obvious predation, however movements were 'normal' the morning prior to death. Possibly predated in mid-air then dropped."
+88,2022,8K,FJ78404,M,Douglas,2,gps,233960,,03/08/2022,Sandringham 2,09/08/2022,,dead,30/08/2022,"Dead based on GPS 30/08/2022 09:30:00 UTC on Wolferton saltmarsh. Inspection of remains showed no evidence of obvious predation, however movements were 'normal' the morning prior to death. Possibly predated in mid-air then dropped."
 96,2022,7H,FA95588,M,,1,,,,,Ken Hill 1,20/07/2022,,,,
 93,2022,8J,FJ78403,M,,2,,,,,Sandringham 2,09/08/2022,,,,
 98,2022,7J,FA95589,F,,1,radio,262479,173.254,14/07/2022,Ken Hill 1,20/07/2022,,,,last heard 02/08/2022 release area
@@ -115,10 +115,10 @@ urn,year,flag_id,ring,sex,name,cohort_num,tag_gps_radio_none,tag_serial,radio_ta
 102,2022,9J,FJ78417,M,Hope,4,gps,203287,,15/08/2022,Ken Hill 1,22/08/2022,,,,
 106,2022,9K,FJ78418,M,,4,radio,,173.762,15/08/2022,Ken Hill 1,22/08/2022,,,,last heard 22/08/2022 release area
 101,2022,9L,FJ78419,F,Astra,4,gps,223958,,15/08/2022,Ken Hill 1,22/08/2022,16/09/2022,,,
-136,2023,LA,FJ78465,M,Ceto,4,gps,234330,,17/08/2023,Sandringham 2,17/08/2023,,y,25/08/2023,"Dead, run over on B1153 on 25/08/2023 about 18:00. Found by NAC on 30/08/2023 in roadside ditch."
+136,2023,LA,FJ78465,M,Ceto,4,gps,234330,,17/08/2023,Sandringham 2,17/08/2023,,dead,25/08/2023,"Dead, run over on B1153 on 25/08/2023 about 18:00. Found by NAC on 30/08/2023 in roadside ditch."
 108,2023,XC,FJ78438,F,,1,,,,,Sandringham 2,27/07/2023,,,,
 130,2023,LJ,FJ78469,U,Chester,3,gps,234324,,10/08/2023,Ken Hill 1,17/08/2023,,,,
-131,2023,LP,FJ78472,U,Corvus,3,gps,234329,,10/08/2023,Ken Hill 1,17/08/2023,,y,11/09/2023,"Dead on Wolferton saltmarsh 11/09/2023 about 14:00. Possibly predated or scavenged, hard to tell from accelerometer data. Recovered 15/09/2023 by Jeff Kew."
+131,2023,LP,FJ78472,U,Corvus,3,gps,234329,,10/08/2023,Ken Hill 1,17/08/2023,,dead,11/09/2023,"Dead on Wolferton saltmarsh 11/09/2023 about 14:00. Possibly predated or scavenged, hard to tell from accelerometer data. Recovered 15/09/2023 by Jeff Kew."
 139,2023,LU,FJ78474,U,Chronos,5,gps,234325,,25/08/2023,Sandringham 2,01/09/2023,,,,
 112,2023,XK,FJ78442,M,,1,,,,,Sandringham 2,27/07/2023,,,,
 141,2023,LV,FJ78475,F,Cheese,6,gps,223960,,15/09/2023,Ken Hill 1,15/09/2023,,,,
@@ -135,7 +135,7 @@ urn,year,flag_id,ring,sex,name,cohort_num,tag_gps_radio_none,tag_serial,radio_ta
 113,2023,XL,FJ78443,M,Cecil,1,gps,234313,,19/07/2023,Sandringham 2,27/07/2023,,,,
 114,2023,XP,FJ78444,F,Custard,1,gps,234319,,21/07/2023,Ken Hill 1,27/07/2023,,,,
 115,2023,XT,FJ78445,M,Curie,1,gps,234321,,21/07/2023,Ken Hill 1,27/07/2023,,unknown,,"Tag shed 29/07/2023 between 18:30-21:00 BST. Recovered 02/08/2023 near Ken Hill 1, no evidence of bird and harness knot pulled to left of back housing tube - possibly caught on barbed wire fence and came off?"
-116,2023,XU,FJ78447,F,Chalice,1,gps,234320,,21/07/2023,Ken Hill 1,27/07/2023,,y,08/09/2023,"dead 08/09/2023 Terrington saltmarsh, recovered by NAC on 12/09/2023"
+116,2023,XU,FJ78447,F,Chalice,1,gps,234320,,21/07/2023,Ken Hill 1,27/07/2023,,dead,08/09/2023,"dead 08/09/2023 Terrington saltmarsh, recovered by NAC on 12/09/2023"
 129,2023,YP,FJ78458,M,,2,,,,,Ken Hill 2,10/08/2023,,,,
 128,2023,YL,FJ78459,M,,2,,,,,Ken Hill 2,10/08/2023,,,,
 118,2023,XX,FJ78449,M,Chetney,1,gps,234323,,21/07/2023,Ken Hill 1,27/07/2023,,,,
@@ -147,9 +147,9 @@ urn,year,flag_id,ring,sex,name,cohort_num,tag_gps_radio_none,tag_serial,radio_ta
 123,2023,YK,FJ78456,F,Cassandra,1,gps,234315,,19/07/2023,Sandringham 2,27/07/2023,,,,
 133,2023,LL,FJ78470,M,,3,,,,,Ken Hill 1,17/08/2023,,,,
 132,2023,LN,FJ78471,U,,3,,,,,Ken Hill 1,17/08/2023,,,,
-127,2023,YN,FJ78457,F,Carrot,2,gps,234328,,04/08/2023,Ken Hill 2,10/08/2023,,y,11/08/2023,"Found down a burrow on fresh marsh on 03/09/2023 by DJH. Probably predated / died 11/08/2023. Down a hole of some sort, possibly stoat or rat. Found with all rings, legs, bones and plenty of feathers."
-126,2023,YU,FJ78461,F,Crescent,2,gps,234326,,04/08/2023,Ken Hill 2,10/08/2023,,y,11/08/2023,"Died 11/08/2023 from accelerometer data. Found, likely predated, by Cathy Ryden 13/08/2023 near original Ken Hill pen."
-137,2023,YX,FJ78463,F,Chutney,4,gps,234327,,17/08/2023,Sandringham 2,17/08/2023,,y,22/09/2023,Dead on Wolferton saltmarsh 22/09/2023 about 14:30. Likely predated. Carcass recovered by Jeff Kew on 26/09/2023.
+127,2023,YN,FJ78457,F,Carrot,2,gps,234328,,04/08/2023,Ken Hill 2,10/08/2023,,dead,11/08/2023,"Found down a burrow on fresh marsh on 03/09/2023 by DJH. Probably predated / died 11/08/2023. Down a hole of some sort, possibly stoat or rat. Found with all rings, legs, bones and plenty of feathers."
+126,2023,YU,FJ78461,F,Crescent,2,gps,234326,,04/08/2023,Ken Hill 2,10/08/2023,,dead,11/08/2023,"Died 11/08/2023 from accelerometer data. Found, likely predated, by Cathy Ryden 13/08/2023 near original Ken Hill pen."
+137,2023,YX,FJ78463,F,Chutney,4,gps,234327,,17/08/2023,Sandringham 2,17/08/2023,,dead,22/09/2023,Dead on Wolferton saltmarsh 22/09/2023 about 14:30. Likely predated. Carcass recovered by Jeff Kew on 26/09/2023.
 143,2023,LX,FJ78476,M,,6,,,,,Ken Hill 1,15/09/2023,,,,
 149,2023,LY,FJ78477,F,,8,,,,,Ken Hill 1,22/11/2023,,,,
 147,2023,KC,FJ78479,M,,8,,,,,Ken Hill 1,22/11/2023,,,,
