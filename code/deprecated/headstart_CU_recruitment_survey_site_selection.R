@@ -1,6 +1,6 @@
 ##############################
 #
-#    NE103: Headstarted Curlew recruitment survey site selection
+#    NE103: Headstarted Curlew recruitment survey site selection - DEPRECATED CODE
 #
 ##############################
 
@@ -12,7 +12,7 @@
 # project_details <- list(project_name, output_version_name, workspace_version_name)
 # package_details <- c("package name 1", "package name 2")
 
-project_details <- list(project_name="curlew_headstarting", output_version_date="2022_headstarting", workspace_version_date="2022_headstarting")
+project_details <- list(project_name="curlew_headstarting", output_version_date="2024_headstarting", workspace_version_date="2024_headstarting")
 package_details <- c("sf","tidyverse","patchwork","move","moveVis","RColorBrewer","viridisLite","rcartocolor","lubridate")
 seed_number <- 1
 
