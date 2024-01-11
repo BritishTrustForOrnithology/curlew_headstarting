@@ -1,8 +1,8 @@
-##############################
+######################################################
 #
-#    NE103: Headstarted Curlew recruitment survey sampling
+#    NE103: Headstarted Curlew recruitment survey sampling 2023-
 #
-##############################
+######################################################
 
 # ======================   Variables to pass to setup code source  ===========
 
@@ -11,7 +11,7 @@
 # project_details <- list(project_name, output_version_name, workspace_version_name)
 # package_details <- c("package name 1", "package name 2")
 
-project_details <- list(project_name="curlew", output_version_date="2023-03", workspace_version_date="2023-03")
+project_details <- list(project_name="curlew", output_version_date="2024-01", workspace_version_date="2024-01")
 package_details <- c("sf","tidyverse","patchwork","RColorBrewer","viridisLite","rcartocolor","lubridate", "patchwork", "truncnorm")
 seed_number <- 1
 
@@ -41,7 +41,40 @@ source(file.path("code/source_setup_code_rproj.R"))
 # GIS working directory
 giswd <- file.path("../../GIS")
 giswd_buffers <- file.path("../../GIS/curlew/headstarting/recruitment_surveys")
-giswd_breed <- file.path("../../GIS/curlew/git_shapefiles/")
+giswd_breed <- file.path("../../GIS/curlew/git_shapefiles")
+
+
+
+# =======================    Preparation in QGIS   =================
+
+# Create stratified survey zone boundaries -----
+
+# mark all release pen locations (don't bother with second Ken Hill pen as it is so close to the first one)
+# create 5, 10, 20, and 30 km buffers around each release pen location
+# union the buffered polygons for each scale (i.e. union the 5 km buffers, then the 10 km buffers, etc)
+# dissolve the unionised buffered polygons to merge overlap areas
+# should then have 5 resulting separate polygons for the stratified survey zones; two 5 km polygons (one around SH-pen-02, one dissolved one for SH-pen-01 / KH-pen-01 as their areas overlap); one 10 km polyon; one 20 km polygon; one 30 km polygon
+# recode the attribute tables to include two fields: id, and buffer_km (which values are 5,10,20 or 30 respectively)
+# use Data Management > Merge Vector Layers to create a single vector layer merging all of the polygons into a single file
+# display using a categorised symbology scale according to buffer_km field
+
+# Identify selectable tetrads within overall survey area -----
+
+# take GB002kmgrid shapefile and select a subset of tetrads from the whole using a rectangle around the survey area, to make geoprocessing faster
+# clip subsetted 2 km grid by the stratified survey zone shapefile; this includes both land and sea (and partial both) tetrads
+# use Geoprocessing > Difference to exclude all tetrads wholely within the 1) Greater Wash SPA and 1) Wash SPA shapefiles
+# this leaves selectable land-based tetrads within the overall survey area
+
+# Assign strata values to selectable tetrads within overall survey area -----
+
+# assign strata (buffer) values to each tetrad within the overall survey area by using Data Management > Join Attributes by Location
+# join the selectable tetrads layer with the stratified survey zones 2024 as the overlay
+# choose intersect as the geometric predicate and the attributes of the feature with largest overlap for the join type
+# 5 km strata tetrads are for some reason incorrectly assigned strata buffer values of 10 km - manually select tetrads and edit attribute table
+# by default, tetrads straddling a boundary between two strata are put into the larger strata (e.g. if overlap occurs between the 20 and 30 km strata, tetrad is assigned to the 30 km strata), even if only a tiny corner of the tetrad actually overlaps the larger strata
+# visually assess which strata boundary tetrads should be in, assigning them (by editing the attribute table) to the strata covering the majority of the tetrad
+# use this layer (stratified_survey_zones_selectable_tetrads_2024.shp) to randomly sample from below in R
+
 
 
 # =======================    Load GIS data   =================
