@@ -35,7 +35,7 @@ lapply(lapply(load_pkg, rlang::quo_name), library, character.only = TRUE)
 login<-move::movebankLogin()
 
 # Ongoing issues using BTOTT to load and clean data. Workaround to use move:: directly
-data <- move::getMovebankLocationData(study="BTO/NE/Pensthorpe/WWT - Eurasian Curlews - headstarted",
+data <- move::getMovebankLocationData(study="BTO-NE-Pensthorpe - Eurasian Curlews - headstarted",
                                       sensorID=653, login = login)
 
 ## Make parsable as a Track object by BTOTT package
