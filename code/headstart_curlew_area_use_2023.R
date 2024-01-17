@@ -22,7 +22,7 @@
 
 
 ## LOAD PACKAGES
-load_pkg <- rlang::quos(tidyverse,BTOTrackingTools, here)  # quos() function to be lazy on "" around each package
+load_pkg <- rlang::quos(tidyverse,BTOTrackingTools, here, sp, leaflet)  # quos() function to be lazy on "" around each package
 lapply(lapply(load_pkg, rlang::quo_name), library, character.only = TRUE)
 
 
@@ -31,7 +31,7 @@ lapply(lapply(load_pkg, rlang::quo_name), library, character.only = TRUE)
 
 #### LOAD MOVEBANK DATA
 
-# Set login credentials
+# Set login credentials #HH NB: if this is the first time you're downloading data then need to download the data on the movebank webpage to accept the licencing agreement. Then this should work.
 login<-move::movebankLogin()
 
 # Ongoing issues using BTOTT to load and clean data. Workaround to use move:: directly
@@ -56,6 +56,9 @@ names(data)[names(data)=="gps.satellite.count"]<-"satellites_used"
 tide_dat <- read_csv(here("data/Wash_tide_data_Bulldog_July_December_2022.csv"), 
                      col_types = cols(Observed_DateTime = col_datetime(format = "%d/%m/%Y %H:%M"), Predicted_DateTime = col_datetime(format = "%d/%m/%Y %H:%M")))
 
+#currently waiting on the tide data to come in
+#tide_dat <- read_csv(here("data/Wash_tide_data_Bulldog_July_December_2023.csv"), 
+#                     col_types = cols(Observed_DateTime = col_datetime(format = "%d/%m/%Y %H:%M"), Predicted_DateTime = col_datetime(format = "%d/%m/%Y #%H:%M")))
 
 # Find closest match to trk timestamp (package MALDIquant)
 closest<-MALDIquant::match.closest(data$DateTime, tide_dat$Observed_DateTime)
@@ -75,6 +78,7 @@ data$tide<-as.factor(ifelse(data$tide_diff<7201 & data$tide_diff>-7201,data$tide
 data$tripNo<-1; data$gap<-0; data$gapsec<-1
 
 
+#****HH Updated code to use an external csv (created in code: 'headstart_curlew_gps_movements.R' to get the cohort identifer and site identifers)
 # Add cohort identifier
 c1<-c("Yf(6X)O/-:Y/m_KenHill","Yf(6Y)O/-:Y/m_Sandringham","Yf(7E)O/-:Y/m_KenHill","Yf(7K)O/-:Y/m_Sandringham","Yf(7U)O/-:Y/m_KenHill","Yf(7Y)O/-:Y/m_Sandringham")
 c2<-c("Yf(8E)O/-:Y/m_Sandringham","Yf(8K)O/-:Y/m_Sandringham","Yf(8L)O/-:Y/m_Sandringham")
@@ -117,7 +121,7 @@ data_tt$TagID<-as.factor(as.character(data_tt$TagID))
 
 
 
-# Remove 2021 deployments with no 2022 data
+# Remove 2021 deployments with no 2022 data #HH UPDATE THIS WITH NEW INFO FROM SEPERATE CSV
 data_tt<-data_tt %>% filter(TagID!="Yf(0J)O/-:Y/m" & TagID!="Yf(3A)O/-:Y/m" & TagID!="Yf(3K)O/-:Y/m") %>% droplevels()
 
 
@@ -167,7 +171,7 @@ data_all<- data_tt %>%  filter(TagID!="Yf(0E)O/-:Y/m" & DateTime<"2022-12-31 23:
 data_all$Period<-"all"
 
 
-# 2021 deployment for 2022
+# 2021 deployment for 2022 #HH UPDATE THIS FOR ALL PAST DEPLOYMENTS!!!**
 data_21<- data_tt %>% filter(TagID=="Yf(0E)O/-:Y/m") %>% filter(DateTime>"2022-01-01 00:00:00")
 data_21$Period<-"21_dep_all"
 
@@ -204,8 +208,8 @@ load("NE103_2022 report_clean tracking data.RData")
 # Using BTOTT::
 
 # Basic visualisation of data
-plot_leaflet_dev(data[["all"]], lines=FALSE)
-plot_leaflet_dev(data[[1]], lines=FALSE) # 0E plot
+plot_leaflet(data[["all"]], lines=FALSE) #code update - now "plot_leaflet" not "plot_leaflet_dev"
+plot_leaflet(data[[1]], lines=FALSE) # 0E plot #HH NB - PAST COHORTS
 
 
 
@@ -213,16 +217,16 @@ plot_leaflet_dev(data[[1]], lines=FALSE) # 0E plot
 data_tide<-TrackStack2Track(data[["all"]])
 data_tide<-data_tide %>% filter(tide!="NA")
 data_tide$Tide<-as.character(fct_recode(data_tide$tide, "High tide" = "HW", "Low tide" = "LW") )
-plot_leaflet_dev(data_tide, plotby="Tide", lines=FALSE, col=c("#31688EFF","#35B779FF")) 
+plot_leaflet(data_tide, plotby="Tide", lines=FALSE, col=c("#31688EFF","#35B779FF")) #code update - now "plot_leaflet" not "plot_leaflet_dev"
 
 
 
 
 
 # basic colour mark sightings plot using leaflet:: directly
-col_data<-read_csv("data/NE103_2022 colour ring sighting map locations.csv")
+col_data<-read_csv("data/NE103_2022 colour ring sighting map locations.csv") # for 2022 csv: ID 8 long had a gap before the -3. Removed
 m<-leaflet(col_data) %>% addTiles()  %>%
-   addCircleMarkers(col_data$Long, col_data$Lat,radius=3, fillOpacity = 1, opacity = 1)
+   addCircleMarkers(col_data$longitude, col_data$latitude,radius=3, fillOpacity = 1, opacity = 1)
 
 
 
@@ -239,10 +243,11 @@ ColLat = 52.87
 p4 <- sp::CRS(paste("+proj=laea +lon_0=", ColLon," +lat_0=", ColLat, " +units=m", sep=""))
 
 # read in simple UK shapefile map
-ukmap <- sp::spTransform(ukmap,p4)
+ukmap <- sf::st_transform(ukmap,p4) #HH NB: ukmap is an sf not an sp. So changed code here from sp::spTransform to sf::st_transform
 
 # reproject ukmap 
-ukmap <- project_points(ukmap, p4s = p4)
+#ukmap <- project_points(ukmap, p4s = p4) #HH NB: project_points doesn't work on sf so using st_transform instead
+ukmap <- sf::st_transform(ukmap, crs = st_crs(p4))
 
 
 
@@ -293,7 +298,8 @@ lab_lat<-seq(new_lat_lower, new_lat_upper,length.out=length(seq(min(yRa), max(yR
 
 
 # Set directory (outside of Github here)
-dir<-"C:/Users/gary.clewley/Desktop/BTO - GDC/2019- Wetland and Marine Team/_NE103 -- Headstarted Curlew tracking/Outputs/"
+#dir<-"C:/Users/gary.clewley/Desktop/BTO - GDC/2019- Wetland and Marine Team/_NE103 -- Headstarted Curlew tracking/Outputs/"
+dir <- setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting") #HH laptop directory
 plot.name<-"NE103_Headstart CURLE_all data 2022_TIA.tiff"
 
 # Set plot device (saving hi-res base R maps)
@@ -308,6 +314,7 @@ axis(1, at=seq(min(xRa), max(xRa),by=5000), labels=round(lab_long,2))
 axis(2, at=seq(min(yRa), max(yRa),by=5000), labels=round(lab_lat,2))
 
 
+#*****HH NB: THIS PLOT NOT WORKING FOR SOME REASON? SOMETHING TO DO WITH MEMORY
 # UPDATE INDIVIDUAL BETWEEN PLOTS
 plot_TIA(data=grd_rank_all,Add=TRUE,                    # UPDATE ID SELECTION
          xra=xRa, yra=yRa,
@@ -420,8 +427,8 @@ avail.pts$used<-fct_recode(avail.pts$used, "Available" = "FALSE", "Used" = "TRUE
 
 # Tidy LCM variable  # variable name 'layer' with new landuse data for 2022
 rsfdat <- avail.pts %>%  mutate(
-  LCM = as.character(LCM), 
-  LCM = fct_collapse(LCM,
+  layer = as.character(layer), 
+  layer = fct_collapse(layer,
                      "Arable" = c("3"),
                      "Grassland" = c("4","5","6","7"),
                      "Coastal rock" = c("15", "17"),
@@ -431,7 +438,7 @@ rsfdat <- avail.pts %>%  mutate(
 
 
 # Reorder factor level
-rsfdat$LCM<- factor(rsfdat$LCM, levels=c("Coastal sediment","Saltmarsh","Coastal Rock","Arable","Grassland","Other"))
+rsfdat$layer<- factor(rsfdat$layer, levels=c("Coastal sediment","Saltmarsh","Coastal Rock","Arable","Grassland","Other"))
 
 
 # set response to numeric
@@ -443,13 +450,14 @@ rsfdat$w <- ifelse(rsfdat$case_ == 1, 1, 5000)
 
 
 # Set individual habitat factors (pooling all other habitats into single reference level)
-rsfdat$Coastal <- ifelse(rsfdat$LCM == "Coastal sediment", 1, 0)
-rsfdat$Saltmarsh <- ifelse(rsfdat$LCM == "Saltmarsh", 1, 0)
-rsfdat$Arable <- ifelse(rsfdat$LCM == "Arable", 1, 0)
-rsfdat$Grassland <- ifelse(rsfdat$LCM == "Grassland", 1, 0)
-rsfdat$Other <- ifelse(rsfdat$LCM == "Other", 1, 0)
+rsfdat$Coastal <- ifelse(rsfdat$layer == "Coastal sediment", 1, 0)
+rsfdat$Saltmarsh <- ifelse(rsfdat$layer == "Saltmarsh", 1, 0)
+rsfdat$Arable <- ifelse(rsfdat$layer == "Arable", 1, 0)
+rsfdat$Grassland <- ifelse(rsfdat$layer == "Grassland", 1, 0)
+rsfdat$Other <- ifelse(rsfdat$layer == "Other", 1, 0)
 
 
+#HH NB - MISSING CODE HERE TO EXPORT EACH RSF?? 
 
 # Save rsfdat for each time period
 setwd("C:/Users/gary.clewley/Desktop/BTO - GDC/2019- Wetland and Marine Team/_NE103 -- Headstarted Curlew tracking/Data/")
