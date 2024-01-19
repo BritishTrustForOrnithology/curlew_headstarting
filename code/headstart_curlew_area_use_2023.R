@@ -237,10 +237,15 @@ data_tt$TagID<-as.factor(as.character(data_tt$TagID))
 
 
 
+#****--- HH NB - to update this section below to use the meta data that is merged into data. 
+              #probably using dattime filter and new column? will have a think
 
 # Remove 2021 deployments with no 2022 data #HH UPDATE THIS WITH NEW INFO FROM SEPERATE CSV
 data_tt<-data_tt %>% filter(TagID!="Yf(0J)O/-:Y/m" & TagID!="Yf(3A)O/-:Y/m" & TagID!="Yf(3K)O/-:Y/m") %>% droplevels()
 
+#**** - HH NB - can use this trial filter to filter years where needed
+#trial code to just extract the 2022 data from the GPS tracking dataset. birds2022 <- unique(dt_meta_gsp_TagID$TagID[dt_meta_gsp_TagID$year=="2022"])
+#data_tt <- data_tt %>% filter(TagID %in% birds2022) %>% droplevels()
 
 # Filter work around for each ID to select time period based on staggered deployments
 
@@ -485,7 +490,7 @@ trk_dat<-TrackStack2Track(data[["all"]]) # Redo manually for all time periods
 
 
 # Convert to 'amt' track (using BTOTT headers) #HH NB - release col name updated - could use either release_location or release_site. Cohort col name updated - cohort_num - this could be updated depending on how many cohorts we want to use?
-trk <- make_track(trk_dat, .x = longitude, .y = latitude, .t = DateTime, id = TagID, tide = tide, release=release_location, cohort=cohort_num, speed=ground.speed, crs = "epsg:4326")
+trk <- make_track(trk_dat, .x = longitude, .y = latitude, .t = DateTime, id = TagID, tide = tide, release=release_site, cohort=cohort_num, speed=ground.speed, crs = "epsg:4326")
 
 
 # Transform to BNG
@@ -579,11 +584,12 @@ rsfdat$Other <- ifelse(rsfdat$layer == "Other", 1, 0)
 
 
 
-colnames(rsfdat[rsfdat$LCM,])
+
 
 #HH NB - MISSING CODE HERE TO EXPORT EACH RSF?? 
 #rename the RSF files based on the timeframe - 1wk,2wks,6wks,all Jul-Dec
 rsfdat_all <- rsfdat
+
 
 # Save rsfdat for each time period
 setwd("C:/Users/gary.clewley/Desktop/BTO - GDC/2019- Wetland and Marine Team/_NE103 -- Headstarted Curlew tracking/Data/")
@@ -615,7 +621,7 @@ load("NE103_2022 report_RSF_data_0E_22.RData")
 ## Available/Used Plot 
 na.omit(rsfdat_all) %>% #filter(id=="Yf(0E)O/-:Y/m") %>%	                          	# Update period or ID
   ggplot(.,  aes(x=layer,group=used))                                       +	      # select data and variables - using na.omit() here to exclude random points offshore outside LCM area. HH NB - LCM = layer in 2022 and 2023 LCM data so need to change this to layer
-  geom_bar(position=position_dodge(), aes(y= ..prop.., fill = used),
+  geom_bar(position=position_dodge(), aes(y=..prop.., fill = used),
            stat="count", colour="black")                                +       # select barplot of proportions presented side by side with black outline
   scale_fill_manual(values=c("grey70", "grey20"))                       + 		  # define colours, plenty of good built in palettes if colour can be used
   labs(y = "Proportion of fixes\n", fill="used", x="\nHabitat")         + 			# labels, \n indicates space between line and text
@@ -649,7 +655,8 @@ x2<-x %>% filter(used=="Available") %>% group_by(layer) %>% mutate(prop=Freq/y$A
 
 ## work out denominator for each individual
 y<-tapply(x$Freq, list(x$id, x$used), sum)
-y<-as.data.frame(y[-1,])
+y<-as.data.frame(y)
+#y<-as.data.frame(y[-1,]) #*****HH NB - this for some reason removed the first row of data... not sure why... 
 
 #note differs from flexible plots combining all birds above)
 #prop_u<-x1 %>% group_by(LCM) %>% mutate(mean_prop=mean(prop)) %>% select(LCM, mean_prop) %>% distinct() #HH NB - LCM = layer in 2022 and 2023 LCM data so need to change this to layer
@@ -664,7 +671,7 @@ sd_a<-x2 %>% group_by(layer) %>% mutate(sd=round(sd(prop)/sqrt(12),2)) %>% selec
 # with two rows for each habitat alternating between used and available as per plot
 
 
-
+#*****------HH NB - for some reason 'prop' isn't here... so can't do this figure...
 fig_3_newdf<-as.data.frame(cbind(prop, conf.low, conf.high, se))
 fig_3_newdf$used<-as.factor(rep(c("Available", "Used"), 7))
 fig_3_newdf$lcm_mod<-as.factor(as.character(c("coastal", "coastal", "agriculture","agriculture", "mussel","mussel", "marine", "marine","urban", "urban","other", "other","landfill","landfill")))
@@ -689,10 +696,10 @@ fig_3_newdf$lcm_mod<- factor(fig_3_newdf$lcm_mod, levels=c("coastal", "agricultu
 
 
 # Select time period
-rsfdat<-rsfdat_6
+rsfdat<-rsfdat_6 #*****HH NB - change this for each time period
 
 # Fit habitat model for each habitat to each individual
-rsffits <- rsfdat  %>% nest(data=-"id") %>%   mutate(mod = map(data, function(x) glm(case_ ~ Coastal, data = x, weight=w,family = binomial)))
+rsffits <- rsfdat  %>% nest(data=-"id") %>%   mutate(mod = map(data, function(x) glm(case_ ~ Arable, data = x, weight=w,family = binomial)))
 
 ## DO NOT open rsffits object from R Studio panel view(rsffits) - keep crashing on 3.6.1
 
@@ -702,7 +709,7 @@ rsffits <- rsfdat  %>% nest(data=-"id") %>%   mutate(mod = map(data, function(x)
 # Running issues originally due to na.action = argument not set. Ran later and daved manually (writeClipboard(as.character(rsf_gof$auc_test)))
 # Could integrate into tidy output if needed
 
-#rsf_gof <- rsfdat  %>% nest(data=-"id") %>%   mutate(auc_test = map(data, function(x) pROC::auc(pROC::roc(x$case_~(predict(glm(case_ ~ Coastal, data = x, weight=w,family = binomial, na.action=na.exclude), type=c("response"))))))) #edit response var
+#rsf_gof <- rsfdat  %>% nest(data=-"id") %>%   mutate(auc_test = map(data, function(x) pROC::auc(pROC::roc(x$case_~(predict(glm(case_ ~ Other, data = x, weight=w,family = binomial, na.action=na.exclude), type=c("response"))))))) #edit response var
 
 
 
@@ -721,7 +728,7 @@ rsf_coefs<-within(rsf_coefs, rm(mod))
 
 
 # Name for habitat and repeat
-rsf_coefs_coast<-rsf_coefs
+rsf_coefs_other<-rsf_coefs
 
 
 # Combine and save RSF model outputs
@@ -829,7 +836,7 @@ rsf_coefs_hab %>% filter(term!="(Intercept)") %>%	ggplot(., ) +
             fill = "grey90", alpha=0.5) +
   geom_segment(mapping = aes(x = x - .4, xend = x + .4,
                              y = mean, yend = mean), data = d2a, inherit.aes = FALSE,
-               size = 1) +
+               linewidth = 1) +
   geom_hline(yintercept = 0, lty = 2) +
   labs(x = "Habitat", y = "Relative Selection Strength") +
   theme(legend.position="none") +
@@ -845,6 +852,7 @@ rsf_coefs_hab %>% filter(term!="(Intercept)") %>%	ggplot(., ) +
 
 # Save plot
 setwd("C:/Users/gary.clewley/Desktop/BTO - GDC/2019- Wetland and Marine Team/_NE103 -- Headstarted Curlew tracking/Outputs/")
+setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/output") #HH NB laptop
 ggsave("NE103_Headtsart CURLE_RSS plot_one week.jpg", width=15, height=15, units="cm", dpi=300)  ## UPDATE FILENAME
 
 
