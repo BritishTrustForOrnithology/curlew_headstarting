@@ -3,15 +3,12 @@
 
 # FUNCTION to draw a static movement map (path or points) for all birds together
 
-draw_movement_map_all_birds <- function(bird_df_sf, map_type = c("path", "points", "path points"), filter_date = filter_by_date, basemap_alpha, out_type = c("png", "jpg"), map_dpi) {
+draw_movement_map_all_birds <- function(bird_df_sf, map_type = c("path", "points", "path points"), filter_date = filter_by_date, basemap_alpha, out_type = c("png", "jpg"), map_dpi, map_buffer_km = 30) {
   
-  last_date <- max(bird_df_sf$timestamp)
-  first_date <- last_date - 60*86400
-  
-  if (filter_date) {
-    bird_df_sf <- bird_df_sf %>% 
-      filter(timestamp >= first_date & timestamp < last_date)
-  }
+  # set file output
+  if (wash_obs_only) out_file <- paste0("all_birds_gps_static_map_WASH")
+  if (!wash_obs_only) out_file <- paste0("all_birds_gps_static_map")
+  out_file <- paste0(out_file, "_", today_date, ".", out_type)
   
   num_days_vis <- floor(max(bird_df_sf$timestamp) - min(bird_df_sf$timestamp))
   
@@ -30,7 +27,7 @@ draw_movement_map_all_birds <- function(bird_df_sf, map_type = c("path", "points
   
   # create basemaps for main & inset maps
   basemap_main <- make_basemap(sf_data = bird_df_sf_3857,
-                               buff_dist = 30*1000,
+                               buff_dist = map_buffer_km*1000,
                                map_type = "main",
                                map_provider = "Esri.WorldImagery",
                                alpha_level = basemap_alpha)
@@ -93,7 +90,7 @@ draw_movement_map_all_birds <- function(bird_df_sf, map_type = c("path", "points
     
     ggsave(
       gg_main_map,
-      filename = paste0("all_birds_gps_static_map_", today_date, ".", out_type),
+      filename = out_file,
       device=out_type,
       path = map_dir,
       # height = 10,
@@ -116,6 +113,7 @@ draw_movement_map_all_birds <- function(bird_df_sf, map_type = c("path", "points
     gg_main_map <- basemap_main$map +
       geom_sf(data = bird_df_sf_3857, aes(col = flag_id), size = 0.2) +
       scale_colour_viridis_d(name = "Flag code", option = "magma") +
+      guides(colour = guide_legend(override.aes = list(size = 3))) +
       coord_sf(xlim = xlims, ylim = ylims) +
       theme_void()
     # gg_main_map
@@ -139,7 +137,7 @@ draw_movement_map_all_birds <- function(bird_df_sf, map_type = c("path", "points
     dir.create(map_dir, recursive = TRUE, showWarnings = FALSE)
     
     ggsave(
-      filename = paste0("all_birds_gps_static_map_", today_date, ".", out_type),
+      filename = out_file,
       device=out_type,
       path = map_dir,
       # height = 10,
@@ -170,6 +168,7 @@ draw_movement_map_all_birds <- function(bird_df_sf, map_type = c("path", "points
       geom_path(data = bird_df_sf_3857, aes(x = lon_3857, y = lat_3857, col = flag_id), linewidth = 0.5) +
       geom_sf(data = bird_df_sf_3857, aes(col = flag_id), size = 0.5) +
       scale_colour_viridis_d(name = "Flag code", option = "magma") +
+      guides(colour = guide_legend(override.aes = list(size = 3))) +
       coord_sf(xlim = xlims, ylim = ylims) +
       theme_void()
     
@@ -201,7 +200,7 @@ draw_movement_map_all_birds <- function(bird_df_sf, map_type = c("path", "points
     dir.create(map_dir, recursive = TRUE, showWarnings = FALSE)
     
     ggsave(
-      filename = paste0("all_birds_gps_static_map_", today_date, ".", out_type),
+      filename = out_file,
       device=out_type,
       path = map_dir,
       height = 200,

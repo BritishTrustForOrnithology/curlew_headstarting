@@ -5,13 +5,10 @@
 
 draw_movement_map <- function(bird_df_sf, map_type = c("path", "point"), filter_date = filter_by_date, basemap_alpha, map_colour, out_type = c("png", "jpg"), map_dpi, map_buffer_km = 30, path_alpha = 1) {
   
-  last_date <- max(bird_df_sf$timestamp)
-  first_date <- last_date - 60*86400
-  
-  if (filter_date) {
-    bird_df_sf <- bird_df_sf %>% 
-      filter(timestamp >= first_date & timestamp < last_date)
-  }
+  # set file output
+  if (wash_obs_only) out_file <- paste0(b, "_gps_static_inset_map_WASH")
+  if (!wash_obs_only) out_file <- paste0(b, "_gps_static_inset_map")
+  out_file <- paste0(out_file, "_", today_date, ".", out_type)
   
   num_days_vis <- floor(max(bird_df_sf$timestamp) - min(bird_df_sf$timestamp))
   
@@ -95,7 +92,7 @@ draw_movement_map <- function(bird_df_sf, map_type = c("path", "point"), filter_
     dir.create(map_dir, recursive = TRUE, showWarnings = FALSE)
     
     ggsave(
-      filename = paste0(b, "_gps_static_inset_map_", today_date, ".", out_type),
+      filename = out_file,
       device=out_type,
       path = map_dir,
       height = 200,
@@ -140,7 +137,8 @@ draw_movement_map <- function(bird_df_sf, map_type = c("path", "point"), filter_
     dir.create(map_dir, recursive = TRUE, showWarnings = FALSE)
     
     ggsave(
-      filename = paste0(b, "_gps_static_inset_map_", today_date, ".", out_type),
+      # gg_main_map,
+      filename = out_file,
       device=out_type,
       path = map_dir,
       height = 200,
@@ -188,7 +186,7 @@ draw_movement_map <- function(bird_df_sf, map_type = c("path", "point"), filter_
     
     ggsave(
       # gg_main_map,
-      filename = paste0(b, "_gps_static_inset_map_", today_date, ".", out_type),
+      filename = out_file,
       device=out_type,
       path = map_dir,
       height = 200,

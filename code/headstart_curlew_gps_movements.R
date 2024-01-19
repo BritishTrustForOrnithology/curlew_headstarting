@@ -48,16 +48,28 @@ source(file.path("code/source_setup_code_rproj.R"))
 
 # =======================    Control values   =================
 
-current_year <- 2023
+select_year <- 2021
 today_date <- Sys.Date()
 
-filter_birds <- TRUE # filter birds for mapping
-map_all_birds_together <- F # individual maps or all together
-wash_obs_only <- F # show only Wash-area GPS data on map
-filter_by_date <- TRUE # filter GPS data by date
-update_gdrive_data <- TRUE # download fresh data from google drive
+# filtering criteria birds
+filter_birds <- FALSE # filter birds for mapping to only show active tags
+filter_year <- TRUE # filter birds for mapping to only show particular year cohorts
 
+# mapping criteria
+map_all_birds_together <- TRUE # individual maps or all together
+wash_obs_only <- FALSE # show only Wash-area GPS data on map
+
+# filtering criteria dates
+filter_by_date <- FALSE # filter GPS data by date
+filter_last_60_days <- FALSE # filter data to last 60 days
+set_first_date <- "2023-01-01" # in format "yyyy-mm-dd"
+set_last_date <- "2023-12-31"
+
+# filtering criteria other
 filter_height_speed <- FALSE # filter flight heights & speeds
+
+# data management criteria
+update_gdrive_data <- TRUE # download fresh data from google drive
 
 # ====  Load functions  =================================
 
@@ -78,16 +90,20 @@ dt_meta <- dt_meta %>% as_tibble()
 
 # =======================    Individuals to map   =================
 
-# Filter metadata to 'live' or recently live tags
+# Filter metadata to still active / recently active tags (i.e. not dead / unknown fate birds)
 if (filter_birds) {
   dt_meta_tags <- dt_meta %>% 
     filter(tag_gps_radio_none == "gps") %>% 
     filter(state %in% "")
-  # filter(year == current_year)
 } else {
   dt_meta_tags <- dt_meta %>% 
     filter(tag_gps_radio_none == "gps")
-  # filter(year == current_year)
+}
+
+# Filter metadata to only include tags of a certain year release
+if (filter_year) {
+  dt_meta_tags <- dt_meta_tags %>% 
+    filter(year == select_year)
 }
 
 # ---- Get movebank tag data -----------
@@ -113,27 +129,23 @@ all_tags <- movebank_download_study(
   # removeDuplicatedTimestamps = TRUE
 )
 
-# save as rds file
-if (filter_birds) saveRDS(all_tags, file = file.path(workspacewd, "movebank_live_tags_download.rds"))
-if (!filter_birds) saveRDS(all_tags, file = file.path(workspacewd, "movebank_all_tags_download.rds"))
+# # save as rds file
+# if (filter_birds) saveRDS(all_tags, file = file.path(workspacewd, "movebank_live_tags_download.rds"))
+# if (!filter_birds) saveRDS(all_tags, file = file.path(workspacewd, "movebank_all_tags_download.rds"))
 
 # # read in Movebank data as last downloaded RDS file (can be used if Movebank is down)
 # # load rds file
 # if (filter_birds) all_tags <- readRDS(file.path(workspacewd, "movebank_live_tags_download.rds"))
 # if (!filter_birds) all_tags <- readRDS(file.path(workspacewd, "movebank_all_tags_download.rds"))
 
-# summarise tag data for tags
-all_tags %>% 
+# summarise tag data per tag (first & last dates, total number of fixes)
+all_tags_summary <- all_tags %>% 
   st_drop_geometry %>% 
   group_by(individual_local_identifier) %>% 
   summarise(min_date = min(timestamp), max_date = max(timestamp)) %>% 
   left_join(all_tags %>% st_drop_geometry %>% group_by(individual_local_identifier) %>% tally, by = "individual_local_identifier")
 
-
-# # replace all '.' from Movebank column names with '_'
-# names(all_tags) <- names(all_tags) %>%
-#   str_replace_all("[.]", "_")
-
+all_tags_summary
 
 
 # ---- Merge with individual metadata -----------
@@ -177,6 +189,7 @@ all_tags_meta <- all_tags %>%
 # # still quite a few which are probably valid location data have heights less than -20
 # all_tags_meta %>% filter(as.numeric(height_above_msl) <= -20) %>% as.data.frame %>% nrow
 
+
 # ----  Clean tag data - generic  -----------------
 
 all_tags_filtered <- all_tags_meta %>% 
@@ -186,6 +199,62 @@ all_tags_filtered <- all_tags_meta %>%
   filter(event_id != 30038596753) %>% # XP
   filter(as.numeric(gps_satellite_count) >= 4)  %>% # filter out low sat counts
   filter(!st_is_empty(.)) # omit empty locations
+
+# summarise tag data per tag (first & last dates, total number of fixes)
+all_tags_summary <- all_tags_filtered %>% 
+  st_drop_geometry %>% 
+  group_by(individual_local_identifier) %>% 
+  summarise(min_date = min(timestamp), max_date = max(timestamp)) %>% 
+  left_join(all_tags_filtered %>% st_drop_geometry %>% group_by(individual_local_identifier) %>% tally, by = "individual_local_identifier")
+
+all_tags_summary
+
+
+# ----  Filter by date if required  -----------------
+
+# Filter by date if required
+# Otherwise, first and last dates are just the min and max timestamps per tag
+if (filter_by_date) {
+  
+  # Filter to last 60 days of data (per tag) if required
+  # Otherwise, use other custom date range
+  if (filter_last_60_days) {
+    all_tags_date_range <- all_tags_summary %>% 
+      rename(last_date = max_date) %>% 
+      mutate(first_date = last_date - 60*86400) %>% 
+      dplyr::select(individual_local_identifier, first_date, last_date)
+  } else {
+    all_tags_date_range <- all_tags_summary %>% 
+      rename(last_date = max_date) %>% 
+      mutate(first_date = as.POSIXct(set_first_date, tz = "UTC")) %>% 
+      mutate(last_date = as.POSIXct(set_last_date, tz = "UTC")) %>% 
+      dplyr::select(individual_local_identifier, first_date, last_date)
+  }
+
+} else {
+  
+  all_tags_date_range <- all_tags_summary %>% 
+    rename(last_date = max_date) %>% 
+    rename(first_date = min_date) %>% 
+    dplyr::select(individual_local_identifier, first_date, last_date)
+  
+}
+
+all_tags_filtered <- all_tags_filtered %>% 
+  left_join(all_tags_date_range, by = "individual_local_identifier") %>% 
+  mutate(in_date = ifelse(timestamp >= first_date & timestamp <= last_date, TRUE, FALSE)) %>%     filter(in_date == TRUE)
+
+
+# summarise tag data per tag (first & last dates, total number of fixes)
+all_tags_summary <- all_tags_filtered %>% 
+  st_drop_geometry %>% 
+  group_by(individual_local_identifier) %>% 
+  summarise(min_date = min(timestamp), max_date = max(timestamp)) %>% 
+  left_join(all_tags_filtered %>% st_drop_geometry %>% group_by(individual_local_identifier) %>% tally, by = "individual_local_identifier")
+
+all_tags_summary
+
+
 
 # ----  Filter tag data - altitude/ground speed  -----------------
 
@@ -232,7 +301,7 @@ all_tags_filtered <- all_tags_filtered %>%
 
 # List of birds to create maps for  -----------------
 
-bird_flag_list <- unique(all_tags_meta$flag_id)
+bird_flag_list <- unique(all_tags_filtered$flag_id)
 bird_flag_list
 
 
@@ -241,13 +310,13 @@ bird_flag_list
 if (map_all_birds_together) {
   
   # path map
-  draw_movement_map_all_birds(all_tags_filtered, map_type = "path", filter_date = filter_by_date, basemap_alpha = 0.8, out_type = "jpg", map_dpi = 150)
+  draw_movement_map_all_birds(all_tags_filtered, map_type = "path", basemap_alpha = 0.8, out_type = "jpg", map_dpi = 150, map_buffer_km = 5)
   
   # point map
-  draw_movement_map_all_birds(all_tags_filtered, map_type = "points", filter_date = filter_by_date, basemap_alpha = 0.8, out_type = "jpg", map_dpi = 150)
+  draw_movement_map_all_birds(all_tags_filtered, map_type = "points", basemap_alpha = 0.8, out_type = "jpg", map_dpi = 150, map_buffer_km = 5)
   
   # path + point map
-  draw_movement_map_all_birds(all_tags_filtered, map_type = "path points", filter_date = filter_by_date, basemap_alpha = 0.8, out_type = "png", map_dpi = 150)
+  draw_movement_map_all_birds(all_tags_filtered, map_type = "path points", basemap_alpha = 0.8, out_type = "jpg", map_dpi = 150, map_buffer_km = 5)
   
 } else {
   
@@ -270,13 +339,13 @@ if (map_all_birds_together) {
     # path_alpha = alpha level of the path
     
     # path map
-    draw_movement_map(individual_df, map_type = "path", filter_date = filter_by_date, map_colour="magenta", basemap_alpha = 1, out_type = "png", map_dpi = 150, map_buffer_km = 30, path_alpha = 0.5)
+    draw_movement_map(individual_df, map_type = "path", filter_date = filter_by_date, map_colour="magenta", basemap_alpha = 1, out_type = "png", map_dpi = 150, map_buffer_km = 10, path_alpha = 0.5)
     
     # point map
-    draw_movement_map(individual_df, map_type = "points", filter_date = filter_by_date, map_colour="magenta", basemap_alpha = 1, out_type = "png", map_dpi = 150, map_buffer_km = 30)
+    draw_movement_map(individual_df, map_type = "points", filter_date = filter_by_date, map_colour="magenta", basemap_alpha = 1, out_type = "png", map_dpi = 150, map_buffer_km = 10)
     
     # path + point map
-    draw_movement_map(individual_df, map_type = "path points", filter_date = filter_by_date, map_colour="magenta", basemap_alpha = 1, out_type = "jpg", map_dpi = 150, map_buffer_km = 30, path_alpha = 0.5)
+    draw_movement_map(individual_df, map_type = "path points", filter_date = filter_by_date, map_colour="magenta", basemap_alpha = 1, out_type = "jpg", map_dpi = 150, map_buffer_km = 10, path_alpha = 0.5)
     
     
     
@@ -290,26 +359,57 @@ if (map_all_birds_together) {
 if (wash_obs_only) {
   
   # bounding box polygon around the Wash / North Norfolk coast
-  #gis_wash_dir <- file.path("../../GIS/curlew/headstarting") # Sam's computer GIS filepath
-  gis_wash_dir <- file.path("../GIS/wwrg_wash_study_area_polygon") # Katharine's computer GIS path
+  gis_wash_dir <- file.path("../../GIS/curlew/headstarting") # Sam's computer GIS filepath
+  # gis_wash_dir <- file.path("../GIS/wwrg_wash_study_area_polygon") # Katharine's computer GIS path
   
   # Load WWRG Wash study shapefile -----------------
-  #wash_area <- st_read(file.path(gis_wash_dir, "wash_north_norfolk_study_area_polygon.shp"))
-  wash_area <- st_read(file.path(gis_wash_dir, "wwrg_wash_study_area_polygon.shp"))
+  wash_area <- st_read(file.path(gis_wash_dir, "wash_north_norfolk_study_area_polygon.shp"))
+  # wash_area <- st_read(file.path(gis_wash_dir, "wwrg_wash_study_area_polygon.shp"))
   
+  if (map_all_birds_together) {
+    
   # filter all_tags_points (sf object)
   # clip to only those points falling within the Wash study area
   bird_df_sf <-  all_tags_filtered %>% 
-    # filter(individual_local_identifier %in% unique_birds_study_area) %>% 
+    # filter(flag_id %in% bird_flag_list) %>%
     st_intersection(., wash_area) %>% 
     mutate(year_as_factor = as.factor(year))
-  
+    
   # should not be mapped as path or path/points with terminus point as this gives false impression that it is the 'end of the track'
   # map only as points
-  draw_movement_map_all_birds(bird_df_sf, map_type = "points", filter_date = filter_by_date, basemap_alpha = 0.8, out_type = "png", map_dpi = 150)
+  draw_movement_map_all_birds(bird_df_sf, map_type = "points", filter_date = filter_by_date, basemap_alpha = 0.8, out_type = "png", map_dpi = 150, map_buffer_km = 1)
+    
+  } else {
+    
+    for (b in bird_flag_list) {
+      
+      # filter all_tags_points (sf object)
+      # clip to only those points falling within the Wash study area
+      bird_df_sf <-  all_tags_filtered %>% 
+        filter(flag_id %in% bird_flag_list) %>%
+        st_intersection(., wash_area) %>% 
+        mutate(year_as_factor = as.factor(year))
+      
+      # skip to next bird if no data
+      if (nrow(bird_df_sf) < 1) next
+      
+      # map aesthetics can be controlled by function arguments
+      # filter_date = TRUE will filter to last 60 days of data
+      # map_colour = colour of path / points
+      # basemap_alpha = alpha level of the main basemap
+      # out_type = image file output type (png or jpg)
+      # map_dpi = DPI of image output
+      # map_buffer_km = basemap buffer around GPS track data, in km
+      # path_alpha = alpha level of the path
+      
+      # point map
+      draw_movement_map(bird_df_sf, map_type = "points", filter_date = filter_by_date, map_colour="magenta", basemap_alpha = 1, out_type = "png", map_dpi = 150, map_buffer_km = 1)
+
+    }
+  }
   
   
   
- }
+}
 
 
