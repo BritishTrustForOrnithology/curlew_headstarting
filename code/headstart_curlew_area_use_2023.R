@@ -14,6 +14,7 @@
 # go to https://thewash.port-log.net/live/History.php?Site=49&Dataset=Tides
 # click Download > Advanced
 # select yearly data or required range of data
+# Now saved in googledrive folder: 3.Data --< bulldog_bcn_ ... 
 
 
 #### SETUP AND CLEAN DATA ####
@@ -22,7 +23,7 @@
 
 
 ## LOAD PACKAGES
-load_pkg <- rlang::quos(tidyverse,BTOTrackingTools, here, sp, leaflet)  # quos() function to be lazy on "" around each package
+load_pkg <- rlang::quos(tidyverse,BTOTrackingTools, here, sp, leaflet, terra)  # quos() function to be lazy on "" around each package
 lapply(lapply(load_pkg, rlang::quo_name), library, character.only = TRUE)
 
 
@@ -53,12 +54,81 @@ names(data)[names(data)=="gps.satellite.count"]<-"satellites_used"
 
 ## Match tide data - categorical 2 hours either side of high/low (from Port-log.net reports)
 # Load data and set Datetime class
-tide_dat <- read_csv(here("data/Wash_tide_data_Bulldog_July_December_2022.csv"), 
-                     col_types = cols(Observed_DateTime = col_datetime(format = "%d/%m/%Y %H:%M"), Predicted_DateTime = col_datetime(format = "%d/%m/%Y %H:%M")))
+tide_dat_21 <- read_csv(here("data/Wash_tide_data_Bulldog_July_November_2021.csv"), 
+                        col_types = cols(Observed_DateTime = col_datetime(format = "%d/%m/%Y %H:%M"), Predicted_DateTime = col_datetime(format = "%d/%m/%Y %H:%M")))
+summary(tide_dat_21)
 
-#currently waiting on the tide data to come in
-#tide_dat <- read_csv(here("data/Wash_tide_data_Bulldog_July_December_2023.csv"), 
-#                     col_types = cols(Observed_DateTime = col_datetime(format = "%d/%m/%Y %H:%M"), Predicted_DateTime = col_datetime(format = "%d/%m/%Y #%H:%M")))
+tide_dat_22 <- read_csv(here("data/Wash_tide_data_Bulldog_July_December_2022.csv"), 
+                     col_types = cols(Observed_DateTime = col_datetime(format = "%d/%m/%Y %H:%M"), Predicted_DateTime = col_datetime(format = "%d/%m/%Y %H:%M")))
+summary(tide_dat_22)
+
+#2023 tide data 1) - HH NB - Previous code uses the 'reports'--> 'daily high and low' from Port-log.net NOT the raw data
+  #To use the daily highs and lows have to download a pdf of each month of interest. HH (2024) copied the data into an excel spreadsheet sifted the excess headings away, combined the date and time columns together and saved it as a csv. There should technically be a way of converting pdf to csv... but this was easier for me (can use tinywow to convert pdf to excel but this created a tab per page of pdf so copying was easier). Finally can directly use the read in using 2022 code
+
+tide_dat_23 <- read_csv(here("data/Wash_tide_data_Bulldog_July_December_2023.csv"), 
+                     col_types = cols(Observed_DateTime = col_datetime(format = "%d/%m/%Y %H:%M"), Predicted_DateTime = col_datetime(format = "%d/%m/%Y %H:%M")))
+summary(tide_dat_23)
+
+
+
+#bind all 3 years of tide data together
+tide_dat <- rbind(tide_dat_21, tide_dat_22, tide_dat_23[c(1:6)])
+summary(tide_dat)
+
+
+#save out this combined 3 year tide data
+#write_csv(tide_dat, "data/Wash_tide_data_Bulldog_July_Nov2021_July_December_20222023.csv")
+
+
+tide_dat <- read_csv(here("data/Wash_tide_data_Bulldog_July_Nov2021_July_December_20222023.csv")) 
+summary(tide_dat)
+
+#filter out the 2 NAs
+tide_dat <- tide_dat %>% filter(!is.na(tide_dat$Observed_Height))
+
+
+#----- tangent away from Gary's original code (HH 2024)
+#ALTERNATIVELY: 2023 tide data 2) - could  use raw data and extract the high and low water times - below is the start of code to do this, left here just in case needed in future
+#clean up tide data first:
+#tide_dat_23 <- read.csv(here("data/Tides_Bulldog_Bcn_20230101_20231231_0.csv")) 
+#need to keep these columns: "Station_ID"         "Observed_DateTime"  "Observed_Height"    "Tide"   "Predicted_DateTime" "Predicted_Height"  
+
+#tide_dat_23_sub <- tide_dat_23[c(1,2,3,4,5,12)] #keep site ID and name, date.time, tide level, predicted tide level and quality flag - to remove NAs
+
+#colnames(tide_dat_23_sub) <- c("SiteID", "SiteName", "Observed_DateTime", "Observed_Height", "Predicted_Height", "Quality_Flag")
+
+#remove NAs
+#tide_dat_23_sub <- tide_dat_23_sub %>% filter(!is.na(tide_dat_23_sub$Quality_Flag))
+
+#update the date time column to make sure the format is correct
+#library("lubridate")
+
+#tide_dat_23_sub$Observed_DateTime <- as.POSIXct.default(tide_dat_23_sub$Observed_DateTime, format = "%Y-%m-%d %H:%M:%S", usetz=T, tz="UTC")
+
+#filter so that it is JUST July-December
+
+#tide_dat_23_sub$keep <- ifelse(tide_dat_23_sub$Observed_DateTime >= "2023-07-01 01:00:00", T, F)
+
+#tide_dat_23_sub_July_Dec <- tide_dat_23_sub %>% filter(tide_dat_23_sub$keep==T)
+
+#min(tide_dat_23_sub_July_Dec$Observed_DateTime)
+#max(tide_dat_23_sub_July_Dec$Observed_DateTime)
+
+#tide_dat_23_sub_July_Dec$date <- as.Date(tide_dat_23_sub_July_Dec$Observed_DateTime, tz = "UTC")
+#min(tide_dat_23_sub_July_Dec$date)
+#max(tide_dat_23_sub_July_Dec$date)
+
+
+#create a new table with high and low for each date
+#tide_dat_23_sub_July_Dec_HWLW <- tide_dat_23_sub_July_Dec %>%
+#  group_by(SiteID, SiteName, date) %>%
+#  summarize(LW = min(Observed_Height), HW = max(Observed_Height))
+
+
+#write as csv and read back in:
+#write.csv(tide_dat_23_sub, "./data/XXXX", row.names = F)
+
+#----- back to Gary's original code
 
 # Find closest match to trk timestamp (package MALDIquant)
 closest<-MALDIquant::match.closest(data$DateTime, tide_dat$Observed_DateTime)
@@ -78,27 +148,69 @@ data$tide<-as.factor(ifelse(data$tide_diff<7201 & data$tide_diff>-7201,data$tide
 data$tripNo<-1; data$gap<-0; data$gapsec<-1
 
 
-#****HH Updated code to use an external csv (created in code: 'headstart_curlew_gps_movements.R' to get the cohort identifer and site identifers)
-# Add cohort identifier
-c1<-c("Yf(6X)O/-:Y/m_KenHill","Yf(6Y)O/-:Y/m_Sandringham","Yf(7E)O/-:Y/m_KenHill","Yf(7K)O/-:Y/m_Sandringham","Yf(7U)O/-:Y/m_KenHill","Yf(7Y)O/-:Y/m_Sandringham")
-c2<-c("Yf(8E)O/-:Y/m_Sandringham","Yf(8K)O/-:Y/m_Sandringham","Yf(8L)O/-:Y/m_Sandringham")
-c3<-c("Yf(8X)O/-:Y/m_KenHill", "Yf(9J)O/-:Y/m_KenHill","Yf(9L)O/-:Y/m_KenHill")
+#check summary of data
+summary(data)
+summary(as.factor(data$tide_diff))
 
-data<- mutate(data, cohort = factor(case_when(TagID %in% c1 ~ "1",
-                                              TagID %in% c2 ~ "2",
-                                              TagID %in% c3 ~ "3",
-                                              TRUE~ NA_character_)))
+#HH Updated code to use an external csv to apply the cohort identifier and release site identifier (created in code: 'headstart_curlew_gps_movements.R' ~ line 76 to get the cohort identifier and site identifiers)
+dt_meta <- readRDS("./data/dt_meta_metadata_allyears.rds")
+head(dt_meta)
+
+#filter for just GPS birds
+dt_meta_gsp <- dt_meta %>% filter(dt_meta$tag_gps_radio_none =="gps")
+
+
+#table for cohort
+#cohort <- data.frame(FlagID = dt_meta_gsp$flag_id, cohort_no = dt_meta_gsp$cohort_num, release_location = dt_meta_gsp$release_location)
+
+dt_meta_gsp$release_site <- c("Sandringham", "Sandringham", "Ken Hill", "Sandringham","Ken Hill", "Sandringham","Ken Hill", "Sandringham","Ken Hill", "Sandringham","Sandringham", "Sandringham", "Sandringham","Ken Hill","Ken Hill","Ken Hill","Sandringham","Ken Hill","Ken Hill","Sandringham","Ken Hill",
+                         "Sandringham","Sandringham", "Sandringham", "Sandringham", "Sandringham", "Ken Hill","Ken Hill","Ken Hill",
+                         "Ken Hill","Ken Hill","Ken Hill","Sandringham","Ken Hill","Ken Hill","Sandringham")
+
+TagID <- data.frame(TagID = unique(data$TagID))
+
+TagID$flag_id <- c("0E","3A", "0J" , "3K", "6X", "7E","7U" ,"6Y", "7K" , "7Y" ,"8E", "8K", "8L" ,"8X","9L" ,"9J" , "XJ", "XL","XH",
+                "YK","XA", "XE","YJ","XP","XU","XT" ,"YH" ,"XX","LP" ,"LJ" ,"YX","LA","LV" ,"LU"  ,"YU", "YN"  )
+
+#left_join the two metadata tables together
+dt_meta_gsp_TagID <- dt_meta_gsp %>% left_join(TagID, by=join_by(flag_id))
+
+#***** HH NB add in here two final columns 
+#cohort = decide for 2023 how many cohorts we want - first cohort and the rest clumped together?
+#release = double check with the release site - is it useful to keep the Sandringham release sites different?
+#KMB says to merge the two 1,2 per site. single merged Sandringham and then merged Ken Hill is appropriate as the habitat management is similar at each site even if the first Sandringham site was slightly poorer. The Ken Hill ones are very close so they are definitely merged.
+
+
+#Then do a left_join on the dataset using the TagID are the join_by so that the meta data is populated for each GPS fix
+data <- data %>% left_join(dt_meta_gsp_TagID, by=join_by(TagID))
+
+
+ 
+#---------#
+#HH NB - this is Gary's long hand code to set the cohort identifier and site identifer - but HH has left_joined the meta data to data so the hashtagged stages below are not needed
+
+# Add cohort identifier
+#c1<-c("Yf(6X)O/-:Y/m_KenHill","Yf(6Y)O/-:Y/m_Sandringham","Yf(7E)O/-:Y/m_KenHill","Yf(7K)O/-:Y/m_Sandringham","Yf(7U)O/-:Y/m_KenHill","Yf(7Y)O/-:Y/m_Sandringham")
+#c2<-c("Yf(8E)O/-:Y/m_Sandringham","Yf(8K)O/-:Y/m_Sandringham","Yf(8L)O/-:Y/m_Sandringham")
+#c3<-c("Yf(8X)O/-:Y/m_KenHill", "Yf(9J)O/-:Y/m_KenHill","Yf(9L)O/-:Y/m_KenHill")
+
+#data<- mutate(data, cohort = factor(case_when(TagID %in% c1 ~ "1",
+#                                              TagID %in% c2 ~ "2",
+#                                              TagID %in% c3 ~ "3",
+#                                              TRUE~ NA_character_)))
+
+
 
 
 # Add release site identifier
-c1<-c("Yf(6X)O/-:Y/m_KenHill","Yf(7E)O/-:Y/m_KenHill","Yf(7U)O/-:Y/m_KenHill","Yf(8X)O/-:Y/m_KenHill", "Yf(9J)O/-:Y/m_KenHill","Yf(9L)O/-:Y/m_KenHill")
-c2<-c("Yf(8E)O/-:Y/m_Sandringham","Yf(8K)O/-:Y/m_Sandringham","Yf(8L)O/-:Y/m_Sandringham","Yf(6Y)O/-:Y/m_Sandringham","Yf(7K)O/-:Y/m_Sandringham","Yf(7Y)O/-:Y/m_Sandringham")
+#c1<-c("Yf(6X)O/-:Y/m_KenHill","Yf(7E)O/-:Y/m_KenHill","Yf(7U)O/-:Y/m_KenHill","Yf(8X)O/-:Y/m_KenHill", "Yf(9J)O/-:Y/m_KenHill","Yf(9L)O/-:Y/m_KenHill")
+#c2<-c("Yf(8E)O/-:Y/m_Sandringham","Yf(8K)O/-:Y/m_Sandringham","Yf(8L)O/-:Y/m_Sandringham","Yf(6Y)O/-:Y/m_Sandringham","Yf(7K)O/-:Y/m_Sandringham","Yf(7Y)O/-:Y/m_Sandringham")
 
-data<- mutate(data, release = factor(case_when(TagID %in% c1 ~ "Ken",
-                                              TagID %in% c2 ~ "Sand",
-                                              TRUE~ NA_character_)))
+#data<- mutate(data, release = factor(case_when(TagID %in% c1 ~ "Ken",
+#                                              TagID %in% c2 ~ "Sand",
+#                                             TRUE~ NA_character_)))
 
-
+#-------#
 
 
 # Tidy surplus columns from move:: direct loading
@@ -107,6 +219,11 @@ data<- data %>% select(-!!drop_cols)
 
 
 
+#save data out 
+saveRDS(data, here("data/data_withcohorts_release_sites.rds"))
+
+#read back in - can start from here now ####
+data <- readRDS("data/data_withcohorts_release_sites.rds")
 
 
 
@@ -180,6 +297,7 @@ data_21$Period<-"21_dep_all"
 # Final merge
 data<-Track2TrackMultiStack(rbind(data_1, data_2, data_6, data_all, data_21), by=c("TagID", "Period"))
 
+trialrundata<-data
 
 # Save
 setwd("C:/Users/gary.clewley/Desktop/BTO - GDC/2019- Wetland and Marine Team/_NE103 -- Headstarted Curlew tracking/Data/")
@@ -187,7 +305,8 @@ save(data, file="NE103_2022 report_clean tracking data.RData")
 
 
 # Load
-setwd("C:/Users/gary.clewley/Desktop/BTO - GDC/2019- Wetland and Marine Team/_NE103 -- Headstarted Curlew tracking/Data/")
+#setwd("C:/Users/gary.clewley/Desktop/BTO - GDC/2019- Wetland and Marine Team/_NE103 -- Headstarted Curlew tracking/Data/")
+setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/data") #HH laptop
 load("NE103_2022 report_clean tracking data.RData")
 
 
@@ -223,16 +342,17 @@ plot_leaflet(data_tide, plotby="Tide", lines=FALSE, col=c("#31688EFF","#35B779FF
 
 
 
-# basic colour mark sightings plot using leaflet:: directly
-col_data<-read_csv("data/NE103_2022 colour ring sighting map locations.csv") # for 2022 csv: ID 8 long had a gap before the -3. Removed
-m<-leaflet(col_data) %>% addTiles()  %>%
-   addCircleMarkers(col_data$longitude, col_data$latitude,radius=3, fillOpacity = 1, opacity = 1)
+# basic colour mark sightings plot using leaflet:: directly #HH NB - for the fieldwork year 2023-24 KMB going to do this bit
+#col_data<-read_csv("data/NE103_2022 colour ring sighting map locations.csv") # for 2022 csv: ID 8 long had a gap before the -3. Removed
+#m<-leaflet(col_data) %>% addTiles()  %>%
+#   addCircleMarkers(col_data$longitude, col_data$latitude,radius=3, fillOpacity = 1, opacity = 1)
 
 
 
 
 
 #### TIME IN AREA -- AREA USE UTILISATION DISTRIBUTIONS
+library(sf)
 
 # Set arbitrary 'Colony' location to facilitate later functions. Using central Snettisham location here
 # but not used to define trips away from central place for Curlew
@@ -260,7 +380,7 @@ tia_dat<-data[["all"]]
 llyrb = get_bounds(tia_dat, p4s=p4) # Defaults to UK BNG p4s = sp::CRS("+init=epsg:27700")
 
 # run TIA (trial and error on suitable cell size)
-indata_grd <- get_TIA_grd(tia_dat, xRa=llyrb$xRa, yRa=llyrb$yRa, cellsize = 500, p4s=p4) # Laptop will not process next step if smaller grid size
+indata_grd <- get_TIA_grd(tia_dat, xRa=llyrb$xRa, yRa=llyrb$yRa, cellsize = 500, p4s=p4) # Laptop will not process next step if smaller grid size #Gary's code = cellsize=500
 
 # rank the time cumulatively for plotting for each bird. 
 grd_rank_all<- rank_time(indata_grd, population = TRUE) # Population level
@@ -305,8 +425,9 @@ plot.name<-"NE103_Headstart CURLE_all data 2022_TIA.tiff"
 # Set plot device (saving hi-res base R maps)
 tiff(paste0(dir,plot.name), width=25, height=23, units="cm", pointsize=18, res=600, compression ="lzw")
 
-
-sp::plot(ukmap,xlim=xRa, ylim=yRa,col="grey80",border="grey80", axes=T, yaxt="n",
+#HH NB: updated as sp package was discontinued. terra used now according to plot_TIA
+  #removed: 
+terra::plot(ukmap,xlim=xRa, ylim=yRa,col="grey80",border="grey80", axes=T, yaxt="n",
          xaxt="n", xlab="Longitude", ylab="Latitude",
          main="July-December 2022")                     # UPDATE MANUALLY
 
@@ -316,7 +437,7 @@ axis(2, at=seq(min(yRa), max(yRa),by=5000), labels=round(lab_lat,2))
 
 #*****HH NB: THIS PLOT NOT WORKING FOR SOME REASON? SOMETHING TO DO WITH MEMORY
 # UPDATE INDIVIDUAL BETWEEN PLOTS
-plot_TIA(data=grd_rank_all,Add=TRUE,                    # UPDATE ID SELECTION
+plot_TIA(data=grd_rank_all,Add=TRUE,                    # UPDATE ID SELECTION. HH NB - [c(1:50000),]
          xra=xRa, yra=yRa,
          g_levs = c(1,0.95,0.75,0.5),
          c_levs = c(0.95,0.75,0.5),
@@ -363,8 +484,8 @@ trk_dat<-TrackStack2Track(data[["all"]]) # Redo manually for all time periods
 
 
 
-# Convert to 'amt' track (using BTOTT headers) 
-trk <- make_track(trk_dat, .x = longitude, .y = latitude, .t = DateTime, id = TagID, tide = tide, release=release, cohort=cohort, speed=ground.speed, crs = "epsg:4326")
+# Convert to 'amt' track (using BTOTT headers) #HH NB - release col name updated - could use either release_location or release_site. Cohort col name updated - cohort_num - this could be updated depending on how many cohorts we want to use?
+trk <- make_track(trk_dat, .x = longitude, .y = latitude, .t = DateTime, id = TagID, tide = tide, release=release_location, cohort=cohort_num, speed=ground.speed, crs = "epsg:4326")
 
 
 # Transform to BNG
@@ -457,7 +578,12 @@ rsfdat$Grassland <- ifelse(rsfdat$layer == "Grassland", 1, 0)
 rsfdat$Other <- ifelse(rsfdat$layer == "Other", 1, 0)
 
 
+
+colnames(rsfdat[rsfdat$LCM,])
+
 #HH NB - MISSING CODE HERE TO EXPORT EACH RSF?? 
+#rename the RSF files based on the timeframe - 1wk,2wks,6wks,all Jul-Dec
+rsfdat_all <- rsfdat
 
 # Save rsfdat for each time period
 setwd("C:/Users/gary.clewley/Desktop/BTO - GDC/2019- Wetland and Marine Team/_NE103 -- Headstarted Curlew tracking/Data/")
@@ -469,7 +595,8 @@ save(rsfdat_0E_22, file="NE103_2022 report_RSF_data_0E_22.RData")
 
 
 # Load rsfdat for each time period
-setwd("C:/Users/gary.clewley/Desktop/BTO - GDC/2019- Wetland and Marine Team/_NE103 -- Headstarted Curlew tracking/Data/")
+#setwd("C:/Users/gary.clewley/Desktop/BTO - GDC/2019- Wetland and Marine Team/_NE103 -- Headstarted Curlew tracking/Data/")
+setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/data") #HH laptop
 load("NE103_2022 report_RSF_data_all.RData")
 load("NE103_2022 report_RSF_data_six weeks.RData")
 load("NE103_2022 report_RSF_data_two weeks.RData")
@@ -487,8 +614,8 @@ load("NE103_2022 report_RSF_data_0E_22.RData")
 
 ## Available/Used Plot 
 na.omit(rsfdat_all) %>% #filter(id=="Yf(0E)O/-:Y/m") %>%	                          	# Update period or ID
-  ggplot(.,  aes(x=LCM,group=used))                                       +	      # select data and variables - using na.omit() here to exlcude random points offshore outside LCM area
-  geom_bar(position=position_dodge(), aes(y=..prop.., fill = used),
+  ggplot(.,  aes(x=layer,group=used))                                       +	      # select data and variables - using na.omit() here to exclude random points offshore outside LCM area. HH NB - LCM = layer in 2022 and 2023 LCM data so need to change this to layer
+  geom_bar(position=position_dodge(), aes(y= ..prop.., fill = used),
            stat="count", colour="black")                                +       # select barplot of proportions presented side by side with black outline
   scale_fill_manual(values=c("grey70", "grey20"))                       + 		  # define colours, plenty of good built in palettes if colour can be used
   labs(y = "Proportion of fixes\n", fill="used", x="\nHabitat")         + 			# labels, \n indicates space between line and text
@@ -505,17 +632,19 @@ na.omit(rsfdat_all) %>% #filter(id=="Yf(0E)O/-:Y/m") %>%	                       
 
 
 # Save plot (outside of Github)
-setwd("C:/Users/gary.clewley/Desktop/BTO - GDC/2019- Wetland and Marine Team/_NE103 -- Headstarted Curlew tracking/Outputs/")
+#setwd("C:/Users/gary.clewley/Desktop/BTO - GDC/2019- Wetland and Marine Team/_NE103 -- Headstarted Curlew tracking/Outputs/")
+setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/output")
 ggsave("NE103_Headstart CURLE_RSF plot_all data.jpg", width=15, height=15, units="cm", dpi=300)  ## UPDATE FILENAME
 
 
 
 ## ## ## ## ## ## ##
 # Calculate error bars (in progress - clunky)
-x<-as.data.frame(rsfdat_all %>% with(table(id,used,LCM)))
-x<-x %>% filter (id!="Yf(0E)O/-:Y/m" & LCM!="Coastal Rock")
-x1<-x %>% filter(used=="Used") %>% group_by(LCM) %>% mutate(prop=Freq/y$Used)
-x2<-x %>% filter(used=="Available") %>% group_by(LCM) %>% mutate(prop=Freq/y$Available)
+x<-as.data.frame(rsfdat_all %>% with(table(id,used,layer))) #HH NB - LCM = layer in 2022 and 2023 LCM data so need to change this to layer
+x<-x %>% filter (id!="Yf(0E)O/-:Y/m" & layer!="Coastal Rock")
+
+x1<-x %>% filter(used=="Used") %>% group_by(layer) %>% mutate(prop=Freq/y$Used)# HH NB - the dataframe y is in the line just below - need to run these first and then run these two lines
+x2<-x %>% filter(used=="Available") %>% group_by(layer) %>% mutate(prop=Freq/y$Available)
 
 
 ## work out denominator for each individual
@@ -523,12 +652,12 @@ y<-tapply(x$Freq, list(x$id, x$used), sum)
 y<-as.data.frame(y[-1,])
 
 #note differs from flexible plots combining all birds above)
-#prop_u<-x1 %>% group_by(LCM) %>% mutate(mean_prop=mean(prop)) %>% select(LCM, mean_prop) %>% distinct()
-#prop_a<-x2 %>% group_by(LCM) %>% mutate(mean_prop=mean(prop)) %>% select(LCM, mean_prop) %>% distinct()
+#prop_u<-x1 %>% group_by(LCM) %>% mutate(mean_prop=mean(prop)) %>% select(LCM, mean_prop) %>% distinct() #HH NB - LCM = layer in 2022 and 2023 LCM data so need to change this to layer
+#prop_a<-x2 %>% group_by(LCM) %>% mutate(mean_prop=mean(prop)) %>% select(LCM, mean_prop) %>% distinct() #HH NB - LCM = layer in 2022 and 2023 LCM data so need to change this to layer
 
 
-sd_u<-x1 %>% group_by(LCM) %>% mutate(sd=round(sd(prop)/sqrt(12),2)) %>% select(LCM, sd) %>% distinct()
-sd_a<-x2 %>% group_by(LCM) %>% mutate(sd=round(sd(prop)/sqrt(12),2)) %>% select(LCM, sd) %>% distinct()
+sd_u<-x1 %>% group_by(layer) %>% mutate(sd=round(sd(prop)/sqrt(12),2)) %>% select(layer, sd) %>% distinct() #HH NB - LCM = layer in 2022 and 2023 LCM data so need to change this to layer
+sd_a<-x2 %>% group_by(layer) %>% mutate(sd=round(sd(prop)/sqrt(12),2)) %>% select(layer, sd) %>% distinct() #HH NB - LCM = layer in 2022 and 2023 LCM data so need to change this to layer
 
 ##### Need to sense check if best to use these proportions for plotting (done by individual rather than combined)
 # then create new simple plot dataframe e.g. below (from NE86) rather than plotting code used above
