@@ -24,6 +24,9 @@ wash_obs_only <- FALSE
 # create mapped points coloured by month of resighting
 month_map <- FALSE
 
+# select release year cohorts to map resightings of
+select_year <- c(2021, 2022, 2023)
+
 
 # ======================   Variables to pass to setup code source  ===========
 
@@ -189,7 +192,8 @@ if (dt_location %>%
     arrange(new_datetime)
 }
 
-dt_resight_all
+dt_resight_all <- merge(dt_resight_all, dt_meta, by = "flag_id", all.x = TRUE) %>% 
+  dplyr::select(flag_id, year, date, time, lat, lon, new_datetime)
 
 
 # Final data for mapping  -------------------
@@ -197,7 +201,7 @@ dt_resight_all
 # otherwise, just use resighting data for mapping step
 
 dt_all <- dt_resight_all %>% 
-  dplyr::select(flag_id, date, lat, lon) %>% 
+  dplyr::select(flag_id, year, date, lat, lon) %>% 
   mutate(date = strptime(date, format = "%d/%m/%Y", tz="UTC")) %>%
   mutate(month = lubridate::month(date, label = TRUE, abbr = TRUE)) %>% 
   arrange(flag_id, date)
@@ -217,6 +221,7 @@ dt_all
 
 # turn dataset into spatial points
 bird_df_sf <- dt_all %>% 
+  filter(year %in% select_year) %>% 
   sf::st_as_sf(.,
                coords = c("lon",
                           "lat"),
@@ -240,7 +245,6 @@ if (wash_obs_only) {
     # filter(individual_local_identifier %in% unique_birds_study_area) %>% 
     st_intersection(., wash_area)
 }
-
 
 
 # transform to epsg 3857 used by base maps
