@@ -46,7 +46,7 @@ source(file.path("code/source_setup_code_rproj.R"))
 current_year <- 2023
 
 # TRUE = fresh download of google drive data
-update_gdrive_data <- FALSE
+update_gdrive_data <- TRUE
 
 
 # =======================    Load functions   =================
@@ -131,7 +131,7 @@ if (all(is.na(dt_easy_demon$LB))) dt_easy_demon <- dt_easy_demon %>% mutate(LB =
 dt_easy_demon
 
 # Output csv file
-write.csv(dt_easy_demon, file.path(outputwd, "easy_demon_data_entry_2023.csv"), row.names = FALSE)
+# write.csv(dt_easy_demon, file.path(outputwd, "easy_demon_data_entry_2023.csv"), row.names = FALSE)
 
 
 # ----- Merge dt_easy_demon with dt_biometric  -----
@@ -142,7 +142,7 @@ dt_fill_gps_deploy <- dt_meta %>%
   left_join(., dt_biometric %>% filter(type %in% "R"), by = c("ring", "flag_id")) %>% 
   dplyr::select(flag_id, ring, tagged_date, release_location, weight, wing, tarsus_toe, day, month)
 
-write.csv(dt_fill_gps_deploy, file.path(outputwd, "easy_fill_gps_deploy_data_entry_2023.csv"), row.names = FALSE)
+# write.csv(dt_fill_gps_deploy, file.path(outputwd, "easy_fill_gps_deploy_data_entry_2023.csv"), row.names = FALSE)
 
 
 # ----- Merge tag deployment data with dt_biometric  -----
@@ -158,7 +158,7 @@ dt_easy_tag <- dt_biometric %>%
   as.data.frame() %>% 
   arrange(flag_id)
 
-write.csv(dt_easy_tag, file.path(outputwd, "easy_gps_sm_reporting_2023.csv"), row.names = FALSE)
+# write.csv(dt_easy_tag, file.path(outputwd, "easy_gps_sm_reporting_2023.csv"), row.names = FALSE)
 
 
 # ----- playing around  -----
@@ -180,12 +180,29 @@ write.csv(dt_easy_tag, file.path(outputwd, "easy_gps_sm_reporting_2023.csv"), ro
 # ----- Merge individual metadata with egg & rearing data (released birds only)  ------
 
 dt_meta_rear <- dt_meta %>% 
-  right_join(dt_rearing, by = c("flag_id", "year"))
+  right_join(dt_rearing, by = c("flag_id", "year")) %>% 
+  mutate(release_date = strptime(release_date, format = "%d/%m/%Y")) %>% 
+  mutate(date_hatched = strptime(date_hatched, format = "%d/%m/%Y")) %>% 
+  mutate(release_age = release_date - date_hatched)
 
-dt_meta_rear_egg <- dt_meta_rear %>% 
-  right_join(dt_eggs, by = c("year", "clutch_num"))
+# Extract data for Europe headstarting review ##########
 
-# tally of released birds only by airfield
-dt_meta_rear_egg %>% 
-  group_by(year, airfield_name) %>% 
-  tally()
+# mean release age
+dt_meta_rear %>%
+  # filter(year %in% 2023) %>% 
+  dplyr::select(year, flag_id, ring, sex, date_hatched, release_location, release_date, release_age) %>% 
+  group_by(year) %>% 
+  summarise(mean_release_age = mean(release_age, na.rm=TRUE), 
+            min_release_age = min(release_age, na.rm=TRUE),
+            max_release_age = max(release_age, na.rm=TRUE),
+            min_release_date = min(release_date, na.rm=TRUE),
+            max_release_date = max(release_date, na.rm=TRUE)
+          )
+
+# dt_meta_rear_egg <- dt_meta_rear %>% 
+#   right_join(dt_eggs, by = c("year", "clutch_num"))
+# 
+# # tally of released birds only by airfield
+# dt_meta_rear_egg %>% 
+#   group_by(year, airfield_name) %>% 
+#   tally()
