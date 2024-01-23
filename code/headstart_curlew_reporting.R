@@ -45,13 +45,24 @@ source(file.path("code/source_setup_code_rproj.R"))
 
 current_year <- 2023
 
+# TRUE = fresh download of google drive data
+update_gdrive_data <- FALSE
+
+
+# =======================    Load functions   =================
+
+source(paste(codewd, "functions", "run_all_functions.R", sep="/"))
+
 
 # =======================    Load data   =================
 
 today_date <- format(Sys.Date(), "%d-%b-%Y")
 
 # Load data
-source(file.path("code", "headstart_CU_database.R"))
+# Toggle logic value above if fresh download of google drive data is needed
+# will need to provide authentication for R to access Google Drive
+if (update_gdrive_data) source(file.path("code", "source", "download_gdrive_data.R"))
+source(file.path("code", "source", "load_gdrive_data.R"))
 
 
 # =======================    Prepare data   =================
