@@ -152,6 +152,11 @@ data$tripNo<-1; data$gap<-0; data$gapsec<-1
 summary(data)
 summary(as.factor(data$tide_diff))
 
+
+#save data out so I do keep having to read it all back in and do the tide stuff
+saveRDS(data, here("data/data_with_tide.rds"))
+
+
 #HH Updated code to use an external csv to apply the cohort identifier and release site identifier (created in code: 'headstart_curlew_gps_movements.R' ~ line 76 to get the cohort identifier and site identifiers)
 dt_meta <- readRDS("./data/dt_meta_metadata_allyears.rds")
 head(dt_meta)
@@ -163,6 +168,7 @@ dt_meta_gsp <- dt_meta %>% filter(dt_meta$tag_gps_radio_none =="gps")
 #table for cohort
 #cohort <- data.frame(FlagID = dt_meta_gsp$flag_id, cohort_no = dt_meta_gsp$cohort_num, release_location = dt_meta_gsp$release_location)
 
+#manual list of each bird and which release site and flag ID they have 
 dt_meta_gsp$release_site <- c("Sandringham", "Sandringham", "Ken Hill", "Sandringham","Ken Hill", "Sandringham","Ken Hill", "Sandringham","Ken Hill", "Sandringham","Sandringham", "Sandringham", "Sandringham","Ken Hill","Ken Hill","Ken Hill","Sandringham","Ken Hill","Ken Hill","Sandringham","Ken Hill",
                          "Sandringham","Sandringham", "Sandringham", "Sandringham", "Sandringham", "Ken Hill","Ken Hill","Ken Hill",
                          "Ken Hill","Ken Hill","Ken Hill","Sandringham","Ken Hill","Ken Hill","Sandringham")
@@ -175,17 +181,48 @@ TagID$flag_id <- c("0E","3A", "0J" , "3K", "6X", "7E","7U" ,"6Y", "7K" , "7Y" ,"
 #left_join the two metadata tables together
 dt_meta_gsp_TagID <- dt_meta_gsp %>% left_join(TagID, by=join_by(flag_id))
 
-#***** HH NB add in here two final columns 
-#cohort = decide for 2023 how many cohorts we want - first cohort and the rest clumped together?
-#release = double check with the release site - is it useful to keep the Sandringham release sites different?
-#KMB says to merge the two 1,2 per site. single merged Sandringham and then merged Ken Hill is appropriate as the habitat management is similar at each site even if the first Sandringham site was slightly poorer. The Ken Hill ones are very close so they are definitely merged.
+
+#final release site column here - to keep the two Sandringham sites separate because the habitat is so different but merge the Ken Hill sites as their habitat is so similar
+dt_meta_gsp_TagID$release_site_final <- ifelse(dt_meta_gsp_TagID$release_location =="Sandringham 1", "Sandringham 1",
+                                          ifelse(dt_meta_gsp_TagID$release_location=="Sandringham 2", "Sandringham 2", "Ken Hill"))
+
+
+
+#***** HH NB add in here two final columns
+#cohort needs to be added in here. decide for 2023 how many cohorts we want - first cohort and the rest clumped together?
+dt_meta_gsp_TagID$cohort_analysis <- ifelse(dt_meta_gsp_TagID$cohort_num > 1, 2, 1)
+
+dt_meta_gsp_TagID$cohort_analysis <- as.factor(dt_meta_gsp_TagID$cohort_analysis)
+
+summary(dt_meta_gsp_TagID)
+
+
+#add in 1 day, 1 week, 2 weeks, 6 week dates post release
+
+dt_meta_gsp_TagID$release_date_time <- as.POSIXct(dt_meta_gsp_TagID$release_date, format = "%d/%m/%Y", usetz=T, tz="UTC")
+
+#one day according to Garry's 2022 code. Was to the end of the next day up until midnight = one full day after release e.g. release date 20/07 : 21/07 at 23:59:59
+dt_meta_gsp_TagID$Data_1d <- dt_meta_gsp_TagID$release_date_time + (86400+86399)
+
+
+#one week in my mind means 7 full days after release  e.g.release date 20/07 : 27/07 at 23:59:59
+dt_meta_gsp_TagID$Data_1w <- dt_meta_gsp_TagID$release_date_time + ((86400*7)+86399)
+
+#two weeks in my mind means 14 full days after release 
+dt_meta_gsp_TagID$Data_2w <- dt_meta_gsp_TagID$release_date_time + ((86400*14)+86399)
+
+#six weeks in my mind means 42 full days after release 
+dt_meta_gsp_TagID$Data_6w <- dt_meta_gsp_TagID$release_date_time + ((86400*42)+86399)
+
+
 
 
 #Then do a left_join on the dataset using the TagID are the join_by so that the meta data is populated for each GPS fix
 data <- data %>% left_join(dt_meta_gsp_TagID, by=join_by(TagID))
 
-
+summary(data)
  
+
 #---------#
 #HH NB - this is Gary's long hand code to set the cohort identifier and site identifer - but HH has left_joined the meta data to data so the hashtagged stages below are not needed
 
@@ -222,109 +259,306 @@ data<- data %>% select(-!!drop_cols)
 #save data out 
 saveRDS(data, here("data/data_withcohorts_release_sites.rds"))
 
+
+#SHOULD BE ABLE TO START FROM HERE FOR ANALYSIS NOW DATA DONWLOADED, CLEANED AND SAVED ####
 #read back in - can start from here now ####
 data <- readRDS("data/data_withcohorts_release_sites.rds")
 
+summary(data)
 
 
 
 ## Convert to BTOTT Track object
 data_tt<-Track(data) 
 data_tt<-clean_GPS(data_tt, drop_sats = 3, Thres = 30, GAP = 28800)
+#now warning messages about "flt_switch" for each bird - an error from the Track(data) function with is a BTOTT function - ask Chris?
 
 # Set ID factor
 data_tt$TagID<-as.factor(as.character(data_tt$TagID)) 
 
 
+#---------#
+#HH NB --- HH alternative code to filter the data for ANY GPS data from 2023 onwards: splitting it by the cohorts released in 2023 and previous cohorts still recording in 2023
+data_tt<-data_tt %>% filter(DateTime >= "2023-01-01") %>% droplevels()
+summary(data_tt$year)
 
-#****--- HH NB - to update this section below to use the meta data that is merged into data. 
-              #probably using dattime filter and new column? will have a think
 
-# Remove 2021 deployments with no 2022 data #HH UPDATE THIS WITH NEW INFO FROM SEPERATE CSV
-data_tt<-data_tt %>% filter(TagID!="Yf(0J)O/-:Y/m" & TagID!="Yf(3A)O/-:Y/m" & TagID!="Yf(3K)O/-:Y/m") %>% droplevels()
+plot(data_tt$longitude, data_tt$latitude)
 
-#**** - HH NB - can use this trial filter to filter years where needed
-#trial code to just extract the 2022 data from the GPS tracking dataset. birds2022 <- unique(dt_meta_gsp_TagID$TagID[dt_meta_gsp_TagID$year=="2022"])
-#data_tt <- data_tt %>% filter(TagID %in% birds2022) %>% droplevels()
+
+# Then Filter the data for each ID based on the staggered deployments for cohort released in 2023
+data_tt_2023<-data_tt %>% filter(year == "2023") %>% droplevels()
+summary(data_tt_2023$year)
+summary(data_tt_2023$DateTime)
+
+#this doesn't quite work as still need to include the earlier
+data_tt_2023$Period <- ifelse(data_tt_2023$DateTime < data_tt_2023$release_date_time, "Pre Release",
+                                     ifelse(data_tt_2023$DateTime< data_tt_2023$Data_1d, "1 One Day",
+                                            ifelse(data_tt_2023$DateTime < data_tt_2023$Data_1w, "2 One Week",
+                                                   ifelse(data_tt_2023$DateTime < data_tt_2023$Data_2w, "3 Two Weeks",
+                                                          ifelse(data_tt_2023$DateTime < data_tt_2023$Data_6w, "4 Six Weeks", 
+                                                                 ifelse(data_tt_2023$DateTime < as.POSIXct("2023-12-31 23:59:59", tz="UTC"), "5 End of December", "Post December"))))))
+
+summary(as.factor(data_tt_2023$Period))
+
+
+#subset the data based on these Periods of time - BUT to keep the first day, first week, first two weeks in the subsequent ones they need to be combined together
+data_1d <- data_tt_2023 %>% filter(data_tt_2023$Period == "1 One Day")
+summary(as.factor(data_1d$Period))
+summary(as.factor(data_1d$TagID))
+unique(data_1d$TagID) #20
+
+data_1w <- data_tt_2023 %>% filter(data_tt_2023$Period == "1 One Day" | data_tt_2023$Period == "2 One Week")
+summary(as.factor(data_1w$Period))
+unique(data_1w$TagID) #20
+
+data_2 <- data_tt_2023 %>% filter(data_tt_2023$Period == "1 One Day" | data_tt_2023$Period == "2 One Week" | data_tt_2023$Period == "3 Two Weeks")
+summary(as.factor(data_2$Period))
+unique(data_2$TagID) #20
+
+data_6 <- data_tt_2023 %>% filter(data_tt_2023$Period == "1 One Day" | data_tt_2023$Period == "2 One Week" | data_tt_2023$Period == "3 Two Weeks" | data_tt_2023$Period == "4 Six Weeks")
+summary(as.factor(data_6$Period))
+unique(data_6$TagID) #20
+
+
+data_all <- data_tt_2023 %>% filter(data_tt_2023$Period == "1 One Day" | data_tt_2023$Period == "2 One Week" | 
+                                      data_tt_2023$Period == "3 Two Weeks" | data_tt_2023$Period == "4 Six Weeks" | 
+                                      data_tt_2023$Period == "5 End of December")
+summary(data_all$DateTime)
+summary(as.factor(data_all$Period))
+unique(data_all$TagID) #20
+
+# Final merge 
+#data for the 2023 cohort #####
+data_2023cohort<-Track2TrackMultiStack(rbind(data_1d, data_1w, data_2, data_6, data_all), by=c("TagID", "Period"))
+data_2023cohort
+
+# Save
+setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/data") #HH laptop
+save(data_2023cohort, file="NE103_2023 report_clean tracking data for 2023 cohort.RData")
+
+
+# Load
+setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/data") #HH laptop
+load("NE103_2023 report_clean tracking data for 2023 cohort.RData")
+
+
+
+
+#for previous cohorts:
+data_tt_21_22<-data_tt %>% filter(year != "2023") %>% droplevels()
+summary(data_tt_21_22$year)
+summary(data_tt_21_22$DateTime)
+
+#split by sex
+#Female
+data_tt_21_22_F<-data_tt_21_22 %>% filter(sex == "F")
+summary(as.factor(data_tt_21_22_F$sex))
+
+
+data_tt_21_22_F$Period <- ifelse(data_tt_21_22_F$DateTime < as.POSIXct("2023-02-28 23:59:59", tz="UTC"), "6 Winter pre-breeding",
+                              ifelse(data_tt_21_22_F$DateTime< as.POSIXct("2023-03-31 23:59:59", tz="UTC"), "7 Spring fuzzy",
+                                     ifelse(data_tt_21_22_F$DateTime[data_tt_21_22_F$sex=="F"] < as.POSIXct("2023-06-15 23:59:59", tz="UTC"), "8a Female Breeding Season",
+                                                ifelse(data_tt_21_22_F$DateTime < as.POSIXct("2023-09-15 23:59:59", tz="UTC"), "9a Female Autumn fuzzy", 
+                                                          ifelse(data_tt_21_22_F$DateTime < as.POSIXct("2023-12-31 23:59:59", tz="UTC"), "10 End of December - Winter", "Post December")))))
+
+summary(as.factor(data_tt_21_22_F$Period))
+
+summary(data_tt_21_22_F$DateTime[data_tt_21_22_F$Period=="8a Female Breeding Season"])
+
+#Subset based on the different categories in period
+Data_W_PreB_F <- data_tt_21_22_F %>% filter(data_tt_21_22_F$Period == "6 Winter pre-breeding")
+summary(as.factor(Data_W_PreB_F$Period))
+
+Data_SF_F <- data_tt_21_22_F %>% filter(data_tt_21_22_F$Period == "7 Spring fuzzy")
+summary(as.factor(Data_SF_F$Period))
+
+Data_Breed_F <- data_tt_21_22_F %>% filter(data_tt_21_22_F$Period == "8a Female Breeding Season")
+summary(as.factor(Data_Breed_F$Period))
+
+Data_AF_F <- data_tt_21_22_F %>% filter(data_tt_21_22_F$Period == "9a Female Autumn fuzzy")
+summary(as.factor(Data_AF_F$Period))
+
+Data_W_AfterB_F <- data_tt_21_22_F %>% filter(data_tt_21_22_F$Period == "10 End of December - Winter")
+summary(as.factor(Data_W_AfterB_F$Period))
+
+
+#male
+data_tt_21_22_M<-data_tt_21_22 %>% filter(sex == "M")
+summary(as.factor(data_tt_21_22_M$sex))
+summary(data_tt_21_22_M$DateTime)
+
+
+data_tt_21_22_M$Period <- ifelse(data_tt_21_22_M$DateTime < as.POSIXct("2023-02-28 23:59:59", tz="UTC"), "6 Winter pre-breeding",
+                                 ifelse(data_tt_21_22_M$DateTime< as.POSIXct("2023-03-31 23:59:59", tz="UTC"), "7 Spring fuzzy",
+                                               ifelse(data_tt_21_22_M$DateTime[data_tt_21_22_M$sex=="M"] < as.POSIXct("2023-07-06 23:59:59", tz="UTC"), "8b Male Breeding Season",
+                                                      ifelse(data_tt_21_22_M$DateTime < as.POSIXct("2023-09-15 23:59:59", tz="UTC"), "9b Male Autumn fuzzy", 
+                                                             ifelse(data_tt_21_22_M$DateTime < as.POSIXct("2023-12-31 23:59:59", tz="UTC"), "10 End of December - Winter", "Post December")))))
+
+summary(as.factor(data_tt_21_22_M$Period))
+
+summary(data_tt_21_22_M$DateTime[data_tt_21_22_M$sex=="M" & data_tt_21_22_M$Period=="8b Male Breeding Season"])
+
+
+#Subset based on the different categories in period
+Data_W_PreB_M <- data_tt_21_22_M %>% filter(data_tt_21_22_M$Period == "6 Winter pre-breeding")
+summary(as.factor(Data_W_PreB_M$Period))
+
+Data_SF_M <- data_tt_21_22_M %>% filter(data_tt_21_22_M$Period == "7 Spring fuzzy")
+summary(as.factor(Data_SF_M$Period))
+
+Data_Breed_M <- data_tt_21_22_M %>% filter(data_tt_21_22_M$Period == "8b Male Breeding Season")
+summary(as.factor(Data_Breed_M$Period))
+
+Data_AF_M <- data_tt_21_22_M %>% filter(data_tt_21_22_M$Period == "9b Male Autumn fuzzy")
+summary(as.factor(Data_AF_M$Period))
+
+Data_W_AfterB_M <- data_tt_21_22_M %>% filter(data_tt_21_22_M$Period == "10 End of December - Winter")
+summary(as.factor(Data_W_AfterB_M$Period))
+
+
+
+#Bind some together keeping the breeding season and post breeding season fuzzy separate
+Data_W_PreB <- rbind(Data_W_PreB_M,Data_W_PreB_F)
+summary(Data_W_PreB$DateTime)
+
+Data_SF <- rbind(Data_SF_M,Data_SF_F)
+summary(Data_SF$DateTime)
+
+
+#Data_Breed_M, Data_Breed_F,Data_AF_M ,Data_AF_F
+
+Data_W_AfterB <- rbind(Data_W_AfterB_M, Data_W_AfterB_F)
+summary(Data_W_AfterB$DateTime)
+
+#data for previous cohorts still recording in 2023 #####
+data_21_22cohort <- Track2TrackMultiStack(rbind(Data_W_PreB, Data_SF, Data_Breed_M, Data_Breed_F, Data_AF_M, Data_AF_F, Data_W_AfterB), by=c("TagID", "Period"))
+
+data_21_22cohort
+
+
+# Save
+setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/data") #HH laptop
+save(data_21_22cohort, file="NE103_2023 report_clean tracking data for 2021 2022 cohorts.RData")
+
+
+# Load
+setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/data") #HH laptop
+load("NE103_2023 report_clean tracking data for 2021 2022 cohorts.RData")
+
+
+
+#rbind both together?
+data_2023 <- Track2TrackMultiStack(rbind(data_1d, data_1w, data_2, data_6, data_all, Data_W_PreB, Data_SF, Data_Breed_M, Data_Breed_F, Data_AF_M, Data_AF_F, Data_W_AfterB), by=c("TagID", "Period"))
+
+data_2023$
+
+# Save
+setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/data") #HH laptop
+save(data_21_22cohort, file="NE103_2023 report_clean tracking data for all 2023 data.RData")
+
+
+# Load
+setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/data") #HH laptop
+load("NE103_2023 report_clean tracking data for all 2023 data.RData")
+
+
+
+#---------#
+#HH NB---- Gary's original code to manually filter the data for 2022 - HH hashed this out and instead use code above #
+# Remove 2021 deployments with no 2022 data 
+#data_tt<-data_tt %>% filter(TagID!="Yf(0J)O/-:Y/m" & TagID!="Yf(3A)O/-:Y/m" & TagID!="Yf(3K)O/-:Y/m") %>% droplevels()
+
+
 
 # Filter work around for each ID to select time period based on staggered deployments
 
 # One week
-dat1<- data_tt %>% filter(TagID=="Yf(6X)O/-:Y/m_KenHill"|TagID=="Yf(6Y)O/-:Y/m_Sandringham"|TagID=="Yf(7E)O/-:Y/m_KenHill"|TagID=="Yf(7K)O/-:Y/m_Sandringham"|TagID=="Yf(7U)O/-:Y/m_KenHill"|TagID=="Yf(7Y)O/-:Y/m_Sandringham")  %>%
-  filter(DateTime<"2022-07-21 23:59:59")
-dat2<- data_tt %>% filter(TagID=="Yf(8E)O/-:Y/m_Sandringham"|TagID=="Yf(8K)O/-:Y/m_Sandringham"|TagID=="Yf(8L)O/-:Y/m_Sandringham")  %>%
-  filter(DateTime<"2022-08-10 23:59:59")
-dat3<- data_tt %>% filter(TagID=="Yf(8X)O/-:Y/m_KenHill") %>% 
-  filter(DateTime<"2022-08-16 23:59:59")
-dat4<- data_tt %>% filter(TagID=="Yf(9J)O/-:Y/m_KenHill"|TagID=="Yf(9L)O/-:Y/m_KenHill")  %>% 
-  filter(DateTime<"2022-08-23 23:59:59")
+#dat1<- data_tt %>% filter(TagID=="Yf(6X)O/-:Y/m_KenHill"|TagID=="Yf(6Y)O/-:Y/m_Sandringham"|TagID=="Yf(7E)O/-:Y/m_KenHill"|TagID=="Yf(7K)O/-:Y/m_Sandringham"|TagID=="Yf(7U)O/-:Y/m_KenHill"|TagID=="Yf(7Y)O/-:Y/m_Sandringham")  %>%
+#  filter(DateTime<"2022-07-21 23:59:59")
+#dat2<- data_tt %>% filter(TagID=="Yf(8E)O/-:Y/m_Sandringham"|TagID=="Yf(8K)O/-:Y/m_Sandringham"|TagID=="Yf(8L)O/-:Y/m_Sandringham")  %>%
+#  filter(DateTime<"2022-08-10 23:59:59")
+#dat3<- data_tt %>% filter(TagID=="Yf(8X)O/-:Y/m_KenHill") %>% 
+#  filter(DateTime<"2022-08-16 23:59:59")
+#dat4<- data_tt %>% filter(TagID=="Yf(9J)O/-:Y/m_KenHill"|TagID=="Yf(9L)O/-:Y/m_KenHill")  %>% 
+#  filter(DateTime<"2022-08-23 23:59:59")
 
-data_1<-rbind(dat1, dat2, dat3, dat4); data_1$Period<-"one week"
+#data_1<-rbind(dat1, dat2, dat3, dat4); data_1$Period<-"one week"
 
 
 # Two weeks
-dat1<- data_tt %>% filter(TagID=="Yf(6X)O/-:Y/m_KenHill"|TagID=="Yf(6Y)O/-:Y/m_Sandringham"|TagID=="Yf(7E)O/-:Y/m_KenHill"|TagID=="Yf(7K)O/-:Y/m_Sandringham"|TagID=="Yf(7U)O/-:Y/m_KenHill"|TagID=="Yf(7Y)O/-:Y/m_Sandringham")  %>%
-  filter(DateTime<"2022-07-28 23:59:59")
-dat2<- data_tt %>% filter(TagID=="Yf(8E)O/-:Y/m_Sandringham"|TagID=="Yf(8K)O/-:Y/m_Sandringham"|TagID=="Yf(8L)O/-:Y/m_Sandringham")  %>%
-  filter(DateTime<"2022-08-17 23:59:59")
-dat3<- data_tt %>% filter(TagID=="Yf(8X)O/-:Y/m_KenHill") %>% 
-  filter(DateTime<"2022-08-23 23:59:59")
-dat4<- data_tt %>% filter(TagID=="Yf(9J)O/-:Y/m_KenHill"|TagID=="Yf(9L)O/-:Y/m_KenHill")  %>% 
- filter(DateTime<"2022-08-30 23:59:59")
+#dat1<- data_tt %>% filter(TagID=="Yf(6X)O/-:Y/m_KenHill"|TagID=="Yf(6Y)O/-:Y/m_Sandringham"|TagID=="Yf(7E)O/-:Y/m_KenHill"|TagID=="Yf(7K)O/-:Y/m_Sandringham"|TagID=="Yf(7U)O/-:Y/m_KenHill"|TagID=="Yf(7Y)O/-:Y/m_Sandringham")  %>%
+#  filter(DateTime<"2022-07-28 23:59:59")
+#dat2<- data_tt %>% filter(TagID=="Yf(8E)O/-:Y/m_Sandringham"|TagID=="Yf(8K)O/-:Y/m_Sandringham"|TagID=="Yf(8L)O/-:Y/m_Sandringham")  %>%
+#  filter(DateTime<"2022-08-17 23:59:59")
+#dat3<- data_tt %>% filter(TagID=="Yf(8X)O/-:Y/m_KenHill") %>% 
+##  filter(DateTime<"2022-08-23 23:59:59")
+#dat4<- data_tt %>% filter(TagID=="Yf(9J)O/-:Y/m_KenHill"|TagID=="Yf(9L)O/-:Y/m_KenHill")  %>% 
+# filter(DateTime<"2022-08-30 23:59:59")
 
-data_2<-rbind(dat1, dat2, dat3, dat4); data_2$Period<-"two weeks"
+#data_2<-rbind(dat1, dat2, dat3, dat4); data_2$Period<-"two weeks"
 
 
 # Six weeks
-dat1<- data_tt %>% filter(TagID=="Yf(6X)O/-:Y/m_KenHill"|TagID=="Yf(6Y)O/-:Y/m_Sandringham"|TagID=="Yf(7E)O/-:Y/m_KenHill"|TagID=="Yf(7K)O/-:Y/m_Sandringham"|TagID=="Yf(7U)O/-:Y/m_KenHill"|TagID=="Yf(7Y)O/-:Y/m_Sandringham")  %>%
-  filter(DateTime<"2022-08-25 23:59:59")
-dat2<- data_tt %>% filter(TagID=="Yf(8E)O/-:Y/m_Sandringham"|TagID=="Yf(8K)O/-:Y/m_Sandringham"|TagID=="Yf(8L)O/-:Y/m_Sandringham")  %>%
-  filter(DateTime<"2022-09-14 23:59:59")
-dat3<- data_tt %>% filter(TagID=="Yf(8X)O/-:Y/m_KenHill") %>% 
-  filter(DateTime<"2022-09-20 23:59:59")
-dat4<- data_tt %>% filter(TagID=="Yf(9J)O/-:Y/m_KenHill"|TagID=="Yf(9L)O/-:Y/m_KenHill")  %>% 
-  filter(DateTime<"2022-09-27 23:59:59")
+#dat1<- data_tt %>% filter(TagID=="Yf(6X)O/-:Y/m_KenHill"|TagID=="Yf(6Y)O/-:Y/m_Sandringham"|TagID=="Yf(7E)O/-:Y/m_KenHill"|TagID=="Yf(7K)O/-:Y/m_Sandringham"|TagID=="Yf(7U)O/-:Y/m_KenHill"|TagID=="Yf(7Y)O/-:Y/m_Sandringham")  %>%
+#  filter(DateTime<"2022-08-25 23:59:59")
+#dat2<- data_tt %>% filter(TagID=="Yf(8E)O/-:Y/m_Sandringham"|TagID=="Yf(8K)O/-:Y/m_Sandringham"|TagID=="Yf(8L)O/-:Y/m_Sandringham")  %>%
+#  filter(DateTime<"2022-09-14 23:59:59")
+#dat3<- data_tt %>% filter(TagID=="Yf(8X)O/-:Y/m_KenHill") %>% 
+#  filter(DateTime<"2022-09-20 23:59:59")
+#dat4<- data_tt %>% filter(TagID=="Yf(9J)O/-:Y/m_KenHill"|TagID=="Yf(9L)O/-:Y/m_KenHill")  %>% 
+#  filter(DateTime<"2022-09-27 23:59:59")
 
-data_6<-rbind(dat1, dat2, dat3, dat4); data_6$Period<-"six weeks"
+#data_6<-rbind(dat1, dat2, dat3, dat4); data_6$Period<-"six weeks"
 
 
 # End of calendar year (2022 deployments only)
-data_all<- data_tt %>%  filter(TagID!="Yf(0E)O/-:Y/m" & DateTime<"2022-12-31 23:59:59")
-data_all$Period<-"all"
+#data_all<- data_tt %>%  filter(TagID!="Yf(0E)O/-:Y/m" & DateTime<"2022-12-31 23:59:59")
+#data_all$Period<-"all"
 
 
-# 2021 deployment for 2022 #HH UPDATE THIS FOR ALL PAST DEPLOYMENTS!!!**
-data_21<- data_tt %>% filter(TagID=="Yf(0E)O/-:Y/m") %>% filter(DateTime>"2022-01-01 00:00:00")
-data_21$Period<-"21_dep_all"
+# 2021 deployment for 2022 
+#data_21<- data_tt %>% filter(TagID=="Yf(0E)O/-:Y/m") %>% filter(DateTime>"2022-01-01 00:00:00")
+#data_21$Period<-"21_dep_all"
 
 
 
 # Final merge
-data<-Track2TrackMultiStack(rbind(data_1, data_2, data_6, data_all, data_21), by=c("TagID", "Period"))
+#data<-Track2TrackMultiStack(rbind(data_1, data_2, data_6, data_all, data_21), by=c("TagID", "Period"))
 
-trialrundata<-data
+#trialrundata<-data
 
 # Save
-setwd("C:/Users/gary.clewley/Desktop/BTO - GDC/2019- Wetland and Marine Team/_NE103 -- Headstarted Curlew tracking/Data/")
-save(data, file="NE103_2022 report_clean tracking data.RData")
+#setwd("C:/Users/gary.clewley/Desktop/BTO - GDC/2019- Wetland and Marine Team/_NE103 -- Headstarted Curlew tracking/Data/")
+#save(data, file="NE103_2022 report_clean tracking data.RData")
 
 
 # Load
 #setwd("C:/Users/gary.clewley/Desktop/BTO - GDC/2019- Wetland and Marine Team/_NE103 -- Headstarted Curlew tracking/Data/")
-setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/data") #HH laptop
-load("NE103_2022 report_clean tracking data.RData")
+#setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/data") #HH laptop
+#load("NE103_2022 report_clean tracking data.RData")
 
+#----- #
+# HH NB - back into main code
 
-
+#Analysis begins#####
 # Set time period of interest going forward for TIA or remove TrackMultiStack and group_by for habitat work
-# data_all<-data[["all"]] # ...etc
+#data_all<-data_2023[["all"]] # ...etc
 
 
-
-
-
-
-
+#List in order of the data held in the data_2023 list
+#1= "1 One Day" 
+#2="10 End of December - Winter" 
+#3= "2 One Week" 
+#4= "3 Two Weeks" 
+#5= "4 Six Weeks" 
+#6= "5 End of December" 
+#7= "6 Winter pre-breeding" 
+#8= "7 Spring fuzzy" 
+#9= "8a Female Breeding Season" 
+#10= "8b Male Breeding Season" 
+#11= "9a Female Autumn fuzzy" 
+#12= "9b Male Autumn fuzzy" 
 
 
 
@@ -332,13 +566,13 @@ load("NE103_2022 report_clean tracking data.RData")
 # Using BTOTT::
 
 # Basic visualisation of data
-plot_leaflet(data[["all"]], lines=FALSE) #code update - now "plot_leaflet" not "plot_leaflet_dev"
-plot_leaflet(data[[1]], lines=FALSE) # 0E plot #HH NB - PAST COHORTS
+plot_leaflet(data[["2 One Week"]], lines=FALSE) #code update - now "plot_leaflet" not "plot_leaflet_dev"
+plot_leaflet(data[[12]], lines=FALSE) # 0E plot #HH NB - PAST COHORTS
 
 
 
 # Interactive plot with tide data for output
-data_tide<-TrackStack2Track(data[["all"]])
+data_tide<-TrackStack2Track(data[["5 End of December"]])
 data_tide<-data_tide %>% filter(tide!="NA")
 data_tide$Tide<-as.character(fct_recode(data_tide$tide, "High tide" = "HW", "Low tide" = "LW") )
 plot_leaflet(data_tide, plotby="Tide", lines=FALSE, col=c("#31688EFF","#35B779FF")) #code update - now "plot_leaflet" not "plot_leaflet_dev"
@@ -427,28 +661,30 @@ lab_lat<-seq(new_lat_lower, new_lat_upper,length.out=length(seq(min(yRa), max(yR
 dir <- setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting") #HH laptop directory
 plot.name<-"NE103_Headstart CURLE_all data 2022_TIA.tiff"
 
+plot.name<-"NE103_Headstart CURLE_all data 2023_TIA.tiff"
+
 # Set plot device (saving hi-res base R maps)
 tiff(paste0(dir,plot.name), width=25, height=23, units="cm", pointsize=18, res=600, compression ="lzw")
 
 #HH NB: updated as sp package was discontinued. terra used now according to plot_TIA
   #removed: 
-terra::plot(ukmap,xlim=xRa, ylim=yRa,col="grey80",border="grey80", axes=T, yaxt="n",
+terra::plot(ukmap$geometry,xlim=xRa, ylim=yRa,col="grey80",border="grey80", axes=T, yaxt="n",  #need to specify here ukmap$geometry
          xaxt="n", xlab="Longitude", ylab="Latitude",
-         main="July-December 2022")                     # UPDATE MANUALLY
+         main="July-December 2022")# UPDATE MANUALLY                     
 
 axis(1, at=seq(min(xRa), max(xRa),by=5000), labels=round(lab_long,2)) 
 axis(2, at=seq(min(yRa), max(yRa),by=5000), labels=round(lab_lat,2))
 
 
-#*****HH NB: THIS PLOT NOT WORKING FOR SOME REASON? SOMETHING TO DO WITH MEMORY
+#HH NB had error for this plot about memory. BUT needed to specify the ukmap$geometry in the terra::plot above and now it works
 # UPDATE INDIVIDUAL BETWEEN PLOTS
-plot_TIA(data=grd_rank_all,Add=TRUE,                    # UPDATE ID SELECTION. HH NB - [c(1:50000),]
+plot_TIA(data=grd_rank_all,Add=TRUE,                    # UPDATE ID SELECTION. 
          xra=xRa, yra=yRa,
          g_levs = c(1,0.95,0.75,0.5),
          c_levs = c(0.95,0.75,0.5),
          col_ramp_grd =c("#440154FF", "#31688EFF", "#35B779FF", "#FDE725FF"),
          col_ramp_con =c("#31688EFF", "#35B779FF", "#FDE725FF"),
-         cont_typ=1)
+         cont_typ=4) # if this is 4 you can plot it outside the function and it returns an object in R
 
 
 dev.off()
