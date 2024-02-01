@@ -158,7 +158,7 @@ saveRDS(data, here("data/data_with_tide.rds"))
 
 
 #HH Updated code to use an external csv to apply the cohort identifier and release site identifier (created in code: 'headstart_curlew_gps_movements.R' ~ line 76 to get the cohort identifier and site identifiers)
-dt_meta <- readRDS("./data/dt_meta_metadata_allyears.rds")
+dt_meta <- readRDS(here("data/dt_meta_metadata_allyears.rds"))
 head(dt_meta)
 
 #filter for just GPS birds
@@ -189,7 +189,7 @@ dt_meta_gsp_TagID$release_site_final <- ifelse(dt_meta_gsp_TagID$release_locatio
 
 
 #***** HH NB add in here two final columns
-#cohort needs to be added in here. decide for 2023 how many cohorts we want - first cohort and the rest clumped together?
+#cohort needs to be added in here. decide for 2023 how many cohorts we want = first cohort seperate and the rest clumped together
 dt_meta_gsp_TagID$cohort_analysis <- ifelse(dt_meta_gsp_TagID$cohort_num > 1, 2, 1)
 
 dt_meta_gsp_TagID$cohort_analysis <- as.factor(dt_meta_gsp_TagID$cohort_analysis)
@@ -198,7 +198,7 @@ summary(dt_meta_gsp_TagID)
 
 
 #add in 1 day, 1 week, 2 weeks, 6 week dates post release
-
+#create a as.posixct datetime column
 dt_meta_gsp_TagID$release_date_time <- as.POSIXct(dt_meta_gsp_TagID$release_date, format = "%d/%m/%Y", usetz=T, tz="UTC")
 
 #one day according to Garry's 2022 code. Was to the end of the next day up until midnight = one full day after release e.g. release date 20/07 : 21/07 at 23:59:59
@@ -257,28 +257,31 @@ data<- data %>% select(-!!drop_cols)
 
 
 #save data out 
-saveRDS(data, here("data/data_withcohorts_release_sites.rds"))
+#saveRDS(data, here("data/data_withcohorts_release_sites.rds"))
 
 
-#SHOULD BE ABLE TO START FROM HERE FOR ANALYSIS NOW DATA DONWLOADED, CLEANED AND SAVED ####
+#SHOULD BE ABLE TO START FROM HERE FOR ANALYSIS NOW DATA DONWLOADED, CLEANED AND SAVED
 #read back in - can start from here now ####
-data <- readRDS("data/data_withcohorts_release_sites.rds")
+#data <- readRDS(here("data/data_withcohorts_release_sites.rds"))
 
-summary(data)
+#summary(data)
 
 
 
 ## Convert to BTOTT Track object
 data_tt<-Track(data) 
 data_tt<-clean_GPS(data_tt, drop_sats = 3, Thres = 30, GAP = 28800)
-#now warning messages about "flt_switch" for each bird - an error from the Track(data) function with is a BTOTT function - ask Chris?
+#now warning messages about "flt_switch" for each bird - an error from the Track(data) function with is a BTOTT function
+  #See messages from Chris T about this but the summary is it is a flag option for clean_GPS - when importing data into movebank you can add a 
+      #column to tell you if it is dogdge data or not and then add a second column to clean it/remove it... as the dataset I am working with doesn't have this column
+      # I can disregard this warning
 
 # Set ID factor
 data_tt$TagID<-as.factor(as.character(data_tt$TagID)) 
 
 
 #---------#
-#HH NB --- HH alternative code to filter the data for ANY GPS data from 2023 onwards: splitting it by the cohorts released in 2023 and previous cohorts still recording in 2023
+#HH NB --- HH alternative code to filter the data for ANY GPS data for the WHOLE of 2023: splitting it by the cohorts released in 2023 and previous cohorts still recording in 2023
 data_tt<-data_tt %>% filter(DateTime >= "2023-01-01") %>% droplevels()
 summary(data_tt$year)
 
@@ -291,7 +294,7 @@ data_tt_2023<-data_tt %>% filter(year == "2023") %>% droplevels()
 summary(data_tt_2023$year)
 summary(data_tt_2023$DateTime)
 
-#this doesn't quite work as still need to include the earlier
+#this uses ifelse to filter out each unique tag and release date into the different categories
 data_tt_2023$Period <- ifelse(data_tt_2023$DateTime < data_tt_2023$release_date_time, "Pre Release",
                                      ifelse(data_tt_2023$DateTime< data_tt_2023$Data_1d, "1 One Day",
                                             ifelse(data_tt_2023$DateTime < data_tt_2023$Data_1w, "2 One Week",
@@ -302,31 +305,69 @@ data_tt_2023$Period <- ifelse(data_tt_2023$DateTime < data_tt_2023$release_date_
 summary(as.factor(data_tt_2023$Period))
 
 
+#A final set of decisions needs to be made to decide whether some individuals need to be taken out of some categories 
+  # due to the number of days the remained alive
+#create a dead_date_time column
+dt_meta_gsp_TagID$dead_date_time <- as.POSIXct(dt_meta_gsp_TagID$dead_date, format = "%d/%m/%Y", usetz=T, tz="UTC")
+
+#minus the dead date time from the release date time
+dt_meta_gsp_TagID$daysalive <- as.POSIXct(dt_meta_gsp_TagID$dead_date_time,  tz="UTC") - as.POSIXct(dt_meta_gsp_TagID$release_date_time, tz="UTC")
+
+#seperate table of just dead curlew from all years
+deadcurlew <- dt_meta_gsp_TagID[!is.na(dt_meta_gsp_TagID$daysalive),]
+
+#filter for 2023
+deadcurlew <- deadcurlew[deadcurlew$year=="2023",]
+
+
+
+
+#THEN need to take these into account in the filtering below:
+
 #subset the data based on these Periods of time - BUT to keep the first day, first week, first two weeks in the subsequent ones they need to be combined together
 data_1d <- data_tt_2023 %>% filter(data_tt_2023$Period == "1 One Day")
+data_1d <- data_1d %>% filter(data_1d$TagID != "Yf(YN)O/-:Y/m_KenHill") %>% droplevels()
+data_1d <- data_1d %>% filter(data_1d$TagID != "Yf(YU)O/-:Y/m_KenHill") %>% droplevels()
 summary(as.factor(data_1d$Period))
 summary(as.factor(data_1d$TagID))
-unique(data_1d$TagID) #20
+unique(data_1d$TagID) #18
 
 data_1w <- data_tt_2023 %>% filter(data_tt_2023$Period == "1 One Day" | data_tt_2023$Period == "2 One Week")
+data_1w <- data_1w %>% filter(data_1w$TagID != "Yf(YN)O/-:Y/m_KenHill") %>% droplevels()
+data_1w <- data_1w %>% filter(data_1w$TagID != "Yf(YU)O/-:Y/m_KenHill") %>% droplevels()
 summary(as.factor(data_1w$Period))
-unique(data_1w$TagID) #20
+summary(as.factor(data_1w$TagID))
+unique(data_1w$TagID) #18
 
 data_2 <- data_tt_2023 %>% filter(data_tt_2023$Period == "1 One Day" | data_tt_2023$Period == "2 One Week" | data_tt_2023$Period == "3 Two Weeks")
+data_2 <- data_2 %>% filter(data_2$TagID != "Yf(YN)O/-:Y/m_KenHill") %>% droplevels()
+data_2 <- data_2 %>% filter(data_2$TagID != "Yf(YU)O/-:Y/m_KenHill") %>% droplevels()
+data_2 <- data_2 %>% filter(data_2$TagID != "Yf(LA)O/-:Y/m_Sandringham") %>% droplevels()
 summary(as.factor(data_2$Period))
-unique(data_2$TagID) #20
+unique(data_2$TagID) #17
 
 data_6 <- data_tt_2023 %>% filter(data_tt_2023$Period == "1 One Day" | data_tt_2023$Period == "2 One Week" | data_tt_2023$Period == "3 Two Weeks" | data_tt_2023$Period == "4 Six Weeks")
+data_6 <- data_6 %>% filter(data_6$TagID != "Yf(YN)O/-:Y/m_KenHill") %>% droplevels()
+data_6 <- data_6 %>% filter(data_6$TagID != "Yf(YU)O/-:Y/m_KenHill") %>% droplevels()
+data_6 <- data_6 %>% filter(data_6$TagID != "Yf(LA)O/-:Y/m_Sandringham") %>% droplevels()
+data_6 <- data_6 %>% filter(data_6$TagID != "Yf(LP)O/-:Y/m_KenHill") %>% droplevels()
 summary(as.factor(data_6$Period))
-unique(data_6$TagID) #20
+unique(data_6$TagID) #16
 
 
 data_all <- data_tt_2023 %>% filter(data_tt_2023$Period == "1 One Day" | data_tt_2023$Period == "2 One Week" | 
                                       data_tt_2023$Period == "3 Two Weeks" | data_tt_2023$Period == "4 Six Weeks" | 
                                       data_tt_2023$Period == "5 End of December")
+data_all <- data_all %>% filter(data_all$TagID != "Yf(YN)O/-:Y/m_KenHill") %>% droplevels()
+data_all <- data_all %>% filter(data_all$TagID != "Yf(YU)O/-:Y/m_KenHill") %>% droplevels()
+data_all <- data_all %>% filter(data_all$TagID != "Yf(LA)O/-:Y/m_Sandringham") %>% droplevels()
+data_all <- data_all %>% filter(data_all$TagID != "Yf(LP)O/-:Y/m_KenHill") %>% droplevels()
+data_all <- data_all %>% filter(data_all$TagID != "Yf(YX)O/-:Y/m_Sandringham") %>% droplevels()
+data_all <- data_all %>% filter(data_all$TagID != "Yf(XU)O/-:Y/m_KenHill") %>% droplevels()
+
 summary(data_all$DateTime)
 summary(as.factor(data_all$Period))
-unique(data_all$TagID) #20
+unique(data_all$TagID) #14
 
 # Final merge 
 #data for the 2023 cohort #####
@@ -349,6 +390,11 @@ load("NE103_2023 report_clean tracking data for 2023 cohort.RData")
 data_tt_21_22<-data_tt %>% filter(year != "2023") %>% droplevels()
 summary(data_tt_21_22$year)
 summary(data_tt_21_22$DateTime)
+
+prevcohorts <- data_tt_21_22 %>%
+  group_by(year, TagID, sex) %>%
+  summarize(max_date_time = max(DateTime))
+
 
 #split by sex
 #Female
@@ -377,10 +423,14 @@ Data_Breed_F <- data_tt_21_22_F %>% filter(data_tt_21_22_F$Period == "8a Female 
 summary(as.factor(Data_Breed_F$Period))
 
 Data_AF_F <- data_tt_21_22_F %>% filter(data_tt_21_22_F$Period == "9a Female Autumn fuzzy")
+Data_AF_F <- Data_AF_F %>% filter(Data_AF_F$TagID != "Yf(0E)O/-:Y/m") %>% droplevels()
 summary(as.factor(Data_AF_F$Period))
+summary(as.factor(Data_AF_F$TagID))
 
 Data_W_AfterB_F <- data_tt_21_22_F %>% filter(data_tt_21_22_F$Period == "10 End of December - Winter")
+Data_W_AfterB_F <- Data_W_AfterB_F %>% filter(Data_W_AfterB_F$TagID != "Yf(0E)O/-:Y/m") %>% droplevels()
 summary(as.factor(Data_W_AfterB_F$Period))
+summary(as.factor(Data_W_AfterB_F$TagID))
 
 
 #male
@@ -400,7 +450,7 @@ summary(as.factor(data_tt_21_22_M$Period))
 summary(data_tt_21_22_M$DateTime[data_tt_21_22_M$sex=="M" & data_tt_21_22_M$Period=="8b Male Breeding Season"])
 
 
-#Subset based on the different categories in period
+#Subset based on the different categories in period. Added extract removal of certain tag numbers based on when the data stopped transmitting from them
 Data_W_PreB_M <- data_tt_21_22_M %>% filter(data_tt_21_22_M$Period == "6 Winter pre-breeding")
 summary(as.factor(Data_W_PreB_M$Period))
 
@@ -409,13 +459,18 @@ summary(as.factor(Data_SF_M$Period))
 
 Data_Breed_M <- data_tt_21_22_M %>% filter(data_tt_21_22_M$Period == "8b Male Breeding Season")
 summary(as.factor(Data_Breed_M$Period))
+summary(as.factor(Data_Breed_M$TagID))
 
 Data_AF_M <- data_tt_21_22_M %>% filter(data_tt_21_22_M$Period == "9b Male Autumn fuzzy")
+Data_AF_M <- Data_AF_M %>% filter(Data_AF_M$TagID != "Yf(6Y)O/-:Y/m_Sandringham") %>% droplevels()
 summary(as.factor(Data_AF_M$Period))
+summary(as.factor(Data_AF_M$TagID))
 
 Data_W_AfterB_M <- data_tt_21_22_M %>% filter(data_tt_21_22_M$Period == "10 End of December - Winter")
+Data_W_AfterB_M <- Data_W_AfterB_M %>% filter(Data_W_AfterB_M$TagID != "Yf(6Y)O/-:Y/m_Sandringham") %>% droplevels()
+Data_W_AfterB_M <- Data_W_AfterB_M %>% filter(Data_W_AfterB_M$TagID != "Yf(6X)O/-:Y/m_KenHill") %>% droplevels()
 summary(as.factor(Data_W_AfterB_M$Period))
-
+summary(as.factor(Data_W_AfterB_M$TagID))
 
 
 #Bind some together keeping the breeding season and post breeding season fuzzy separate
@@ -448,14 +503,14 @@ load("NE103_2023 report_clean tracking data for 2021 2022 cohorts.RData")
 
 
 
-#rbind both together?
+#rbind both together so I just have the 12 combined together
 data_2023 <- Track2TrackMultiStack(rbind(data_1d, data_1w, data_2, data_6, data_all, Data_W_PreB, Data_SF, Data_Breed_M, Data_Breed_F, Data_AF_M, Data_AF_F, Data_W_AfterB), by=c("TagID", "Period"))
 
-data_2023$
+data_2023
 
 # Save
-setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/data") #HH laptop
-save(data_21_22cohort, file="NE103_2023 report_clean tracking data for all 2023 data.RData")
+setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/data") ##HH laptop
+save(data_2023, file="NE103_2023 report_clean tracking data for all 2023 data.RData")
 
 
 # Load
@@ -465,7 +520,11 @@ load("NE103_2023 report_clean tracking data for all 2023 data.RData")
 
 
 #---------#
-#HH NB---- Gary's original code to manually filter the data for 2022 - HH hashed this out and instead use code above #
+#HH NB---- This is Gary's original code to manually filter the data for 2022 NOTE that these actually filter:
+    #1 week = 1 day, 2 week = 7-8 days, 6 week = 35-37 days. This is different from the requirement in the report methods which state:
+      # the of year cohort analysis should be split into "four discrete time periods: one week, two weeks and six weeks post-release, and all data collected up until the end of December 2022"
+#SO HH hashed this out and instead use code above #
+
 # Remove 2021 deployments with no 2022 data 
 #data_tt<-data_tt %>% filter(TagID!="Yf(0J)O/-:Y/m" & TagID!="Yf(3A)O/-:Y/m" & TagID!="Yf(3K)O/-:Y/m") %>% droplevels()
 
@@ -542,13 +601,21 @@ load("NE103_2023 report_clean tracking data for all 2023 data.RData")
 # HH NB - back into main code
 
 #Analysis begins#####
+
+# Load - NB load automatically loads the data back in as the same name it was saved out as 
+setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/data") #HH laptop
+load("NE103_2023 report_clean tracking data for all 2023 data.RData")
+
+#loaded as data_2023. rename it:
+data <- data_2023
+
+
 # Set time period of interest going forward for TIA or remove TrackMultiStack and group_by for habitat work
 #data_all<-data_2023[["all"]] # ...etc
 
 
 #List in order of the data held in the data_2023 list
 #1= "1 One Day" 
-#2="10 End of December - Winter" 
 #3= "2 One Week" 
 #4= "3 Two Weeks" 
 #5= "4 Six Weeks" 
@@ -559,20 +626,52 @@ load("NE103_2023 report_clean tracking data for all 2023 data.RData")
 #10= "8b Male Breeding Season" 
 #11= "9a Female Autumn fuzzy" 
 #12= "9b Male Autumn fuzzy" 
+#2="10 End of December - Winter" 
 
+datasplit <- c("1 One Day" ,"2 One Week" ,"3 Two Weeks" , "4 Six Weeks" ,"5 End of December" ,
+                 "6 Winter pre-breeding" , "7 Spring fuzzy" , "8a Female Breeding Season" , "8b Male Breeding Season" ,
+                 "9a Female Autumn fuzzy","9b Male Autumn fuzzy", "10 End of December - Winter" )
 
 
 #### TIME IN AREA ####
 # Using BTOTT::
 
 # Basic visualisation of data
-plot_leaflet(data[["2 One Week"]], lines=FALSE) #code update - now "plot_leaflet" not "plot_leaflet_dev"
-plot_leaflet(data[[12]], lines=FALSE) # 0E plot #HH NB - PAST COHORTS
+plot_leaflet(data[[1]], lines=FALSE) #code update - now "plot_leaflet" not "plot_leaflet_dev"
+plot_leaflet(data[[3]], lines=FALSE)
+plot_leaflet(data[[4]], lines=FALSE)
+plot_leaflet(data[[5]], lines=FALSE)
+plot_leaflet(data[[6]], lines=FALSE)
+
+plot_leaflet(data[[7]], lines=FALSE)
+plot_leaflet(data[[8]], lines=FALSE)
+plot_leaflet(data[[9]], lines=FALSE)
+plot_leaflet(data[[10]], lines=FALSE)
+plot_leaflet(data[[11]], lines=FALSE)
+plot_leaflet(data[[12]], lines=FALSE)
+plot_leaflet(data[[2]], lines=FALSE)
+
+#plot_leaflet(data[[9]], lines=FALSE) 
 
 
 
 # Interactive plot with tide data for output
-data_tide<-TrackStack2Track(data[["5 End of December"]])
+data_tide<-TrackStack2Track(data[[1]])
+data_tide<-TrackStack2Track(data[[3]])
+data_tide<-TrackStack2Track(data[[4]])
+data_tide<-TrackStack2Track(data[[5]])
+data_tide<-TrackStack2Track(data[[6]])
+
+data_tide<-TrackStack2Track(data[[7]]) # no data
+data_tide<-TrackStack2Track(data[[8]]) # no data
+data_tide<-TrackStack2Track(data[[9]]) # no data
+data_tide<-TrackStack2Track(data[[10]])
+data_tide<-TrackStack2Track(data[[11]])
+data_tide<-TrackStack2Track(data[[12]])
+data_tide<-TrackStack2Track(data[[2]])
+
+
+
 data_tide<-data_tide %>% filter(tide!="NA")
 data_tide$Tide<-as.character(fct_recode(data_tide$tide, "High tide" = "HW", "Low tide" = "LW") )
 plot_leaflet(data_tide, plotby="Tide", lines=FALSE, col=c("#31688EFF","#35B779FF")) #code update - now "plot_leaflet" not "plot_leaflet_dev"
@@ -592,6 +691,8 @@ plot_leaflet(data_tide, plotby="Tide", lines=FALSE, col=c("#31688EFF","#35B779FF
 
 #### TIME IN AREA -- AREA USE UTILISATION DISTRIBUTIONS
 library(sf)
+library(tidyterra)
+library(ggplot2)
 
 # Set arbitrary 'Colony' location to facilitate later functions. Using central Snettisham location here
 # but not used to define trips away from central place for Curlew
@@ -611,7 +712,21 @@ ukmap <- sf::st_transform(ukmap, crs = st_crs(p4))
 
 
 # Set time period         ##### UPDATE MANUALLY
-tia_dat<-data[["all"]]
+#tia_dat<-data[["all"]]
+
+tia_dat<-data[[1]]
+tia_dat<-data[[3]]
+tia_dat<-data[[4]]
+tia_dat<-data[[5]]
+tia_dat<-data[[6]]
+
+tia_dat<-data[[7]]
+tia_dat<-data[[8]]
+tia_dat<-data[[9]]
+tia_dat<-data[[10]]
+tia_dat<-data[[11]]
+tia_dat<-data[[12]]
+tia_dat<-data[[2]]
 
 
 
@@ -658,17 +773,17 @@ lab_lat<-seq(new_lat_lower, new_lat_upper,length.out=length(seq(min(yRa), max(yR
 
 # Set directory (outside of Github here)
 #dir<-"C:/Users/gary.clewley/Desktop/BTO - GDC/2019- Wetland and Marine Team/_NE103 -- Headstarted Curlew tracking/Outputs/"
-dir <- setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting") #HH laptop directory
-plot.name<-"NE103_Headstart CURLE_all data 2022_TIA.tiff"
+dir <- setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/") #HH laptop directory
+plot.name<-"NE103_Headstart CURLEW_TIA_TRIAL.tiff"
 
-plot.name<-"NE103_Headstart CURLE_all data 2023_TIA.tiff"
+
 
 # Set plot device (saving hi-res base R maps)
 tiff(paste0(dir,plot.name), width=25, height=23, units="cm", pointsize=18, res=600, compression ="lzw")
 
 #HH NB: updated as sp package was discontinued. terra used now according to plot_TIA
   #removed: 
-terra::plot(ukmap$geometry,xlim=xRa, ylim=yRa,col="grey80",border="grey80", axes=T, yaxt="n",  #need to specify here ukmap$geometry
+terra::plot(ukmap$geometry, xlim=xRa, ylim=yRa,col="grey80",border="grey80", axes=T, yaxt="n",  #need to specify here ukmap$geometry
          xaxt="n", xlab="Longitude", ylab="Latitude",
          main="July-December 2022")# UPDATE MANUALLY                     
 
@@ -678,18 +793,22 @@ axis(2, at=seq(min(yRa), max(yRa),by=5000), labels=round(lab_lat,2))
 
 #HH NB had error for this plot about memory. BUT needed to specify the ukmap$geometry in the terra::plot above and now it works
 # UPDATE INDIVIDUAL BETWEEN PLOTS
-plot_TIA(data=grd_rank_all,Add=TRUE,                    # UPDATE ID SELECTION. 
+plot_TIA(data=grd_rank_all,Add=TRUE,                    # UPDATE ID SELECTION. grd_rank_birds OR grd_rank_all ??
          xra=xRa, yra=yRa,
          g_levs = c(1,0.95,0.75,0.5),
          c_levs = c(0.95,0.75,0.5),
-         col_ramp_grd =c("#440154FF", "#31688EFF", "#35B779FF", "#FDE725FF"),
-         col_ramp_con =c("#31688EFF", "#35B779FF", "#FDE725FF"),
+         #col_ramp_grd =c("#440154FF", "#31688EFF", "#35B779FF", "#FDE725FF"),
+         #col_ramp_con =c("#31688EFF", "#35B779FF", "#FDE725FF"),
          cont_typ=4) # if this is 4 you can plot it outside the function and it returns an object in R
 
 
 dev.off()
 
 
+ggplot() +
+  geom_spatraster(data=TIA) +
+  facet_wrap(~lyr, ncol=4) +
+  scale_fill_whitebox_c(palette = "muted") 
 
 
 
@@ -721,7 +840,19 @@ landuse <- raster::projectRaster(landuse, crs =("+proj=tmerc +lat_0=49 +lon_0=-2
 # Unlist and SET TIME PERIOD
 trk_dat<-TrackStack2Track(data[["all"]]) # Redo manually for all time periods
 
+trk_dat<-TrackStack2Track(data[[1]])
+trk_dat<-TrackStack2Track(data[[3]])
+trk_dat<-TrackStack2Track(data[[4]])
+trk_dat<-TrackStack2Track(data[[5]])
+trk_dat<-TrackStack2Track(data[[6]])
 
+trk_dat<-TrackStack2Track(data[[7]])
+trk_dat<-TrackStack2Track(data[[8]])
+trk_dat<-TrackStack2Track(data[[9]])
+trk_dat<-TrackStack2Track(data[[10]])
+trk_dat<-TrackStack2Track(data[[11]])
+trk_dat<-TrackStack2Track(data[[12]])
+trk_dat<-TrackStack2Track(data[[2]])
 
 
 
@@ -857,7 +988,7 @@ load("NE103_2022 report_RSF_data_0E_22.RData")
 ## Available/Used Plot 
 na.omit(rsfdat_all) %>% #filter(id=="Yf(0E)O/-:Y/m") %>%	                          	# Update period or ID
   ggplot(.,  aes(x=layer,group=used))                                       +	      # select data and variables - using na.omit() here to exclude random points offshore outside LCM area. HH NB - LCM = layer in 2022 and 2023 LCM data so need to change this to layer
-  geom_bar(position=position_dodge(), aes(y=..prop.., fill = used),
+  geom_bar(position=position_dodge(), aes(y=after_stat(prop), fill = used),
            stat="count", colour="black")                                +       # select barplot of proportions presented side by side with black outline
   scale_fill_manual(values=c("grey70", "grey20"))                       + 		  # define colours, plenty of good built in palettes if colour can be used
   labs(y = "Proportion of fixes\n", fill="used", x="\nHabitat")         + 			# labels, \n indicates space between line and text
