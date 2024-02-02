@@ -464,10 +464,13 @@ summary(data_tt_21_22_F$DateTime[data_tt_21_22_F$Period=="8a Female Breeding Sea
 
 #Subset based on the different categories in period
 Data_W_PreB_F <- data_tt_21_22_F %>% filter(data_tt_21_22_F$Period == "6 Winter pre-breeding")
+Data_W_PreB_F <- Data_W_PreB_F %>% filter(Data_W_PreB_F$TagID != "Yf(0E)O/-:Y/m") %>% droplevels() #removed because battery must have not charged enough to record during winter? Bird from 2021
 summary(as.factor(Data_W_PreB_F$Period))
+summary(as.factor(Data_W_PreB_F$TagID))
 
 Data_SF_F <- data_tt_21_22_F %>% filter(data_tt_21_22_F$Period == "7 Spring fuzzy")
 summary(as.factor(Data_SF_F$Period))
+summary(as.factor(Data_SF_F$TagID))
 
 Data_Breed_F <- data_tt_21_22_F %>% filter(data_tt_21_22_F$Period == "8a Female Breeding Season")
 summary(as.factor(Data_Breed_F$Period))
@@ -527,14 +530,23 @@ summary(as.factor(Data_W_AfterB_M$TagID))
 Data_W_PreB <- rbind(Data_W_PreB_M,Data_W_PreB_F)
 summary(Data_W_PreB$DateTime)
 
+summary(as.factor(Data_W_PreB$TagID))
+
 Data_SF <- rbind(Data_SF_M,Data_SF_F)
 summary(Data_SF$DateTime)
-
+summary(as.factor(Data_SF$TagID))
 
 #Data_Breed_M, Data_Breed_F,Data_AF_M ,Data_AF_F
 
+summary(as.factor(Data_Breed_M$TagID))
+summary(as.factor(Data_Breed_F$TagID))
+summary(as.factor(Data_AF_M$TagID))
+summary(as.factor(Data_AF_F$TagID))
+
 Data_W_AfterB <- rbind(Data_W_AfterB_M, Data_W_AfterB_F)
 summary(Data_W_AfterB$DateTime)
+summary(as.factor(Data_W_AfterB$TagID))
+
 
 #data for previous cohorts still recording in 2023 #####
 data_21_22cohort <- Track2TrackMultiStack(rbind(Data_W_PreB, Data_SF, Data_Breed_M, Data_Breed_F, Data_AF_M, Data_AF_F, Data_W_AfterB), by=c("TagID", "Period"))
@@ -653,6 +665,12 @@ load("NE103_2023 report_clean tracking data for all 2023 data.RData")
 
 #Analysis begins#####
 
+#If need the clean but raw data per row can read in this data:
+#data <- readRDS(here("data/data_withcohorts_release_sites.rds"))
+
+#summary(data)
+
+
 #read in the meta data just in case useful:
 dt_meta_gsp_TagID <- read.csv(here("data/metadata_TagID.csv"), header=T)
 
@@ -689,10 +707,6 @@ datasplit <- c("1 One Day" ,"2 One Week" ,"3 Two Weeks" , "4 Six Weeks" ,"5 End 
 
 #### TIME IN AREA ####
 # Using BTOTT::
-groupColours <- colorFactor(palette = "viridis", domain = DATAFRAME$name)
-addPoints(data=d, color=~groupColours(DATAFRAME$name), opacity = 1, fillOpacity = 0.5, 
-            popup = paste("Curlew:", DATAFRAME$name, "<br/>","Area:", round(d$area,2),"km2") )
-addLegend(pal = groupColours, values = ~DATAFRAME$name, position = "bottomleft", title="KDE displayed")
 
 #extract vidiridis for 18 - max number of different birds 
 scales::viridis_pal()(18) # "#440154FF" "#481769FF" "#472A7AFF" "#433D84FF" "#3D4E8AFF" "#355E8DFF" 
@@ -767,7 +781,7 @@ library(sf)
 library(tidyterra)
 library(ggplot2)
 
-# Set arbitrary 'Colony' location to facilitate later functions. Using central Snettisham location here
+# Set arbitrary 'Colony' location to facilitate later functions. Using central Snettisham location here (HH NB Wild Ken Hill release pen 1 site)
 # but not used to define trips away from central place for Curlew
 ColLon = 0.50
 ColLat = 52.87
@@ -795,7 +809,7 @@ tia_dat<-data[[5]]
 tia_dat<-data[[6]]
 
 tia_dat<-data[[7]]
-tia_dat<-data[[8]]
+tia_dat<-data[[8]] #error in .local cannot derive cooridnates from non-numeric matrix
 tia_dat<-data[[9]]
 tia_dat<-data[[10]]
 tia_dat<-data[[11]]
@@ -810,7 +824,7 @@ summary(tia_dat)
 # get bounds for the grid 
 llyrb = get_bounds(tia_dat, p4s=p4) # Defaults to UK BNG p4s = sp::CRS("+init=epsg:27700")
 
-# run TIA (trial and error on suitable cell size) # grid of cells
+# run TIA (trial and error on suitable cell size) # grid of cells. HH NB _ FYI - some of these have 'trips' removed. Chris T reckons this is because of the extra filtering and so for some points there will not be enough to do the amount of time in cell count and so they are removed
 indata_grd <- get_TIA_grd(tia_dat, xRa=llyrb$xRa, yRa=llyrb$yRa, cellsize = 500, p4s=p4) # Laptop will not process next step if smaller grid size #Gary's code = cellsize=500
 
 # rank the time cumulatively for plotting for each bird. #ranks the time spent in each cell
@@ -827,32 +841,31 @@ yRa<-c(-15000,25000)
 
 ####--- this is setting up new units to put lat long onto the map without re-projecting the data... not ideal but it's what Garry did before ... 
 # prepare new axes in lat/long - 
-#earth <- 6378.137
-#m <- (1 / ((2 * pi / 360) * earth)) /1000
+earth <- 6378.137
+m <- (1 / ((2 * pi / 360) * earth)) /1000
 
-#new_lat_lower <- round(ColLat + (min(yRa) * m),1)     ## multiply xyRa by 100 if working in p4 units km
-#new_lat_upper <- round(ColLat + (max(yRa) * m),1)
-#new_long_lower <- round(ColLon + (min(xRa) * m) / cos(ColLat * (pi / 180)),1)
-#new_long_upper <- round(ColLon + (max(xRa) * m) / cos(ColLat * (pi / 180)),1)	
+new_lat_lower <- round(ColLat + (min(yRa) * m),1)     ## multiply xyRa by 100 if working in p4 units km
+new_lat_upper <- round(ColLat + (max(yRa) * m),1)
+new_long_lower <- round(ColLon + (min(xRa) * m) / cos(ColLat * (pi / 180)),1)
+new_long_upper <- round(ColLon + (max(xRa) * m) / cos(ColLat * (pi / 180)),1)	
 
-#lab_long<-seq(new_long_lower, new_long_upper,length.out=length(seq(min(xRa), max(xRa),by=5000)))
-#lab_lat<-seq(new_lat_lower, new_lat_upper,length.out=length(seq(min(yRa), max(yRa),by=5000)))
+lab_long<-seq(new_long_lower, new_long_upper,length.out=length(seq(min(xRa), max(xRa),by=5000)))
+lab_lat<-seq(new_lat_lower, new_lat_upper,length.out=length(seq(min(yRa), max(yRa),by=5000)))
 
-####----
 
 # Get colours
 # Get hex colours from viridis (colour blind friendly)
 #scales::viridis_pal()(3)
 #   "#440154FF" "#21908CFF" "#FDE725FF"                 # For GPS plots
-#   "#440154FF" "#31688EFF" "#35B779FF" "#FDE725FF"     # For TIA plots #four categories of the Bins = cut offs of the distribution, 50%, 75%, 95%, 100%
+#   "#440154FF" "#31688EFF" "#35B779FF" "#FDE725FF"     # For TIA plots #four categories of the "Bins" = cut offs of the distribution, 50%, 75%, 95%, 100%
 
 
 
 
 # Set directory (outside of Github here)
 #dir<-"C:/Users/gary.clewley/Desktop/BTO - GDC/2019- Wetland and Marine Team/_NE103 -- Headstarted Curlew tracking/Outputs/"
-dir <- "C:/Users/hannah.hereward/Documents/Projects/2024_curlewheadstarting/curlew_headstarting/output/trial/" #HH laptop directory
-plot_name<-"NE103_Headstart CURLEW_TIA_TRIAL.tiff"
+dir <- "C:/Users/hannah.hereward/Documents/Projects/2024_curlewheadstarting/curlew_headstarting/output/Figures/" #HH laptop directory
+plot_name<-"NE103_Headstart CURLEW_TIA_2023_PREVIOUSCOHORT_10_WinterPostBreed.tiff"
 
 
 
@@ -863,11 +876,11 @@ tiff(paste0(dir,plot_name), width=25, height=23, units="cm", pointsize=18, res=6
   #removed: 
 terra::plot(ukmap$geometry, xlim=xRa, ylim=yRa,col="grey80",border="grey80", axes=T, yaxt="n",  #need to specify here ukmap$geometry
          xaxt="n", xlab="Longitude", ylab="Latitude",
-         main="July-December 2022")# UPDATE MANUALLY                     
-axis(1)
-axis(2)
-#axis(1, at=seq(min(xRa), max(xRa),by=5000), labels=round(lab_long,2)) 
-#axis(2, at=seq(min(yRa), max(yRa),by=5000), labels=round(lab_lat,2))
+         main="Winter - post-breeding")# UPDATE MANUALLY                     
+#axis(1)
+#axis(2)
+axis(1, at=seq(min(xRa), max(xRa),by=5000), labels=round(lab_long,2)) 
+axis(2, at=seq(min(yRa), max(yRa),by=5000), labels=round(lab_lat,2))
 
 
 #HH NB. had error for this plot about memory. UPDATE: needed to specify the ukmap$geometry in the terra::plot above and now it works
@@ -919,7 +932,7 @@ trk_dat<-TrackStack2Track(data[[5]])
 trk_dat<-TrackStack2Track(data[[6]])
 
 trk_dat<-TrackStack2Track(data[[7]])
-trk_dat<-TrackStack2Track(data[[8]])
+trk_dat<-TrackStack2Track(data[[8]]) 
 trk_dat<-TrackStack2Track(data[[9]])
 trk_dat<-TrackStack2Track(data[[10]])
 trk_dat<-TrackStack2Track(data[[11]])
@@ -928,8 +941,8 @@ trk_dat<-TrackStack2Track(data[[2]])
 
 
 
-# Convert to 'amt' track (using BTOTT headers) #HH NB - release col name updated - could use either release_location or release_site. Cohort col name updated - cohort_num - this could be updated depending on how many cohorts we want to use?
-trk <- make_track(trk_dat, .x = longitude, .y = latitude, .t = DateTime, id = TagID, tide = tide, release=release_site, cohort=cohort_num, speed=ground.speed, crs = "epsg:4326")
+# Convert to 'amt' track (using BTOTT headers) #HH NB - release col name updated - use release_site_final = combined Ken Hill, seperate Sandringham. Cohort col name updated - cohort_analysis - this uses the first cohorts = 1, and remaining cohorts = 2 
+trk <- make_track(trk_dat, .x = longitude, .y = latitude, .t = DateTime, id = TagID, tide = tide, release=release_site_final, cohort=cohort_analysis, speed=ground.speed, crs = "epsg:4326")
 
 
 # Transform to BNG
@@ -945,6 +958,7 @@ trk <- trk %>%
 summarize_sampling_rate_many(trk, cols="id")
 
 
+###--- HH NB didn't do this hashed out bit as hash tagged out in 2021 and 2022 
 # Standardise sampling rate 
 
 #(nesting used on NE86 not functional by ID here - need to look into new syntax - returns as NULL list)
@@ -960,6 +974,7 @@ summarize_sampling_rate_many(trk, cols="id")
 # Revert to class as lost during nesting
 #trk <- make_track(trk, .x = x_, .y = y_, .t = t_, id = id, tide = tide, release=release, cohort=cohort, speed=ground.speed, burst = burst_, crs = "epsg:4326")
 
+###---
 
 
 
@@ -1058,7 +1073,7 @@ load("NE103_2022 report_RSF_data_0E_22.RData")
 #### RSF plotting ####
 
 ## Available/Used Plot 
-na.omit(rsfdat_all) %>% #filter(id=="Yf(0E)O/-:Y/m") %>%	                          	# Update period or ID
+na.omit(rsfdat) %>% #filter(id=="Yf(0E)O/-:Y/m") %>%	                          	# Update period or ID
   ggplot(.,  aes(x=layer,group=used))                                       +	      # select data and variables - using na.omit() here to exclude random points offshore outside LCM area. HH NB - LCM = layer in 2022 and 2023 LCM data so need to change this to layer
   geom_bar(position=position_dodge(), aes(y=after_stat(prop), fill = used),
            stat="count", colour="black")                                +       # select barplot of proportions presented side by side with black outline
@@ -1071,15 +1086,15 @@ na.omit(rsfdat_all) %>% #filter(id=="Yf(0E)O/-:Y/m") %>%	                       
   scale_y_continuous(expand = expansion(mult = c(0, .1)))               +       # remove gap between bars and axis lines
   theme(axis.text.x = element_text(size = 12),axis.text.y = element_text(size = 12),
         axis.title.x = element_text(size = 14),axis.title.y = element_text(size = 14)) +
-  ggtitle("Jul-Dec 2022")       # +
+  ggtitle("One day post-release")       # +
 # facet_grid(rows=vars(tide)) # if by tide
 
 
 
 # Save plot (outside of Github)
 #setwd("C:/Users/gary.clewley/Desktop/BTO - GDC/2019- Wetland and Marine Team/_NE103 -- Headstarted Curlew tracking/Outputs/")
-setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/output")
-ggsave("NE103_Headstart CURLE_RSF plot_all data.jpg", width=15, height=15, units="cm", dpi=300)  ## UPDATE FILENAME
+setwd("C:/Users/hannah.hereward/Documents/Projects/2024_curlewheadstarting/curlew_headstarting/output/Figures/")
+ggsave("NE103_Headstart CURLE_RSF plot_1_OneDay_postrelease.jpg", width=15, height=15, units="cm", dpi=300)  ## UPDATE FILENAME
 
 
 
