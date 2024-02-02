@@ -271,9 +271,9 @@ data<- data %>% select(-!!drop_cols)
 ## Convert to BTOTT Track object
 data_tt<-Track(data) 
 data_tt<-clean_GPS(data_tt, drop_sats = 3, Thres = 30, GAP = 28800)
-#now warning messages about "flt_switch" for each bird - an error from the Track(data) function with is a BTOTT function
+#HH NB: now warning messages about "flt_switch" for each bird - an error from the Track(data) function with is a BTOTT function
   #See messages from Chris T about this but the summary is it is a flag option for clean_GPS - when importing data into movebank you can add a 
-      #column to tell you if it is dogdge data or not and then add a second column to clean it/remove it... as the dataset I am working with doesn't have this column
+      #column to tell you if it is dodgy data or not and then add a second column to clean it/remove it... as the dataset I am working with doesn't have this column
       # I can disregard this warning
 
 # Set ID factor
@@ -320,6 +320,20 @@ deadcurlew <- dt_meta_gsp_TagID[!is.na(dt_meta_gsp_TagID$daysalive),]
 deadcurlew <- deadcurlew[deadcurlew$year=="2023",]
 
 
+#save the meta data out:
+write.csv(dt_meta_gsp_TagID, here("data/metadata_TagID.csv"), row.names = F)
+
+
+#also check the last datetime of transmission
+currcohorts <- data_tt_2023 %>%
+  group_by(year, TagID, sex, release_date) %>%
+  summarize(max_date_time = max(DateTime))
+
+currcohorts$release_date <- as.POSIXct(currcohorts$release_date, format="%d/%m/%Y", tz="UTC")
+
+currcohorts$datediff <- as.POSIXct(currcohorts$max_date_time, tz="UTC") - as.POSIXct(currcohorts$release_date, format="%Y-%m-%d", tz="UTC")
+
+write.csv(currcohorts, here("data/current_cohort_maxdatetime.csv"), row.names = F)
 
 
 #THEN need to take these into account in the filtering below:
@@ -328,31 +342,61 @@ deadcurlew <- deadcurlew[deadcurlew$year=="2023",]
 data_1d <- data_tt_2023 %>% filter(data_tt_2023$Period == "1 One Day")
 data_1d <- data_1d %>% filter(data_1d$TagID != "Yf(YN)O/-:Y/m_KenHill") %>% droplevels()
 data_1d <- data_1d %>% filter(data_1d$TagID != "Yf(YU)O/-:Y/m_KenHill") %>% droplevels()
+
+summary(as.factor(data_1d$Period))
+
+data_1d$Period <- "1 One Day"
+
 summary(as.factor(data_1d$Period))
 summary(as.factor(data_1d$TagID))
 unique(data_1d$TagID) #18
 
+
 data_1w <- data_tt_2023 %>% filter(data_tt_2023$Period == "1 One Day" | data_tt_2023$Period == "2 One Week")
 data_1w <- data_1w %>% filter(data_1w$TagID != "Yf(YN)O/-:Y/m_KenHill") %>% droplevels()
 data_1w <- data_1w %>% filter(data_1w$TagID != "Yf(YU)O/-:Y/m_KenHill") %>% droplevels()
+data_1w <- data_1w %>% filter(data_1w$TagID != "Yf(XT)O/-:Y/m_KenHill") %>% droplevels()
+
+
+summary(as.factor(data_1w$Period))
+
+data_1w$Period <- "2 One Week"
+
 summary(as.factor(data_1w$Period))
 summary(as.factor(data_1w$TagID))
-unique(data_1w$TagID) #18
+unique(data_1w$TagID) #17
+
 
 data_2 <- data_tt_2023 %>% filter(data_tt_2023$Period == "1 One Day" | data_tt_2023$Period == "2 One Week" | data_tt_2023$Period == "3 Two Weeks")
 data_2 <- data_2 %>% filter(data_2$TagID != "Yf(YN)O/-:Y/m_KenHill") %>% droplevels()
 data_2 <- data_2 %>% filter(data_2$TagID != "Yf(YU)O/-:Y/m_KenHill") %>% droplevels()
 data_2 <- data_2 %>% filter(data_2$TagID != "Yf(LA)O/-:Y/m_Sandringham") %>% droplevels()
+data_2 <- data_2 %>% filter(data_2$TagID != "Yf(XT)O/-:Y/m_KenHill") %>% droplevels()
+
+
 summary(as.factor(data_2$Period))
-unique(data_2$TagID) #17
+
+data_2$Period <- "3 Two Weeks"
+
+summary(as.factor(data_2$Period))
+summary(as.factor(data_2$TagID))
+unique(data_2$TagID) #16
+
 
 data_6 <- data_tt_2023 %>% filter(data_tt_2023$Period == "1 One Day" | data_tt_2023$Period == "2 One Week" | data_tt_2023$Period == "3 Two Weeks" | data_tt_2023$Period == "4 Six Weeks")
 data_6 <- data_6 %>% filter(data_6$TagID != "Yf(YN)O/-:Y/m_KenHill") %>% droplevels()
 data_6 <- data_6 %>% filter(data_6$TagID != "Yf(YU)O/-:Y/m_KenHill") %>% droplevels()
 data_6 <- data_6 %>% filter(data_6$TagID != "Yf(LA)O/-:Y/m_Sandringham") %>% droplevels()
 data_6 <- data_6 %>% filter(data_6$TagID != "Yf(LP)O/-:Y/m_KenHill") %>% droplevels()
+data_6 <- data_6 %>% filter(data_6$TagID != "Yf(XT)O/-:Y/m_KenHill") %>% droplevels()
+
 summary(as.factor(data_6$Period))
-unique(data_6$TagID) #16
+
+data_6$Period <- "4 Six Weeks"
+
+summary(as.factor(data_6$Period))
+summary(as.factor(data_6$TagID))
+unique(data_6$TagID) #15
 
 
 data_all <- data_tt_2023 %>% filter(data_tt_2023$Period == "1 One Day" | data_tt_2023$Period == "2 One Week" | 
@@ -364,10 +408,16 @@ data_all <- data_all %>% filter(data_all$TagID != "Yf(LA)O/-:Y/m_Sandringham") %
 data_all <- data_all %>% filter(data_all$TagID != "Yf(LP)O/-:Y/m_KenHill") %>% droplevels()
 data_all <- data_all %>% filter(data_all$TagID != "Yf(YX)O/-:Y/m_Sandringham") %>% droplevels()
 data_all <- data_all %>% filter(data_all$TagID != "Yf(XU)O/-:Y/m_KenHill") %>% droplevels()
+data_all <- data_all %>% filter(data_all$TagID != "Yf(XT)O/-:Y/m_KenHill") %>% droplevels()
+
+summary(as.factor(data_all$Period))
+
+data_all$Period <- "5 End of December"
 
 summary(data_all$DateTime)
 summary(as.factor(data_all$Period))
-unique(data_all$TagID) #14
+summary(as.factor(data_all$TagID))
+unique(data_all$TagID) #13
 
 # Final merge 
 #data for the 2023 cohort #####
@@ -507,6 +557,7 @@ load("NE103_2023 report_clean tracking data for 2021 2022 cohorts.RData")
 data_2023 <- Track2TrackMultiStack(rbind(data_1d, data_1w, data_2, data_6, data_all, Data_W_PreB, Data_SF, Data_Breed_M, Data_Breed_F, Data_AF_M, Data_AF_F, Data_W_AfterB), by=c("TagID", "Period"))
 
 data_2023
+summary(data_2023)
 
 # Save
 setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/data") ##HH laptop
@@ -602,6 +653,9 @@ load("NE103_2023 report_clean tracking data for all 2023 data.RData")
 
 #Analysis begins#####
 
+#read in the meta data just in case useful:
+dt_meta_gsp_TagID <- read.csv(here("data/metadata_TagID.csv"), header=T)
+
 # Load - NB load automatically loads the data back in as the same name it was saved out as 
 setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/data") #HH laptop
 load("NE103_2023 report_clean tracking data for all 2023 data.RData")
@@ -635,13 +689,31 @@ datasplit <- c("1 One Day" ,"2 One Week" ,"3 Two Weeks" , "4 Six Weeks" ,"5 End 
 
 #### TIME IN AREA ####
 # Using BTOTT::
+groupColours <- colorFactor(palette = "viridis", domain = DATAFRAME$name)
+addPoints(data=d, color=~groupColours(DATAFRAME$name), opacity = 1, fillOpacity = 0.5, 
+            popup = paste("Curlew:", DATAFRAME$name, "<br/>","Area:", round(d$area,2),"km2") )
+addLegend(pal = groupColours, values = ~DATAFRAME$name, position = "bottomleft", title="KDE displayed")
+
+#extract vidiridis for 18 - max number of different birds 
+scales::viridis_pal()(18) # "#440154FF" "#481769FF" "#472A7AFF" "#433D84FF" "#3D4E8AFF" "#355E8DFF" 
+                                    # "#2E6D8EFF" "#297B8EFF" "#23898EFF" "#1F978BFF" "#21A585FF" "#2EB37CFF" 
+                                        # "#46C06FFF" "#65CB5EFF" "#89D548FF" "#B0DD2FFF" "#D8E219FF" "#FDE725FF"
 
 # Basic visualisation of data
-plot_leaflet(data[[1]], lines=FALSE) #code update - now "plot_leaflet" not "plot_leaflet_dev"
-plot_leaflet(data[[3]], lines=FALSE)
-plot_leaflet(data[[4]], lines=FALSE)
-plot_leaflet(data[[5]], lines=FALSE)
-plot_leaflet(data[[6]], lines=FALSE)
+plot_leaflet(data[[1]], lines=FALSE, col=c("#440154FF", "#481769FF", "#472A7AFF" ,"#433D84FF", "#3D4E8AFF", "#355E8DFF" ,
+                                            "#2E6D8EFF", "#297B8EFF" ,"#23898EFF", "#1F978BFF", "#21A585FF", "#2EB37CFF" ,
+                                            "#46C06FFF", "#65CB5EFF", "#89D548FF", "#B0DD2FFF", "#D8E219FF" ,"#FDE725FF")) #code update - now "plot_leaflet" not "plot_leaflet_dev"
+plot_leaflet(data[[3]], lines=FALSE, col=c("#440154FF", "#481769FF", "#472A7AFF" ,"#433D84FF", "#3D4E8AFF", "#355E8DFF" ,
+                                           "#2E6D8EFF", "#297B8EFF" ,"#23898EFF", "#1F978BFF", "#21A585FF", "#2EB37CFF" ,
+                                           "#46C06FFF", "#65CB5EFF", "#89D548FF", "#B0DD2FFF", "#D8E219FF" ,"#FDE725FF"))
+plot_leaflet(data[[4]], lines=FALSE, col=c("#481769FF", "#472A7AFF" ,"#433D84FF", "#3D4E8AFF", "#355E8DFF" ,
+                                           "#2E6D8EFF", "#297B8EFF" ,"#23898EFF", "#1F978BFF", "#21A585FF", "#2EB37CFF" ,
+                                           "#46C06FFF", "#65CB5EFF", "#89D548FF", "#B0DD2FFF", "#D8E219FF" ,"#FDE725FF"))
+plot_leaflet(data[[5]], lines=FALSE, col=c("#481769FF", "#433D84FF", "#3D4E8AFF", "#355E8DFF" ,
+                                           "#2E6D8EFF", "#297B8EFF" ,"#23898EFF", "#1F978BFF", "#21A585FF", "#2EB37CFF" ,
+                                           "#46C06FFF", "#65CB5EFF", "#89D548FF", "#B0DD2FFF", "#D8E219FF" ,"#FDE725FF"))
+plot_leaflet(data[[6]], lines=FALSE) 
+  
 
 plot_leaflet(data[[7]], lines=FALSE)
 plot_leaflet(data[[8]], lines=FALSE)
@@ -649,11 +721,12 @@ plot_leaflet(data[[9]], lines=FALSE)
 plot_leaflet(data[[10]], lines=FALSE)
 plot_leaflet(data[[11]], lines=FALSE)
 plot_leaflet(data[[12]], lines=FALSE)
-plot_leaflet(data[[2]], lines=FALSE)
+plot_leaflet(data[[2]], lines=FALSE, col = c("#31688EFF","#35B779FF","#31688EFF","#35B779FF","#31688EFF"))
 
 #plot_leaflet(data[[9]], lines=FALSE) 
 
-
+#use this to save out a screenshoot
+#mapview::mapshot(leaflet_map, file = paste0("./output/AnimationTests/Rplot",i,".png"))
 
 # Interactive plot with tide data for output
 data_tide<-TrackStack2Track(data[[1]])
@@ -689,7 +762,7 @@ plot_leaflet(data_tide, plotby="Tide", lines=FALSE, col=c("#31688EFF","#35B779FF
 
 
 
-#### TIME IN AREA -- AREA USE UTILISATION DISTRIBUTIONS
+#### TIME IN AREA -- AREA USE UTILISATION DISTRIBUTIONS #HH NB - this essentially creates a grided version of a KDE
 library(sf)
 library(tidyterra)
 library(ggplot2)
@@ -699,15 +772,16 @@ library(ggplot2)
 ColLon = 0.50
 ColLat = 52.87
 
-# Set projection
+# Set projection with 00 on the "colony"
 p4 <- sp::CRS(paste("+proj=laea +lon_0=", ColLon," +lat_0=", ColLat, " +units=m", sep=""))
 
-# read in simple UK shapefile map
+# read in simple UK shapefile map from btotrackingtools and re-project it
+ukmap <- BTOTrackingTools::ukmap
 ukmap <- sf::st_transform(ukmap,p4) #HH NB: ukmap is an sf not an sp. So changed code here from sp::spTransform to sf::st_transform
 
-# reproject ukmap 
+# reproject ukmap - HH NB redundant code now as reprojected in line above
 #ukmap <- project_points(ukmap, p4s = p4) #HH NB: project_points doesn't work on sf so using st_transform instead
-ukmap <- sf::st_transform(ukmap, crs = st_crs(p4))
+#ukmap <- sf::st_transform(ukmap, crs = st_crs(p4))
 
 
 
@@ -728,15 +802,18 @@ tia_dat<-data[[11]]
 tia_dat<-data[[12]]
 tia_dat<-data[[2]]
 
+summary(tia_dat)
 
-
-# get bounds
+#HH NB - these lines below then take each section of the data:
+    #and 1) find the boundary for the grid, 2) then create a grid with 500 as the cellsize, 
+          #3) calculate the amount of time each bird spends in each cell for a) whole population and b) individual birds 
+# get bounds for the grid 
 llyrb = get_bounds(tia_dat, p4s=p4) # Defaults to UK BNG p4s = sp::CRS("+init=epsg:27700")
 
-# run TIA (trial and error on suitable cell size)
+# run TIA (trial and error on suitable cell size) # grid of cells
 indata_grd <- get_TIA_grd(tia_dat, xRa=llyrb$xRa, yRa=llyrb$yRa, cellsize = 500, p4s=p4) # Laptop will not process next step if smaller grid size #Gary's code = cellsize=500
 
-# rank the time cumulatively for plotting for each bird. 
+# rank the time cumulatively for plotting for each bird. #ranks the time spent in each cell
 grd_rank_all<- rank_time(indata_grd, population = TRUE) # Population level
 grd_rank_birds<- rank_time(indata_grd, population = FALSE) # Individual level
 
@@ -744,72 +821,67 @@ grd_rank_birds<- rank_time(indata_grd, population = FALSE) # Individual level
 
 # PLOTTING 
 
-# Set axes limit (units m here) - trial and error to set suitable bounds
+# Set axes limit (units m here) - trial and error to set suitable bounds. centered on the colony. units m
 xRa<-c(-35000,28000)
 yRa<-c(-15000,25000)
 
-# prepare new axes in lat/long
-earth <- 6378.137
-m <- (1 / ((2 * pi / 360) * earth)) /1000
+####--- this is setting up new units to put lat long onto the map without re-projecting the data... not ideal but it's what Garry did before ... 
+# prepare new axes in lat/long - 
+#earth <- 6378.137
+#m <- (1 / ((2 * pi / 360) * earth)) /1000
 
-new_lat_lower <- round(ColLat + (min(yRa) * m),1)     ## multiply xyRa by 100 if working in p4 units km
-new_lat_upper <- round(ColLat + (max(yRa) * m),1)
-new_long_lower <- round(ColLon + (min(xRa) * m) / cos(ColLat * (pi / 180)),1)
-new_long_upper <- round(ColLon + (max(xRa) * m) / cos(ColLat * (pi / 180)),1)	
+#new_lat_lower <- round(ColLat + (min(yRa) * m),1)     ## multiply xyRa by 100 if working in p4 units km
+#new_lat_upper <- round(ColLat + (max(yRa) * m),1)
+#new_long_lower <- round(ColLon + (min(xRa) * m) / cos(ColLat * (pi / 180)),1)
+#new_long_upper <- round(ColLon + (max(xRa) * m) / cos(ColLat * (pi / 180)),1)	
 
-lab_long<-seq(new_long_lower, new_long_upper,length.out=length(seq(min(xRa), max(xRa),by=5000)))
-lab_lat<-seq(new_lat_lower, new_lat_upper,length.out=length(seq(min(yRa), max(yRa),by=5000)))
+#lab_long<-seq(new_long_lower, new_long_upper,length.out=length(seq(min(xRa), max(xRa),by=5000)))
+#lab_lat<-seq(new_lat_lower, new_lat_upper,length.out=length(seq(min(yRa), max(yRa),by=5000)))
 
-
+####----
 
 # Get colours
 # Get hex colours from viridis (colour blind friendly)
 #scales::viridis_pal()(3)
 #   "#440154FF" "#21908CFF" "#FDE725FF"                 # For GPS plots
-#   "#440154FF" "#31688EFF" "#35B779FF" "#FDE725FF"     # For TIA plots
+#   "#440154FF" "#31688EFF" "#35B779FF" "#FDE725FF"     # For TIA plots #four categories of the Bins = cut offs of the distribution, 50%, 75%, 95%, 100%
 
 
 
 
 # Set directory (outside of Github here)
 #dir<-"C:/Users/gary.clewley/Desktop/BTO - GDC/2019- Wetland and Marine Team/_NE103 -- Headstarted Curlew tracking/Outputs/"
-dir <- setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/") #HH laptop directory
-plot.name<-"NE103_Headstart CURLEW_TIA_TRIAL.tiff"
+dir <- "C:/Users/hannah.hereward/Documents/Projects/2024_curlewheadstarting/curlew_headstarting/output/trial/" #HH laptop directory
+plot_name<-"NE103_Headstart CURLEW_TIA_TRIAL.tiff"
 
 
 
 # Set plot device (saving hi-res base R maps)
-tiff(paste0(dir,plot.name), width=25, height=23, units="cm", pointsize=18, res=600, compression ="lzw")
+tiff(paste0(dir,plot_name), width=25, height=23, units="cm", pointsize=18, res=600, compression ="lzw")
 
 #HH NB: updated as sp package was discontinued. terra used now according to plot_TIA
   #removed: 
 terra::plot(ukmap$geometry, xlim=xRa, ylim=yRa,col="grey80",border="grey80", axes=T, yaxt="n",  #need to specify here ukmap$geometry
          xaxt="n", xlab="Longitude", ylab="Latitude",
          main="July-December 2022")# UPDATE MANUALLY                     
+axis(1)
+axis(2)
+#axis(1, at=seq(min(xRa), max(xRa),by=5000), labels=round(lab_long,2)) 
+#axis(2, at=seq(min(yRa), max(yRa),by=5000), labels=round(lab_lat,2))
 
-axis(1, at=seq(min(xRa), max(xRa),by=5000), labels=round(lab_long,2)) 
-axis(2, at=seq(min(yRa), max(yRa),by=5000), labels=round(lab_lat,2))
 
-
-#HH NB had error for this plot about memory. BUT needed to specify the ukmap$geometry in the terra::plot above and now it works
+#HH NB. had error for this plot about memory. UPDATE: needed to specify the ukmap$geometry in the terra::plot above and now it works
 # UPDATE INDIVIDUAL BETWEEN PLOTS
 plot_TIA(data=grd_rank_all,Add=TRUE,                    # UPDATE ID SELECTION. grd_rank_birds OR grd_rank_all ??
          xra=xRa, yra=yRa,
          g_levs = c(1,0.95,0.75,0.5),
          c_levs = c(0.95,0.75,0.5),
-         #col_ramp_grd =c("#440154FF", "#31688EFF", "#35B779FF", "#FDE725FF"),
-         #col_ramp_con =c("#31688EFF", "#35B779FF", "#FDE725FF"),
-         cont_typ=4) # if this is 4 you can plot it outside the function and it returns an object in R
+         col_ramp_grd =c("#440154FF", "#31688EFF", "#35B779FF", "#FDE725FF"), #TIA colours for the 50%, 75%, 95% and 100%
+         #col_ramp_con =c("#31688EFF", "#35B779FF", "#FDE725FF"), #colours for the countour lines rather than grided 
+         cont_typ=1) # if this is 4 you can plot it outside the function and it returns an object in R 
 
-
+#HH NB. dev.off needs running to 'close' the tiff and save it - without running this bit it won't save !
 dev.off()
-
-
-ggplot() +
-  geom_spatraster(data=TIA) +
-  facet_wrap(~lyr, ncol=4) +
-  scale_fill_whitebox_c(palette = "muted") 
-
 
 
 
