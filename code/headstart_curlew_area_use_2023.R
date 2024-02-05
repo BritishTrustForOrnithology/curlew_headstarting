@@ -714,36 +714,43 @@ scales::viridis_pal()(18) # "#440154FF" "#481769FF" "#472A7AFF" "#433D84FF" "#3D
                                         # "#46C06FFF" "#65CB5EFF" "#89D548FF" "#B0DD2FFF" "#D8E219FF" "#FDE725FF"
 
 # Basic visualisation of data
-plot_leaflet(data[[1]], lines=FALSE, col=c("#440154FF", "#481769FF", "#472A7AFF" ,"#433D84FF", "#3D4E8AFF", "#355E8DFF" ,
+BTOTrackingTools::plot_leaflet(data[[1]], lines=FALSE, col=c("#440154FF", "#481769FF", "#472A7AFF" ,"#433D84FF", "#3D4E8AFF", "#355E8DFF" ,
                                             "#2E6D8EFF", "#297B8EFF" ,"#23898EFF", "#1F978BFF", "#21A585FF", "#2EB37CFF" ,
                                             "#46C06FFF", "#65CB5EFF", "#89D548FF", "#B0DD2FFF", "#D8E219FF" ,"#FDE725FF")) #code update - now "plot_leaflet" not "plot_leaflet_dev"
 plot_leaflet(data[[3]], lines=FALSE, col=c("#440154FF", "#481769FF", "#472A7AFF" ,"#433D84FF", "#3D4E8AFF", "#355E8DFF" ,
-                                           "#2E6D8EFF", "#297B8EFF" ,"#23898EFF", "#1F978BFF", "#21A585FF", "#2EB37CFF" ,
+                                           "#2E6D8EFF", "#297B8EFF" ,"#23898EFF", "#1F978BFF", "#21A585FF" ,
                                            "#46C06FFF", "#65CB5EFF", "#89D548FF", "#B0DD2FFF", "#D8E219FF" ,"#FDE725FF"))
 plot_leaflet(data[[4]], lines=FALSE, col=c("#481769FF", "#472A7AFF" ,"#433D84FF", "#3D4E8AFF", "#355E8DFF" ,
-                                           "#2E6D8EFF", "#297B8EFF" ,"#23898EFF", "#1F978BFF", "#21A585FF", "#2EB37CFF" ,
+                                           "#2E6D8EFF", "#297B8EFF" ,"#23898EFF", "#1F978BFF", "#21A585FF",  
                                            "#46C06FFF", "#65CB5EFF", "#89D548FF", "#B0DD2FFF", "#D8E219FF" ,"#FDE725FF"))
 plot_leaflet(data[[5]], lines=FALSE, col=c("#481769FF", "#433D84FF", "#3D4E8AFF", "#355E8DFF" ,
-                                           "#2E6D8EFF", "#297B8EFF" ,"#23898EFF", "#1F978BFF", "#21A585FF", "#2EB37CFF" ,
+                                           "#2E6D8EFF", "#297B8EFF" ,"#23898EFF", "#1F978BFF", "#21A585FF", 
                                            "#46C06FFF", "#65CB5EFF", "#89D548FF", "#B0DD2FFF", "#D8E219FF" ,"#FDE725FF"))
-plot_leaflet(data[[6]], lines=FALSE) 
+plot_leaflet(data[[6]], lines=FALSE, col=c("#481769FF", "#433D84FF", "#3D4E8AFF", "#355E8DFF" ,
+                                           "#2E6D8EFF", "#297B8EFF" ,"#23898EFF", "#1F978BFF", "#21A585FF", 
+                                           "#65CB5EFF", "#89D548FF", "#B0DD2FFF", "#D8E219FF" )) 
   
 
-plot_leaflet(data[[7]], lines=FALSE)
-plot_leaflet(data[[8]], lines=FALSE)
-plot_leaflet(data[[9]], lines=FALSE)
-plot_leaflet(data[[10]], lines=FALSE)
-plot_leaflet(data[[11]], lines=FALSE)
-plot_leaflet(data[[12]], lines=FALSE)
-plot_leaflet(data[[2]], lines=FALSE, col = c("#31688EFF","#35B779FF","#31688EFF","#35B779FF","#31688EFF"))
+scales::viridis_pal()(8) #"#440154FF" "#46337EFF" "#365C8DFF" "#277F8EFF" "#1FA187FF" "#4AC16DFF" "#9FDA3AFF" "#FDE725FF"
+scales::viridis_pal()(4) #"#440154FF" "#31688EFF" "#35B779FF" "#FDE725FF"
+scales::viridis_pal()(3) #"#440154FF" ,"#21908CFF" ,"#FDE725FF"
+scales::viridis_pal()(5) # "#440154FF", "#3B528BFF", "#21908CFF" ,"#5DC863FF", "#FDE725FF"
+
+plot_leaflet(data[[7]], lines=FALSE, col=c("#440154FF", "#46337EFF", "#365C8DFF" ,"#277F8EFF", "#1FA187FF", "#4AC16DFF" ,"#9FDA3AFF" ))
+plot_leaflet(data[[8]], lines=FALSE, col=c("#440154FF", "#46337EFF", "#365C8DFF" ,"#277F8EFF", "#1FA187FF", "#4AC16DFF" ,"#9FDA3AFF", "#FDE725FF"))
+plot_leaflet(data[[9]], lines=FALSE, col=c("#440154FF", "#31688EFF" ,"#35B779FF", "#FDE725FF"))
+plot_leaflet(data[[10]], lines=FALSE, col=c("#440154FF", "#31688EFF" ,"#35B779FF", "#FDE725FF"))
+plot_leaflet(data[[11]], lines=FALSE, col=c("#440154FF" ,"#21908CFF" ,"#FDE725FF"))
+plot_leaflet(data[[12]], lines=FALSE, col=c("#440154FF" ,"#21908CFF" ,"#FDE725FF"))
+plot_leaflet(data[[2]], lines=FALSE, col = c("#440154FF", "#3B528BFF", "#21908CFF" ,"#5DC863FF", "#FDE725FF"))
 
 #plot_leaflet(data[[9]], lines=FALSE) 
 
-#use this to save out a screenshoot
+#use this to save out a screenshoot - HH NB this is code from KMB, HH hasn't tried it but Chris T reckons it could work
 #mapview::mapshot(leaflet_map, file = paste0("./output/AnimationTests/Rplot",i,".png"))
 
 # Interactive plot with tide data for output
-data_tide<-TrackStack2Track(data[[1]])
+data_tide<-BTOTrackingTools::TrackStack2Track(data[[1]])
 data_tide<-TrackStack2Track(data[[3]])
 data_tide<-TrackStack2Track(data[[4]])
 data_tide<-TrackStack2Track(data[[5]])
@@ -764,6 +771,19 @@ data_tide$Tide<-as.character(fct_recode(data_tide$tide, "High tide" = "HW", "Low
 plot_leaflet(data_tide, plotby="Tide", lines=FALSE, col=c("#31688EFF","#35B779FF")) #code update - now "plot_leaflet" not "plot_leaflet_dev"
 
 
+
+#HH addition - save per release site for 1wk post release
+
+data_site <- TrackStack2Track(data[[3]])
+  
+data_site_ken <- data_site %>% filter(data_site$release_site_final=="Ken Hill")
+unique(data_site_ken$TagID) #8
+plot_leaflet(data_site_ken, lines=FALSE, col=c("#440154FF", "#46337EFF", "#365C8DFF" ,"#277F8EFF", "#1FA187FF", "#4AC16DFF" ,"#9FDA3AFF", "#FDE725FF"))
+
+data_site_san <- data_site %>% filter(data_site$release_site_final=="Sandringham 2")
+unique(data_site_san$TagID) #6
+scales::viridis_pal()(9) # "#440154FF" "#472D7BFF" "#3B528BFF" "#2C728EFF" "#21908CFF" "#27AD81FF" "#5DC863FF" "#AADC32FF" "#FDE725FF"
+plot_leaflet(data_site_san, lines=FALSE, col=c("#440154FF", "#472D7BFF", "#3B528BFF", "#2C728EFF", "#21908CFF" ,"#27AD81FF" ,"#5DC863FF", "#AADC32FF" ,"#FDE725FF"))
 
 
 
@@ -809,7 +829,7 @@ tia_dat<-data[[5]]
 tia_dat<-data[[6]]
 
 tia_dat<-data[[7]]
-tia_dat<-data[[8]] #error in .local cannot derive cooridnates from non-numeric matrix
+tia_dat<-data[[8]] #error in .local cannot derive coordinates from non-numeric matrix error only for "Yf(0E)O/-:Y/m" and there are only 2 GPS fixes so that is likely to be the issue
 tia_dat<-data[[9]]
 tia_dat<-data[[10]]
 tia_dat<-data[[11]]
@@ -833,7 +853,7 @@ grd_rank_birds<- rank_time(indata_grd, population = FALSE) # Individual level
 
 
 
-# PLOTTING 
+# PLOTTING  ##HH  NB - Utilisation Distribution TIA plots ####
 
 # Set axes limit (units m here) - trial and error to set suitable bounds. centered on the colony. units m
 xRa<-c(-35000,28000)
@@ -900,6 +920,7 @@ dev.off()
 
 
 
+##HH NB add in here a plot for other parts of the UK??####
 
 
 
@@ -916,14 +937,16 @@ library(amt)
 
 ## Load Land Cover Map 2021 25m Raster
 landuse <- raster::raster(here("data","NE103_LCM2021","LCM.tif"))
-landuse <- raster::projectRaster(landuse, crs =("+proj=tmerc +lat_0=49 +lon_0=-2 +k=0.9996012717 +x_0=400000 +y_0=-100000 +ellps=airy +datum=OSGB36 +units=m +no_defs"), method = "ngb") # method nearest neighbour for categorical raster values (opposed to bilinear interpolation)
+#landuse <- terra::rast(here("data","NE103_LCM2021","LCM.tif")) #terra might be needed if raster package 
+#HH NB - landuse already in the same projection as in line below so can hash tag out this line
+#landuse <- raster::projectRaster(landuse, crs =("+proj=tmerc +lat_0=49 +lon_0=-2 +k=0.9996012717 +x_0=400000 +y_0=-100000 +ellps=airy +datum=OSGB36 +units=m +no_defs"), method = "ngb") # method nearest neighbour for categorical raster values (opposed to bilinear interpolation)
 
 
 
 
 ## ## ## ## ## ## ##
 # Unlist and SET TIME PERIOD
-trk_dat<-TrackStack2Track(data[["all"]]) # Redo manually for all time periods
+#trk_dat<-TrackStack2Track(data[["all"]]) # Redo manually for all time periods
 
 trk_dat<-TrackStack2Track(data[[1]])
 trk_dat<-TrackStack2Track(data[[3]])
@@ -932,7 +955,7 @@ trk_dat<-TrackStack2Track(data[[5]])
 trk_dat<-TrackStack2Track(data[[6]])
 
 trk_dat<-TrackStack2Track(data[[7]])
-trk_dat<-TrackStack2Track(data[[8]]) 
+trk_dat<-TrackStack2Track(data[[8]])  # Yf(0E)O/-:Y/m only has two fixes in this time period and so is removed for this part of the analysis
 trk_dat<-TrackStack2Track(data[[9]])
 trk_dat<-TrackStack2Track(data[[10]])
 trk_dat<-TrackStack2Track(data[[11]])
@@ -940,6 +963,8 @@ trk_dat<-TrackStack2Track(data[[12]])
 trk_dat<-TrackStack2Track(data[[2]])
 
 
+#HH NB added in this code to 'droplevels' of the non-relevant TagID per time period
+trk_dat<- trk_dat %>% droplevels()
 
 # Convert to 'amt' track (using BTOTT headers) #HH NB - release col name updated - use release_site_final = combined Ken Hill, seperate Sandringham. Cohort col name updated - cohort_analysis - this uses the first cohorts = 1, and remaining cohorts = 2 
 trk <- make_track(trk_dat, .x = longitude, .y = latitude, .t = DateTime, id = TagID, tide = tide, release=release_site_final, cohort=cohort_analysis, speed=ground.speed, crs = "epsg:4326")
@@ -952,6 +977,11 @@ trk <- transform_coords(trk, "+proj=tmerc +lat_0=49 +lon_0=-2 +k=0.9996012717 +x
 # Extract LCM variables
 trk <- trk %>% 
   extract_covariates(landuse)
+
+#HH NB ADDED IN A FILTER HERE to remove NAs (equates to marine and non-UK fixes) SO THAT THE RANDOM POINTS (further down) ARE ONLY GENERATED IN THE UK. Therefore, this code is filtering the LCM results in trk to remove all NAs.
+    #NOTE this will remove some 'at sea' around the UK NAs as well as non-UK fixes 
+trk <- trk %>% 
+  filter(!is.na(layer))
 
 
 # Check sampling rate
@@ -985,6 +1015,10 @@ trk<-trk %>% filter(speed<4)
 
 # Create random points for each individual (As above nesting issue)
 
+#HH NB - for Yf(0E)O/-:Y/m only has two fixes in this time period and so is removed for this part of the analysis
+#ONLY USE THIS CODE FOR '8' = Spring Transition:  trk <- trk %>% filter(trk$id!= "Yf(0E)O/-:Y/m")
+
+
 avail.pts <- trk %>%  nest(data=-c("id", "tide", "cohort", "release")) %>% 
   mutate(rnd_pts = map(data, ~ random_points(., factor = 20, type="random"))) %>% 	
   select(id, tide,cohort,release, rnd_pts) %>%  # you don't want to have the original point twice, hence drop data
@@ -1005,7 +1039,7 @@ avail.pts$used<-as.factor(avail.pts$case_)
 avail.pts$used<-fct_recode(avail.pts$used, "Available" = "FALSE", "Used" = "TRUE")
 
 
-# Tidy LCM variable  # variable name 'layer' with new landuse data for 2022
+# Tidy LCM variable  # variable name 'layer' with new landuse data for 2022. HH NB - note that this produces warning messages presumably because some of the habitat numbers don't feature in each extraction
 rsfdat <- avail.pts %>%  mutate(
   layer = as.character(layer), 
   layer = fct_collapse(layer,
@@ -1039,38 +1073,67 @@ rsfdat$Other <- ifelse(rsfdat$layer == "Other", 1, 0)
 
 
 
-
-#HH NB - MISSING CODE HERE TO EXPORT EACH RSF?? 
 #rename the RSF files based on the timeframe - 1wk,2wks,6wks,all Jul-Dec
-rsfdat_all <- rsfdat
+#HH NB - some of the categories will have NAs some of these are because they are too far out into the sea for the LCM map to categories them BUT others are outside of the UK and therefore outside of the UK LCM!
+rsfdat
 
+#List in order of the data held in the data_2023 list
+#1= "1 One Day" 
+#3= "2 One Week" 
+#4= "3 Two Weeks" 
+#5= "4 Six Weeks" 
+#6= "5 End of December" 
+#7= "6 Winter pre-breeding" 
+#8= "7 Spring fuzzy" 
+#9= "8a Female Breeding Season" 
+#10= "8b Male Breeding Season" 
+#11= "9a Female Autumn fuzzy" 
+#12= "9b Male Autumn fuzzy" 
+#2="10 End of December - Winter" 
 
 # Save rsfdat for each time period
-setwd("C:/Users/gary.clewley/Desktop/BTO - GDC/2019- Wetland and Marine Team/_NE103 -- Headstarted Curlew tracking/Data/")
-save(rsfdat_all, file="NE103_2022 report_RSF_data_all.RData")
-save(rsfdat_6, file="NE103_2022 report_RSF_data_six weeks.RData")
-save(rsfdat_2, file="NE103_2022 report_RSF_data_two weeks.RData")
-save(rsfdat_1, file="NE103_2022 report_RSF_data_one week.RData")
-save(rsfdat_0E_22, file="NE103_2022 report_RSF_data_0E_22.RData")
+#setwd("C:/Users/gary.clewley/Desktop/BTO - GDC/2019- Wetland and Marine Team/_NE103 -- Headstarted Curlew tracking/Data/")
+setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/data/") #HH laptop
 
+save(rsfdat, file="NE103_2022 report_RSF_data_cohort2023_OneDay.RData") #1
+save(rsfdat, file="NE103_2022 report_RSF_data_cohort2023_OneWeek.RData") #3
+save(rsfdat, file="NE103_2022 report_RSF_data_cohort2023_TwoWeeks.RData") #4
+save(rsfdat, file="NE103_2022 report_RSF_data_cohort2023_SixWeeks.RData") #5
+save(rsfdat, file="NE103_2022 report_RSF_data_cohort2023_July_Dec2023.RData") #6
+
+save(rsfdat, file="NE103_2022 report_RSF_data_cohort2122_Winter_PreBreed.RData") #7
+save(rsfdat, file="NE103_2022 report_RSF_data_data_cohort2122_Spring_T.RData") #8
+save(rsfdat, file="NE103_2022 report_RSF_data_cohort2122_Breeding_F.RData") #9
+save(rsfdat, file="NE103_2022 report_RSF_data_cohort2122_Breeding_M.RData") #10
+save(rsfdat, file="NE103_2022 report_RSF_data_cohort2122_Autumn_T_F.RData") #11
+save(rsfdat, file="NE103_2022 report_RSF_data_cohort2122_Autumn_T_M.RData") #12
+save(rsfdat, file="NE103_2022 report_RSF_data_cohort2122_Winter_PostBreed.RData") #2
+
+
+
+
+
+
+#### RSF plotting ##HH NB - Utilisation Distribution plots, habitat avalibility ####
 
 # Load rsfdat for each time period
 #setwd("C:/Users/gary.clewley/Desktop/BTO - GDC/2019- Wetland and Marine Team/_NE103 -- Headstarted Curlew tracking/Data/")
-setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/data") #HH laptop
-load("NE103_2022 report_RSF_data_all.RData")
-load("NE103_2022 report_RSF_data_six weeks.RData")
-load("NE103_2022 report_RSF_data_two weeks.RData")
-load("NE103_2022 report_RSF_data_one week.RData")
-load("NE103_2022 report_RSF_data_0E_22.RData")
+setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/data/") #HH laptop
 
+load("NE103_2022 report_RSF_data_cohort2023_OneDay.RData")
+load("NE103_2022 report_RSF_data_cohort2023_OneWeek.RData")
+load("NE103_2022 report_RSF_data_cohort2023_TwoWeeks.RData")
+load("NE103_2022 report_RSF_data_cohort2023_SixWeeks.RData")
+load("NE103_2022 report_RSF_data_cohort2023_July_Dec2023.RData")
 
+load("NE103_2022 report_RSF_data_cohort2122_Winter_PreBreed.RData")
+load("NE103_2022 report_RSF_data_data_cohort2122_Spring_T.RData")
+load("NE103_2022 report_RSF_data_cohort2122_Breeding_F.RData")
+load("NE103_2022 report_RSF_data_cohort2122_Breeding_M.RData")
+load("NE103_2022 report_RSF_data_cohort2122_Autumn_T_F.RData")
+load("NE103_2022 report_RSF_data_cohort2122_Autumn_T_M.RData")
+load("NE103_2022 report_RSF_data_cohort2122_Winter_PostBreed.RData")
 
-
-
-
-
-
-#### RSF plotting ####
 
 ## Available/Used Plot 
 na.omit(rsfdat) %>% #filter(id=="Yf(0E)O/-:Y/m") %>%	                          	# Update period or ID
@@ -1083,10 +1146,12 @@ na.omit(rsfdat) %>% #filter(id=="Yf(0E)O/-:Y/m") %>%	                          	
   theme(legend.title=element_blank(),  																	 			  # remove legend title
         legend.position = c(0.9,0.8),                                           # specify legend position inside plot area
         axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))   +       # rotated x axis labels for individual plots
-  scale_y_continuous(expand = expansion(mult = c(0, .1)))               +       # remove gap between bars and axis lines
+  #scale_y_continuous(expand = expansion(mult = c(0, .1)))               +       # remove gap between bars and axis lines
+  #ylim(c(0,0.6)) +                                                              #HH NB - use ylim 2023 = c(0,0.6) and scale_y_continuous for 2021&2022 
+  scale_y_continuous(breaks = seq(0,1,by=0.2), limits =c(0,1)) +
   theme(axis.text.x = element_text(size = 12),axis.text.y = element_text(size = 12),
         axis.title.x = element_text(size = 14),axis.title.y = element_text(size = 14)) +
-  ggtitle("One day post-release")       # +
+  ggtitle("Autumn transition - Male")       # +
 # facet_grid(rows=vars(tide)) # if by tide
 
 
@@ -1094,31 +1159,35 @@ na.omit(rsfdat) %>% #filter(id=="Yf(0E)O/-:Y/m") %>%	                          	
 # Save plot (outside of Github)
 #setwd("C:/Users/gary.clewley/Desktop/BTO - GDC/2019- Wetland and Marine Team/_NE103 -- Headstarted Curlew tracking/Outputs/")
 setwd("C:/Users/hannah.hereward/Documents/Projects/2024_curlewheadstarting/curlew_headstarting/output/Figures/")
-ggsave("NE103_Headstart CURLE_RSF plot_1_OneDay_postrelease.jpg", width=15, height=15, units="cm", dpi=300)  ## UPDATE FILENAME
+ggsave("NE103_Headstart CURLE_RSF plot_9b_Autumn_T_M.jpg", width=15, height=15, units="cm", dpi=300)  ## UPDATE FILENAME
 
 
+
+
+#### --- HH NB this set of code doesn't quite all work and it is not clear what it is doing. So as the following code creates the graphs needed this set of code has been ignored EXCEPT FOR: 
+# THE top to x lines because they feed into the next bit below. copied below to make this make more sense!
 
 ## ## ## ## ## ## ##
 # Calculate error bars (in progress - clunky)
-x<-as.data.frame(rsfdat_all %>% with(table(id,used,layer))) #HH NB - LCM = layer in 2022 and 2023 LCM data so need to change this to layer
-x<-x %>% filter (id!="Yf(0E)O/-:Y/m" & layer!="Coastal Rock")
+#x<-as.data.frame(rsfdat %>% with(table(id,used,layer))) #HH NB - LCM = layer in 2022 and 2023 LCM data so need to change this to layer
+#x<-x %>% filter (layer!="Coastal Rock") # HH NB - Gary's code here removed the 2021 bird and coastal rock layer. May or may not be needed for each time period
 
-x1<-x %>% filter(used=="Used") %>% group_by(layer) %>% mutate(prop=Freq/y$Used)# HH NB - the dataframe y is in the line just below - need to run these first and then run these two lines
-x2<-x %>% filter(used=="Available") %>% group_by(layer) %>% mutate(prop=Freq/y$Available)
+#x1<-x %>% filter(used=="Used") %>% group_by(layer) %>% mutate(prop=Freq/y$Used)# HH NB - the dataframe y is in the line just below - need to run these first and then run these two lines
+#x2<-x %>% filter(used=="Available") %>% group_by(layer) %>% mutate(prop=Freq/y$Available)
 
 
 ## work out denominator for each individual
-y<-tapply(x$Freq, list(x$id, x$used), sum)
-y<-as.data.frame(y)
+#y<-tapply(x$Freq, list(x$id, x$used), sum)
+#y<-as.data.frame(y)
 #y<-as.data.frame(y[-1,]) #*****HH NB - this for some reason removed the first row of data... not sure why... 
 
 #note differs from flexible plots combining all birds above)
 #prop_u<-x1 %>% group_by(LCM) %>% mutate(mean_prop=mean(prop)) %>% select(LCM, mean_prop) %>% distinct() #HH NB - LCM = layer in 2022 and 2023 LCM data so need to change this to layer
 #prop_a<-x2 %>% group_by(LCM) %>% mutate(mean_prop=mean(prop)) %>% select(LCM, mean_prop) %>% distinct() #HH NB - LCM = layer in 2022 and 2023 LCM data so need to change this to layer
 
-
-sd_u<-x1 %>% group_by(layer) %>% mutate(sd=round(sd(prop)/sqrt(12),2)) %>% select(layer, sd) %>% distinct() #HH NB - LCM = layer in 2022 and 2023 LCM data so need to change this to layer
-sd_a<-x2 %>% group_by(layer) %>% mutate(sd=round(sd(prop)/sqrt(12),2)) %>% select(layer, sd) %>% distinct() #HH NB - LCM = layer in 2022 and 2023 LCM data so need to change this to layer
+#HH NB - use the y table to manually count and update the sqrt number
+#sd_u<-x1 %>% group_by(layer) %>% mutate(sd=round(sd(prop)/sqrt(18),2)) %>% select(layer, sd) %>% distinct() #HH NB - LCM = layer in 2022 and 2023 LCM data so need to change this to layer
+#sd_a<-x2 %>% group_by(layer) %>% mutate(sd=round(sd(prop)/sqrt(18),2)) %>% select(layer, sd) %>% distinct() #HH NB - LCM = layer in 2022 and 2023 LCM data so need to change this to layer
 
 ##### Need to sense check if best to use these proportions for plotting (done by individual rather than combined)
 # then create new simple plot dataframe e.g. below (from NE86) rather than plotting code used above
@@ -1126,37 +1195,66 @@ sd_a<-x2 %>% group_by(layer) %>% mutate(sd=round(sd(prop)/sqrt(12),2)) %>% selec
 
 
 #*****------HH NB - for some reason 'prop' isn't here... so can't do this figure...
-fig_3_newdf<-as.data.frame(cbind(prop, conf.low, conf.high, se))
-fig_3_newdf$used<-as.factor(rep(c("Available", "Used"), 7))
-fig_3_newdf$lcm_mod<-as.factor(as.character(c("coastal", "coastal", "agriculture","agriculture", "mussel","mussel", "marine", "marine","urban", "urban","other", "other","landfill","landfill")))
-fig_3_newdf$lcm_mod<- factor(fig_3_newdf$lcm_mod, levels=c("coastal", "agriculture", "mussel", "marine", "urban", "other", "landfill"))
+#fig_3_newdf<-as.data.frame(cbind(prop, conf.low, conf.high, se))
+#fig_3_newdf$used<-as.factor(rep(c("Available", "Used"), 7))
+#fig_3_newdf$lcm_mod<-as.factor(as.character(c("coastal", "coastal", "agriculture","agriculture", "mussel","mussel", "marine", "marine","urban", "urban","other", "other","landfill","landfill")))
+#fig_3_newdf$lcm_mod<- factor(fig_3_newdf$lcm_mod, levels=c("coastal", "agriculture", "mussel", "marine", "urban", "other", "landfill"))
 ## ## ## ## ## ## ##
 
 
+####### --- HH NB - return to code 
 
 
 
 
-
-
-
-
-
-
-#### RSS models and plotting####
+#### RSS models and plotting ## HH NB - Relative Selection Strength graphs ####
 ## Relative Selection Strength models (ran manually for time period and habitat for now)
 # exp(estimate) for Relative Selection Strength from RSF models
 
 
 
 # Select time period
-rsfdat<-rsfdat_6 #*****HH NB - change this for each time period
+#rsfdat<-rsfdat_6 #*****HH NB - change this for each time period
 
-# Fit habitat model for each habitat to each individual
+# Load rsfdat for each time period
+#setwd("C:/Users/gary.clewley/Desktop/BTO - GDC/2019- Wetland and Marine Team/_NE103 -- Headstarted Curlew tracking/Data/")
+setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/data/") #HH laptop
+
+load("NE103_2022 report_RSF_data_cohort2023_OneDay.RData")
+load("NE103_2022 report_RSF_data_cohort2023_OneWeek.RData")
+load("NE103_2022 report_RSF_data_cohort2023_TwoWeeks.RData")
+load("NE103_2022 report_RSF_data_cohort2023_SixWeeks.RData")
+load("NE103_2022 report_RSF_data_cohort2023_July_Dec2023.RData")
+
+load("NE103_2022 report_RSF_data_cohort2122_Winter_PreBreed.RData")
+load("NE103_2022 report_RSF_data_data_cohort2122_Spring_T.RData")
+load("NE103_2022 report_RSF_data_cohort2122_Breeding_F.RData")
+load("NE103_2022 report_RSF_data_cohort2122_Breeding_M.RData")
+load("NE103_2022 report_RSF_data_cohort2122_Autumn_T_F.RData")
+load("NE103_2022 report_RSF_data_cohort2122_Autumn_T_M.RData")
+load("NE103_2022 report_RSF_data_cohort2122_Winter_PostBreed.RData")
+
+
+#HH NB - code copied down from above - this seems to be the only code needed from the hashtagged out code above 
+## Calculate error bars (in progress - clunky)
+x<-as.data.frame(rsfdat %>% with(table(id,used,layer))) #HH NB - LCM = layer in 2022 and 2023 LCM data so need to change this to layer
+x<-x %>% filter (layer!="Coastal Rock") # HH NB - Gary's code here removed the 2021 bird and coastal rock layer. May or may not be needed for each time period
+
+
+
+#HH NB: list of separate columns need to be run in line below: Coastal,Grassland, Saltmarsh, Arable, Other
+
+# Fit habitat model for each habitat to each individual #HH NB this has to be manually changed for each time period AND each habitat per time period
+rsffits <- rsfdat  %>% nest(data=-"id") %>%   mutate(mod = map(data, function(x) glm(case_ ~ Coastal, data = x, weight=w,family = binomial)))
+rsffits <- rsfdat  %>% nest(data=-"id") %>%   mutate(mod = map(data, function(x) glm(case_ ~ Grassland, data = x, weight=w,family = binomial)))
+rsffits <- rsfdat  %>% nest(data=-"id") %>%   mutate(mod = map(data, function(x) glm(case_ ~ Saltmarsh, data = x, weight=w,family = binomial)))
 rsffits <- rsfdat  %>% nest(data=-"id") %>%   mutate(mod = map(data, function(x) glm(case_ ~ Arable, data = x, weight=w,family = binomial)))
+rsffits <- rsfdat  %>% nest(data=-"id") %>%   mutate(mod = map(data, function(x) glm(case_ ~ Other, data = x, weight=w,family = binomial)))
 
-## DO NOT open rsffits object from R Studio panel view(rsffits) - keep crashing on 3.6.1
 
+
+
+## Gary's note: DO NOT open rsffits object from R Studio panel view(rsffits) - keep crashing on 3.6.1
 
 
 # Check goodness of fit
@@ -1181,28 +1279,63 @@ rsf_coefs<-within(rsf_coefs, rm(data))
 rsf_coefs<-within(rsf_coefs, rm(mod))
 
 
-# Name for habitat and repeat
-rsf_coefs_other<-rsf_coefs
+#HH NB: list of separate columns need to be run in line below: Coastal,Grassland, Saltmarsh, Arable, Other
+# Name for habitat and ***** repeat code above******* #HH NB - have to update this manually!
+rsf_coefs_coast<-rsf_coefs
+rsf_coefs_grass<-rsf_coefs
+rsf_coefs_salt<-rsf_coefs
+rsf_coefs_arable<-rsf_coefs
+rsf_coefs_other<-rsf_coefs 
 
 
 # Combine and save RSF model outputs
 rsf_coefs_hab<-bind_rows(rsf_coefs_coast, rsf_coefs_grass, rsf_coefs_salt, rsf_coefs_arable, rsf_coefs_other)
 
-setwd("C:/Users/gary.clewley/Desktop/BTO - GDC/2019- Wetland and Marine Team/_NE103 -- Headstarted Curlew tracking/Data/")
-save(rsf_coefs_hab_all, file="NE103_2022 report_RSF_models_all.RData")
-save(rsf_coefs_hab_6, file="NE103_2022 report_RSF_models_six weeks.RData")
-save(rsf_coefs_hab_2, file="NE103_2022 report_RSF_models_two weeks.RData")
-save(rsf_coefs_hab_1, file="NE103_2022 report_RSF_models_one week.RData")
-save(rsf_coefs_hab_0E_22, file="NE103_2022 report_RSF_models_0E_22.RData")
+#setwd("C:/Users/gary.clewley/Desktop/BTO - GDC/2019- Wetland and Marine Team/_NE103 -- Headstarted Curlew tracking/Data/")
+setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/data/") #HH laptop
+
+save(rsf_coefs_hab, file="NE103_2022 report_RSF_models_cohort2023_OneDay.RData")
+save(rsf_coefs_hab, file="NE103_2022 report_RSF_models_cohort2023_OneWeek.RData")
+save(rsf_coefs_hab, file="NE103_2022 report_RSF_models_cohort2023_TwoWeeks.RData")
+save(rsf_coefs_hab, file="NE103_2022 report_RSF_models_cohort2023_SixWeeks.RData")
+save(rsf_coefs_hab, file="NE103_2022 report_RSF_models_cohort2023_July_Dec2023.RData")
+
+save(rsf_coefs_hab, file="NE103_2022 report_RSF_models_cohort2122_Winter_PreBreed.RData")
+save(rsf_coefs_hab, file="NE103_2022 report_RSF_models_cohort2122_Spring_T.RData")
+save(rsf_coefs_hab, file="NE103_2022 report_RSF_models_cohort2122_Breeding_F.RData")
+save(rsf_coefs_hab, file="NE103_2022 report_RSF_models_cohort2122_Breeding_M.RData")
+save(rsf_coefs_hab, file="NE103_2022 report_RSF_models_cohort2122_Autumn_T_F.RData")
+save(rsf_coefs_hab, file="NE103_2022 report_RSF_models_cohort2122_Autumn_T_M.RData")
+save(rsf_coefs_hab, file="NE103_2022 report_RSF_models_cohort2122_Winter_PostBreed.RData")
+
+
+
 
 
 # Load RSF models
-setwd("C:/Users/gary.clewley/Desktop/BTO - GDC/2019- Wetland and Marine Team/_NE103 -- Headstarted Curlew tracking/Data/")
-load("NE103_2022 report_RSF_models_all.RData")
-load("NE103_2022 report_RSF_models_six weeks.RData")
-load("NE103_2022 report_RSF_models_two weeks.RData")
-load("NE103_2022 report_RSF_models_one week.RData")
-load("NE103_2022 report_RSF_models_0E_22.RData")
+#setwd("C:/Users/gary.clewley/Desktop/BTO - GDC/2019- Wetland and Marine Team/_NE103 -- Headstarted Curlew tracking/Data/")
+setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/data/") #HH laptop
+
+#load("NE103_2022 report_RSF_models_all.RData")
+#load("NE103_2022 report_RSF_models_six weeks.RData")
+#load("NE103_2022 report_RSF_models_two weeks.RData")
+#load("NE103_2022 report_RSF_models_one week.RData")
+#load("NE103_2022 report_RSF_models_0E_22.RData")
+
+load("NE103_2022 report_RSF_models_cohort2023_OneDay.RData")
+load("NE103_2022 report_RSF_models_cohort2023_OneWeek.RData")
+load("NE103_2022 report_RSF_models_cohort2023_TwoWeeks.RData")
+load("NE103_2022 report_RSF_models_cohort2023_SixWeeks.RData")
+load("NE103_2022 report_RSF_models_cohort2023_July_Dec2023.RData")
+
+load("NE103_2022 report_RSF_models_cohort2122_Winter_PreBreed.RData")
+load("NE103_2022 report_RSF_models_cohort2122_Spring_T.RData")
+load("NE103_2022 report_RSF_models_cohort2122_Breeding_F.RData")
+load("NE103_2022 report_RSF_models_cohort2122_Breeding_M.RData")
+load("NE103_2022 report_RSF_models_cohort2122_Autumn_T_F.RData")
+load("NE103_2022 report_RSF_models_cohort2122_Autumn_T_M.RData")
+load("NE103_2022 report_RSF_models_cohort2122_Winter_PostBreed.RData")
+
 
 
 
@@ -1212,7 +1345,7 @@ load("NE103_2022 report_RSF_models_0E_22.RData")
 library(emmeans)
 
 # Set data
-x<-rsf_coefs_hab_all
+x<-rsf_coefs_hab
 
 # Set factor
 x$term<-as.factor(as.character(x$term))
@@ -1305,9 +1438,9 @@ rsf_coefs_hab %>% filter(term!="(Intercept)") %>%	ggplot(., ) +
 
 
 # Save plot
-setwd("C:/Users/gary.clewley/Desktop/BTO - GDC/2019- Wetland and Marine Team/_NE103 -- Headstarted Curlew tracking/Outputs/")
-setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/output") #HH NB laptop
-ggsave("NE103_Headtsart CURLE_RSS plot_one week.jpg", width=15, height=15, units="cm", dpi=300)  ## UPDATE FILENAME
+#setwd("C:/Users/gary.clewley/Desktop/BTO - GDC/2019- Wetland and Marine Team/_NE103 -- Headstarted Curlew tracking/Outputs/")
+setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/output/Figures/") #HH NB laptop
+ggsave("NE103_Headtsart CURLE_RSS plot_2_one week.jpg", width=15, height=15, units="cm", dpi=300)  ## UPDATE FILENAME
 
 
 
