@@ -1135,8 +1135,12 @@ load("NE103_2022 report_RSF_data_cohort2122_Autumn_T_M.RData")
 load("NE103_2022 report_RSF_data_cohort2122_Winter_PostBreed.RData")
 
 
+#FILTER ONLY TO BE USED FOR TIDE TO REMOVE THE NAs
+#rsfdat <- rsfdat %>% filter(tide != "NA")
+
 ## Available/Used Plot 
 na.omit(rsfdat) %>% #filter(id=="Yf(0E)O/-:Y/m") %>%	                          	# Update period or ID
+ #filter(tide != "NA") %>%                                                          #FILTER ONLY TO BE USED FOR TIDE TO REMOVE THE NAs
   ggplot(.,  aes(x=layer,group=used))                                       +	      # select data and variables - using na.omit() here to exclude random points offshore outside LCM area. HH NB - LCM = layer in 2022 and 2023 LCM data so need to change this to layer
   geom_bar(position=position_dodge(), aes(y=after_stat(prop), fill = used),
            stat="count", colour="black")                                +       # select barplot of proportions presented side by side with black outline
@@ -1151,15 +1155,15 @@ na.omit(rsfdat) %>% #filter(id=="Yf(0E)O/-:Y/m") %>%	                          	
   scale_y_continuous(breaks = seq(0,1,by=0.2), limits =c(0,1)) +
   theme(axis.text.x = element_text(size = 12),axis.text.y = element_text(size = 12),
         axis.title.x = element_text(size = 14),axis.title.y = element_text(size = 14)) +
-  ggtitle("Autumn transition - Male")       # +
-# facet_grid(rows=vars(tide)) # if by tide
+  ggtitle("July-December 2023")        +
+  facet_grid(rows=vars(cohort)) # if by tide:  facet_grid(rows=vars(tide)) or release site:   facet_grid(rows=vars(release)) or cohort:  facet_grid(rows=vars(cohort))
 
 
 
 # Save plot (outside of Github)
 #setwd("C:/Users/gary.clewley/Desktop/BTO - GDC/2019- Wetland and Marine Team/_NE103 -- Headstarted Curlew tracking/Outputs/")
 setwd("C:/Users/hannah.hereward/Documents/Projects/2024_curlewheadstarting/curlew_headstarting/output/Figures/")
-ggsave("NE103_Headstart CURLE_RSF plot_9b_Autumn_T_M.jpg", width=15, height=15, units="cm", dpi=300)  ## UPDATE FILENAME
+ggsave("NE103_Headstart CURLE_RSF plot_5_July_Dec2023_COHORT.jpg", width=15, height=15, units="cm", dpi=300)  ## UPDATE FILENAME
 
 
 
