@@ -705,7 +705,7 @@ datasplit <- c("1 One Day" ,"2 One Week" ,"3 Two Weeks" , "4 Six Weeks" ,"5 End 
                  "9a Female Autumn fuzzy","9b Male Autumn fuzzy", "10 End of December - Winter" )
 
 
-#### TIME IN AREA ####
+#### TIME IN AREA #HH NB - Leaflet plots ####
 # Using BTOTT::
 
 #extract vidiridis for 18 - max number of different birds 
@@ -1163,7 +1163,7 @@ na.omit(rsfdat) %>% #filter(id=="Yf(0E)O/-:Y/m") %>%	                          	
 # Save plot (outside of Github)
 #setwd("C:/Users/gary.clewley/Desktop/BTO - GDC/2019- Wetland and Marine Team/_NE103 -- Headstarted Curlew tracking/Outputs/")
 setwd("C:/Users/hannah.hereward/Documents/Projects/2024_curlewheadstarting/curlew_headstarting/output/Figures/")
-ggsave("NE103_Headstart CURLE_RSF plot_5_July_Dec2023_COHORT.jpg", width=15, height=15, units="cm", dpi=300)  ## UPDATE FILENAME
+ggsave("NE103_Headstart CURLE_RSF plot_5_July_December2023_COHORT.jpg", width=15, height=15, units="cm", dpi=300)  ## UPDATE FILENAME
 
 
 
@@ -1256,17 +1256,13 @@ rsffits <- rsfdat  %>% nest(data=-"id") %>%   mutate(mod = map(data, function(x)
 rsffits <- rsfdat  %>% nest(data=-"id") %>%   mutate(mod = map(data, function(x) glm(case_ ~ Other, data = x, weight=w,family = binomial)))
 
 
-
-
 ## Gary's note: DO NOT open rsffits object from R Studio panel view(rsffits) - keep crashing on 3.6.1
-
 
 # Check goodness of fit
 # Running issues originally due to na.action = argument not set. Ran later and daved manually (writeClipboard(as.character(rsf_gof$auc_test)))
 # Could integrate into tidy output if needed
 
-#rsf_gof <- rsfdat  %>% nest(data=-"id") %>%   mutate(auc_test = map(data, function(x) pROC::auc(pROC::roc(x$case_~(predict(glm(case_ ~ Other, data = x, weight=w,family = binomial, na.action=na.exclude), type=c("response"))))))) #edit response var
-
+#rsf_gof <- rsfdat  %>% nest(data=-"id") %>%   mutate(auc_test = map(data, function(x) pROC::auc(pROC::roc(x$case_~(predict(glm(case_ ~ Arable, data = x, weight=w,family = binomial, na.action=na.exclude), type=c("response"))))))) #edit response var
 
 
 # tidy model outputs
@@ -1363,10 +1359,11 @@ summary(m1)
 
 # Check contrasts
 mytest <- emmeans(m1, ~ term)
-contrast(regrid(mytest))
+mytest.contrast <- contrast(regrid(mytest))
+print(mytest.contrast)
+write.csv(mytest.contrast, here("output/mytest.csv"), row.names=F) # this allows you to read out the output data as a csv for easiest copying to the report
 
-
-## Note - following advice from Fieberg RSF/amt course (2019) but needs considering how to better
+## Gary's Note - following advice from Fieberg RSF/amt course (2019) but needs considering how to better
 # carry out testing when many model fits are poor (and coefficients then include outliers)
 
 
@@ -1376,20 +1373,68 @@ contrast(regrid(mytest))
 
 ## RSS PLOTS
 ## Set data
-rsf_coefs_hab<-rsf_coefs_hab_6
+#rsf_coefs_hab<-rsf_coefs_hab_6
 
-# remove outliers (tbc...)
 
+#### HH NB - Gary's original code
+# remove outliers (tbc...) 
 # One week
-rsf_coefs_hab<- rsf_coefs_hab %>% filter(id!="Yf(6Y)O/-:Y/m_Sandringham"&id!="Yf(7Y)O/-:Y/m_Sandringham"&id!="Yf(8L)O/-:Y/m_Sandringham")
+#rsf_coefs_hab<- rsf_coefs_hab %>% filter(id!="Yf(6Y)O/-:Y/m_Sandringham"&id!="Yf(7Y)O/-:Y/m_Sandringham"&id!="Yf(8L)O/-:Y/m_Sandringham")
 # Two weeks
-rsf_coefs_hab<- rsf_coefs_hab %>% filter(id!="Yf(8E)O/-:Y/m_Sandringham")
+#rsf_coefs_hab<- rsf_coefs_hab %>% filter(id!="Yf(8E)O/-:Y/m_Sandringham")
 # Six weeks
-rsf_coefs_hab<- rsf_coefs_hab %>% filter(id!="Yf(8X)O/-:Y/m_KenHill"&id!="Yf(8L)O/-:Y/m_Sandringham")
+#rsf_coefs_hab<- rsf_coefs_hab %>% filter(id!="Yf(8X)O/-:Y/m_KenHill"&id!="Yf(8L)O/-:Y/m_Sandringham")
 # all data
-rsf_coefs_hab<- rsf_coefs_hab %>% filter(id!="Yf(7K)O/-:Y/m_Sandringham"&id!="Yf(8L)O/-:Y/m_Sandringham"&id!="Yf(8X)O/-:Y/m_KenHill")
+#rsf_coefs_hab<- rsf_coefs_hab %>% filter(id!="Yf(7K)O/-:Y/m_Sandringham"&id!="Yf(8L)O/-:Y/m_Sandringham"&id!="Yf(8X)O/-:Y/m_KenHill")
+####
+
+#OUTLIER CHECK AND REMOVAL:
+#HH trial and final removing of outliers 
+#One day - 
+    #MAJOR outliers for birds: "Yf(XL)O/-:Y/m_Sandringham", "Yf(YK)O/-:Y/m_Sandringham" , "Yf(XE)O/-:Y/m_Sandringham"
+      ##"Yf(YX)O/-:Y/m_Sandringham", "Yf(LU)O/-:Y/m_Sandringham"
+
+#test to filter out for JUST these birds to look at the proportion of fixes in other habitats using rsfdat and rsf_coefs_habs
+#These birds spent over 80% of fixes in their first day in arable. So going to remove as outliers
+#test <- rsf_coefs_hab %>% filter(id=="Yf(XL)O/-:Y/m_Sandringham" | id=="Yf(YK)O/-:Y/m_Sandringham" | id=="Yf(XE)O/-:Y/m_Sandringham" |
+#id=="Yf(YX)O/-:Y/m_Sandringham" | id=="f(LU)O/-:Y/m_Sandringham")
+
+rsf_coefs_hab<- rsf_coefs_hab %>% filter(id!="Yf(XL)O/-:Y/m_Sandringham" & id!="Yf(YK)O/-:Y/m_Sandringham" & id!="Yf(XE)O/-:Y/m_Sandringham" &
+                                           id!="Yf(YX)O/-:Y/m_Sandringham" & id!="Yf(LU)O/-:Y/m_Sandringham")
 
 
+#One week - MAJOR outliers for birds: "Yf(YX)O/-:Y/m_Sandringham"
+
+#test <- rsf_coefs_hab %>% filter(id=="Yf(YX)O/-:Y/m_Sandringham")
+#test <- rsfdat %>% filter(id=="Yf(YX)O/-:Y/m_Sandringham") #almost 100% fixes in arable so removed as an outlier
+
+rsf_coefs_hab<- rsf_coefs_hab %>% filter(id!="Yf(YX)O/-:Y/m_Sandringham")
+
+
+#Two weeks - MAJOR outliers for birds: "Yf(YX)O/-:Y/m_Sandringham"
+
+#test <- rsf_coefs_hab %>% filter(id=="Yf(YX)O/-:Y/m_Sandringham")
+#test <- rsfdat %>% filter(id=="Yf(YX)O/-:Y/m_Sandringham") # 100% fixes in arable so removed as an outlier - notes say this bird was found dead 22/09/2023. (36 days after release). This habitat use suggests that it could have been dead before this? But found in diff habiats in 6wks so maybe not
+
+rsf_coefs_hab<- rsf_coefs_hab %>% filter(id!="Yf(YX)O/-:Y/m_Sandringham")
+
+
+#Six weeks - "Yf(YX)O/-:Y/m_Sandringham" left in as the prop of fixes used in different habitats varied not just arable
+
+#test <- rsf_coefs_hab %>% filter(id=="Yf(YX)O/-:Y/m_Sandringham")
+#test <- rsfdat %>% filter(id=="Yf(YX)O/-:Y/m_Sandringham") # only 50% fixes in arable so kept in - notes say this bird was found dead 22/09/2023 (36 days after release).
+
+
+#Winter post-breeding - "Yf(7K)O/-:Y/m_Sandringham"
+
+#test <- rsf_coefs_hab %>% filter(id=="Yf(7K)O/-:Y/m_Sandringham")
+#test <- rsfdat %>% filter(id=="Yf(7K)O/-:Y/m_Sandringham") # almost 100% fixes in coastal sediment. Remove trialed:
+
+rsf_coefs_hab<- rsf_coefs_hab %>% filter(id!="Yf(7K)O/-:Y/m_Sandringham")
+
+
+
+###
 
 
 # Reorder factor levels
@@ -1436,7 +1481,7 @@ rsf_coefs_hab %>% filter(term!="(Intercept)") %>%	ggplot(., ) +
         strip.text.x = element_text(size = 12, face="bold")) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
       panel.background = element_blank(), axis.line = element_line(colour = "black"))+
-  ggtitle("One week post-release")   ## UPDATE MANUALLY
+  ggtitle("Winter - post-breeding")   ## UPDATE MANUALLY
 
 
 
@@ -1444,7 +1489,7 @@ rsf_coefs_hab %>% filter(term!="(Intercept)") %>%	ggplot(., ) +
 # Save plot
 #setwd("C:/Users/gary.clewley/Desktop/BTO - GDC/2019- Wetland and Marine Team/_NE103 -- Headstarted Curlew tracking/Outputs/")
 setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/output/Figures/") #HH NB laptop
-ggsave("NE103_Headtsart CURLE_RSS plot_2_one week.jpg", width=15, height=15, units="cm", dpi=300)  ## UPDATE FILENAME
+ggsave("NE103_Headtsart CURLE_RSS plot_10_winter_postBreed_7Kremoved.jpg", width=15, height=15, units="cm", dpi=300)  ## UPDATE FILENAME
 
 
 
