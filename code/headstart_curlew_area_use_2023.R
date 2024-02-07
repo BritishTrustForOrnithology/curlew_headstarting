@@ -1038,6 +1038,14 @@ avail.pts <- avail.pts %>%
 avail.pts$used<-as.factor(avail.pts$case_)
 avail.pts$used<-fct_recode(avail.pts$used, "Available" = "FALSE", "Used" = "TRUE")
 
+#for Appendix save out a example plot of observed vrs random points - using 8 as only two birds so not too confusing with overlapping convex polygons
+#create the file 
+#jpeg(file="C:/Users/hannah.hereward/Documents/Projects/2024_curlewheadstarting/curlew_headstarting/output/Figures/NE103_Headstart CURLE_APPENDIXplot_8a_Breeding_F.jpg", width=15, height=15, units="cm", res=300)
+#run the plot
+#plot(avail.pts[avail.pts$id=="Yf(9J)O/-:Y/m_KenHill",])
+#close the file
+#dev.off() 
+
 
 # Tidy LCM variable  # variable name 'layer' with new landuse data for 2022. HH NB - note that this produces warning messages presumably because some of the habitat numbers don't feature in each extraction
 rsfdat <- avail.pts %>%  mutate(
@@ -1247,7 +1255,6 @@ x<-x %>% filter (layer!="Coastal Rock") # HH NB - Gary's code here removed the 2
 
 
 #HH NB: list of separate columns need to be run in line below: Coastal,Grassland, Saltmarsh, Arable, Other
-
 # Fit habitat model for each habitat to each individual #HH NB this has to be manually changed for each time period AND each habitat per time period
 rsffits <- rsfdat  %>% nest(data=-"id") %>%   mutate(mod = map(data, function(x) glm(case_ ~ Coastal, data = x, weight=w,family = binomial)))
 rsffits <- rsfdat  %>% nest(data=-"id") %>%   mutate(mod = map(data, function(x) glm(case_ ~ Grassland, data = x, weight=w,family = binomial)))
@@ -1256,14 +1263,24 @@ rsffits <- rsfdat  %>% nest(data=-"id") %>%   mutate(mod = map(data, function(x)
 rsffits <- rsfdat  %>% nest(data=-"id") %>%   mutate(mod = map(data, function(x) glm(case_ ~ Other, data = x, weight=w,family = binomial)))
 
 
-## Gary's note: DO NOT open rsffits object from R Studio panel view(rsffits) - keep crashing on 3.6.1
+## Gary's note: DO NOT open rsffits object from R Studio panel view(rsffits) - keep crashing on 3.6.1 ##HH NB: opens fine in R 4.2.2
 
-# Check goodness of fit
+# Check goodness of fit #HH NB this is an appendix table
 # Running issues originally due to na.action = argument not set. Ran later and daved manually (writeClipboard(as.character(rsf_gof$auc_test)))
 # Could integrate into tidy output if needed
 
 #rsf_gof <- rsfdat  %>% nest(data=-"id") %>%   mutate(auc_test = map(data, function(x) pROC::auc(pROC::roc(x$case_~(predict(glm(case_ ~ Arable, data = x, weight=w,family = binomial, na.action=na.exclude), type=c("response"))))))) #edit response var
 
+rsf_gof <- rsfdat  %>% nest(data=-"id") %>%   mutate(auc_test = map(data, function(x) pROC::auc(pROC::roc(x$case_~(predict(glm(case_ ~ Coastal, data = x, weight=w,family = binomial, na.action=na.exclude), type=c("response"))))))) #edit response var
+rsf_gof <- rsfdat  %>% nest(data=-"id") %>%   mutate(auc_test = map(data, function(x) pROC::auc(pROC::roc(x$case_~(predict(glm(case_ ~ Grassland, data = x, weight=w,family = binomial, na.action=na.exclude), type=c("response"))))))) #edit response var
+rsf_gof <- rsfdat  %>% nest(data=-"id") %>%   mutate(auc_test = map(data, function(x) pROC::auc(pROC::roc(x$case_~(predict(glm(case_ ~ Saltmarsh, data = x, weight=w,family = binomial, na.action=na.exclude), type=c("response"))))))) #edit response var
+rsf_gof <- rsfdat  %>% nest(data=-"id") %>%   mutate(auc_test = map(data, function(x) pROC::auc(pROC::roc(x$case_~(predict(glm(case_ ~ Arable, data = x, weight=w,family = binomial, na.action=na.exclude), type=c("response"))))))) #edit response var
+rsf_gof <- rsfdat  %>% nest(data=-"id") %>%   mutate(auc_test = map(data, function(x) pROC::auc(pROC::roc(x$case_~(predict(glm(case_ ~ Other, data = x, weight=w,family = binomial, na.action=na.exclude), type=c("response"))))))) #edit response var
+
+rsf_gof$auc_test # viewing this as a tab gets slower
+
+#copy the AUC for each bird to clipboard
+writeClipboard(as.character(rsf_gof$auc_test))
 
 # tidy model outputs
 rsffits <- rsffits %>%
@@ -1290,6 +1307,9 @@ rsf_coefs_other<-rsf_coefs
 
 # Combine and save RSF model outputs
 rsf_coefs_hab<-bind_rows(rsf_coefs_coast, rsf_coefs_grass, rsf_coefs_salt, rsf_coefs_arable, rsf_coefs_other)
+
+
+
 
 #setwd("C:/Users/gary.clewley/Desktop/BTO - GDC/2019- Wetland and Marine Team/_NE103 -- Headstarted Curlew tracking/Data/")
 setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/data/") #HH laptop
@@ -1353,6 +1373,7 @@ x$term<-as.factor(as.character(x$term))
 # Filter intercept
 x<- x %>% filter(term!="(Intercept)")
 
+#Use the 'estimate' per bird and habitat in x in the appendix table for the beta column
 # Run linear model
 m1<-lm(x$estimate~x$term)
 summary(m1)
