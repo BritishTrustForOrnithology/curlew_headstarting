@@ -326,7 +326,7 @@ write.csv(dt_meta_gsp_TagID, here("data/metadata_TagID.csv"), row.names = F)
 
 #also check the last datetime of transmission
 currcohorts <- data_tt_2023 %>%
-  group_by(year, TagID, sex, release_date) %>%
+  group_by(year, TagID, sex, release_date, cohort_analysis) %>%
   summarize(max_date_time = max(DateTime))
 
 currcohorts$release_date <- as.POSIXct(currcohorts$release_date, format="%d/%m/%Y", tz="UTC")
@@ -442,7 +442,7 @@ summary(data_tt_21_22$year)
 summary(data_tt_21_22$DateTime)
 
 prevcohorts <- data_tt_21_22 %>%
-  group_by(year, TagID, sex) %>%
+  group_by(year, TagID, sex, cohort_analysis) %>%
   summarize(max_date_time = max(DateTime))
 
 
@@ -1103,19 +1103,19 @@ rsfdat
 #setwd("C:/Users/gary.clewley/Desktop/BTO - GDC/2019- Wetland and Marine Team/_NE103 -- Headstarted Curlew tracking/Data/")
 setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/data/") #HH laptop
 
-save(rsfdat, file="NE103_2022 report_RSF_data_cohort2023_OneDay.RData") #1
-save(rsfdat, file="NE103_2022 report_RSF_data_cohort2023_OneWeek.RData") #3
-save(rsfdat, file="NE103_2022 report_RSF_data_cohort2023_TwoWeeks.RData") #4
-save(rsfdat, file="NE103_2022 report_RSF_data_cohort2023_SixWeeks.RData") #5
-save(rsfdat, file="NE103_2022 report_RSF_data_cohort2023_July_Dec2023.RData") #6
+save(rsfdat, file="NE103_2023 report_RSF_data_cohort2023_OneDay.RData") #1
+save(rsfdat, file="NE103_2023 report_RSF_data_cohort2023_OneWeek.RData") #3
+save(rsfdat, file="NE103_2023 report_RSF_data_cohort2023_TwoWeeks.RData") #4
+save(rsfdat, file="NE103_2023 report_RSF_data_cohort2023_SixWeeks.RData") #5
+save(rsfdat, file="NE103_2023 report_RSF_data_cohort2023_July_Dec2023.RData") #6
 
-save(rsfdat, file="NE103_2022 report_RSF_data_cohort2122_Winter_PreBreed.RData") #7
-save(rsfdat, file="NE103_2022 report_RSF_data_data_cohort2122_Spring_T.RData") #8
-save(rsfdat, file="NE103_2022 report_RSF_data_cohort2122_Breeding_F.RData") #9
-save(rsfdat, file="NE103_2022 report_RSF_data_cohort2122_Breeding_M.RData") #10
-save(rsfdat, file="NE103_2022 report_RSF_data_cohort2122_Autumn_T_F.RData") #11
-save(rsfdat, file="NE103_2022 report_RSF_data_cohort2122_Autumn_T_M.RData") #12
-save(rsfdat, file="NE103_2022 report_RSF_data_cohort2122_Winter_PostBreed.RData") #2
+save(rsfdat, file="NE103_2023 report_RSF_data_cohort2122_Winter_PreBreed.RData") #7
+save(rsfdat, file="NE103_2023 report_RSF_data_data_cohort2122_Spring_T.RData") #8
+save(rsfdat, file="NE103_2023 report_RSF_data_cohort2122_Breeding_F.RData") #9
+save(rsfdat, file="NE103_2023 report_RSF_data_cohort2122_Breeding_M.RData") #10
+save(rsfdat, file="NE103_2023 report_RSF_data_cohort2122_Autumn_T_F.RData") #11
+save(rsfdat, file="NE103_2023 report_RSF_data_cohort2122_Autumn_T_M.RData") #12
+save(rsfdat, file="NE103_2023 report_RSF_data_cohort2122_Winter_PostBreed.RData") #2
 
 
 
@@ -1128,19 +1128,19 @@ save(rsfdat, file="NE103_2022 report_RSF_data_cohort2122_Winter_PostBreed.RData"
 #setwd("C:/Users/gary.clewley/Desktop/BTO - GDC/2019- Wetland and Marine Team/_NE103 -- Headstarted Curlew tracking/Data/")
 setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/data/") #HH laptop
 
-load("NE103_2022 report_RSF_data_cohort2023_OneDay.RData")
-load("NE103_2022 report_RSF_data_cohort2023_OneWeek.RData")
-load("NE103_2022 report_RSF_data_cohort2023_TwoWeeks.RData")
-load("NE103_2022 report_RSF_data_cohort2023_SixWeeks.RData")
-load("NE103_2022 report_RSF_data_cohort2023_July_Dec2023.RData")
+load("NE103_2023 report_RSF_data_cohort2023_OneDay.RData")
+load("NE103_2023 report_RSF_data_cohort2023_OneWeek.RData")
+load("NE103_2023 report_RSF_data_cohort2023_TwoWeeks.RData")
+load("NE103_2023 report_RSF_data_cohort2023_SixWeeks.RData")
+load("NE103_2023 report_RSF_data_cohort2023_July_Dec2023.RData")
 
-load("NE103_2022 report_RSF_data_cohort2122_Winter_PreBreed.RData")
-load("NE103_2022 report_RSF_data_data_cohort2122_Spring_T.RData")
-load("NE103_2022 report_RSF_data_cohort2122_Breeding_F.RData")
-load("NE103_2022 report_RSF_data_cohort2122_Breeding_M.RData")
-load("NE103_2022 report_RSF_data_cohort2122_Autumn_T_F.RData")
-load("NE103_2022 report_RSF_data_cohort2122_Autumn_T_M.RData")
-load("NE103_2022 report_RSF_data_cohort2122_Winter_PostBreed.RData")
+load("NE103_2023 report_RSF_data_cohort2122_Winter_PreBreed.RData")
+load("NE103_2023 report_RSF_data_data_cohort2122_Spring_T.RData")
+load("NE103_2023 report_RSF_data_cohort2122_Breeding_F.RData")
+load("NE103_2023 report_RSF_data_cohort2122_Breeding_M.RData")
+load("NE103_2023 report_RSF_data_cohort2122_Autumn_T_F.RData")
+load("NE103_2023 report_RSF_data_cohort2122_Autumn_T_M.RData")
+load("NE103_2023 report_RSF_data_cohort2122_Winter_PostBreed.RData")
 
 
 #FILTER ONLY TO BE USED FOR TIDE TO REMOVE THE NAs
@@ -1163,21 +1163,21 @@ na.omit(rsfdat) %>% #filter(id=="Yf(0E)O/-:Y/m") %>%	                          	
   scale_y_continuous(breaks = seq(0,1,by=0.2), limits =c(0,1)) +
   theme(axis.text.x = element_text(size = 12),axis.text.y = element_text(size = 12),
         axis.title.x = element_text(size = 14),axis.title.y = element_text(size = 14)) +
-  ggtitle("July-December 2023")        +
-  facet_grid(rows=vars(cohort)) # if by tide:  facet_grid(rows=vars(tide)) or release site:   facet_grid(rows=vars(release)) or cohort:  facet_grid(rows=vars(cohort))
+  ggtitle("Winter - post-breeding")   #    +
+  #facet_grid(rows=vars(release)) # if by tide:  facet_grid(rows=vars(tide)) or release site:   facet_grid(rows=vars(release)) or cohort:  facet_grid(rows=vars(cohort))
 
 
 
 # Save plot (outside of Github)
 #setwd("C:/Users/gary.clewley/Desktop/BTO - GDC/2019- Wetland and Marine Team/_NE103 -- Headstarted Curlew tracking/Outputs/")
-setwd("C:/Users/hannah.hereward/Documents/Projects/2024_curlewheadstarting/curlew_headstarting/output/Figures/")
-ggsave("NE103_Headstart CURLE_RSF plot_5_July_December2023_COHORT.jpg", width=15, height=15, units="cm", dpi=300)  ## UPDATE FILENAME
+setwd("C:/Users/hannah.hereward/Documents/Projects/2024_curlewheadstarting/curlew_headstarting/output/Figures/Habitat_prop/")
+ggsave("NE103_2023_Headstart CURLE_RSF plot_10_Winter_postbreed.jpg", width=15, height=15, units="cm", dpi=300)  ## UPDATE FILENAME
 
 
 
 
 #### --- HH NB this set of code doesn't quite all work and it is not clear what it is doing. So as the following code creates the graphs needed this set of code has been ignored EXCEPT FOR: 
-# THE top to x lines because they feed into the next bit below. copied below to make this make more sense!
+# THE top two x lines because they feed into the next bit below. copied below to make this make more sense!
 
 ## ## ## ## ## ## ##
 # Calculate error bars (in progress - clunky)
@@ -1232,19 +1232,19 @@ ggsave("NE103_Headstart CURLE_RSF plot_5_July_December2023_COHORT.jpg", width=15
 #setwd("C:/Users/gary.clewley/Desktop/BTO - GDC/2019- Wetland and Marine Team/_NE103 -- Headstarted Curlew tracking/Data/")
 setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/data/") #HH laptop
 
-load("NE103_2022 report_RSF_data_cohort2023_OneDay.RData")
-load("NE103_2022 report_RSF_data_cohort2023_OneWeek.RData")
-load("NE103_2022 report_RSF_data_cohort2023_TwoWeeks.RData")
-load("NE103_2022 report_RSF_data_cohort2023_SixWeeks.RData")
-load("NE103_2022 report_RSF_data_cohort2023_July_Dec2023.RData")
+load("NE103_2023 report_RSF_data_cohort2023_OneDay.RData")
+load("NE103_2023 report_RSF_data_cohort2023_OneWeek.RData")
+load("NE103_2023 report_RSF_data_cohort2023_TwoWeeks.RData")
+load("NE103_2023 report_RSF_data_cohort2023_SixWeeks.RData")
+load("NE103_2023 report_RSF_data_cohort2023_July_Dec2023.RData")
 
-load("NE103_2022 report_RSF_data_cohort2122_Winter_PreBreed.RData")
-load("NE103_2022 report_RSF_data_data_cohort2122_Spring_T.RData")
-load("NE103_2022 report_RSF_data_cohort2122_Breeding_F.RData")
-load("NE103_2022 report_RSF_data_cohort2122_Breeding_M.RData")
-load("NE103_2022 report_RSF_data_cohort2122_Autumn_T_F.RData")
-load("NE103_2022 report_RSF_data_cohort2122_Autumn_T_M.RData")
-load("NE103_2022 report_RSF_data_cohort2122_Winter_PostBreed.RData")
+load("NE103_2023 report_RSF_data_cohort2122_Winter_PreBreed.RData")
+load("NE103_2023 report_RSF_data_data_cohort2122_Spring_T.RData")
+load("NE103_2023 report_RSF_data_cohort2122_Breeding_F.RData")
+load("NE103_2023 report_RSF_data_cohort2122_Breeding_M.RData")
+load("NE103_2023 report_RSF_data_cohort2122_Autumn_T_F.RData")
+load("NE103_2023 report_RSF_data_cohort2122_Autumn_T_M.RData")
+load("NE103_2023 report_RSF_data_cohort2122_Winter_PostBreed.RData")
 
 
 #HH NB - code copied down from above - this seems to be the only code needed from the hashtagged out code above 
@@ -1282,6 +1282,7 @@ rsf_gof$auc_test # viewing this as a tab gets slower
 #copy the AUC for each bird to clipboard
 writeClipboard(as.character(rsf_gof$auc_test))
 
+
 # tidy model outputs
 rsffits <- rsffits %>%
    dplyr::mutate(tidy = purrr::map(mod, broom::tidy),
@@ -1308,25 +1309,26 @@ rsf_coefs_other<-rsf_coefs
 # Combine and save RSF model outputs
 rsf_coefs_hab<-bind_rows(rsf_coefs_coast, rsf_coefs_grass, rsf_coefs_salt, rsf_coefs_arable, rsf_coefs_other)
 
-
+##HH NB - ONCE bound, remove the files from the environment to avoid accidentally including it in the next one
+rm(rsf_coefs_coast, rsf_coefs_grass, rsf_coefs_salt, rsf_coefs_arable, rsf_coefs_other)
 
 
 #setwd("C:/Users/gary.clewley/Desktop/BTO - GDC/2019- Wetland and Marine Team/_NE103 -- Headstarted Curlew tracking/Data/")
 setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/data/") #HH laptop
 
-save(rsf_coefs_hab, file="NE103_2022 report_RSF_models_cohort2023_OneDay.RData")
-save(rsf_coefs_hab, file="NE103_2022 report_RSF_models_cohort2023_OneWeek.RData")
-save(rsf_coefs_hab, file="NE103_2022 report_RSF_models_cohort2023_TwoWeeks.RData")
-save(rsf_coefs_hab, file="NE103_2022 report_RSF_models_cohort2023_SixWeeks.RData")
-save(rsf_coefs_hab, file="NE103_2022 report_RSF_models_cohort2023_July_Dec2023.RData")
+save(rsf_coefs_hab, file="NE103_2023 report_RSF_models_cohort2023_OneDay.RData")
+save(rsf_coefs_hab, file="NE103_2023 report_RSF_models_cohort2023_OneWeek.RData")
+save(rsf_coefs_hab, file="NE103_2023 report_RSF_models_cohort2023_TwoWeeks.RData")
+save(rsf_coefs_hab, file="NE103_2023 report_RSF_models_cohort2023_SixWeeks.RData")
+save(rsf_coefs_hab, file="NE103_2023 report_RSF_models_cohort2023_July_Dec2023.RData")
 
-save(rsf_coefs_hab, file="NE103_2022 report_RSF_models_cohort2122_Winter_PreBreed.RData")
-save(rsf_coefs_hab, file="NE103_2022 report_RSF_models_cohort2122_Spring_T.RData")
-save(rsf_coefs_hab, file="NE103_2022 report_RSF_models_cohort2122_Breeding_F.RData")
-save(rsf_coefs_hab, file="NE103_2022 report_RSF_models_cohort2122_Breeding_M.RData")
-save(rsf_coefs_hab, file="NE103_2022 report_RSF_models_cohort2122_Autumn_T_F.RData")
-save(rsf_coefs_hab, file="NE103_2022 report_RSF_models_cohort2122_Autumn_T_M.RData")
-save(rsf_coefs_hab, file="NE103_2022 report_RSF_models_cohort2122_Winter_PostBreed.RData")
+save(rsf_coefs_hab, file="NE103_2023 report_RSF_models_cohort2122_Winter_PreBreed.RData")
+save(rsf_coefs_hab, file="NE103_2023 report_RSF_models_cohort2122_Spring_T.RData")
+save(rsf_coefs_hab, file="NE103_2023 report_RSF_models_cohort2122_Breeding_F.RData")
+save(rsf_coefs_hab, file="NE103_2023 report_RSF_models_cohort2122_Breeding_M.RData")
+save(rsf_coefs_hab, file="NE103_2023 report_RSF_models_cohort2122_Autumn_T_F.RData")
+save(rsf_coefs_hab, file="NE103_2023 report_RSF_models_cohort2122_Autumn_T_M.RData")
+save(rsf_coefs_hab, file="NE103_2023 report_RSF_models_cohort2122_Winter_PostBreed.RData")
 
 
 
@@ -1342,19 +1344,19 @@ setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/data/") #HH laptop
 #load("NE103_2022 report_RSF_models_one week.RData")
 #load("NE103_2022 report_RSF_models_0E_22.RData")
 
-load("NE103_2022 report_RSF_models_cohort2023_OneDay.RData")
-load("NE103_2022 report_RSF_models_cohort2023_OneWeek.RData")
-load("NE103_2022 report_RSF_models_cohort2023_TwoWeeks.RData")
-load("NE103_2022 report_RSF_models_cohort2023_SixWeeks.RData")
-load("NE103_2022 report_RSF_models_cohort2023_July_Dec2023.RData")
+load("NE103_2023 report_RSF_models_cohort2023_OneDay.RData")
+load("NE103_2023 report_RSF_models_cohort2023_OneWeek.RData")
+load("NE103_2023 report_RSF_models_cohort2023_TwoWeeks.RData")
+load("NE103_2023 report_RSF_models_cohort2023_SixWeeks.RData")
+load("NE103_2023 report_RSF_models_cohort2023_July_Dec2023.RData")
 
-load("NE103_2022 report_RSF_models_cohort2122_Winter_PreBreed.RData")
-load("NE103_2022 report_RSF_models_cohort2122_Spring_T.RData")
-load("NE103_2022 report_RSF_models_cohort2122_Breeding_F.RData")
-load("NE103_2022 report_RSF_models_cohort2122_Breeding_M.RData")
-load("NE103_2022 report_RSF_models_cohort2122_Autumn_T_F.RData")
-load("NE103_2022 report_RSF_models_cohort2122_Autumn_T_M.RData")
-load("NE103_2022 report_RSF_models_cohort2122_Winter_PostBreed.RData")
+load("NE103_2023 report_RSF_models_cohort2122_Winter_PreBreed.RData")
+load("NE103_2023 report_RSF_models_cohort2122_Spring_T.RData")
+load("NE103_2023 report_RSF_models_cohort2122_Breeding_F.RData")
+load("NE103_2023 report_RSF_models_cohort2122_Breeding_M.RData")
+load("NE103_2023 report_RSF_models_cohort2122_Autumn_T_F.RData")
+load("NE103_2023 report_RSF_models_cohort2122_Autumn_T_M.RData")
+load("NE103_2023 report_RSF_models_cohort2122_Winter_PostBreed.RData")
 
 
 
@@ -1370,10 +1372,19 @@ x<-rsf_coefs_hab
 # Set factor
 x$term<-as.factor(as.character(x$term))
 
-# Filter intercept
+# Filter intercept   #Use the 'estimate' per bird and habitat in x in the appendix table for the beta column
 x<- x %>% filter(term!="(Intercept)")
 
-#Use the 'estimate' per bird and habitat in x in the appendix table for the beta column
+#read out as csv to make it easier to put into appendix table
+x_out <- data.frame(x)
+library(reshape2)
+x_out_id <- unique(x_out$id) 
+x_out_wide <- dcast(x_out, id  ~ term, value.var="estimate")
+x_out_wide$id<- factor(x_out_wide$id, levels= x_out_id)
+x_out_wide <- x_out_wide[,c(1,3,6,4,2,5)]
+write_csv(x_out_wide, here("output/myestimates.csv")) # this allows you to read out the output data as a csv for easiest copying to the report
+
+
 # Run linear model
 m1<-lm(x$estimate~x$term)
 summary(m1)
@@ -1407,9 +1418,11 @@ write.csv(mytest.contrast, here("output/mytest.csv"), row.names=F) # this allows
 #rsf_coefs_hab<- rsf_coefs_hab %>% filter(id!="Yf(8X)O/-:Y/m_KenHill"&id!="Yf(8L)O/-:Y/m_Sandringham")
 # all data
 #rsf_coefs_hab<- rsf_coefs_hab %>% filter(id!="Yf(7K)O/-:Y/m_Sandringham"&id!="Yf(8L)O/-:Y/m_Sandringham"&id!="Yf(8X)O/-:Y/m_KenHill")
+
+
 ####
 
-#OUTLIER CHECK AND REMOVAL:
+#HH NB - OUTLIER CHECK AND VIEW IN PLOT CONSTRICTED TO ZOOM IN ON THE OTHER PART OF GRAPH. NOT removed from dataset or model:
 #HH trial and final removing of outliers 
 #One day - 
     #MAJOR outliers for birds: "Yf(XL)O/-:Y/m_Sandringham", "Yf(YK)O/-:Y/m_Sandringham" , "Yf(XE)O/-:Y/m_Sandringham"
@@ -1420,8 +1433,8 @@ write.csv(mytest.contrast, here("output/mytest.csv"), row.names=F) # this allows
 #test <- rsf_coefs_hab %>% filter(id=="Yf(XL)O/-:Y/m_Sandringham" | id=="Yf(YK)O/-:Y/m_Sandringham" | id=="Yf(XE)O/-:Y/m_Sandringham" |
 #id=="Yf(YX)O/-:Y/m_Sandringham" | id=="f(LU)O/-:Y/m_Sandringham")
 
-rsf_coefs_hab<- rsf_coefs_hab %>% filter(id!="Yf(XL)O/-:Y/m_Sandringham" & id!="Yf(YK)O/-:Y/m_Sandringham" & id!="Yf(XE)O/-:Y/m_Sandringham" &
-                                           id!="Yf(YX)O/-:Y/m_Sandringham" & id!="Yf(LU)O/-:Y/m_Sandringham")
+#rsf_coefs_hab<- rsf_coefs_hab %>% filter(id!="Yf(XL)O/-:Y/m_Sandringham" & id!="Yf(YK)O/-:Y/m_Sandringham" & id!="Yf(XE)O/-:Y/m_Sandringham" &
+ #                                          id!="Yf(YX)O/-:Y/m_Sandringham" & id!="Yf(LU)O/-:Y/m_Sandringham")
 
 
 #One week - MAJOR outliers for birds: "Yf(YX)O/-:Y/m_Sandringham"
@@ -1429,7 +1442,7 @@ rsf_coefs_hab<- rsf_coefs_hab %>% filter(id!="Yf(XL)O/-:Y/m_Sandringham" & id!="
 #test <- rsf_coefs_hab %>% filter(id=="Yf(YX)O/-:Y/m_Sandringham")
 #test <- rsfdat %>% filter(id=="Yf(YX)O/-:Y/m_Sandringham") #almost 100% fixes in arable so removed as an outlier
 
-rsf_coefs_hab<- rsf_coefs_hab %>% filter(id!="Yf(YX)O/-:Y/m_Sandringham")
+#rsf_coefs_hab<- rsf_coefs_hab %>% filter(id!="Yf(YX)O/-:Y/m_Sandringham")
 
 
 #Two weeks - MAJOR outliers for birds: "Yf(YX)O/-:Y/m_Sandringham"
@@ -1437,7 +1450,7 @@ rsf_coefs_hab<- rsf_coefs_hab %>% filter(id!="Yf(YX)O/-:Y/m_Sandringham")
 #test <- rsf_coefs_hab %>% filter(id=="Yf(YX)O/-:Y/m_Sandringham")
 #test <- rsfdat %>% filter(id=="Yf(YX)O/-:Y/m_Sandringham") # 100% fixes in arable so removed as an outlier - notes say this bird was found dead 22/09/2023. (36 days after release). This habitat use suggests that it could have been dead before this? But found in diff habiats in 6wks so maybe not
 
-rsf_coefs_hab<- rsf_coefs_hab %>% filter(id!="Yf(YX)O/-:Y/m_Sandringham")
+#rsf_coefs_hab<- rsf_coefs_hab %>% filter(id!="Yf(YX)O/-:Y/m_Sandringham")
 
 
 #Six weeks - "Yf(YX)O/-:Y/m_Sandringham" left in as the prop of fixes used in different habitats varied not just arable
@@ -1451,7 +1464,7 @@ rsf_coefs_hab<- rsf_coefs_hab %>% filter(id!="Yf(YX)O/-:Y/m_Sandringham")
 #test <- rsf_coefs_hab %>% filter(id=="Yf(7K)O/-:Y/m_Sandringham")
 #test <- rsfdat %>% filter(id=="Yf(7K)O/-:Y/m_Sandringham") # almost 100% fixes in coastal sediment. Remove trialed:
 
-rsf_coefs_hab<- rsf_coefs_hab %>% filter(id!="Yf(7K)O/-:Y/m_Sandringham")
+#rsf_coefs_hab<- rsf_coefs_hab %>% filter(id!="Yf(7K)O/-:Y/m_Sandringham")
 
 
 
@@ -1482,7 +1495,7 @@ d2a$x <- 1:nrow(d2a)
 
 
 
-
+options(scipen=3000000)
 # Plot (habitat factor listed under term from model outputs)
 rsf_coefs_hab %>% filter(term!="(Intercept)") %>%	ggplot(., ) +
   geom_point(aes(x = term, y = exp(estimate), group = id, col = id),
@@ -1496,21 +1509,22 @@ rsf_coefs_hab %>% filter(term!="(Intercept)") %>%	ggplot(., ) +
                linewidth = 1) +
   geom_hline(yintercept = 0, lty = 2) +
   labs(x = "Habitat", y = "Relative Selection Strength") +
+  coord_cartesian(ylim=c(-10,20)) +                                         #keep this line in ONLY when need to constrain the y axis
   theme(legend.position="none") +
   theme(axis.text.x = element_text(size = 12),axis.text.y = element_text(size = 12),
         axis.title.x = element_text(size = 14),axis.title.y = element_text(size = 14),
         strip.text.x = element_text(size = 12, face="bold")) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
       panel.background = element_blank(), axis.line = element_line(colour = "black"))+
-  ggtitle("Winter - post-breeding")   ## UPDATE MANUALLY
+  ggtitle("Winter - post-breeding (cropped - one outlier outside view)")   ## UPDATE MANUALLY #HH NB if cropping to ignore outliers add in (cropped - one outlier outside view)
 
 
 
 
 # Save plot
 #setwd("C:/Users/gary.clewley/Desktop/BTO - GDC/2019- Wetland and Marine Team/_NE103 -- Headstarted Curlew tracking/Outputs/")
-setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/output/Figures/") #HH NB laptop
-ggsave("NE103_Headtsart CURLE_RSS plot_10_winter_postBreed_7Kremoved.jpg", width=15, height=15, units="cm", dpi=300)  ## UPDATE FILENAME
+setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/output/Figures/RSS/") #HH NB laptop
+ggsave("NE103_2023_Headtsart CURLE_RSS plot_10_Winter_postbreed_OUTLIER.jpg", width=15, height=15, units="cm", dpi=300)  ## UPDATE FILENAME
 
 
 
