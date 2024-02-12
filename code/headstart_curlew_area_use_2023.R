@@ -853,7 +853,7 @@ grd_rank_birds<- rank_time(indata_grd, population = FALSE) # Individual level
 
 
 
-# PLOTTING  ##HH  NB - Utilisation Distribution TIA plots ####
+# PLOTTING  ##HH  NB - Utilisation Distribution TIA plots - THE WASH ####
 
 # Set axes limit (units m here) - trial and error to set suitable bounds. centered on the colony. units m
 xRa<-c(-35000,28000)
@@ -919,8 +919,85 @@ dev.off()
 
 
 
+# PLOTTING  ##HH  NB - Utilisation Distribution TIA plots - THE UK and SE for 2021 & 2022 cohorts ####
 
-##HH NB add in here a plot for other parts of the UK??####
+#This is to assess if the older cohort birds are using other parts of the UK aside from the Wash which are accounted for in the avalible/used panel but not in the TIA
+#2023 - only the Breeding season (Female) had one - Rotchester
+
+#Use same colony lat and long as for the wash
+
+# Set axes limit (units m here) - trial and error to set suitable bounds. centered on the colony. units m
+
+#whole of UK
+xRa<-c(-622435.4,224987.6)
+yRa<-c(-414008.8,886812.5)
+
+
+#slight zoom in:
+xRa<-c(-622435.4,124987.6)
+yRa<-c(-314008.8,686812.5)
+
+
+#southeast of the UK
+xRa<-c(-122435.4,24987.6)
+yRa<-c(-214008.8,86812.5)
+
+####--- this is setting up new units to put lat long onto the map without re-projecting the data... not ideal but it's what Garry did before ... 
+# prepare new axes in lat/long - 
+earth <- 6378.137
+m <- (1 / ((2 * pi / 360) * earth)) /1000
+
+new_lat_lower <- round(ColLat + (min(yRa) * m),1)     ## multiply xyRa by 100 if working in p4 units km
+new_lat_upper <- round(ColLat + (max(yRa) * m),1)
+new_long_lower <- round(ColLon + (min(xRa) * m) / cos(ColLat * (pi / 180)),1)
+new_long_upper <- round(ColLon + (max(xRa) * m) / cos(ColLat * (pi / 180)),1)	
+
+lab_long<-seq(new_long_lower, new_long_upper,length.out=length(seq(min(xRa), max(xRa),by=5000)))
+lab_lat<-seq(new_lat_lower, new_lat_upper,length.out=length(seq(min(yRa), max(yRa),by=5000)))
+
+
+# Get colours
+# Get hex colours from viridis (colour blind friendly)
+#scales::viridis_pal()(3)
+#   "#440154FF" "#21908CFF" "#FDE725FF"                 # For GPS plots
+#   "#440154FF" "#31688EFF" "#35B779FF" "#FDE725FF"     # For TIA plots #four categories of the "Bins" = cut offs of the distribution, 50%, 75%, 95%, 100%
+
+
+
+
+# Set directory (outside of Github here)
+#dir<-"C:/Users/gary.clewley/Desktop/BTO - GDC/2019- Wetland and Marine Team/_NE103 -- Headstarted Curlew tracking/Outputs/"
+dir <- "C:/Users/hannah.hereward/Documents/Projects/2024_curlewheadstarting/curlew_headstarting/output/Figures/" #HH laptop directory
+plot_name<-"NE103_Headstart CURLEW_TIA_2023_PREVIOUSCOHORT_10_Winter_PostBreed_UK_SE.tiff"
+
+
+
+# Set plot device (saving hi-res base R maps)
+tiff(paste0(dir,plot_name), width=25, height=23, units="cm", pointsize=18, res=600, compression ="lzw")
+
+#HH NB: updated as sp package was discontinued. terra used now according to plot_TIA
+#removed: 
+terra::plot(ukmap$geometry, xlim=xRa, ylim=yRa,col="grey80",border="grey80", axes=T, yaxt="n",  #need to specify here ukmap$geometry
+            xaxt="n", xlab="Longitude", ylab="Latitude",
+            main="Winter post-breeding")# UPDATE MANUALLY                     
+#axis(1)
+#axis(2)
+axis(1, at=seq(min(xRa), max(xRa),by=5000), labels=round(lab_long,2)) 
+axis(2, at=seq(min(yRa), max(yRa),by=5000), labels=round(lab_lat,2))
+
+
+#HH NB. had error for this plot about memory. UPDATE: needed to specify the ukmap$geometry in the terra::plot above and now it works
+# UPDATE INDIVIDUAL BETWEEN PLOTS
+plot_TIA(data=grd_rank_all,Add=TRUE,                    # UPDATE ID SELECTION. grd_rank_birds OR grd_rank_all ??
+         xra=xRa, yra=yRa,
+         g_levs = c(1,0.95,0.75,0.5),
+         c_levs = c(0.95,0.75,0.5),
+         col_ramp_grd =c("#440154FF", "#31688EFF", "#35B779FF", "#FDE725FF"), #TIA colours for the 50%, 75%, 95% and 100%
+         #col_ramp_con =c("#31688EFF", "#35B779FF", "#FDE725FF"), #colours for the countour lines rather than grided 
+         cont_typ=1) # if this is 4 you can plot it outside the function and it returns an object in R 
+
+#HH NB. dev.off needs running to 'close' the tiff and save it - without running this bit it won't save !
+dev.off()
 
 
 
@@ -1282,6 +1359,7 @@ rsf_gof$auc_test # viewing this as a tab gets slower
 #copy the AUC for each bird to clipboard
 writeClipboard(as.character(rsf_gof$auc_test))
 
+###beta_sub[beta_sub$id==rsf_gof$id, beta_sub$'Coastal.sediment']
 
 # tidy model outputs
 rsffits <- rsffits %>%
@@ -1332,7 +1410,97 @@ save(rsf_coefs_hab, file="NE103_2023 report_RSF_models_cohort2122_Winter_PostBre
 
 
 
+#istead of the code above - set up the run individually per habitat:
 
+### coastal
+#HH NB: list of separate columns need to be run in line below: Coastal,Grassland, Saltmarsh, Arable, Other
+# Fit habitat model for each habitat to each individual #HH NB this has to be manually changed for each time period AND each habitat per time period
+rsffits <- rsfdat  %>% nest(data=-"id") %>%   mutate(mod = map(data, function(x) glm(case_ ~ Coastal, data = x, weight=w,family = binomial)))
+
+
+# Check goodness of fit #HH NB this is an appendix table
+# Running issues originally due to na.action = argument not set. Ran later and daved manually (writeClipboard(as.character(rsf_gof$auc_test)))
+rsf_gof <- rsfdat  %>% nest(data=-"id") %>%   mutate(auc_test = map(data, function(x) pROC::auc(pROC::roc(x$case_~(predict(glm(case_ ~ Coastal, data = x, weight=w,family = binomial, na.action=na.exclude), type=c("response"))))))) #edit response var
+
+
+rsf_gof$auc_test # viewing this as a tab gets slower
+
+#copy the AUC for each bird to clipboard
+writeClipboard(as.character(rsf_gof$auc_test))
+
+###beta_sub[beta_sub$id==rsf_gof$id, beta_sub$'Coastal.sediment']
+
+# tidy model outputs
+rsffits <- rsffits %>%
+  dplyr::mutate(tidy = purrr::map(mod, broom::tidy),
+                n = purrr::map(data, nrow))
+
+# Unnest and tidy outputs
+rsf_coefs<-rsffits %>% unnest(c(tidy)) %>%  
+  select(-(std.error:p.value))
+
+# rm data from coefs object for efficiency
+rsf_coefs<-within(rsf_coefs, rm(data))
+rsf_coefs<-within(rsf_coefs, rm(mod))
+
+
+#HH NB: list of separate columns need to be run in line below: Coastal,Grassland, Saltmarsh, Arable, Other
+# Name for habitat and ***** repeat code above******* #HH NB - have to update this manually!
+rsf_coefs_coast<-rsf_coefs
+
+
+### Grassland
+#HH NB: list of separate columns need to be run in line below: Coastal,Grassland, Saltmarsh, Arable, Other
+# Fit habitat model for each habitat to each individual #HH NB this has to be manually changed for each time period AND each habitat per time period
+rsffits <- rsfdat  %>% nest(data=-"id") %>%   mutate(mod = map(data, function(x) glm(case_ ~ Grassland, data = x, weight=w,family = binomial)))
+
+
+## Gary's note: DO NOT open rsffits object from R Studio panel view(rsffits) - keep crashing on 3.6.1 ##HH NB: opens fine in R 4.2.2
+
+# Check goodness of fit #HH NB this is an appendix table
+# Running issues originally due to na.action = argument not set. Ran later and daved manually (writeClipboard(as.character(rsf_gof$auc_test)))
+# Could integrate into tidy output if needed
+
+rsf_gof <- rsfdat  %>% nest(data=-"id") %>%   mutate(auc_test = map(data, function(x) pROC::auc(pROC::roc(x$case_~(predict(glm(case_ ~ Grassland, data = x, weight=w,family = binomial, na.action=na.exclude), type=c("response"))))))) #edit response var
+
+
+
+### Saltmarsh
+
+### Arable
+
+### Other
+
+
+###
+# Combine and save RSF model outputs
+rsf_coefs_hab<-bind_rows(rsf_coefs_coast, rsf_coefs_grass, rsf_coefs_salt, rsf_coefs_arable, rsf_coefs_other)
+
+##HH NB - ONCE bound, remove the files from the environment to avoid accidentally including it in the next one
+rm(rsf_coefs_coast, rsf_coefs_grass, rsf_coefs_salt, rsf_coefs_arable, rsf_coefs_other)
+
+
+#setwd("C:/Users/gary.clewley/Desktop/BTO - GDC/2019- Wetland and Marine Team/_NE103 -- Headstarted Curlew tracking/Data/")
+setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/data/") #HH laptop
+
+save(rsf_coefs_hab, file="NE103_2023 report_RSF_models_cohort2023_OneDay.RData")
+save(rsf_coefs_hab, file="NE103_2023 report_RSF_models_cohort2023_OneWeek.RData")
+save(rsf_coefs_hab, file="NE103_2023 report_RSF_models_cohort2023_TwoWeeks.RData")
+save(rsf_coefs_hab, file="NE103_2023 report_RSF_models_cohort2023_SixWeeks.RData")
+save(rsf_coefs_hab, file="NE103_2023 report_RSF_models_cohort2023_July_Dec2023.RData")
+
+save(rsf_coefs_hab, file="NE103_2023 report_RSF_models_cohort2122_Winter_PreBreed.RData")
+save(rsf_coefs_hab, file="NE103_2023 report_RSF_models_cohort2122_Spring_T.RData")
+save(rsf_coefs_hab, file="NE103_2023 report_RSF_models_cohort2122_Breeding_F.RData")
+save(rsf_coefs_hab, file="NE103_2023 report_RSF_models_cohort2122_Breeding_M.RData")
+save(rsf_coefs_hab, file="NE103_2023 report_RSF_models_cohort2122_Autumn_T_F.RData")
+save(rsf_coefs_hab, file="NE103_2023 report_RSF_models_cohort2122_Autumn_T_M.RData")
+save(rsf_coefs_hab, file="NE103_2023 report_RSF_models_cohort2122_Winter_PostBreed.RData")
+
+
+
+
+#### Stat testing RSF - two-stage modeling ####
 
 # Load RSF models
 #setwd("C:/Users/gary.clewley/Desktop/BTO - GDC/2019- Wetland and Marine Team/_NE103 -- Headstarted Curlew tracking/Data/")
