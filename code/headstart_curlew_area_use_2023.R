@@ -1330,7 +1330,9 @@ x<-as.data.frame(rsfdat %>% with(table(id,used,layer))) #HH NB - LCM = layer in 
 x<-x %>% filter (layer!="Coastal Rock") # HH NB - Gary's code here removed the 2021 bird and coastal rock layer. May or may not be needed for each time period
 
 
+####
 
+#### HH NB - Gary's code - HH alternative code below ####
 #HH NB: list of separate columns need to be run in line below: Coastal,Grassland, Saltmarsh, Arable, Other
 # Fit habitat model for each habitat to each individual #HH NB this has to be manually changed for each time period AND each habitat per time period
 rsffits <- rsfdat  %>% nest(data=-"id") %>%   mutate(mod = map(data, function(x) glm(case_ ~ Coastal, data = x, weight=w,family = binomial)))
@@ -1410,7 +1412,7 @@ save(rsf_coefs_hab, file="NE103_2023 report_RSF_models_cohort2122_Winter_PostBre
 
 
 
-#istead of the code above - set up the run individually per habitat:
+#instead of the code above - set up to run individually per habitat: ####
 
 ### coastal
 #HH NB: list of separate columns need to be run in line below: Coastal,Grassland, Saltmarsh, Arable, Other
@@ -1428,7 +1430,7 @@ rsf_gof$auc_test # viewing this as a tab gets slower
 #copy the AUC for each bird to clipboard
 writeClipboard(as.character(rsf_gof$auc_test))
 
-###beta_sub[beta_sub$id==rsf_gof$id, beta_sub$'Coastal.sediment']
+
 
 # tidy model outputs
 rsffits <- rsffits %>%
@@ -1463,13 +1465,146 @@ rsffits <- rsfdat  %>% nest(data=-"id") %>%   mutate(mod = map(data, function(x)
 
 rsf_gof <- rsfdat  %>% nest(data=-"id") %>%   mutate(auc_test = map(data, function(x) pROC::auc(pROC::roc(x$case_~(predict(glm(case_ ~ Grassland, data = x, weight=w,family = binomial, na.action=na.exclude), type=c("response"))))))) #edit response var
 
+rsf_gof$auc_test # viewing this as a tab gets slower
+
+#copy the AUC for each bird to clipboard
+writeClipboard(as.character(rsf_gof$auc_test))
+
+###beta_sub[beta_sub$id==rsf_gof$id, beta_sub$'Coastal.sediment']
+
+# tidy model outputs
+rsffits <- rsffits %>%
+  dplyr::mutate(tidy = purrr::map(mod, broom::tidy),
+                n = purrr::map(data, nrow))
+
+# Unnest and tidy outputs
+rsf_coefs<-rsffits %>% unnest(c(tidy)) %>%  
+  select(-(std.error:p.value))
+
+# rm data from coefs object for efficiency
+rsf_coefs<-within(rsf_coefs, rm(data))
+rsf_coefs<-within(rsf_coefs, rm(mod))
+
+
+#HH NB: list of separate columns need to be run in line below: Coastal,Grassland, Saltmarsh, Arable, Other
+# Name for habitat and ***** repeat code above******* #HH NB - have to update this manually!
+rsf_coefs_grass<-rsf_coefs
 
 
 ### Saltmarsh
+#HH NB: list of separate columns need to be run in line below: Coastal,Grassland, Saltmarsh, Arable, Other
+# Fit habitat model for each habitat to each individual #HH NB this has to be manually changed for each time period AND each habitat per time period
+rsffits <- rsfdat  %>% nest(data=-"id") %>%   mutate(mod = map(data, function(x) glm(case_ ~ Saltmarsh, data = x, weight=w,family = binomial)))
+
+
+## Gary's note: DO NOT open rsffits object from R Studio panel view(rsffits) - keep crashing on 3.6.1 ##HH NB: opens fine in R 4.2.2
+
+# Check goodness of fit #HH NB this is an appendix table
+# Running issues originally due to na.action = argument not set. Ran later and daved manually (writeClipboard(as.character(rsf_gof$auc_test)))
+# Could integrate into tidy output if needed
+rsf_gof <- rsfdat  %>% nest(data=-"id") %>%   mutate(auc_test = map(data, function(x) pROC::auc(pROC::roc(x$case_~(predict(glm(case_ ~ Saltmarsh, data = x, weight=w,family = binomial, na.action=na.exclude), type=c("response"))))))) #edit response var
+
+
+rsf_gof$auc_test # viewing this as a tab gets slower
+
+#copy the AUC for each bird to clipboard
+writeClipboard(as.character(rsf_gof$auc_test))
+
+###beta_sub[beta_sub$id==rsf_gof$id, beta_sub$'Coastal.sediment']
+
+# tidy model outputs
+rsffits <- rsffits %>%
+  dplyr::mutate(tidy = purrr::map(mod, broom::tidy),
+                n = purrr::map(data, nrow))
+
+# Unnest and tidy outputs
+rsf_coefs<-rsffits %>% unnest(c(tidy)) %>%  
+  select(-(std.error:p.value))
+
+# rm data from coefs object for efficiency
+rsf_coefs<-within(rsf_coefs, rm(data))
+rsf_coefs<-within(rsf_coefs, rm(mod))
+
+#HH NB: list of separate columns need to be run in line below: Coastal,Grassland, Saltmarsh, Arable, Other
+# Name for habitat and ***** repeat code above******* #HH NB - have to update this manually!
+rsf_coefs_salt<-rsf_coefs
+
 
 ### Arable
+#HH NB: list of separate columns need to be run in line below: Coastal,Grassland, Saltmarsh, Arable, Other
+# Fit habitat model for each habitat to each individual #HH NB this has to be manually changed for each time period AND each habitat per time period
+rsffits <- rsfdat  %>% nest(data=-"id") %>%   mutate(mod = map(data, function(x) glm(case_ ~ Arable, data = x, weight=w,family = binomial)))
+
+
+## Gary's note: DO NOT open rsffits object from R Studio panel view(rsffits) - keep crashing on 3.6.1 ##HH NB: opens fine in R 4.2.2
+
+# Check goodness of fit #HH NB this is an appendix table
+# Running issues originally due to na.action = argument not set. Ran later and daved manually (writeClipboard(as.character(rsf_gof$auc_test)))
+# Could integrate into tidy output if needed
+rsf_gof <- rsfdat  %>% nest(data=-"id") %>%   mutate(auc_test = map(data, function(x) pROC::auc(pROC::roc(x$case_~(predict(glm(case_ ~ Arable, data = x, weight=w,family = binomial, na.action=na.exclude), type=c("response"))))))) #edit response var
+
+rsf_gof$auc_test # viewing this as a tab gets slower
+
+#copy the AUC for each bird to clipboard
+writeClipboard(as.character(rsf_gof$auc_test))
+
+###beta_sub[beta_sub$id==rsf_gof$id, beta_sub$'Coastal.sediment']
+
+# tidy model outputs
+rsffits <- rsffits %>%
+  dplyr::mutate(tidy = purrr::map(mod, broom::tidy),
+                n = purrr::map(data, nrow))
+
+# Unnest and tidy outputs
+rsf_coefs<-rsffits %>% unnest(c(tidy)) %>%  
+  select(-(std.error:p.value))
+
+# rm data from coefs object for efficiency
+rsf_coefs<-within(rsf_coefs, rm(data))
+rsf_coefs<-within(rsf_coefs, rm(mod))
+
+#HH NB: list of separate columns need to be run in line below: Coastal,Grassland, Saltmarsh, Arable, Other
+# Name for habitat and ***** repeat code above******* #HH NB - have to update this manually!
+rsf_coefs_arable<-rsf_coefs
+
 
 ### Other
+#HH NB: list of separate columns need to be run in line below: Coastal,Grassland, Saltmarsh, Arable, Other
+# Fit habitat model for each habitat to each individual #HH NB this has to be manually changed for each time period AND each habitat per time period
+rsffits <- rsfdat  %>% nest(data=-"id") %>%   mutate(mod = map(data, function(x) glm(case_ ~ Other, data = x, weight=w,family = binomial)))
+
+
+
+## Gary's note: DO NOT open rsffits object from R Studio panel view(rsffits) - keep crashing on 3.6.1 ##HH NB: opens fine in R 4.2.2
+
+# Check goodness of fit #HH NB this is an appendix table
+# Running issues originally due to na.action = argument not set. Ran later and daved manually (writeClipboard(as.character(rsf_gof$auc_test)))
+# Could integrate into tidy output if needed
+rsf_gof <- rsfdat  %>% nest(data=-"id") %>%   mutate(auc_test = map(data, function(x) pROC::auc(pROC::roc(x$case_~(predict(glm(case_ ~ Other, data = x, weight=w,family = binomial, na.action=na.exclude), type=c("response"))))))) #edit response var
+
+rsf_gof$auc_test # viewing this as a tab gets slower
+
+#copy the AUC for each bird to clipboard
+writeClipboard(as.character(rsf_gof$auc_test))
+
+###beta_sub[beta_sub$id==rsf_gof$id, beta_sub$'Coastal.sediment']
+
+# tidy model outputs
+rsffits <- rsffits %>%
+  dplyr::mutate(tidy = purrr::map(mod, broom::tidy),
+                n = purrr::map(data, nrow))
+
+# Unnest and tidy outputs
+rsf_coefs<-rsffits %>% unnest(c(tidy)) %>%  
+  select(-(std.error:p.value))
+
+# rm data from coefs object for efficiency
+rsf_coefs<-within(rsf_coefs, rm(data))
+rsf_coefs<-within(rsf_coefs, rm(mod))
+
+#HH NB: list of separate columns need to be run in line below: Coastal,Grassland, Saltmarsh, Arable, Other
+# Name for habitat and ***** repeat code above******* #HH NB - have to update this manually!
+rsf_coefs_other<-rsf_coefs 
 
 
 ###
@@ -1677,14 +1812,14 @@ rsf_coefs_hab %>% filter(term!="(Intercept)") %>%	ggplot(., ) +
                linewidth = 1) +
   geom_hline(yintercept = 0, lty = 2) +
   labs(x = "Habitat", y = "Relative Selection Strength") +
-  coord_cartesian(ylim=c(-10,20)) +                                         #keep this line in ONLY when need to constrain the y axis
+  coord_cartesian(ylim=c(-10,30)) +                                         #keep this line in ONLY when need to constrain the y axis
   theme(legend.position="none") +
   theme(axis.text.x = element_text(size = 12),axis.text.y = element_text(size = 12),
         axis.title.x = element_text(size = 14),axis.title.y = element_text(size = 14),
         strip.text.x = element_text(size = 12, face="bold")) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
       panel.background = element_blank(), axis.line = element_line(colour = "black"))+
-  ggtitle("Winter - post-breeding (cropped - one outlier outside view)")   ## UPDATE MANUALLY #HH NB if cropping to ignore outliers add in (cropped - one outlier outside view)
+  ggtitle("Six weeks post-release (all birds)")   ## UPDATE MANUALLY #HH NB if cropping to ignore outliers add in (cropped - one outlier outside view)
 
 
 
@@ -1692,7 +1827,7 @@ rsf_coefs_hab %>% filter(term!="(Intercept)") %>%	ggplot(., ) +
 # Save plot
 #setwd("C:/Users/gary.clewley/Desktop/BTO - GDC/2019- Wetland and Marine Team/_NE103 -- Headstarted Curlew tracking/Outputs/")
 setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/output/Figures/RSS/") #HH NB laptop
-ggsave("NE103_2023_Headtsart CURLE_RSS plot_10_Winter_postbreed_OUTLIER.jpg", width=15, height=15, units="cm", dpi=300)  ## UPDATE FILENAME
+ggsave("NE103_2023_Headtsart CURLE_RSS plot_4_SixWeeks_postrelease_all.jpg", width=15, height=15, units="cm", dpi=300)  ## UPDATE FILENAME
 
 
 
