@@ -700,9 +700,10 @@ data <- data_2023
 #12= "9b Male Autumn fuzzy" 
 #2="10 End of December - Winter" 
 
-datasplit <- c("1 One Day" ,"2 One Week" ,"3 Two Weeks" , "4 Six Weeks" ,"5 End of December" ,
-                 "6 Winter pre-breeding" , "7 Spring fuzzy" , "8a Female Breeding Season" , "8b Male Breeding Season" ,
-                 "9a Female Autumn fuzzy","9b Male Autumn fuzzy", "10 End of December - Winter" )
+#HH NB - useful if going to use a loop
+#datasplit <- c("1 One Day" ,"2 One Week" ,"3 Two Weeks" , "4 Six Weeks" ,"5 End of December" ,
+ #                "6 Winter pre-breeding" , "7 Spring fuzzy" , "8a Female Breeding Season" , "8b Male Breeding Season" ,
+  #               "9a Female Autumn fuzzy","9b Male Autumn fuzzy", "10 End of December - Winter" )
 
 
 #### TIME IN AREA #HH NB - Leaflet plots ####
@@ -769,6 +770,22 @@ data_tide<-TrackStack2Track(data[[2]])
 data_tide<-data_tide %>% filter(tide!="NA")
 data_tide$Tide<-as.character(fct_recode(data_tide$tide, "High tide" = "HW", "Low tide" = "LW") )
 plot_leaflet(data_tide, plotby="Tide", lines=FALSE, col=c("#31688EFF","#35B779FF")) #code update - now "plot_leaflet" not "plot_leaflet_dev"
+
+
+
+
+#HH addition - save per release site for 1day post release
+scales::viridis_pal()(7)
+
+data_site <- TrackStack2Track(data[[1]])
+
+data_site_ken <- data_site %>% filter(data_site$release_site_final=="Ken Hill")
+unique(data_site_ken$TagID) #9
+plot_leaflet(data_site_ken, lines=FALSE, col=c("#440154FF", "#472D7BFF", "#3B528BFF", "#2C728EFF", "#21908CFF" ,"#27AD81FF" ,"#5DC863FF" ,"#AADC32FF" ,"#FDE725FF"))
+
+data_site_san <- data_site %>% filter(data_site$release_site_final=="Sandringham 2")
+unique(data_site_san$TagID) #9
+plot_leaflet(data_site_san, lines=FALSE, col=c("#440154FF", "#472D7BFF", "#3B528BFF", "#2C728EFF", "#21908CFF" ,"#27AD81FF" ,"#5DC863FF" ,"#AADC32FF" ,"#FDE725FF"))
 
 
 
