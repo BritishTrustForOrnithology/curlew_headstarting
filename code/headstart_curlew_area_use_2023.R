@@ -775,17 +775,19 @@ plot_leaflet(data_tide, plotby="Tide", lines=FALSE, col=c("#31688EFF","#35B779FF
 
 
 #HH addition - save per release site for 1day post release
-scales::viridis_pal()(7)
+scales::viridis_pal()(9)
+#"#440154FF", "#482878FF" ,"#3E4A89FF" ,"#31688EFF", "#26828EFF", "#1F9E89FF", "#35B779FF", "#6DCD59FF", "#B4DE2CFF" ,"#FDE725FF"
+#"#440154FF" ,"#472D7BFF", "#3B528BFF" ,"#2C728EFF" ,"#21908CFF", "#27AD81FF", "#5DC863FF" ,"#AADC32FF", "#FDE725FF"
 
 data_site <- TrackStack2Track(data[[1]])
 
 data_site_ken <- data_site %>% filter(data_site$release_site_final=="Ken Hill")
 unique(data_site_ken$TagID) #9
-plot_leaflet(data_site_ken, lines=FALSE, col=c("#440154FF", "#472D7BFF", "#3B528BFF", "#2C728EFF", "#21908CFF" ,"#27AD81FF" ,"#5DC863FF" ,"#AADC32FF" ,"#FDE725FF"))
+plot_leaflet(data_site_ken, lines=FALSE, col=c("#440154FF", "#482878FF" ,"#3E4A89FF" ,"#31688EFF", "#26828EFF", "#1F9E89FF", "#35B779FF", "#6DCD59FF", "#B4DE2CFF" ))
 
 data_site_san <- data_site %>% filter(data_site$release_site_final=="Sandringham 2")
 unique(data_site_san$TagID) #9
-plot_leaflet(data_site_san, lines=FALSE, col=c("#440154FF", "#472D7BFF", "#3B528BFF", "#2C728EFF", "#21908CFF" ,"#27AD81FF" ,"#5DC863FF" ,"#AADC32FF" ,"#FDE725FF"))
+plot_leaflet(data_site_san, lines=FALSE, col=c("#440154FF" ,"#472D7BFF", "#3B528BFF" ,"#2C728EFF" ,"#21908CFF", "#27AD81FF", "#5DC863FF" ,"#AADC32FF", "#FDE725FF"))
 
 
 
