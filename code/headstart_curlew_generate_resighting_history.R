@@ -17,7 +17,7 @@
 
 # which individual(s) for resighting history
 
-individual_id_list <- c("8H")
+individual_id_list <- c("0Y")
 
 
 # =======================    Control values   =================
