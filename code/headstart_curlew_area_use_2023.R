@@ -781,13 +781,15 @@ scales::viridis_pal()(9)
 
 data_site <- TrackStack2Track(data[[1]])
 
-data_site_ken <- data_site %>% filter(data_site$release_site_final=="Ken Hill")
+data_site_ken <- droplevels(data_site %>% filter(data_site$release_site_final=="Ken Hill"))
 unique(data_site_ken$TagID) #9
 plot_leaflet(data_site_ken, lines=FALSE, col=c("#440154FF", "#482878FF" ,"#3E4A89FF" ,"#31688EFF", "#26828EFF", "#1F9E89FF", "#35B779FF", "#6DCD59FF", "#B4DE2CFF" ))
+plot_leaflet(data_site_ken, lines=FALSE, col=viridis_pal()(9)) # KMB, new colour scheme, needs libraries Viridis and ViridisLite
 
-data_site_san <- data_site %>% filter(data_site$release_site_final=="Sandringham 2")
+data_site_san <- droplevels(data_site %>% filter(data_site$release_site_final=="Sandringham 2"))
 unique(data_site_san$TagID) #9
 plot_leaflet(data_site_san, lines=FALSE, col=c("#440154FF" ,"#472D7BFF", "#3B528BFF" ,"#2C728EFF" ,"#21908CFF", "#27AD81FF", "#5DC863FF" ,"#AADC32FF", "#FDE725FF"))
+plot_leaflet(data_site_san, lines=FALSE, col=viridis_pal()(9))# KMB, new colour scheme, needs libraries Viridis and ViridisLite
 
 
 
@@ -795,14 +797,15 @@ plot_leaflet(data_site_san, lines=FALSE, col=c("#440154FF" ,"#472D7BFF", "#3B528
 
 data_site <- TrackStack2Track(data[[3]])
   
-data_site_ken <- data_site %>% filter(data_site$release_site_final=="Ken Hill")
+data_site_ken <- droplevels(data_site %>% filter(data_site$release_site_final=="Ken Hill"))
 unique(data_site_ken$TagID) #8
 plot_leaflet(data_site_ken, lines=FALSE, col=c("#440154FF", "#46337EFF", "#365C8DFF" ,"#277F8EFF", "#1FA187FF", "#4AC16DFF" ,"#9FDA3AFF", "#FDE725FF"))
+plot_leaflet(data_site_ken, lines=FALSE, col=viridis_pal()(8)) # KMB, new colour scheme, needs libraries Viridis and ViridisLite
 
-data_site_san <- data_site %>% filter(data_site$release_site_final=="Sandringham 2")
-unique(data_site_san$TagID) #6
-scales::viridis_pal()(9) # "#440154FF" "#472D7BFF" "#3B528BFF" "#2C728EFF" "#21908CFF" "#27AD81FF" "#5DC863FF" "#AADC32FF" "#FDE725FF"
+data_site_san <- droplevels(data_site %>% filter(data_site$release_site_final=="Sandringham 2"))
+unique(data_site_san$TagID) #9 (HH had 6 but 9 here for KMB)
 plot_leaflet(data_site_san, lines=FALSE, col=c("#440154FF", "#472D7BFF", "#3B528BFF", "#2C728EFF", "#21908CFF" ,"#27AD81FF" ,"#5DC863FF", "#AADC32FF" ,"#FDE725FF"))
+plot_leaflet(data_site_san, lines=FALSE, col=viridis_pal()(9)) # KMB, new colour scheme, needs libraries Viridis and ViridisLite
 
 
 
