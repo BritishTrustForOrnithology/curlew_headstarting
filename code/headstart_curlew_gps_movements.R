@@ -18,7 +18,7 @@
 # project_details <- list(project_name, output_version_name, workspace_version_name)
 # package_details <- c("package name 1", "package name 2")
 
-project_details <- list(project_name="curlew_headstarting", output_version_date="2023-11", workspace_version_date="2023-11")
+project_details <- list(project_name="curlew_headstarting", output_version_date="2024-04", workspace_version_date="2024-04")
 package_details <- c("sf","tidyverse","move2","ggmap","RColorBrewer","viridisLite","rcartocolor","lubridate","suncalc","cowplot","sfheaders", "maptiles", "tidyterra","rnaturalearth","rnaturalearthdata")
 seed_number <- 1
 
@@ -48,7 +48,7 @@ source(file.path("code/source_setup_code_rproj.R"))
 
 # =======================    Control values   =================
 
-select_year <- 2021
+select_year <- 2022
 today_date <- Sys.Date()
 
 # filtering criteria birds
@@ -62,14 +62,14 @@ wash_obs_only <- FALSE # show only Wash-area GPS data on map
 # filtering criteria dates
 filter_by_date <- FALSE # filter GPS data by date
 filter_last_60_days <- FALSE # filter data to last 60 days
-set_first_date <- "2023-01-01" # in format "yyyy-mm-dd"
-set_last_date <- "2023-12-31"
+set_first_date <- "2022-09-01" # in format "yyyy-mm-dd"
+set_last_date <- "2024-04-17"
 
 # filtering criteria other
 filter_height_speed <- FALSE # filter flight heights & speeds
 
 # data management criteria
-update_gdrive_data <- TRUE # download fresh data from google drive
+update_gdrive_data <- FALSE # download fresh data from google drive
 
 # ====  Load functions  =================================
 
@@ -116,6 +116,8 @@ source(file.path(codewd, "movebank_log.R"))
 # mb_study_name <- movebank_download_study_info (x="Curlews - headstarted", login=loginStored)
 mb_study_id <- movebank_get_study_id("BTO-NE-Pensthorpe - Eurasian Curlews - headstarted")
 mb_study_animals <- movebank_download_deployment(mb_study_id)
+
+# download all active tagged birds
 mb_individual_id <- mb_study_animals[grep(paste(dt_meta_tags$flag_id, collapse = "|"), mb_study_animals$individual_local_identifier), "individual_local_identifier"] %>% pull %>% as.character
 
 # automatic Movebank download - live or recently live tags only
@@ -153,7 +155,7 @@ all_tags_summary
 # also add lon/lat values not as a geometry for use later
 all_tags_meta <- all_tags %>% 
   mutate(flag_id = substr(individual_local_identifier, 4, 5)) %>%
-  right_join(dt_meta_tags, by="flag_id") %>%
+  right_join(.,dt_meta_tags, by="flag_id") %>%
   mutate(plot_label = paste(release_location, flag_id, name, sep="_")) %>%
   mutate(plot_label = str_replace_all(plot_label, " ", "_")) # %>% 
 # mutate(lon = st_coordinates(.)[,1],
