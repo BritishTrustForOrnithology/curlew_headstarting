@@ -1,6 +1,7 @@
 # History files
 .Rhistory
 .Rapp.history
+.RData
 
 # folders
 workspaces/*
@@ -9,8 +10,9 @@ exported_map/*
 media/*
 gis/*
 
-# specific files
+# specific files (.ini from KMB computer)
 movebank_log.R
+desktop.ini 
 
 # Example code in package build process
 *-Ex.R
