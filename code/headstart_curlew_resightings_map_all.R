@@ -107,8 +107,10 @@ resighting_field_names <- c(
   "observer_comments",
   "photos",
   "email",
-  "privacy_agreement"
-)
+  "privacy_agreement",
+  "entered_DemOn",
+  "replied_to_resighter"
+) # new column names from KMB's work
 
 names(dt_resighting) <- resighting_field_names
 

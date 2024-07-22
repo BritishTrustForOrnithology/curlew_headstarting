@@ -17,13 +17,13 @@
 
 # which individual(s) for resighting history
 
-individual_id_list <- c("0Y")
+individual_id_list <- c("7V")
 
 
 # =======================    Control values   =================
 
 # TRUE = fresh download of google drive data
-update_gdrive_data <- FALSE
+update_gdrive_data <- TRUE
 
 # if maps should focus on records around the Wash / N Norfolk only
 wash_obs_only <- FALSE
@@ -110,7 +110,9 @@ resighting_field_names <- c(
   "observer_comments",
   "photos",
   "email",
-  "privacy_agreement"
+  "privacy_agreement",
+  "entered_DemOn",
+  "replied_to_resighter"
 )
 
 names(dt_resighting) <- resighting_field_names
