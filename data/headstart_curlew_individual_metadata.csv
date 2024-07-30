@@ -166,35 +166,44 @@ urn,year,flag_id,ring,sex,name,cohort_num,tag_gps_radio_none,tag_serial,radio_ta
 155,2024,JK,FJ78497,Being tested,D....,1,,,,,Ken Hill 1,12/07/2024,,,,,
 156,2024,JL,FJ78498,Being tested,D....,1,,,,,Ken Hill 1,12/07/2024,,,,,
 157,2024,JN,FJ78499,Being tested,D....,1,,,,,Ken Hill 2,18/07/2024,,,,,
-158,2024,JP,FJ78500,Being tested,D....,1,,,,,?,,,,,,might be euthanased
+158,2024,JP flag removed,FJ78500,Being tested,D....,1,,,,,?,,,,,,might be euthanased
 159,2024,JT,FJ84801,Being tested,D....,1,,,,,?,,,,,,limping so will see how it does
 160,2024,JU,FJ84802,Being tested,D....,1,,,,,Ken Hill 2,18/07/2024,,,,,
 161,2024,JV,FJ84803,Being tested,D....,1,,,,,Ken Hill 2,18/07/2024,,,,,
-162,2024,JX,FJ84804,Being tested,Dexter,1.5,,,,,Not released,,,dead,03/07/2024,,"Broke wing whilst being handled at Pensthorpe, vet was present and it was euthanased"
-163,2024,JY,FJ84805,Being tested,Digby,1.5,,,,,Ken Hill 2,(18/07/2024),,,,,might have been missing on release day? didn't see a 6th bird?
-164,2024,NA,FJ84806,Being tested,Dario,1.5,,,,,Ken Hill 2,18/07/2024,,,,,
-165,2024,NC,FJ84807,Being tested,Dracula,1.5,,,,,Sandringham 2,18/07/2024,,,,,
-166,2024,NE,FJ84808,Being tested,Diego,1.5,,,,,Sandringham 2,18/07/2024,,,,,
-167,2024,NH,FJ84809,Being tested,Daphne,1.5,GPS,234326,,03/07/2024,Sandringham 2,18/07/2024,,dead,18/7/24,,"Predated (likely), tag acceorom. showed jolt and then direct movements to Woodland to NE of pen. Not recovered yet as too dense a woodland"
-168,2024,NJ,FJ84810,Being tested,Duphus,1.5,,,,,Sandringham 2,18/07/2024,,,,,
-169,2024,NK,FJ84811,Being tested,Davina,1.5,,,,,Sandringham 2,18/07/2024,,,,,
-170,2024,NL,FJ84812,Being tested,Declan,1.5,GPS,234331,,03/07/2024,Sandringham 2,18/07/2024,,,,,
-171,2024,NN,FJ84813,Being tested,Dorian,1.5,,,,,Sandringham 2,18/07/2024,,dead,21/7/24,,"Found dead by David on the road (Anmer Road, 52.811704,0.566090, south west of pen) - message sent to Chrissie"
-172,2024,NP,FJ81814,Being tested,D....,1.5,,,,,Ken Hill 2,18/07/2024,,,,,
-173,2024,NT,FJ81815,Being tested,D....,2?,,,,,,,,,,,
-174,2024,NU,FJ81816,Being tested,D....,2?,,,,,,,,,,,
-175,2024,NV,FJ81817,Being tested,D....,2?,,,,,,,,,,,
-176,2024,NX,FJ81818,Being tested,D....,2?,,,,,,,,,,,
-177,2024,NY,FJ81819,Being tested,D....,2?,,,,,,,,,,,
-178,2024,PA,FJ81820,Being tested,D....,2?,,,,,,,,,,,
-179,2024,PC,FJ81821,Being tested,D....,2?,,,,,,,,,,,
-180,2024,PE,FJ81822,Being tested,D....,2?,,,,,,,,,,,
-181,2024,PH,FJ81823,Being tested,D....,2?,,,,,,,,,,,
-182,2024,PJ,FJ81824,Being tested,D....,2?,,,,,,,,,,,
-183,2024,PK,FJ81825,Being tested,D....,2?,,,,,,,,,,,
-184,2024,PL,FJ81826,Being tested,D....,2?,,,,,,,,,,,
-185,2024,PN,FJ81827,Being tested,D....,2?,,,,,,,,,,,
-186,2024,PP,FJ81828,Being tested,D....,2?,,,,,,,,,,,
-187,2024,PT,FJ81829,Being tested,D....,2?,,,,,,,,,,,
-188,2024,PU,FJ81830,Being tested,D....,2?,,,,,,,,,,,
-189,2024,PV,FJ81831,Being tested,D....,2?,,,,,,,,,,,
+162,2024,JX,FJ84804,Being tested,Dexter,2,,,,,Not released,,,dead,03/07/2024,,"Broke wing whilst being handled at Pensthorpe, vet was present and it was euthanased"
+163,2024,JY,FJ84805,Being tested,Digby,2,,,,,Ken Hill 2,(18/07/2024),,,,,might have been missing on release day? didn't see a 6th bird?
+164,2024,NA,FJ84806,Being tested,Dario,2,,,,,Ken Hill 2,18/07/2024,,,,,seen heacham south 28th July
+165,2024,NC,FJ84807,Being tested,Dracula,2,,,,,Sandringham 2,18/07/2024,,,,,
+166,2024,NE,FJ84808,Being tested,Diego,2,,,,,Sandringham 2,18/07/2024,,,,,
+167,2024,NH,FJ84809,Being tested,Daphne,2,GPS,234326,,03/07/2024,Sandringham 2,18/07/2024,,dead,18/7/24,,"Predated (likely), tag acceorom. showed jolt and then direct movements to Woodland to NE of pen. Not recovered yet as too dense a woodland"
+168,2024,NJ,FJ84810,Being tested,Duphus,2,,,,,Sandringham 2,18/07/2024,,,,,
+169,2024,NK,FJ84811,Being tested,Davina,2,,,,,Sandringham 2,18/07/2024,,,,,
+170,2024,NL,FJ84812,Being tested,Declan,2,GPS,234331,,03/07/2024,Sandringham 2,18/07/2024,,,,,
+171,2024,NN,FJ84813,Being tested,Dorian,2,,,,,Sandringham 2,18/07/2024,,dead,21/7/24,,"Found dead by David on the road (Anmer Road, 52.811704,0.566090, south west of pen) - message sent to Chrissie"
+172,2024,NP,FJ81814,Being tested,D....,2,,,,,Ken Hill 2,18/07/2024,,,,,seen heacham south 28th July
+173,2024,NT,FJ81815,Being tested,D....,3,GPS,234328,,24/07/2024,Sandringham 2,,,,,,
+174,2024,NU,FJ81816,Being tested,D....,3,,,,,Sandringham 2,,,,,,
+175,2024,NV,FJ81817,Being tested,D....,3,,,,,Sandringham 2,,,,,,
+176,2024,NX,FJ81818,Being tested,D....,3,,,,,Sandringham 2,,,,,,
+177,2024,NY,FJ81819,Being tested,D....,3,Tried GPS,rejected 234327,,24/07/2024,Sandringham 2,,,,,,"Wouldn't stand up after inital flappiug with tag, removed and walked fine."
+178,2024,PA,FJ81820,Being tested,D....,3,,,,,Sandringham 2,,,,,,
+179,2024,PC,FJ81821,Being tested,D....,3,GPS,234329,,24/07/2024,Ken Hill 1,,,,,,
+180,2024,PE,FJ81822,Being tested,D....,3,,,,,Sandringham 2,,,,,,
+181,2024,PH,FJ81823,Being tested,D....,3,,,,,Ken Hill 1,,,,,,
+182,2024,PJ,FJ81824,Being tested,D....,3,,,,,Sandringham 2,,,,,,
+183,2024,PK,FJ81825,Being tested,D....,3,,,,,Ken Hill 1,,,,,,
+184,2024,PL,FJ81826,Being tested,D....,3,,,,,Ken Hill 1,,,,,,
+185,2024,PN,FJ81827,Being tested,D....,3,,,,,Ken Hill 1,,,,,,
+186,2024,PP,FJ81828,Being tested,D....,3,,,,,Ken Hill 1,,,,,,
+187,2024,PT,FJ81829,Being tested,D....,3,,,,,Ken Hill 1,,,,,,
+188,2024,PU,FJ81830,Being tested,D....,3,GPS,234320,,24/07/2024,Ken Hill 1,,,,,,
+189,2024,PV,FJ81831,Being tested,D....,3,,,,,Ken Hill 1,,,,,,
+190,2024,PX,FJ81832,Being tested,D....,3,,,,,Sandringham 2,,,,,,"Was crossed billed, recovered!"
+191,2024,PY,FJ81833,,D....,4,,,,,,,,,,,
+192,2024,TA,FJ81834,,D....,4,,,,,,,,,,,
+193,2024,TC,FJ81835,,D....,4,,,,,,,,,,,
+194,2024,TE,FJ81836,,D....,4,,,,,,,,,,,
+195,2024,TH,FJ81837,,D....,4,,,,,,,,,,,
+196,2024,TJ,FJ81838,,D....,4,,,,,,,,,,,
+197,2024,TK,FJ81839,,D....,4,,,,,,,,,,,
+198,2024,...WAITING...,FJ81840,,D....,4,,,,,,,,,,,"Very thin bird, no flags just yet"
