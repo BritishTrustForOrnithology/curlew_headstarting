@@ -11,7 +11,7 @@
 # project_details <- list(project_name, output_version_name, workspace_version_name)
 # package_details <- c("package name 1", "package name 2")
 
-project_details <- list(project_name="curlew", output_version_date="2023_headstarting", workspace_version_date="2023_headstarting")
+project_details <- list(project_name="curlew", output_version_date="2024_headstarting", workspace_version_date="2024_headstarting")
 package_details <- c("sf","tidyverse","patchwork","move","moveVis","RColorBrewer","viridisLite","rcartocolor","lubridate", "nlme", "lme4", "ggeffects", "broom.mixed", "patchwork")
 seed_number <- 1
 
@@ -41,10 +41,10 @@ source(file.path("code/source_setup_code_rproj.R"))
 
 # =======================    Control values   =================
 
-current_year <- 2023
+current_year <- 2024
 
 # TRUE = fresh download of google drive data
-update_gdrive_data <- FALSE
+update_gdrive_data <- TRUE
 
 
 # =======================    Load data   =================
@@ -75,7 +75,7 @@ dt <- dt %>%
 
 # =======================    Figures - 2021 Pensthorpe birds   =================
 
-year_list <- list(2021, 2022, 2023)
+year_list <- list(2021, 2022, 2023, 2024)
 age_mass <- list()
 age_wing <- list()
 weight_wing <- list()
@@ -115,17 +115,38 @@ for (y in year_list) {
   
 }
 
+# This gives a plot comparing 2021 and 2022
 biom_all <- (age_mass[[2021]] + age_wing[[2021]] + weight_wing[[2021]]) / (age_mass[[2022]] + age_wing[[2022]] + weight_wing[[2022]]) + plot_layout(guides= "collect")
 
 ggsave(biom_all, 
-       filename = paste0("all_biometrics_per_year_", today_date, ".png"), 
+       filename = paste0("all_biometrics_per_year_21-22_", today_date, ".png"), 
        device = "png", 
        path = outputwd, 
        width = 40, 
        height = 20,
        units = "cm")
 
+# Plot 2021, 2022 and 2024 together
+biom_all_3yr <- (age_mass[[2021]] + age_wing[[2021]] + weight_wing[[2021]]) / (age_mass[[2022]] + age_wing[[2022]] + weight_wing[[2022]]) / (age_mass[[2024]] + age_wing[[2024]] + weight_wing[[2024]]) + plot_layout(guides= "collect")
 
+ggsave(biom_all_3yr, 
+       filename = paste0("all_biometrics_per_year_21-22-24_", today_date, ".png"), 
+       device = "png", 
+       path = outputwd, 
+       width = 40, 
+       height = 20,
+       units = "cm")
+
+# Showing how bad 2023 was in comparison to the rest
+biom_all_4yr <- (age_mass[[2021]] + age_wing[[2021]] + weight_wing[[2021]]) / (age_mass[[2022]] + age_wing[[2022]] + weight_wing[[2022]]) / (age_mass[[2023]] + age_wing[[2023]] + weight_wing[[2023]]) / (age_mass[[2024]] + age_wing[[2024]] + weight_wing[[2024]]) + plot_layout(guides= "collect")
+
+ggsave(biom_all_4yr, 
+       filename = paste0("all_biometrics_per_year_21-22-23-24_", today_date, ".png"), 
+       device = "png", 
+       path = outputwd, 
+       width = 40, 
+       height = 20,
+       units = "cm")
 
 # ggsave(paste0("age_weight_per_cohort_", today_date, ".png"), device = "png", path = outputwd, width = 30, height = 20, units = "cm")
 # 
@@ -172,7 +193,7 @@ ggsave(biom_all,
 
 # includes individual (ring number) as a random effect
 
-year_list <- list(2021, 2022)
+year_list <- list(2021, 2022, 2024) # KMB: excluding 2023 due to feather growth issue
 
 for (y in year_list) {
   
@@ -186,10 +207,11 @@ for (y in year_list) {
   
   # -----  Weight vs age*cohort_num  -----
   
-  # Model with cohort interaction and ring as a random effect
+  # Model with cohort interaction and ring as a random effect. KMB 2024 update: had to include na.action = na.omit to make this work
   mod_wt_age_coh_re <- nlme::lme(new_weight ~ days_age*cohort_num,
                                  # random = ~ 1 + days_age|ring,
                                  random = ~ 1|ring,
+                                 na.action = na.omit,
                                  data = dt_sub)
   
   # mod_wt_age_coh_re <- lme4::lmer(weight ~ days_age*cohort_num + (1|ring), data = dt_sub)
@@ -268,6 +290,7 @@ for (y in year_list) {
   mod_wt_age_re <- nlme::lme(weight ~ days_age,
                              # random = ~ 1 + days_age|ring,
                              random = ~ 1|ring,
+                             na.action = na.omit,
                              data = dt_sub)
   summary(mod_wt_age_re)
   mod_coef_table <- summary(mod_wt_age_re)$tTable
@@ -295,6 +318,7 @@ for (y in year_list) {
 
 # =======================    Growth trajectories - weight at release predictions - 2021   =================
 
+# Not possible to run in 2024 as missing some models from above
 
 predict_weight <- dt %>% 
   filter(tag_gps_radio_none == "gps") %>% 
