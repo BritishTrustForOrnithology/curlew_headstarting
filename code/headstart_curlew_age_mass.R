@@ -197,7 +197,7 @@ year_list <- list(2021, 2022, 2024) # KMB: excluding 2023 due to feather growth 
 
 for (y in year_list) {
   
-  current_year <- y
+  current_year <- 2024
   not_zeroed <- c("8T","8U","8V")
   
   dt_sub <- dt %>% 

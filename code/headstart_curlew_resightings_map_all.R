@@ -25,7 +25,7 @@ wash_obs_only <- FALSE
 month_map <- FALSE
 
 # select release year cohorts to map resightings of
-select_year <- c(2021, 2022, 2023)
+select_year <- c(2021, 2022, 2023, 2024)
 
 
 # ======================   Variables to pass to setup code source  ===========
@@ -35,7 +35,7 @@ select_year <- c(2021, 2022, 2023)
 # project_details <- list(project_name, output_version_name, workspace_version_name)
 # package_details <- c("package name 1", "package name 2")
 
-project_details <- list(project_name="curlew", output_version_date="resighting_histories", workspace_version_date="2023-07")
+project_details <- list(project_name="curlew", output_version_date="resighting_histories", workspace_version_date="2024-09")
 package_details <- c("sf","tidyverse","patchwork","move","RColorBrewer","viridisLite","rcartocolor","lubridate","rnrfa", "RStoolbox", "cowplot", "maptiles", "tidyterra")
 seed_number <- 1
 
@@ -236,7 +236,7 @@ bird_df_sf <- dt_all %>%
 
 if (wash_obs_only) {
   # bounding box polygon around the Wash / North Norfolk coast
-  gis_wash_dir <- file.path("../../GIS/curlew/wwrg") # Sam's computer GIS filepath
+  gis_wash_dir <- file.path("../../GIS/curlew/wwrg") # Sam's computer GIS filepath. Katharine's need only 1 set of ../
   
   # Load WWRG Wash study shapefile -----------------
   wash_area <- st_read(file.path(gis_wash_dir, "wwrg_wash_study_area_polygon.shp"))
