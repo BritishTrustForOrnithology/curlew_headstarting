@@ -18,7 +18,7 @@
 # project_details <- list(project_name, output_version_name, workspace_version_name)
 # package_details <- c("package name 1", "package name 2")
 
-project_details <- list(project_name="curlew_headstarting", output_version_date="2024-04", workspace_version_date="2024-04")
+project_details <- list(project_name="curlew_headstarting", output_version_date="2024-09", workspace_version_date="2024-09")
 package_details <- c("sf","tidyverse","move2","ggmap","RColorBrewer","viridisLite","rcartocolor","lubridate","suncalc","cowplot","sfheaders", "maptiles", "tidyterra","rnaturalearth","rnaturalearthdata")
 seed_number <- 1
 
@@ -56,14 +56,14 @@ filter_birds <- FALSE # filter birds for mapping to only show active tags
 filter_year <- TRUE # filter birds for mapping to only show particular year cohorts
 
 # mapping criteria
-map_all_birds_together <- TRUE # individual maps or all together
+map_all_birds_together <- FALSE # individual maps or all together
 wash_obs_only <- FALSE # show only Wash-area GPS data on map
 
 # filtering criteria dates
-filter_by_date <- FALSE # filter GPS data by date
+filter_by_date <- TRUE # filter GPS data by date
 filter_last_60_days <- FALSE # filter data to last 60 days
-set_first_date <- "2022-09-01" # in format "yyyy-mm-dd"
-set_last_date <- "2024-04-17"
+set_first_date <- "2024-01-01" # in format "yyyy-mm-dd"
+set_last_date <- "2024-09-09"
 
 # filtering criteria other
 filter_height_speed <- FALSE # filter flight heights & speeds
@@ -361,12 +361,12 @@ if (map_all_birds_together) {
 if (wash_obs_only) {
   
   # bounding box polygon around the Wash / North Norfolk coast
-  gis_wash_dir <- file.path("../../GIS/curlew/headstarting") # Sam's computer GIS filepath
-  # gis_wash_dir <- file.path("../GIS/wwrg_wash_study_area_polygon") # Katharine's computer GIS path
+  #gis_wash_dir <- file.path("../../GIS/curlew/headstarting") # Sam's computer GIS filepath
+  gis_wash_dir <- file.path("../GIS/curlew/wwrg/") # Katharine's computer GIS path
   
   # Load WWRG Wash study shapefile -----------------
-  wash_area <- st_read(file.path(gis_wash_dir, "wash_north_norfolk_study_area_polygon.shp"))
-  # wash_area <- st_read(file.path(gis_wash_dir, "wwrg_wash_study_area_polygon.shp"))
+  #wash_area <- st_read(file.path(gis_wash_dir, "wash_north_norfolk_study_area_polygon.shp"))
+  wash_area <- st_read(file.path(gis_wash_dir, "wwrg_wash_study_area_polygon.shp"))
   
   if (map_all_birds_together) {
     

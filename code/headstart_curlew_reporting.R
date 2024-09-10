@@ -13,7 +13,7 @@
 # project_details <- list(project_name, output_version_name, workspace_version_name)
 # package_details <- c("package name 1", "package name 2")
 
-project_details <- list(project_name="curlew", output_version_date="2023_headstarting", workspace_version_date="2023_headstarting")
+project_details <- list(project_name="curlew", output_version_date="2024_headstarting", workspace_version_date="2024_headstarting")
 package_details <- c("sf","tidyverse","patchwork","move","RColorBrewer","viridisLite","rcartocolor","lubridate", "nlme", "lme4", "ggeffects", "broom.mixed", "patchwork")
 seed_number <- 1
 
@@ -43,7 +43,7 @@ source(file.path("code/source_setup_code_rproj.R"))
 
 # =======================    Control values   =================
 
-current_year <- 2023
+current_year <- 2024
 
 # TRUE = fresh download of google drive data
 update_gdrive_data <- TRUE
@@ -115,7 +115,7 @@ dt_easy_demon <- dt_easy_demon %>%
   rename(vist_date = release_date,
          location = release_location,
          extra_text = tag_gps_radio_none) %>%
-  mutate(location = ifelse(location %in% "Ken Hill", "KH-pen-01", ifelse(location %in% "Ken Hill 2", "KH-pen-02", "SH-pen-02")))
+  mutate(location = ifelse(location %in% "Ken Hill 1", "KH-pen-01", ifelse(location %in% "Ken Hill 2", "KH-pen-02", "SH-pen-02")))
 
 # Modify all GPS / radio tagged birds to type and condition = M
 dt_easy_demon <- dt_easy_demon %>% 
@@ -131,18 +131,18 @@ if (all(is.na(dt_easy_demon$LB))) dt_easy_demon <- dt_easy_demon %>% mutate(LB =
 dt_easy_demon
 
 # Output csv file
-# write.csv(dt_easy_demon, file.path(outputwd, "easy_demon_data_entry_2023.csv"), row.names = FALSE)
+# write.csv(dt_easy_demon, file.path(outputwd, "easy_demon_data_entry_2024.csv"), row.names = FALSE)
 
 
 # ----- Merge dt_easy_demon with dt_biometric  -----
 
 dt_fill_gps_deploy <- dt_meta %>% 
-  filter(year %in% 2023) %>% 
+  filter(year %in% 2024) %>% 
   filter(tag_gps_radio_none %in% "gps") %>% 
   left_join(., dt_biometric %>% filter(type %in% "R"), by = c("ring", "flag_id")) %>% 
   dplyr::select(flag_id, ring, tagged_date, release_location, weight, wing, tarsus_toe, day, month)
 
-# write.csv(dt_fill_gps_deploy, file.path(outputwd, "easy_fill_gps_deploy_data_entry_2023.csv"), row.names = FALSE)
+# write.csv(dt_fill_gps_deploy, file.path(outputwd, "easy_fill_gps_deploy_data_entry_2024.csv"), row.names = FALSE)
 
 
 # ----- Merge tag deployment data with dt_biometric  -----
@@ -158,7 +158,7 @@ dt_easy_tag <- dt_biometric %>%
   as.data.frame() %>% 
   arrange(flag_id)
 
-# write.csv(dt_easy_tag, file.path(outputwd, "easy_gps_sm_reporting_2023.csv"), row.names = FALSE)
+# write.csv(dt_easy_tag, file.path(outputwd, "easy_gps_sm_reporting_2024.csv"), row.names = FALSE)
 
 
 # ----- playing around  -----
@@ -199,6 +199,10 @@ dt_meta_rear %>%
             max_release_date = max(release_date, na.rm=TRUE)
           )
 
+# KMB adding a write out here in case useful for the moment. Sam - you can remove this is you want!
+# write.csv(dt_meta_rear, file.path(outputwd, "easy_release_age_2024.csv"), row.names = FALSE)
+
+
 # dt_meta_rear_egg <- dt_meta_rear %>% 
 #   right_join(dt_eggs, by = c("year", "clutch_num"))
 # 
@@ -206,3 +210,4 @@ dt_meta_rear %>%
 # dt_meta_rear_egg %>% 
 #   group_by(year, airfield_name) %>% 
 #   tally()
+

@@ -16,7 +16,7 @@
 # =======================    Control values   =================
 
 # TRUE = fresh download of google drive data
-update_gdrive_data <- FALSE
+update_gdrive_data <- TRUE
 
 # if maps should focus on records around the Wash / N Norfolk only
 wash_obs_only <- FALSE
@@ -336,6 +336,76 @@ out_file <- paste0(out_file, "_", today_date, ".png")
 ggsave(
   gg_main_map,
   filename = out_file,
+  device="png",
+  path = outputwd,
+  # height = 10,
+  # width = 12,
+  # units = "in",
+  # width = 800,
+  # units = "px",
+  dpi=300
+)
+
+# -------- Output map of only birds of breeding interest all together ----------
+
+# Update from KMB 2024
+
+# select release year cohorts to map resightings for
+select_birds <- c("9L","7V","6A") # three birds that had nests in 2024
+
+# Filter down to birds of interest in 2024
+bird_df_sf_breeders <- bird_df_sf_3857 %>%
+  filter(flag_id %in% select_birds) %>%
+  filter(date >= "2024-01-01")
+
+bird_df_sf_breeders
+
+# make a map of these locations to include in the report
+
+# ------- Plot main map --------
+
+# new base map fitted to resightings of breeders
+basemap_main <- make_basemap(sf_data = bird_df_sf_breeders,
+                             buff_dist = 30*3000,
+                             map_type = "main",
+                             map_provider = "Esri.WorldImagery")
+basemap_main
+
+# Main map
+if (!month_map) {
+  # single colour for points
+  gg_main_map_breed <- basemap_main$map +
+    geom_sf(data = bird_df_sf_breeders, shape = 21, fill = "magenta", col = "white", size = 3, stroke = 0.5) +
+    theme_void()
+  
+} else {
+  
+  # month colour palette
+  month_pal <- c(viridisLite::viridis(12/2, begin = 0.2, end = 0.9), viridisLite::inferno(12/2, begin = 0.2, end = 0.9, direction=-1))
+  month_pal[6:7] <- "#F6D645FF" # both Jun/Jul = Jul inferno hue; preference for this one; should hopefully show ok on positron maps
+  month_pal[c(1,12)] <- "#420A68FF"
+  scales::show_col(month_pal)
+  
+  # map coloured by month of sighting
+  gg_main_map_breed <- basemap_main$map +
+    geom_sf(data = bird_df_sf_breeders, aes(fill = month), shape = 21, col = "white", size = 3, stroke = 0.5) +
+    scale_fill_manual(values = month_pal, name = "Month") +
+    theme_void()
+}
+
+gg_main_map_breed
+
+# ------- Output map with breeding locations  --------
+
+# output plot
+if (wash_obs_only) out_file_br <- paste0("all_breeding_resighting_obs_static_map_WASH")
+if (!wash_obs_only) out_file_br <- paste0("all_breeding_resighting_obs_static_map")
+if (month_map) out_file_br <- paste0(out_file_br, "_by_month")
+out_file_br <- paste0(out_file_br, "_", today_date, ".png")
+
+ggsave(
+  gg_main_map_breed,
+  filename = out_file_br,
   device="png",
   path = outputwd,
   # height = 10,
