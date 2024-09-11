@@ -197,7 +197,7 @@ year_list <- list(2021, 2022, 2024) # KMB: excluding 2023 due to feather growth 
 
 for (y in year_list) {
   
-  current_year <- 2024
+  current_year <- y
   not_zeroed <- c("8T","8U","8V")
   
   dt_sub <- dt %>% 
@@ -225,13 +225,13 @@ for (y in year_list) {
   # Use ggeffects package to get predicted fits to plot nicely
   mod_wt_re_pred <- ggeffects::ggpredict(mod_wt_age_coh_re,
                                          terms = c("days_age","cohort_num"))
-  plot_wt_mod_re_fits <- plot(mod_wt_re_pred, colors = "set1", add.data = TRUE) +
+  plot_wt_mod_re_fits <- plot(mod_wt_re_pred, colors = "set1", show_data = TRUE) +
     labs(
       x = "Age (days)", 
       y = "Weight (g)",
       title = current_year,
       colour = "Cohort number"
-    )
+    ) # update to code 2024 to show_data instead of add.data following warning of deprecation.
   
   png(file.path(outputwd, paste0("lme_age_weight_per_cohort_", current_year, "_", today_date, ".png")),
       width = 30, height = 20, units = "cm", res = 150)
@@ -245,7 +245,7 @@ for (y in year_list) {
   mod_wing_age_coh_re <- nlme::lme(wing ~ days_age*cohort_num,
                                    # random = ~ 1 + days_age|ring,
                                    random = ~ 1|ring,
-                                   data = dt_sub,
+                                   data = dt_sub, # need [c(1:99,101:103,106:107),] for 2024 cohort??
                                    na.action = na.omit)
   summary(mod_wing_age_coh_re)
   
@@ -256,13 +256,13 @@ for (y in year_list) {
   # Use ggeffects package to get predicted fits to plot nicely
   mod_wing_re_pred <- ggeffects::ggpredict(mod_wing_age_coh_re,
                                            terms = c("days_age","cohort_num"))
-  plot_wing_mod_re_fits <- plot(mod_wing_re_pred, colors = "set1", add.data = TRUE) +
+  plot_wing_mod_re_fits <- plot(mod_wing_re_pred, colors = "set1", show_data = TRUE) +
     labs(
       x = "Age (days)", 
       y = "Wing length (mm)",
       title = current_year,
       colour = "Cohort number"
-    )
+    ) # update to code 2024 to show_data instead of add.data following warning of deprecation.
   
   png(file.path(outputwd, paste0("lme_age_wing_per_cohort_", current_year, "_", today_date, ".png")),
       width = 30, height = 20, units = "cm", res = 150)
@@ -302,12 +302,12 @@ for (y in year_list) {
   # Use ggeffects package to get predicted fits to plot nicely
   mod_wt_re_pred <- ggeffects::ggpredict(mod_wt_age_re,
                                          terms = c("days_age"))
-  plot_wt_mod_re_fits <- plot(mod_wt_re_pred,  add.data = TRUE) +
+  plot_wt_mod_re_fits <- plot(mod_wt_re_pred,  show_data = TRUE) +
     labs(
       x = "Age (days)", 
       y = "Weight (g)",
       title = current_year
-    )
+    ) # update to code 2024 to show_data instead of add.data following warning of deprecation.
   
   png(file.path(outputwd, paste0("lme_age_weight_mean_", current_year, "_",  today_date, ".png")),
       width = 30, height = 20, units = "cm", res = 150)
@@ -318,7 +318,7 @@ for (y in year_list) {
 
 # =======================    Growth trajectories - weight at release predictions - 2021   =================
 
-# Not possible to run in 2024 as missing some models from above
+# KMB - Not possible to run in 2024 as missing some models from above
 
 predict_weight <- dt %>% 
   filter(tag_gps_radio_none == "gps") %>% 
