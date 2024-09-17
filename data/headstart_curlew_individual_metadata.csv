@@ -79,17 +79,17 @@ urn,year,flag_id,ring,sex,name,cohort_num,tag_gps_radio_none,tag_serial,radio_ta
 78,2021,6T,FA95580,M,,5,,,,,Ken Hill 1,15/08/2021,,,,,
 79,2021,5V,FA95568,F,,5,,,,,Ken Hill 1,15/08/2021,,y,,,"Found dead on Ken Hill fresh marsh 30/08/2021 by LP, TF66237 34791. Picked clean, likely raptor predation."
 81,2022,7A,FA95585,M,,1,radio,262480,173.282,14/07/2022,Sandringham 2,20/07/2022,,,,,last heard 24/07/2022 release area
-82,2022,6Y,FA95584,M,Nemo,1,gps,223959,,14/07/2022,Sandringham 2,20/07/2022,24/08/2022,"alive April 2024, seen by Justin Walker. Seen 18/05/2024 Sculthorpe associating with female 7L (HE).",04/07/2023,,"tag last attached to bird 04/07/2023 19:30:00 UTC, on islet off Bannow Island. Tag possibly fell off? Tag floated upside down (based on accelerometer data) to shore near Crosslake on 05/07/2023, then floated upside down some more before washing up on Ballyteige Burrow beach on 04/09/2023. Retrieval attempted on several occasions by an ECHOES fieldworker's relative, no success. Floated further east along beach front, washing up in several places. Washed up on beach near Kilmore Quay car park where it last transmitted multiple times on 24/09/2023, but we didn't notice as we were on holiday / at IWSG conference. April 2024 - Justin Walker seen 6Y back in Norfolk alive and well"
+82,2022,6Y,FA95584,M,Nemo,1,gps,223959,,14/07/2022,Sandringham 2,20/07/2022,24/08/2022,"alive April 2024, seen by Justin Walker. Seen 18/05/2024 Sculthorpe associating with female 7L (HE).",04/07/2023,,"tag last attached to bird 04/07/2023 19:30:00 UTC, on islet off Bannow Island. Tag possibly fell off? Tag floated upside down (based on accelerometer data) to shore near Crosslake on 05/07/2023, then floated upside down some more before washing up on Ballyteige Burrow beach on 04/09/2023. Retrieval attempted on several occasions by an ECHOES fieldworker's relative, no success. Floated further east along beach front, washing up in several places. Washed up on beach near Kilmore Quay car park where it last transmitted multiple times on 24/09/2023, but we didn't notice as we were on holiday / at IWSG conference. April 2024 - Justin Walker seen 6Y back in Norfolk alive and well. alive April 2024, seen by Justin Walker. Seen 18/05/2024 Sculthorpe associating with female 7L (HE)."
 83,2022,6V,FA95582,F,,1,radio,262478,173.239,14/07/2022,Sandringham 2,20/07/2022,,,,probable,"Seen 27/05/2024 Sculthorpe (HE, SF, CK). Nest scraping, courtship behaviour with female 7L. last heard 02/08/2022 release area"
 84,2022,7X,FA95597,M,,1,,,,,Sandringham 2,20/07/2022,,,,,
 85,2022,7K,FA95590,M,Bill,1,gps,223953,,14/07/2022,Sandringham 2,20/07/2022,,,,,
 86,2022,7T,FA95594,F,,1,,,,,Sandringham 2,20/07/2022,,,,possible,"Seen 25/05/2024 near Narford. Female of a pair of birds that have been foraging in this area, particularly on this bare field for the past month."
-87,2022,7V,FA95596,M,,1,,,,,Sandringham 2,20/07/2022,,Found nesting with female 9L near Lakenheath 25/05/2024.,,confirmed,
+87,2022,7V,FA95596,M,,1,,,,,Sandringham 2,20/07/2022,,,,confirmed,Found nesting with female 9L near Lakenheath 25/05/2024.
 88,2022,7L,FA95591,F,,1,radio,262493,173.780,14/07/2022,Sandringham 2,20/07/2022,,,,possible,Seen 18/05/2024 Sculthorpe associating with males 6X and 6Y (HE). last heard 11/08/2022 release area. 
 88,2022,8K,FJ78404,M,Douglas,2,gps,233960,,03/08/2022,Sandringham 2,09/08/2022,,dead,30/08/2022,,"Dead based on GPS 30/08/2022 09:30:00 UTC on Wolferton saltmarsh. Inspection of remains showed no evidence of obvious predation, however movements were 'normal' the morning prior to death. Possibly predated in mid-air then dropped."
 89,2022,7Y,FA95598,F,Sylvia,1,gps,223954,,14/07/2022,Sandringham 2,20/07/2022,,unknown,,,last transmission 22/02/2023
 89,2022,8L,FJ78405,F,Beaky,2,gps,233955,,03/08/2022,Sandringham 2,09/08/2022,,,,,
-90,2022,6X,FA95583,M,Potato,1,gps,223961,,14/07/2022,Ken Hill 1,20/07/2022,,Seen 18/05/2024 Sculthorpe associating with female 7L (HE). tag not transmitting GPS location,,possible,"Seen 18/05/2024 Sculthorpe associating with female 7L (HE). 08/12/2023: tag still transmitting and logging temperature data, which indicates bird is alive, but has not logged GPS locations since 29/08/2023"
+90,2022,6X,FA95583,M,Potato,1,gps,223961,,14/07/2022,Ken Hill 1,20/07/2022,,,,possible,"Seen 18/05/2024 Sculthorpe associating with female 7L (HE). 08/12/2023: tag still transmitting and logging temperature data, which indicates bird is alive, but has not logged GPS locations since 29/08/2023"
 90,2022,8H,FJ78402,M,,2,radio,262472,173.063,03/08/2022,Sandringham 2,09/08/2022,,,,,last heard 22/08/2022 release area
 91,2022,7E,FA95587,F,Alya,1,gps,223951,,14/07/2022,Ken Hill 1,20/07/2022,,unknown,,,last transmission 16-04-2023
 91,2022,8C,FA95600,M,,2,radio,262491,173.736,03/08/2022,Sandringham 2,09/08/2022,,,,,last heard 19/08/2022 release area
@@ -109,7 +109,7 @@ urn,year,flag_id,ring,sex,name,cohort_num,tag_gps_radio_none,tag_serial,radio_ta
 98,2022,8T,FJ78408,M,,3,radio,262500,173.980,09/08/2022,Ken Hill 1,13/08/2022,,,,,never heard
 99,2022,9C,FJ78414,M,,3,radio,262497,173.898,09/08/2022,Ken Hill 1,13/08/2022,,y,,,dead (max date 19/08/2022); tag recovered
 100,2022,8X,FJ78411,F,Charlie,3,gps,223957,,09/08/2022,Ken Hill 1,13/08/2022,,,,,
-101,2022,9L,FJ78419,F,Astra,4,gps,223958,,15/08/2022,Ken Hill 1,22/08/2022,16/09/2022,,,confirmed,Found nesting with female 9L near Lakenheath 25/05/2024.
+101,2022,9L,FJ78419,F,Astra,4,gps,223958,,15/08/2022,Ken Hill 1,22/08/2022,16/09/2022,,,confirmed,Found nesting with female 7V near Lakenheath 25/05/2024.
 102,2022,9J,FJ78417,M,Hope,4,gps,203287,,15/08/2022,Ken Hill 1,22/08/2022,,,,,
 103,2022,9E,FJ78415,M,,4,radio,,173.940,15/08/2022,Ken Hill 1,22/08/2022,,,,,last heard 22/08/2022 release area
 104,2022,9H,FJ78416,M,,4,radio,,173.818,15/08/2022,Ken Hill 1,22/08/2022,,,,,last heard 22/08/2022 release area
