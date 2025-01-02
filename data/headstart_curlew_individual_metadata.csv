@@ -147,7 +147,7 @@ urn,year,flag_id,ring,sex,name,cohort_num,tag_gps_radio_none,tag_serial,radio_ta
 136,2023,LA,FJ78465,M,Ceto,4,gps,234330,,17/08/2023,Sandringham 2,17/08/2023,,dead,25/08/2023,,"Dead, run over on B1153 on 25/08/2023 about 18:00. Found by NAC on 30/08/2023 in roadside ditch."
 137,2023,YX,FJ78463,F,Chutney,4,gps,234327,,17/08/2023,Sandringham 2,17/08/2023,,dead,22/09/2023,,Dead on Wolferton saltmarsh 22/09/2023 about 14:30. Likely predated. Carcass recovered by Jeff Kew on 26/09/2023.
 138,2023,KL,FJ78484,M,,5,,,,,Sandringham 2,01/09/2023,,,,,
-139,2023,LU,FJ78474,U,Chronos,5,gps,234325,,25/08/2023,Sandringham 2,01/09/2023,,,,,
+139,2023,LU,FJ78474,U,Chronos,5,gps,234325,,25/08/2023,Sandringham 2,01/09/2023,,dead,Autumn 2024,,"Tag started transmitting again in October 2024, found by Claudia in field 26/10/24. predated by unknown animal"
 140,2023,KE,FJ78480,F,,5,,,,,Sandringham 2,01/09/2023,,,,,
 141,2023,LV,FJ78475,F,Cheese,6,gps,223960,,15/09/2023,Ken Hill 1,15/09/2023,,,,,
 142,2023,KP,FJ78486,M,,6,,,,,Ken Hill 1,15/09/2023,,,,,
@@ -173,7 +173,7 @@ urn,year,flag_id,ring,sex,name,cohort_num,tag_gps_radio_none,tag_serial,radio_ta
 162,2024,JX,FJ84804,M,Dexter,2,,,,,Not released,Not released,,dead,3/7/24,,"Broke wing whilst being handled at Pensthorpe, vet was present and it was euthanased"
 163,2024,JY,FJ84805,M,Digby,2,,,,,Ken Hill 2,(18/07/2024),,,,,might have been missing on release day? didn't see a 6th bird?
 164,2024,NA,FJ84806,M,Dario,2,,,,,Ken Hill 2,18/07/2024,,,,,seen heacham south 28th July
-165,2024,NC,FJ84807,M,Dracula,2,,,,,Sandringham 2,18/07/2024,,,,,Officially NA but this causes issues in R so will need to be careful to make sure it doesn't get lost!
+165,2024,NC,FJ84807,M,Dracula,2,,,,,Sandringham 2,18/07/2024,,,,,
 166,2024,NE,FJ84808,F,Diego,2,,,,,Sandringham 2,18/07/2024,,,,,
 167,2024,NH,FJ84809,F,Daphne,2,gps,234326,,03/07/2024,Sandringham 2,18/07/2024,,dead,18/7/24,,"Predated (likely), tag acceorom. showed jolt and then direct movements to Woodland to NE of pen. Not recovered yet as too dense a woodland"
 168,2024,NJ,FJ84810,M,Dufus,2,,,,,Sandringham 2,18/07/2024,,,,,
