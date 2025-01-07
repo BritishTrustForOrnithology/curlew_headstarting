@@ -17,7 +17,7 @@
 
 # which individual(s) for resighting history
 
-individual_id_list <- c("4L","YL")
+individual_id_list <- c("PV")
 
 
 # =======================    Control values   =================
