@@ -44,14 +44,16 @@ names(data)[names(data)=="location.lat"]<-"latitude"
 names(data)[names(data)=="gps.satellite.count"]<-"satellites_used"
 
 
-
+summary(data)
+head(data)
 
 
 ## Match tide data - categorical 2 hours either side of high/low (from Port-log.net reports) ####
 
 ### Load data and set Datetime class ####
 
-tide_dat_21 <- read_csv(here("data/Wash_tide_data_Bulldog_July_November_2021.csv"), 
+#NOTE HH has added in December 2021 which was missing in the original data 
+tide_dat_21 <- read_csv(here("data/Wash_tide_data_Bulldog_July_December_2021.csv"), 
                         col_types = cols(Observed_DateTime = col_datetime(format = "%d/%m/%Y %H:%M"), Predicted_DateTime = col_datetime(format = "%d/%m/%Y %H:%M")))
 summary(tide_dat_21)
 
@@ -67,7 +69,7 @@ tide_dat_23 <- read_csv(here("data/Wash_tide_data_Bulldog_July_December_2023.csv
 summary(tide_dat_23)
 
 
-#2024 
+#2024 #currently only to the end of 7th December 2024. Missing rest of December 2024! 
 tide_dat_24 <- read_csv(here("data/Wash_tide_data_Bulldog_July_December_2024.csv"), 
                         col_types = cols(Observed_DateTime = col_datetime(format = "%d/%m/%Y %H:%M"), Predicted_DateTime = col_datetime(format = "%d/%m/%Y %H:%M")))
 summary(tide_dat_24)
@@ -117,18 +119,123 @@ saveRDS(data, here("data/data_with_tide_2021_2024.rds"))
 
 
 
-# INTERUPTION ####
-# to extract the cohort identifer and release site info go to this code: 'headstart_curlew_gps_movements.R' ~ line 76 to get the cohort identifier and site identifiers and save it out as a csv
 
-# RETURN ####
+#Extract curlew metadata #####
 
+##Read in the summary metadata table from googledrive folder 3:Data####
+dt_meta <- as_tibble(read.csv(here("data/headstart_curlew_individual_metadata.csv")))
 
-
-
-
-
+#filter for just GPS birds
+dt_meta_gsp <- dt_meta %>% filter(dt_meta$tag_gps_radio_none =="gps")
 
 
+#create a 'site' column by removing the number from the release_location using 'gsub'
+dt_meta_gsp$release_site <- gsub(" 1","", as.character(dt_meta_gsp$release_location))
+dt_meta_gsp$release_site <- gsub(" 2","", as.character(dt_meta_gsp$release_site))
+
+
+
+##Next in order to be able to left join 'data' and 'dt_meta_gsp' a column needs to be created which matches both together.####
+
+#first extract the tag idea from 'data'
+TagID <- data.frame(TagID = unique(data$TagID))
+
+#from this extract out the unique two letter/number code using str_sub
+TagID$flag_id <- str_sub(TagID$TagID, 4,5)
+
+#left_join the two metadata tables together
+dt_meta_gsp_TagID <- dt_meta_gsp %>% left_join(TagID, by=join_by(flag_id))
+
+#final release site column here - to keep the two Sandringham sites separate because the habitat is so different but merge the Ken Hill sites as their habitat is so similar
+dt_meta_gsp_TagID$release_site_final <- ifelse(dt_meta_gsp_TagID$release_location =="Sandringham 1", "Sandringham 1",
+                                               ifelse(dt_meta_gsp_TagID$release_location=="Sandringham 2", "Sandringham 2", "Ken Hill"))
+
+
+
+
+##Add in here two final columns for cohorts and number of days post release####
+
+#cohort - work out how many cohorts there were and which ones need combining together 
+    #2021 = 
+    #2022 = 
+    #2023 = cohort 1 separate, then combine remaining cohorts
+    #2024 = 
+
+table(dt_meta_gsp_TagID$year, dt_meta_gsp_TagID$cohort_num)
+
+dt_meta_gsp_TagID$cohort_analysis[dt_meta_gsp_TagID$year==2021] <- dt_meta_gsp_TagID$cohort_num[dt_meta_gsp_TagID$year==2021]
+dt_meta_gsp_TagID$cohort_analysis[dt_meta_gsp_TagID$year==2022] <- dt_meta_gsp_TagID$cohort_num[dt_meta_gsp_TagID$year==2022]
+dt_meta_gsp_TagID$cohort_analysis[dt_meta_gsp_TagID$year==2023] <- ifelse(dt_meta_gsp_TagID$cohort_num[dt_meta_gsp_TagID$year==2023] == 1, 1, 2)
+dt_meta_gsp_TagID$cohort_analysis[dt_meta_gsp_TagID$year==2024] <- ifelse(dt_meta_gsp_TagID$cohort_num[dt_meta_gsp_TagID$year==2024] == 4, 4, 
+                                                                          ifelse(dt_meta_gsp_TagID$cohort_num[dt_meta_gsp_TagID$year==2024] == 5, 4, dt_meta_gsp_TagID$cohort_num[dt_meta_gsp_TagID$year==2024]))
+
+#make it into a factor rather than a number
+dt_meta_gsp_TagID$cohort_analysis <- as.factor(dt_meta_gsp_TagID$cohort_analysis)
+
+summary(dt_meta_gsp_TagID)
+
+
+
+#add in 1 day, 1 week, 2 weeks, 6 week dates post release
+#create a as.posixct datetime column
+dt_meta_gsp_TagID$release_date_time <- as.POSIXct(dt_meta_gsp_TagID$release_date, format = "%d/%m/%Y", usetz=T, tz="UTC")
+
+#one day according to Garry's 2022 code. Was to the end of the next day up until midnight = one full day after release e.g. release date 20/07 : 21/07 at 23:59:59
+dt_meta_gsp_TagID$Date_1d <- dt_meta_gsp_TagID$release_date_time + (86400+86399)
+
+
+#one week in my mind means 7 full days after release  e.g.release date 20/07 : 27/07 at 23:59:59
+dt_meta_gsp_TagID$Date_1w <- dt_meta_gsp_TagID$release_date_time + ((86400*7)+86399)
+
+#two weeks in my mind means 14 full days after release 
+dt_meta_gsp_TagID$Date_2w <- dt_meta_gsp_TagID$release_date_time + ((86400*14)+86399)
+
+#six weeks in my mind means 42 full days after release 
+dt_meta_gsp_TagID$Date_6w <- dt_meta_gsp_TagID$release_date_time + ((86400*42)+86399)
+
+
+
+## Finally do a left_join on the dataset using the TagID as the join_by so that the meta data is populated for each GPS fix
+data <- data %>% left_join(dt_meta_gsp_TagID, by=join_by(TagID))
+
+summary(data)
+
+
+# Tidy surplus columns from move:: direct loading
+drop_cols<-c("event.id", "visible", "individual.id", "deployment.id", "tag.id", "study.id", "sensor.type.id", "tag.local.identifier", "individual.taxon.canonical.name", "acceleration.raw.x", "acceleration.raw.y", "acceleration.raw.z", "barometric.height", "battery.charge.percent", "battery.charging.current", "gps.hdop", "gps.time.to.fix", "heading", "import.marked.outlier", "light.level", "magnetic.field.raw.x", "magnetic.field.raw.y", "magnetic.field.raw.z", "ornitela.transmission.protocol", "study.name", "sensor.type")
+data<- data %>% select(-!!drop_cols)
+
+
+
+##save data out ####
+#saveRDS(data, here("data/data_withcohorts_release_sites_2021_2024.rds"))
+
+
+
+####.####
+
+#START HERE - Once all data is correct and cleaned and combined above you can start from here ####
+
+#read back in ####
+#data <- readRDS(here("data/data_withcohorts_release_sites_2021_2024.rds"))
+
+#summary(data)
+
+
+## Convert to BTOTT Track object
+data_tt<-Track(data) 
+data_tt<-clean_GPS(data_tt, drop_sats = 3, Thres = 30, GAP = 28800)
+#HH NB: new warning messages about "flt_switch" for each bird - an error from the Track(data) function with is a BTOTT function
+#See messages from Chris T about this but the summary is it is a flag option for clean_GPS - when importing data into movebank you can add a 
+#column to tell you if it is dodgy data or not and then add a second column to clean it/remove it... as the dataset I am working with doesn't have this column
+# I can disregard this warning
+
+
+# Set ID factor
+data_tt$TagID<-as.factor(as.character(data_tt$TagID)) 
+
+#try plotting all the data
+plot(data_tt$longitude, data_tt$latitude)
 
 
 
