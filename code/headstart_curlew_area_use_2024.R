@@ -53,7 +53,7 @@ head(data)
 
 ### Load data and set Datetime class ####
 
-#NOTE HH has added in December 2021 which was missing in the original data 
+#NOTE HH has added in December 2021 which was missing in the original data - although NOTE that not all of December data is present! 
 tide_dat_21 <- read_csv(here("data/Wash_tide_data_Bulldog_July_December_2021.csv"), 
                         col_types = cols(Observed_DateTime = col_datetime(format = "%d/%m/%Y %H:%M"), Predicted_DateTime = col_datetime(format = "%d/%m/%Y %H:%M")))
 summary(tide_dat_21)
@@ -160,9 +160,11 @@ dt_meta_gsp_TagID$release_site_final <- ifelse(dt_meta_gsp_TagID$release_locatio
     #2021 = 
     #2022 = 
     #2023 = cohort 1 separate, then combine remaining cohorts
-    #2024 = 
+    #2024 =  >7days difference in release for a cohort should be assessed separately whilst <7 days together. This means 1,2,3 separately and 4+5 together
 
 table(dt_meta_gsp_TagID$year, dt_meta_gsp_TagID$cohort_num)
+
+dt_meta_gsp_TagID$cohort_analysis <- NA
 
 dt_meta_gsp_TagID$cohort_analysis[dt_meta_gsp_TagID$year==2021] <- dt_meta_gsp_TagID$cohort_num[dt_meta_gsp_TagID$year==2021]
 dt_meta_gsp_TagID$cohort_analysis[dt_meta_gsp_TagID$year==2022] <- dt_meta_gsp_TagID$cohort_num[dt_meta_gsp_TagID$year==2022]
@@ -200,7 +202,7 @@ dt_meta_gsp_TagID$Date_6w <- dt_meta_gsp_TagID$release_date_time + ((86400*42)+8
 #copy the 'state' column into a new column due to one having an unknown death date
 dt_meta_gsp_TagID$dead_date <- dt_meta_gsp_TagID$state
 
-#update the one cell that has 'Autumn 2024'
+#update the one cell that has 'Autumn 2024' based on the notes from the meta data table 
 dt_meta_gsp_TagID$dead_date[dt_meta_gsp_TagID$flag_id=="LU"] <- "26/10/2024"
 
 #create a separate last transmission column from the ones in the Fate column that are 'unknown' with no date in 'state'
@@ -219,11 +221,9 @@ dt_meta_gsp_TagID$dead_no_t_date_time <- paste(dt_meta_gsp_TagID$dead_date, dt_m
 
 dt_meta_gsp_TagID$dead_no_t_date_time <- as.POSIXct(dt_meta_gsp_TagID$dead_no_t_date_time, format = "%d/%m/%Y", usetz=T, tz="UTC")
 
-#minus the dead date time from the release date time
+#minus the dead date time from the release date time to get a days alive 
 dt_meta_gsp_TagID$daysalive <- difftime(as.POSIXct(dt_meta_gsp_TagID$dead_no_t_date_time,  tz="UTC"), as.POSIXct(dt_meta_gsp_TagID$release_date_time, tz="UTC"), units = "days")
 
-#separate table of just dead curlew from all years
-dead_no_t_curlew <- dt_meta_gsp_TagID[!is.na(dt_meta_gsp_TagID$daysalive),]
 
 #save the meta data out:
 #write.csv(dt_meta_gsp_TagID, here("data/metadata_TagID_deaddates_notransmision_2021_2024.csv"), row.names = F)
@@ -247,7 +247,7 @@ summary(data)
 drop_cols<-c("event.id", "visible", "individual.id", "deployment.id", "tag.id", "study.id", "sensor.type.id", "tag.local.identifier", "individual.taxon.canonical.name", "acceleration.raw.x", "acceleration.raw.y", "acceleration.raw.z", "barometric.height", "battery.charge.percent", "battery.charging.current", "gps.hdop", "gps.time.to.fix", "heading", "import.marked.outlier", "light.level", "magnetic.field.raw.x", "magnetic.field.raw.y", "magnetic.field.raw.z", "ornitela.transmission.protocol", "study.name", "sensor.type")
 data<- data %>% select(-!!drop_cols)
 
-
+summary(data)
 
 ##save data out ####
 #saveRDS(data, here("data/data_withcohorts_release_sites_2021_2024.rds"))
@@ -258,6 +258,9 @@ data<- data %>% select(-!!drop_cols)
 
 
 #which birds should stay in which category? ####
+#Before we can use the data for analysis it would be useful to add in information to the whole dataset working out which categories the birds best fit into
+  #this is because some of the birds died within year of release and subsequent years of release
+
 
 #using the last datetime of transmission
 currcohorts <- data %>%
@@ -274,7 +277,7 @@ currcohorts$datediff <- as.POSIXct(currcohorts$max_date_time_transmiss, tz="UTC"
 currcohorts$daysalive_transmit <- ifelse(!is.na(currcohorts$daysalive),currcohorts$daysalive,currcohorts$datediff )
 
 
-#final two to correct are ones that have died but continued transmitting:
+#final corrections to be made are for ones that have died but continued transmitting beyond the known death date:
 currcohorts$max_date_time_transmiss[currcohorts$flag_id=="JJ"] <- dt_meta_gsp_TagID$dead_no_t_date_time[dt_meta_gsp_TagID$flag_id=="JJ"]+86399
 currcohorts$max_date_time_transmiss[currcohorts$flag_id=="NH"] <- dt_meta_gsp_TagID$dead_no_t_date_time[dt_meta_gsp_TagID$flag_id=="NH"]+86399
 currcohorts$max_date_time_transmiss[currcohorts$flag_id=="NT"] <- dt_meta_gsp_TagID$dead_no_t_date_time[dt_meta_gsp_TagID$flag_id=="NT"]+86399
@@ -301,7 +304,7 @@ past_cohort_behavs$label_year <- paste(past_cohort_behavs$pastcohort_behaviours,
 past_cohort_behavs$maxdate_pastcohort_behav <- as.POSIXct(past_cohort_behavs$maxdate_pastcohort_behav, format = "%d/%m/%Y %H:%M", tz="UTC")
 
 
-#add a blank column into this dataset so that the results can be read in to it:
+#add a blank column into this dataset for category name and associated date so that the results can be read in to it:
 dt_meta_gsp_TagID_update$max_category <- NA
 dt_meta_gsp_TagID_update$max_category_date <- NA
 
@@ -323,19 +326,19 @@ for(i in 1:nrow(dt_meta_gsp_TagID_update)){
   
   
   #a set of ifelse's to run through the dates based on the 1day, 1week, 2weeks, 6weeks and end of December post release
-  dt_meta_gsp_TagID_update$max_category[dt_meta_gsp_TagID_update$flag_id==id] <-  ifelse(dat.in$max_date_time_transmiss < dat.in$release_date, "Pre Release", 
-         ifelse(dat.in$max_date_time_transmiss< dat.in$Date_1d, "1 One Day",
-                ifelse(dat.in$max_date_time_transmiss < dat.in$Date_1w, "2 One Week",
-                       ifelse(dat.in$max_date_time_transmiss < dat.in$Date_2w, "3 Two Weeks",
-                              ifelse(dat.in$max_date_time_transmiss < dat.in$Date_6w, "4 Six Weeks", 
-                                     ifelse(dat.in$max_date_time_transmiss < decdate, "5 End of December", "Post December"))))))
+  dt_meta_gsp_TagID_update$max_category[dt_meta_gsp_TagID_update$flag_id==id] <-  ifelse(dat.in$max_date_time_transmiss <= dat.in$release_date, "Pre Release", 
+         ifelse(dat.in$max_date_time_transmiss<= dat.in$Date_1d, "1 One Day",
+                ifelse(dat.in$max_date_time_transmiss <= dat.in$Date_1w, "2 One Week",
+                       ifelse(dat.in$max_date_time_transmiss <= dat.in$Date_2w, "3 Two Weeks",
+                              ifelse(dat.in$max_date_time_transmiss <= dat.in$Date_6w, "4 Six Weeks", 
+                                     ifelse(dat.in$max_date_time_transmiss <= decdate, "5 End of December", "Post December"))))))
   
-  dt_meta_gsp_TagID_update$max_category_date[dt_meta_gsp_TagID_update$flag_id==id] <-  ifelse(dat.in$max_date_time_transmiss < dat.in$release_date, NA, 
-                                                                                         ifelse(dat.in$max_date_time_transmiss< dat.in$Date_1d, paste(as.POSIXct(dat.in$Date_1d, tz="UTC")),
-                                                                                                ifelse(dat.in$max_date_time_transmiss < dat.in$Date_1w, paste(as.POSIXct(dat.in$Date_1w, tz="UTC")),
-                                                                                                       ifelse(dat.in$max_date_time_transmiss < dat.in$Date_2w, paste(as.POSIXct(dat.in$Date_2w, tz="UTC")),
-                                                                                                              ifelse(dat.in$max_date_time_transmiss < dat.in$Date_6w, paste(as.POSIXct(dat.in$Date_6w,  tz="UTC")),
-                                                                                                                     ifelse(dat.in$max_date_time_transmiss < decdate, paste(as.POSIXct(decdate, tz="UTC")), "Post December"))))))
+  dt_meta_gsp_TagID_update$max_category_date[dt_meta_gsp_TagID_update$flag_id==id] <-  ifelse(dat.in$max_date_time_transmiss <= dat.in$release_date, NA, 
+                                                                                         ifelse(dat.in$max_date_time_transmiss<= dat.in$Date_1d, paste(as.POSIXct(dat.in$Date_1d, tz="UTC")),
+                                                                                                ifelse(dat.in$max_date_time_transmiss <= dat.in$Date_1w, paste(as.POSIXct(dat.in$Date_1w, tz="UTC")),
+                                                                                                       ifelse(dat.in$max_date_time_transmiss <= dat.in$Date_2w, paste(as.POSIXct(dat.in$Date_2w, tz="UTC")),
+                                                                                                              ifelse(dat.in$max_date_time_transmiss <= dat.in$Date_6w, paste(as.POSIXct(dat.in$Date_6w,  tz="UTC")),
+                                                                                                                     ifelse(dat.in$max_date_time_transmiss <= decdate, paste(as.POSIXct(decdate, tz="UTC")), "Post December"))))))
   
   
   #Then this if loop is in the check if the bird survived to 'post december' then runs through more code to extract the appropriate rows in the past cohort behaviour csv 
@@ -372,7 +375,7 @@ for(i in 1:nrow(dt_meta_gsp_TagID_update)){
 }
 
 
-#NB - for birds that died the day of release we removed them from the analysis???? #HH to check with Katharine
+#NB - for birds that died the day of release we include them for the 1 day post release 
 
 #save the meta data out:
 #write.csv(dt_meta_gsp_TagID_update, here("data/metadata_TagID_deaddates_notransmision_behaviourdates_2021_2024.csv"), row.names = F)
@@ -393,12 +396,14 @@ data_update <- data %>% full_join(dt_meta_gsp_TagID_update, by=join_by(  "urn"  
                                                                          "release_site", "release_site_final" , "cohort_analysis" ,"release_date_time"  , "Date_1d" , "Date_1w"    ,        
                                                                          "Date_2w" , "Date_6w" , "dead_date" , "last_transmiss", "dead_no_t_date_time", "daysalive" ))
 colnames(data_update)
+
 tail(data_update)
 
 #tidy up some columns so that we don't have replicates
-data_final <- data_update[,c(1:38, 43:46,49:54)]
+data_final <- data_update[,c(1:46,49:54)]
 colnames(data_final)
 tail(data_final)
+summary(data_final)
 
 #save this out as the final dataset! 
 #saveRDS(data_final, (here("data/data_withcohorts_release_sites_tagduration_2021_2024.rds")))
@@ -414,9 +419,9 @@ lapply(lapply(load_pkg, rlang::quo_name), library, character.only = TRUE)
 #START HERE - Once all data is correct and cleaned and combined above you can start from here ####
 
 #read back in the data ####
-#data_final <- readRDS(here("data/data_withcohorts_release_sites_tagduration_2021_2024.rds"))
+data_final <- readRDS(here("data/data_withcohorts_release_sites_tagduration_2021_2024.rds"))
 
-#summary(data_final)
+summary(data_final)
 
 
 # Convert to BTOTT Track object ####
@@ -436,36 +441,299 @@ plot(data_tt$longitude, data_tt$latitude)
 
 
 
+#NEXT create separate files were year - for cohort released and remaining from previous cohorts, all the split by stage ####
+
+nyears <- c("2021", "2022", "2023", "2024")
+cohort_periods <- c("1 One Day"  ,  "2 One Week"  , "3 Two Weeks" ,  "4 Six Weeks"   , "5 End of December" )
 
 
-###NEXT is to look at creating the separate files per year - for cohort released and remaining from previous cohorts, all the split by stage 
+unique(data_tt$max_category)
+
+for(i in 1:length(nyears)){
+
+  #first pick out the selected year
+  nyr <- nyears[i]
+  
+  #pick out the correct december and january date 
+  decdate <-  as.POSIXct(ifelse(nyr == 2021, "2021-12-31 23:59:59",
+                                ifelse(nyr == 2022, "2022-12-31 23:59:59", 
+                                       ifelse(nyr == 2023, "2023-12-31 23:59:59", "2024-12-31 23:59:59"))), tz="UTC")
+  
+  
+  jandate <-  as.POSIXct(ifelse(nyr == 2021, "2021-01-01 00:00:00",
+                                ifelse(nyr == 2022, "2022-01-01 00:00:00", 
+                                       ifelse(nyr == 2023, "2023-01-01 00:00:00", "2024-01-01 00:00:00"))), tz="UTC")
+  
+  
+  #create a subset of data based on the date and time - IE keeping the data recording dates to the year selected 
+  dat.in <-data_tt %>% filter(DateTime >= jandate & DateTime <= decdate ) %>% droplevels()
+  
+  #this checks that there are still the different year cohorts
+  summary(dat.in$year)
+  
+  #this checks the min and max datetime
+  summary(dat.in$DateTime)
+  
+  #check the plot
+  plot(dat.in$longitude, dat.in$latitude)
+  
+  
+  #Then two sub sets of analysis:
+    #create a sub dataset for cohort released in nyr
+  dat.in_cohort <-  dat.in %>% 
+    filter(year == nyr) %>% 
+    droplevels()
+  
+  #checks that only the cohort year is retained
+  summary(dat.in_cohort$year)
+  
+  #checks the categories remaining
+  summary(as.factor(dat.in_cohort$max_category))
+  
+  #checks the total number of data rows per max_category
+  table(dat.in_cohort$max_category)
+  
+  
+  
+  #then create an individual dataset filtered for each of the time periods: 
+  
+  #one day . Filters to keep it just to one day for all data
+  data_1d <-  dat.in_cohort %>% 
+    filter(dat.in_cohort$DateTime >= dat.in_cohort$release_date & dat.in_cohort$DateTime <= dat.in_cohort$Date_1d) %>% 
+    droplevels() 
+  
+    summary(as.factor(data_1d$max_category))
+    summary(data_1d$DateTime)
+   #check max number of hours is less than 48hrs
+    max(data_1d$DateTime - data_1d$release_date_posi)
+    
+    #This is a VERY key line to help Track2TrackMultiStack stack the tags in the correct stack! 
+    data_1d$period <- "1 One Day"
+    
+    unique(data_1d$TagID)
+    
+  #one week - filters data to just one week after release but removing the birds that were only in one day category
+  data_1w <- dat.in_cohort %>%
+    filter(dat.in_cohort$DateTime >= dat.in_cohort$release_date & dat.in_cohort$DateTime <= dat.in_cohort$Date_1w) %>%
+    filter(max_category !=  "1 One Day") %>% 
+    droplevels()  
+ 
+   summary(as.factor(data_1w$max_category))
+  summary(data_1w$DateTime)
+  #check max number of hours is less than 192hrs (1 week + 24hrs)
+  max(data_1w$DateTime - data_1w$release_date_posi)
+  
+  #This is a VERY key line to help Track2TrackMultiStack stack the tags in the correct stack! 
+  data_1w$period <- "2 One Week"
+  
+  
+  #number of birds in this category
+  unique(data_1w$TagID) #18
+  
+  
+  #two weeks - filters data to just two weeks after release but removes the birds that were only in one day and one week categories
+  data_2 <- dat.in_cohort %>% 
+    filter(DateTime >= release_date & DateTime <= Date_2w)  %>% 
+    filter(max_category !=  "1 One Day") %>%
+    filter(max_category !=  "2 One Week")%>% 
+    droplevels()
+  
+  summary(data_2$DateTime)
+  summary(as.factor(data_2$max_category))
+  #check max number of hours is less than 390hrs
+  max(data_2$DateTime - data_2$release_date_posi)
+  
+  
+  #This is a VERY key line to help Track2TrackMultiStack stack the tags in the correct stack! 
+  data_2$period <- "3 Two Weeks"
+  
+  
+  #number of birds in this category
+  unique(data_2$TagID) #17
+  
+  
+  
+  #six weeks - filters data to six weeks post release, but removes the birds that were only in one day and one week and two week categories
+  data_6 <- dat.in_cohort %>% 
+    filter(DateTime >= release_date & DateTime <= Date_6w)  %>% 
+    filter(max_category !=  "1 One Day") %>%
+    filter(max_category !=  "2 One Week") %>%
+    filter(max_category !=  "3 Two Weeks")%>% 
+    droplevels()
+    
+  summary(data_6$DateTime)
+  summary(as.factor(data_6$max_category))
+  #check max number of hours is less than 1032hrs
+  max(data_6$DateTime - data_6$release_date_posi)
+  
+  
+  #This is a VERY key line to help Track2TrackMultiStack stack the tags in the correct stack! 
+  data_6$period <- "4 Six Weeks"
+  
+  
+  #number of birds in this category
+  unique(data_6$TagID) #16
+  
+  
+  #This combines all data up until the end of December- HH to check this is correct - data regardless of when the data stopped??
+  data_all <- dat.in_cohort %>%
+    filter(max_category !=  "1 One Day") %>%
+    filter(max_category !=  "2 One Week") %>%
+    filter(max_category !=  "3 Two Weeks") %>%
+    filter(max_category !=  "4 Six Weeks") %>% 
+    droplevels()
+    
+  data_all$period <- "5 End of December"
+  
+  summary(data_all$DateTime)
+  summary(as.factor(data_all$max_category))
+
+  data_all <- rbind(data_all, data_1d[data_1d$max_category=="1 One Day",], data_1w[data_1w$max_category=="2 One Week",], data_2[data_2$max_category=="3 Two Weeks",], data_6[data_6$max_category=="4 Six Weeks",] )
+ 
+  summary(data_all$DateTime)
+  summary(as.factor(data_all$max_category))
+  
+  
+  #This is a VERY key line to help Track2TrackMultiStack stack the tags in the correct stack! 
+  data_all$period <- "5 End of December"
+  
+  
+  #number of birds in this category
+  unique(data_all$TagID) #20
+  
+  
+  
+  # Final merge for the 2023 cohort #####
+  data_cohort<-Track2TrackMultiStack(rbind(data_1d, data_1w, data_2, data_6, data_all), by=c("TagID", "period"))
+  data_cohort
+  
+  
+  
+  ####then create a sub dataset for past cohorts still recording in nyr
+  #Need to do something a bit different for the past cohorts
+  
+  
+  
+  dat.in_pastcohort <-  dat.in %>% 
+    filter(year != nyr) %>% 
+    droplevels()
+  
+  summary(dat.in_pastcohort$year)
+  summary(dat.in_pastcohort$DateTime)
+  summary(dat.in_pastcohort$TagID)
+  
+  #if else loop for male or female
+  if(dat.in_pastcohort$sex == "F"){
+    
+    dat.keep_F <- dat.in_pastcohort %>% filter(sex == "F"| sex == "U") %>% droplevels()
+      summary(dat.keep_F)
+      
+    past_cohort_behavs_year <- past_cohort_behavs %>% filter(sex=="F" & year== nyr)
+    
+    past_cohort_periods_F <- past_cohort_behavs_year$label_year
+      
+    for(f in 1:length(past_cohort_periods_F)){
+      
+      periods_F_before <- past_cohort_periods_F[f-1]
+      periods_F <- past_cohort_periods_F[f]
+      
+      
+      #winter pre breeding
+      Data_W_PreB_F <- dat.keep_F %>% 
+        filter(DateTime >= jandate  & DateTime <= past_cohort_behavs_year$maxdate_pastcohort_behav[past_cohort_behavs_year$label_year==periods_F]) %>%
+        droplevels()
+      
+      summary(Data_W_PreB_F$DateTime)
+      summary(Data_W_PreB_F)
+      
+      unique(Data_W_PreB_F$TagID) #3
+      
+      
+      #spring fuzz
+      Data_SF_F <- dat.keep_F %>% 
+        filter(DateTime >=  past_cohort_behavs_year$maxdate_pastcohort_behav[past_cohort_behavs_year$label_year==periods_F_before]  & DateTime <= past_cohort_behavs$maxdate_pastcohort_behav[past_cohort_behavs$sex=="F" & past_cohort_behavs$label_year==periods_F]) %>%
+        droplevels()
+      
+      summary(Data_SF_F$DateTime)
+      summary(Data_SF_F)
+      
+      unique(Data_SF_F$TagID) #4
+      
+      
+      #Female breeding
+      Data_Breed_F <- dat.keep_F %>% 
+        filter(DateTime >=  past_cohort_behavs_year$maxdate_pastcohort_behav[past_cohort_behavs_year$label_year==periods_F_before]  & DateTime <= past_cohort_behavs$maxdate_pastcohort_behav[past_cohort_behavs$sex=="F" & past_cohort_behavs$label_year==periods_F]) %>%
+        droplevels()
+      
+      summary(Data_Breed_F$DateTime)
+      summary(Data_Breed_F)
+      
+      unique(Data_Breed_F$TagID) #4
+      
+      
+      
+      
+      Data_AF_F
+      
+      Data_W_AfterB_F
+      
+      
+      data_tt_past_c_F
+      
+      
+    }else{
+      
+      past_cohort_periods_M <- (past_cohort_behavs$label_year[past_cohort_behavs$sex=="M" & past_cohort_behavs$year==nyr])
+      
+      dat.keep_M <- dat.in_pastcohort %>% filter(sex == "M") %>% droplevels()
+      summary(dat.keep_M)
+      
+      Data_W_PreB_M
+  Data_SF_M
+  Data_Breed_M
+  Data_AF_M
+  Data_W_AfterB_M
+  
+  
+  data_tt_21_22_M
+      
+    }
+    
+   
+  
+    
+    
+  }
+
+  
+  
+  
+  
+  
+  
+  
+  
+  }
+  
+  
+  
+}
+
+
 data_2023cohort
 
-data_1d
-data_1w
-data_2
-data_6
-data_all
 
 
 
-data_tt_21_22_F
-
-Data_W_PreB_F
-Data_SF_F
-Data_Breed_F
-Data_AF_F
-Data_W_AfterB_F
+# Save
+setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/data") #HH laptop
+save(data_2023cohort, file="NE103_2023 report_clean tracking data for 2023 cohort.RData")
 
 
 
-data_tt_21_22_M
 
-Data_W_PreB_M
-Data_SF_M
-Data_Breed_M
-Data_AF_M
-Data_W_AfterB_M
+
+
 
 
 
