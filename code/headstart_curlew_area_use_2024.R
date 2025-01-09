@@ -625,6 +625,7 @@ for(i in 1:length(nyears)){
   #if else loop for male or female
   if(dat.in_pastcohort$sex == "F"){
     
+    #FEMALE OR UNKNOWN LOOP#
     dat.keep_F <- dat.in_pastcohort %>% filter(sex == "F"| sex == "U") %>% droplevels()
       summary(dat.keep_F)
       
@@ -671,6 +672,10 @@ for(i in 1:length(nyears)){
       unique(Data_Breed_F$TagID) #4
       
       
+      ###START HERE TOMORROW ##### - MAKE SURE TO ADD THESE TWO LINES TO THE ABOVE F code and the rest too!
+      #This is a VERY key line to help Track2TrackMultiStack stack the tags in the correct stack! 
+      data_all$period <- "5 End of December"
+      
       
       
       Data_AF_F
@@ -682,7 +687,7 @@ for(i in 1:length(nyears)){
       
       
     }else{
-      
+      #MALE#
       past_cohort_periods_M <- (past_cohort_behavs$label_year[past_cohort_behavs$sex=="M" & past_cohort_behavs$year==nyr])
       
       dat.keep_M <- dat.in_pastcohort %>% filter(sex == "M") %>% droplevels()
