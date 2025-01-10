@@ -157,8 +157,8 @@ dt_meta_gsp_TagID$release_site_final <- ifelse(dt_meta_gsp_TagID$release_locatio
 ##Add in here three final columns for: cohorts and number of days post release and deaddate ####
 
 ###cohort - work out how many cohorts there were and which ones need combining together ####
-    #2021 = 
-    #2022 = 
+    #2021 = keep with all cohorts in meta data file
+    #2022 = keep with all cohorts in meta data file
     #2023 = cohort 1 separate, then combine remaining cohorts
     #2024 =  >7days difference in release for a cohort should be assessed separately whilst <7 days together. This means 1,2,3 separately and 4+5 together
 
@@ -228,7 +228,7 @@ dt_meta_gsp_TagID$daysalive <- difftime(as.POSIXct(dt_meta_gsp_TagID$dead_no_t_d
 #save the meta data out:
 #write.csv(dt_meta_gsp_TagID, here("data/metadata_TagID_deaddates_notransmision_2021_2024.csv"), row.names = F)
 
-
+#dt_meta_gsp_TagID<-read.csv(here("data/metadata_TagID_deaddates_notransmision_2021_2024.csv"), header=T)
 
 
 ## Finally do a left_join on the dataset using the TagID as the join_by so that the meta data is populated for each GPS fix ####
@@ -383,7 +383,8 @@ for(i in 1:nrow(dt_meta_gsp_TagID_update)){
 
 #create a sub-table to check we're happy with the final categories:
 #colnames(dt_meta_gsp_TagID_update)
-#checktable <- dt_meta_gsp_TagID_update[,c(2,3,5,7,12,13,15,16,17,21,22,23,36,37,38)]
+#checktable <- dt_meta_gsp_TagID_update[,c(2,3,5,7,12,13,15,16,17,21,22,23,29,33,36,37,38)]
+colnames(checktable)
 #write.csv(checktable, here("data/tabletocheck.csv"), row.names=F)
 
 
@@ -446,7 +447,7 @@ plot(data_tt$longitude, data_tt$latitude)
 nyears <- c("2021", "2022", "2023", "2024")
 cohort_periods <- c("1 One Day"  ,  "2 One Week"  , "3 Two Weeks" ,  "4 Six Weeks"   , "5 End of December" )
 
-summary_dat <- read.csv(here("data/summary_curlewcount_per_timeperiod.csv"), header=T) 
+#summary_dat <- read.csv(here("data/summary_curlewcount_per_timeperiod.csv"), header=T) 
 
 #add in a unique label ID
 summary_dat$label_year <- paste(summary_dat$pastcohort_behaviours, summary_dat$year)
@@ -584,7 +585,7 @@ for(y in 1:length(nyears)){
   summary_dat$number_birds[summary_dat$year == nyr & summary_dat$pastcohort_behaviours == "4 Six Weeks"] <- length(levels(data_6$TagID))
   
   
-  #This combines all data up until the end of December- HH to check this is correct - data regardless of when the data stopped??
+  #This combines all data up until the end of December- HH to check this is correct - data regardless of when the data stopped = YES
   data_all <- dat.in_cohort %>%
     filter(max_category !=  "1 One Day") %>%
     filter(max_category !=  "2 One Week") %>%
@@ -620,7 +621,7 @@ for(y in 1:length(nyears)){
   
   # Save
   setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/data/2025 analysis") #HH laptop
-  save(data_cohort, paste0(file="NE103_2024 report_clean tracking data for ",nyr," cohort.RData"))
+  save(data_cohort, file=paste0("NE103_2024 report_clean tracking data for ",nyr," cohort.RData"))
   
   
   
@@ -638,9 +639,27 @@ for(y in 1:length(nyears)){
   summary(dat.in_pastcohort$DateTime)
   summary(dat.in_pastcohort$TagID)
   
-  #if else loop for male or female
-  if(dat.in_pastcohort$sex == "F" | dat.in_pastcohort$sex == "U"){
+  
+  #put in a loop catch for 2021 which doesn't have past cohort analysis!
+  
+  if(nyr==2021){
     
+    # Final merge for the whole of the year #####
+    data_year<-Track2TrackMultiStack(rbind(data_1d, data_1w, data_2, data_6, data_all), by=c("TagID", "period"))
+    data_year
+    
+    
+    # Save
+    setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/data/2025 analysis") #HH laptop
+    save(data_year, file=paste0("NE103_2024 report_clean tracking data for all ",nyr," data.RData"))
+    
+    
+    
+  }else{
+    
+  
+  #male or female
+  
     #FEMALE OR UNKNOWN#
     
     #filter the data
@@ -778,7 +797,23 @@ for(y in 1:length(nyears)){
       
       
       
-    }else{
+ 
+      if(nyr==2022){
+        
+        #Final merge all together:
+        
+        # Final merge for the whole of the year #####
+        data_year<-Track2TrackMultiStack(rbind(data_1d, data_1w, data_2, data_6, data_all, Data_W_PreB_F, Data_SF_F, Data_Breed_F, Data_AF_F, Data_W_AfterB_F), by=c("TagID", "period"))
+        data_year
+        
+        
+        # Save
+        setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/data/2025 analysis") #HH laptop
+        save(data_year, file=paste0("NE103_2024 report_clean tracking data for all ",nyr," data.RData"))
+        
+        
+        
+      }else{
       #MALE#
       #filter the data
       dat.keep_M <- dat.in_pastcohort %>% filter(sex == "M") %>% droplevels()
@@ -917,9 +952,9 @@ for(y in 1:length(nyears)){
       
       
       
-    }
     
-   
+    
+
   
   
   #Final merge all together:
@@ -929,64 +964,23 @@ for(y in 1:length(nyears)){
   data_year
   
   
-  
-  
-  
-  # Save
+   # Save
   setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/data/2025 analysis") #HH laptop
   save(data_year, file=paste0("NE103_2024 report_clean tracking data for all ",nyr," data.RData"))
   
-    
+      }
   }
-
-  
-  
-  
-  
-  
-  
-  
-  
-  }
-  
-  
-  
 }
+  
+  
+ 
+    
 
-
-data_2023cohort
-
-
-
-
-# Save
-setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/data") #HH laptop
-save(data_2023cohort, file="NE103_2023 report_clean tracking data for 2023 cohort.RData")
-
-
-
-
-
-
-
-
-
-# extract data for 2023 only ####
-#HH NB --- HH alternative code to filter the data for ANY GPS data for the WHOLE of 2023: splitting it by the cohorts released in 2023 and previous cohorts still recording in 2023
-data_tt_all23 <-data_tt %>% filter(DateTime >= "2023-01-01") %>% droplevels()
-
-#this checks that there are still the different year cohorts
-summary(data_tt_all23$year)
-
-#this checks the min and max datetime
-summary(data_tt_all23$DateTime)
-
-#check the plot
-plot(data_tt_all23$longitude, data_tt_all23$latitude)
-
-
-## cohort 2023 release - filter the data for each ID based on the staggered deployments for cohort released in 2023 ####
-data_tt_2023<-data_tt_all23 %>% filter(year == "2023") %>% droplevels()
-summary(data_tt_2023$year)
-summary(data_tt_2023$DateTime) #note this still includes 2024 data but for the 2023 released cohort
+  
+  
+  
+  
+  
+  
+  
 
