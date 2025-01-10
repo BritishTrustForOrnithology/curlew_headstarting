@@ -410,6 +410,7 @@ summary(data_final)
 #saveRDS(data_final, (here("data/data_withcohorts_release_sites_tagduration_2021_2024.rds")))
 
 
+
 ####.####
 
 
@@ -507,11 +508,12 @@ for(y in 1:length(nyears)){
   
   #one day - Filters to keep it just to one day for all data
   data_1d <-  dat.in_cohort %>% 
-    filter(dat.in_cohort$DateTime >= dat.in_cohort$release_date & dat.in_cohort$DateTime <= dat.in_cohort$Date_1d) %>% 
+    filter(dat.in_cohort$DateTime >= dat.in_cohort$release_date_posi & dat.in_cohort$DateTime <= dat.in_cohort$Date_1d) %>% 
     droplevels() 
   
     summary(as.factor(data_1d$max_category))
     summary(data_1d$DateTime)
+    
    #check max number of hours is less than 48hrs
     max(data_1d$DateTime - data_1d$release_date_posi)
     
@@ -524,7 +526,7 @@ for(y in 1:length(nyears)){
     
   #one week - filters data to just one week after release but removing the birds that were only in one day category
   data_1w <- dat.in_cohort %>%
-    filter(dat.in_cohort$DateTime >= dat.in_cohort$release_date & dat.in_cohort$DateTime <= dat.in_cohort$Date_1w) %>%
+    filter(dat.in_cohort$DateTime >= dat.in_cohort$release_date_posi & dat.in_cohort$DateTime <= dat.in_cohort$Date_1w) %>%
     filter(max_category !=  "1 One Day") %>% 
     droplevels()  
  
@@ -543,7 +545,7 @@ for(y in 1:length(nyears)){
   
   #two weeks - filters data to just two weeks after release but removes the birds that were only in one day and one week categories
   data_2 <- dat.in_cohort %>% 
-    filter(DateTime >= release_date & DateTime <= Date_2w)  %>% 
+    filter(DateTime >= release_date_posi & DateTime <= Date_2w)  %>% 
     filter(max_category !=  "1 One Day") %>%
     filter(max_category !=  "2 One Week")%>% 
     droplevels()
@@ -565,7 +567,7 @@ for(y in 1:length(nyears)){
   
   #six weeks - filters data to six weeks post release, but removes the birds that were only in one day and one week and two week categories
   data_6 <- dat.in_cohort %>% 
-    filter(DateTime >= release_date & DateTime <= Date_6w)  %>% 
+    filter(DateTime >= release_date_posi & DateTime <= Date_6w)  %>% 
     filter(max_category !=  "1 One Day") %>%
     filter(max_category !=  "2 One Week") %>%
     filter(max_category !=  "3 Two Weeks")%>% 
@@ -640,8 +642,7 @@ for(y in 1:length(nyears)){
   summary(dat.in_pastcohort$TagID)
   
   
-  #put in a loop catch for 2021 which doesn't have past cohort analysis!
-  
+  #put in a loop catch for 2021 which doesn't have any past cohort data!
   if(nyr==2021){
     
     # Final merge for the whole of the year #####
@@ -797,7 +798,7 @@ for(y in 1:length(nyears)){
       
       
       
- 
+ #this if loop in to catch the 2022 year where there were no male past cohorts
       if(nyr==2022){
         
         #Final merge all together:
@@ -951,10 +952,7 @@ for(y in 1:length(nyears)){
       save(data_cohort, file=paste0("NE103_2024 report_clean tracking data for ",nyr," past cohorts_Male.RData"))
       
       
-      
     
-    
-
   
   
   #Final merge all together:
@@ -974,13 +972,162 @@ for(y in 1:length(nyears)){
   
   
  
-    
+
+####.####
+
+#ANALYSIS BEGIGNS! #####
+
+## read things in ####
+#If need the clean but raw data per row can read in this data:
+#data_final <- readRDS(here("data/data_withcohorts_release_sites_tagduration_2021_2024.rds"))
+
+#summary(data_final)
+
+
+#read in the meta data just in case useful:
+dt_meta_gsp_TagID_update <- read.csv(here("data/metadata_TagID_deaddates_notransmision_behaviourdates_2021_2024.csv"), header=T)
+
+
+#looooop set up ####
+#Previous code read in at this point one item from the list each time and then had to run through it. Here I'm hopefully going to set up a loop
+  #to avoid the human error that this could potentially cause! 
+
+
+# Load - NB load automatically loads the data back in as the same name it was saved out as. this year it reads back in as "data_year" 
+nyears <- c("2021", "2022", "2023", "2024")
+
+nyr <- nyears[4]
+
+setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/data/2025 analysis") #HH laptop
+load(file=paste0("NE103_2024 report_clean tracking data for all ",nyr," data.RData"))
+
+
+#loaded as data_2023. rename it:
+data <- data_year
+
+
+#HH NB - useful if going to use a loop
+datasplit <- c("1 One Day" ,"2 One Week" ,"3 Two Weeks" , "4 Six Weeks" ,"5 End of December" ,
+                "6 Winter pre-breeding" , "7 Spring fuzzy" , "8a Female Breeding Season" , "8b Male Breeding Season" ,
+               "9a Female Autumn fuzzy","9b Male Autumn fuzzy", "10 End of December - Winter" )
+
+
+#List in order of the data held in the data_2023 list
+#1= "1 One Day" 
+#3= "2 One Week" 
+#4= "3 Two Weeks" 
+#5= "4 Six Weeks" 
+#6= "5 End of December" 
+#7= "6 Winter pre-breeding" 
+#8= "7 Spring fuzzy" 
+#9= "8a Female Breeding Season" 
+#10= "8b Male Breeding Season" 
+#11= "9a Female Autumn fuzzy" 
+#12= "9b Male Autumn fuzzy" 
+#2="10 End of December - Winter" 
+
+
+#### TIME IN AREA #HH NB - Leaflet plots ####
+library(viridisLite)
+library(viridis)
+
+
+
+# Using BTOTT::
+#extract vidiridis for 18 - max number of different birds 
+
+
+## Basic visualisation of data - uses BTO plot_leaflet ####
+BTOTrackingTools::plot_leaflet(data[[1]], lines=FALSE, col=c(scales::viridis_pal()(length(data[[1]])))) #code update - now "plot_leaflet" not "plot_leaflet_dev"
+plot_leaflet(data[[3]], lines=FALSE, col=c(scales::viridis_pal()(length(data[[3]]))))
+plot_leaflet(data[[4]], lines=FALSE, col=c(scales::viridis_pal()(length(data[[4]]))))
+plot_leaflet(data[[5]], lines=FALSE, col=c(scales::viridis_pal()(length(data[[5]]))))
+plot_leaflet(data[[6]], lines=FALSE, col=c(scales::viridis_pal()(length(data[[6]])))) 
+
+
+plot_leaflet(data[[7]], lines=FALSE, col=c(scales::viridis_pal()(length(data[[7]]))))
+plot_leaflet(data[[8]], lines=FALSE, col=c(scales::viridis_pal()(length(data[[8]]))))
+plot_leaflet(data[[9]], lines=FALSE, col=c(scales::viridis_pal()(length(data[[9]]))))
+plot_leaflet(data[[10]], lines=FALSE, col=c(scales::viridis_pal()(length(data[[10]]))))
+plot_leaflet(data[[11]], lines=FALSE, col=c(scales::viridis_pal()(length(data[[11]]))))
+plot_leaflet(data[[12]], lines=FALSE, col=c(scales::viridis_pal()(length(data[[12]]))))
+plot_leaflet(data[[2]], lines=FALSE, col=c(scales::viridis_pal()(length(data[[2]]))))
 
   
+
+## by tide Interactive plot with tide data for output #####
+
+#read one of these in at a time and then the rows below
+#data_tide<-BTOTrackingTools::TrackStack2Track(data[[1]])
+#data_tide<-TrackStack2Track(data[[3]])
+#data_tide<-TrackStack2Track(data[[4]])
+#data_tide<-TrackStack2Track(data[[5]])
+
+
+#data_tide<-TrackStack2Track(data[[7]]) 
+#data_tide<-TrackStack2Track(data[[8]])
+#data_tide<-TrackStack2Track(data[[9]]) 
+#data_tide<-TrackStack2Track(data[[10]])
+#data_tide<-TrackStack2Track(data[[11]])
+#data_tide<-TrackStack2Track(data[[12]])
+#data_tide<-TrackStack2Track(data[[2]])
+
+
+#only need this plot for all data up to December
+data_tide<-TrackStack2Track(data[[6]])
+
+data_tide<-data_tide %>% filter(tide!="NA")
+data_tide$Tide<-as.character(fct_recode(data_tide$tide, "High tide" = "HW", "Low tide" = "LW") )
+plot_leaflet(data_tide, plotby="Tide", lines=FALSE, col=c("#31688EFF","#35B779FF")) #code update - now "plot_leaflet" not "plot_leaflet_dev"
+
+
+
+## save per release site for 1day post release ####
+scales::viridis_pal()(9)
+#"#440154FF", "#482878FF" ,"#3E4A89FF" ,"#31688EFF", "#26828EFF", "#1F9E89FF", "#35B779FF", "#6DCD59FF", "#B4DE2CFF" ,"#FDE725FF"
+#"#440154FF" ,"#472D7BFF", "#3B528BFF" ,"#2C728EFF" ,"#21908CFF", "#27AD81FF", "#5DC863FF" ,"#AADC32FF", "#FDE725FF"
+
+data_site <- TrackStack2Track(data[[1]])
+
+data_site_ken <- droplevels(data_site %>% filter(data_site$release_site_final=="Ken Hill"))
+unique(data_site_ken$TagID) #6
+plot_leaflet(data_site_ken, lines=FALSE, col=viridis_pal()(6)) # KMB, new colour scheme, needs libraries Viridis and ViridisLite
+
+data_site_san <- droplevels(data_site %>% filter(data_site$release_site_final=="Sandringham 2"))
+unique(data_site_san$TagID) #5
+plot_leaflet(data_site_san, lines=FALSE, col=viridis_pal()(5))# KMB, new colour scheme, needs libraries Viridis and ViridisLite
+
+
+## save per release site for 1wk post release ####
+
+data_site <- TrackStack2Track(data[[3]])
+
+data_site_ken <- droplevels(data_site %>% filter(data_site$release_site_final=="Ken Hill"))
+unique(data_site_ken$TagID) #8
+plot_leaflet(data_site_ken, lines=FALSE, col=viridis_pal()(5)) # KMB, new colour scheme, needs libraries Viridis and ViridisLite
+
+data_site_san <- droplevels(data_site %>% filter(data_site$release_site_final=="Sandringham 2"))
+unique(data_site_san$TagID) #9 (HH had 6 but 9 here for KMB)
+plot_leaflet(data_site_san, lines=FALSE, col=viridis_pal()(4)) # KMB, new colour scheme, needs libraries Viridis and ViridisLite
+
+
+# basic colour mark sightings plot using leaflet:: directly #HH NB - for the fieldwork year 2023-24 KMB going to do this bit ####CHECK THIS FOR THIS YEAR!!
+
+
+
+
+
+
+# priniciple of the loop i'll need for later #####
+for(p in 1:length(datasplit)){
+  
+  TP <- datasplit[p] 
+  
+  BTOTrackingTools::plot_leaflet(data[[TP]], lines=FALSE, col=c(scales::viridis_pal()(length(data[[TP]])))) #code update - now "plot_leaflet" not "plot_leaflet_dev"
   
   
   
-  
+}
   
   
 
