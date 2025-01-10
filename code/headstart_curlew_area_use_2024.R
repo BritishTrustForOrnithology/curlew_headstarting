@@ -441,20 +441,27 @@ plot(data_tt$longitude, data_tt$latitude)
 
 
 
-#NEXT create separate files were year - for cohort released and remaining from previous cohorts, all the split by stage ####
+#NEXT create separate files per year - for cohort released and remaining from previous cohorts, all the split by stage ####
 
 nyears <- c("2021", "2022", "2023", "2024")
 cohort_periods <- c("1 One Day"  ,  "2 One Week"  , "3 Two Weeks" ,  "4 Six Weeks"   , "5 End of December" )
 
+summary_dat <- read.csv(here("data/summary_curlewcount_per_timeperiod.csv"), header=T) 
 
-unique(data_tt$max_category)
+#add in a unique label ID
+summary_dat$label_year <- paste(summary_dat$pastcohort_behaviours, summary_dat$year)
 
-for(i in 1:length(nyears)){
+summary_dat$number_birds <- NA
+
+
+
+
+for(y in 1:length(nyears)){
 
   #first pick out the selected year
-  nyr <- nyears[i]
+  nyr <- nyears[y]
   
-  #pick out the correct december and january date 
+  #pick out the correct december and january date for the year 
   decdate <-  as.POSIXct(ifelse(nyr == 2021, "2021-12-31 23:59:59",
                                 ifelse(nyr == 2022, "2022-12-31 23:59:59", 
                                        ifelse(nyr == 2023, "2023-12-31 23:59:59", "2024-12-31 23:59:59"))), tz="UTC")
@@ -466,21 +473,21 @@ for(i in 1:length(nyears)){
   
   
   #create a subset of data based on the date and time - IE keeping the data recording dates to the year selected 
-  dat.in <-data_tt %>% filter(DateTime >= jandate & DateTime <= decdate ) %>% droplevels()
+  dat.in_c <-data_tt %>% filter(DateTime >= jandate & DateTime <= decdate ) %>% droplevels()
   
   #this checks that there are still the different year cohorts
-  summary(dat.in$year)
+  summary(dat.in_c$year)
   
   #this checks the min and max datetime
-  summary(dat.in$DateTime)
+  summary(dat.in_c$DateTime)
   
   #check the plot
-  plot(dat.in$longitude, dat.in$latitude)
+  plot(dat.in_c$longitude, dat.in_c$latitude)
   
   
   #Then two sub sets of analysis:
     #create a sub dataset for cohort released in nyr
-  dat.in_cohort <-  dat.in %>% 
+  dat.in_cohort <-  dat.in_c %>% 
     filter(year == nyr) %>% 
     droplevels()
   
@@ -497,7 +504,7 @@ for(i in 1:length(nyears)){
   
   #then create an individual dataset filtered for each of the time periods: 
   
-  #one day . Filters to keep it just to one day for all data
+  #one day - Filters to keep it just to one day for all data
   data_1d <-  dat.in_cohort %>% 
     filter(dat.in_cohort$DateTime >= dat.in_cohort$release_date & dat.in_cohort$DateTime <= dat.in_cohort$Date_1d) %>% 
     droplevels() 
@@ -510,7 +517,9 @@ for(i in 1:length(nyears)){
     #This is a VERY key line to help Track2TrackMultiStack stack the tags in the correct stack! 
     data_1d$period <- "1 One Day"
     
-    unique(data_1d$TagID)
+    #add the number of birds into the summary table
+    summary_dat$number_birds[summary_dat$year == nyr & summary_dat$pastcohort_behaviours == "1 One Day"] <- length(levels(data_1d$TagID))
+    
     
   #one week - filters data to just one week after release but removing the birds that were only in one day category
   data_1w <- dat.in_cohort %>%
@@ -527,8 +536,8 @@ for(i in 1:length(nyears)){
   data_1w$period <- "2 One Week"
   
   
-  #number of birds in this category
-  unique(data_1w$TagID) #18
+  #add the number of birds into the summary table
+  summary_dat$number_birds[summary_dat$year == nyr & summary_dat$pastcohort_behaviours == "2 One Week"] <- length(levels(data_1w$TagID))
   
   
   #two weeks - filters data to just two weeks after release but removes the birds that were only in one day and one week categories
@@ -548,8 +557,8 @@ for(i in 1:length(nyears)){
   data_2$period <- "3 Two Weeks"
   
   
-  #number of birds in this category
-  unique(data_2$TagID) #17
+  #add the number of birds into the summary table
+  summary_dat$number_birds[summary_dat$year == nyr & summary_dat$pastcohort_behaviours == "3 Two Weeks"] <- length(levels(data_2$TagID))
   
   
   
@@ -570,9 +579,9 @@ for(i in 1:length(nyears)){
   #This is a VERY key line to help Track2TrackMultiStack stack the tags in the correct stack! 
   data_6$period <- "4 Six Weeks"
   
-  
-  #number of birds in this category
-  unique(data_6$TagID) #16
+
+  #add the number of birds into the summary table
+  summary_dat$number_birds[summary_dat$year == nyr & summary_dat$pastcohort_behaviours == "4 Six Weeks"] <- length(levels(data_6$TagID))
   
   
   #This combines all data up until the end of December- HH to check this is correct - data regardless of when the data stopped??
@@ -597,9 +606,10 @@ for(i in 1:length(nyears)){
   #This is a VERY key line to help Track2TrackMultiStack stack the tags in the correct stack! 
   data_all$period <- "5 End of December"
   
+
+  #add the number of birds into the summary table
+  summary_dat$number_birds[summary_dat$year == nyr & summary_dat$pastcohort_behaviours == "5 End of December"] <- length(levels(data_all$TagID))
   
-  #number of birds in this category
-  unique(data_all$TagID) #20
   
   
   
@@ -608,13 +618,19 @@ for(i in 1:length(nyears)){
   data_cohort
   
   
+  # Save
+  setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/data/2025 analysis") #HH laptop
+  save(data_cohort, paste0(file="NE103_2024 report_clean tracking data for ",nyr," cohort.RData"))
+  
+  
+  
   
   ####then create a sub dataset for past cohorts still recording in nyr
   #Need to do something a bit different for the past cohorts
   
   
   
-  dat.in_pastcohort <-  dat.in %>% 
+  dat.in_pastcohort <-  dat.in_c %>% 
     filter(year != nyr) %>% 
     droplevels()
   
@@ -623,34 +639,48 @@ for(i in 1:length(nyears)){
   summary(dat.in_pastcohort$TagID)
   
   #if else loop for male or female
-  if(dat.in_pastcohort$sex == "F"){
+  if(dat.in_pastcohort$sex == "F" | dat.in_pastcohort$sex == "U"){
     
-    #FEMALE OR UNKNOWN LOOP#
+    #FEMALE OR UNKNOWN#
+    
+    #filter the data
     dat.keep_F <- dat.in_pastcohort %>% filter(sex == "F"| sex == "U") %>% droplevels()
       summary(dat.keep_F)
       
+    #filter to past_cohort_behavs dataframe to get the year and sex time periods
     past_cohort_behavs_year <- past_cohort_behavs %>% filter(sex=="F" & year== nyr)
     
+    #use the table above to then create a list of labels
     past_cohort_periods_F <- past_cohort_behavs_year$label_year
       
-    for(f in 1:length(past_cohort_periods_F)){
+    
+    
+        #winter pre breeding
+    #because it didn't quite work to have it in a loop the periods_F <- line is really important to loop over the different labels 
+      periods_F <- past_cohort_periods_F[1]
       
-      periods_F_before <- past_cohort_periods_F[f-1]
-      periods_F <- past_cohort_periods_F[f]
-      
-      
-      #winter pre breeding
+    
       Data_W_PreB_F <- dat.keep_F %>% 
         filter(DateTime >= jandate  & DateTime <= past_cohort_behavs_year$maxdate_pastcohort_behav[past_cohort_behavs_year$label_year==periods_F]) %>%
         droplevels()
       
       summary(Data_W_PreB_F$DateTime)
       summary(Data_W_PreB_F)
+    
+      #This is a VERY key line to help Track2TrackMultiStack stack the tags in the correct stack! 
+      Data_W_PreB_F$period <- periods_F
       
-      unique(Data_W_PreB_F$TagID) #3
+      #add the number of birds into the summary table
+      summary_dat$number_birds[summary_dat$sex == "F" & summary_dat$label_year == periods_F] <- length(levels(Data_W_PreB_F$TagID))
+      
+      
       
       
       #spring fuzz
+      periods_F_before <- past_cohort_periods_F[1]
+      periods_F <- past_cohort_periods_F[2]
+      
+      
       Data_SF_F <- dat.keep_F %>% 
         filter(DateTime >=  past_cohort_behavs_year$maxdate_pastcohort_behav[past_cohort_behavs_year$label_year==periods_F_before]  & DateTime <= past_cohort_behavs$maxdate_pastcohort_behav[past_cohort_behavs$sex=="F" & past_cohort_behavs$label_year==periods_F]) %>%
         droplevels()
@@ -658,10 +688,21 @@ for(i in 1:length(nyears)){
       summary(Data_SF_F$DateTime)
       summary(Data_SF_F)
       
-      unique(Data_SF_F$TagID) #4
+      #This is a VERY key line to help Track2TrackMultiStack stack the tags in the correct stack! 
+      Data_SF_F$period <- periods_F
+      
+      
+      #add the number of birds into the summary table
+      summary_dat$number_birds[summary_dat$sex == "F" & summary_dat$label_year == periods_F] <- length(levels(Data_SF_F$TagID))
+      
+      
       
       
       #Female breeding
+      periods_F_before <- past_cohort_periods_F[2]
+      periods_F <- past_cohort_periods_F[3]
+      
+      
       Data_Breed_F <- dat.keep_F %>% 
         filter(DateTime >=  past_cohort_behavs_year$maxdate_pastcohort_behav[past_cohort_behavs_year$label_year==periods_F_before]  & DateTime <= past_cohort_behavs$maxdate_pastcohort_behav[past_cohort_behavs$sex=="F" & past_cohort_behavs$label_year==periods_F]) %>%
         droplevels()
@@ -669,44 +710,232 @@ for(i in 1:length(nyears)){
       summary(Data_Breed_F$DateTime)
       summary(Data_Breed_F)
       
-      unique(Data_Breed_F$TagID) #4
-      
-      
-      ###START HERE TOMORROW ##### - MAKE SURE TO ADD THESE TWO LINES TO THE ABOVE F code and the rest too!
       #This is a VERY key line to help Track2TrackMultiStack stack the tags in the correct stack! 
-      data_all$period <- "5 End of December"
+      Data_Breed_F$period <- periods_F
+      
+      
+      #add the number of birds into the summary table
+      summary_dat$number_birds[summary_dat$sex == "F" & summary_dat$label_year == periods_F] <- length(levels(Data_Breed_F$TagID))
       
       
       
-      Data_AF_F
       
-      Data_W_AfterB_F
+      #Female autumn fuzz
+      periods_F_before <- past_cohort_periods_F[3]
+      periods_F <- past_cohort_periods_F[4]
       
       
-      data_tt_past_c_F
+      Data_AF_F <- dat.keep_F %>% 
+        filter(DateTime >=  past_cohort_behavs_year$maxdate_pastcohort_behav[past_cohort_behavs_year$label_year==periods_F_before]  & DateTime <= past_cohort_behavs$maxdate_pastcohort_behav[past_cohort_behavs$sex=="F" & past_cohort_behavs$label_year==periods_F]) %>%
+        droplevels()
+      
+      summary(Data_AF_F$DateTime)
+      summary(Data_AF_F)
+      
+      #This is a VERY key line to help Track2TrackMultiStack stack the tags in the correct stack! 
+      Data_AF_F$period <- periods_F
+      
+      
+      #add the number of birds into the summary table
+      summary_dat$number_birds[summary_dat$sex == "F" & summary_dat$label_year == periods_F] <- length(levels(Data_AF_F$TagID))
+      
+      
+      
+      #Female winter after breeding
+      periods_F_before <- past_cohort_periods_F[4]
+      periods_F <- past_cohort_periods_F[5]
+      
+      
+      Data_W_AfterB_F <- dat.keep_F %>% 
+        filter(DateTime >=  past_cohort_behavs_year$maxdate_pastcohort_behav[past_cohort_behavs_year$label_year==periods_F_before]  & DateTime <= past_cohort_behavs$maxdate_pastcohort_behav[past_cohort_behavs$sex=="F" & past_cohort_behavs$label_year==periods_F]) %>%
+        droplevels()
+      
+      summary(Data_W_AfterB_F$DateTime)
+      summary(Data_W_AfterB_F)
+      
+      #This is a VERY key line to help Track2TrackMultiStack stack the tags in the correct stack! 
+      Data_W_AfterB_F$period <- periods_F
+      
+      
+      #add the number of birds into the summary table
+      summary_dat$number_birds[summary_dat$sex == "F" & summary_dat$label_year == periods_F] <- length(levels(Data_W_AfterB_F$TagID))
+      
+      
+      
+      
+      
+      # Final merge for the cohort #####
+      data_past_F <-Track2TrackMultiStack(rbind(Data_W_PreB_F, Data_SF_F, Data_Breed_F, Data_AF_F, Data_W_AfterB_F), by=c("TagID", "period"))
+      data_past_F
+      
+      
+      # Save
+      setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/data/2025 analysis") #HH laptop
+      save(data_cohort, file=paste0("NE103_2024 report_clean tracking data for ",nyr," past cohorts_Female.RData"))
+      
+      
+      
+      
       
       
     }else{
       #MALE#
-      past_cohort_periods_M <- (past_cohort_behavs$label_year[past_cohort_behavs$sex=="M" & past_cohort_behavs$year==nyr])
-      
+      #filter the data
       dat.keep_M <- dat.in_pastcohort %>% filter(sex == "M") %>% droplevels()
       summary(dat.keep_M)
       
-      Data_W_PreB_M
-  Data_SF_M
-  Data_Breed_M
-  Data_AF_M
-  Data_W_AfterB_M
+      #filter to past_cohort_behavs dataframe to get the year and sex time periods
+      past_cohort_behavs_year_M <- past_cohort_behavs %>% filter(sex=="M" & year== nyr)
+      
+      #use the table above to then create a list of labels
+      past_cohort_periods_M <- past_cohort_behavs_year_M$label_year
+      
+      
+      
+      
+      #winter pre breeding
+      #because it didn't quite work to have it in a loop the periods_F <- line is really important to loop over the different labels 
+      periods_M <- past_cohort_periods_M[1]
+      
+      
+      Data_W_PreB_M <- dat.keep_M %>% 
+        filter(DateTime >= jandate  & DateTime <= past_cohort_behavs_year$maxdate_pastcohort_behav[past_cohort_behavs_year$label_year==periods_M]) %>%
+        droplevels()
+      
+      summary(Data_W_PreB_M$DateTime)
+      summary(Data_W_PreB_M)
+      
+      #This is a VERY key line to help Track2TrackMultiStack stack the tags in the correct stack! 
+      Data_W_PreB_M$period <- periods_M
+      
+      #add the number of birds into the summary table
+      summary_dat$number_birds[summary_dat$sex == "M" & summary_dat$label_year == periods_M] <- length(levels(Data_W_PreB_M$TagID))
+      
+      
+      
+      
+    
+      #spring fuzz
+      periods_M_before <- past_cohort_periods_M[1]
+      periods_M <- past_cohort_periods_M[2]
+      
+      
+      Data_SF_M <- dat.keep_M %>% 
+        filter(DateTime >=  past_cohort_behavs_year_M$maxdate_pastcohort_behav[past_cohort_behavs_year_M$label_year==periods_M_before]  & DateTime <= past_cohort_behavs_year_M$maxdate_pastcohort_behav[past_cohort_behavs_year_M$label_year==periods_M]) %>%
+        droplevels()
+      
+      summary(Data_SF_M$DateTime)
+      summary(Data_SF_M)
+      
+      #This is a VERY key line to help Track2TrackMultiStack stack the tags in the correct stack! 
+      Data_SF_M$period <- periods_M
+      
+      
+      #add the number of birds into the summary table
+      summary_dat$number_birds[summary_dat$sex == "M" & summary_dat$label_year == periods_M] <- length(levels(Data_SF_M$TagID))
+      
+      
+      
+      
+      #Male breeding season
+      periods_M_before <- past_cohort_periods_M[2]
+      periods_M <- past_cohort_periods_M[3]
+      
+      
+      Data_Breed_M <- dat.keep_M %>% 
+        filter(DateTime >=  past_cohort_behavs_year_M$maxdate_pastcohort_behav[past_cohort_behavs_year_M$label_year==periods_M_before]  & DateTime <= past_cohort_behavs_year_M$maxdate_pastcohort_behav[past_cohort_behavs_year_M$label_year==periods_M]) %>%
+        droplevels()
+      
+      summary(Data_Breed_M$DateTime)
+      summary(Data_Breed_M)
+      
+      #This is a VERY key line to help Track2TrackMultiStack stack the tags in the correct stack! 
+      Data_Breed_M$period <- periods_M
+      
+      
+      #add the number of birds into the summary table
+      summary_dat$number_birds[summary_dat$sex == "M" & summary_dat$label_year == periods_M] <- length(levels(Data_Breed_M$TagID))
+      
+      
+      
+      
+      #Male autumn fuzzy
+      periods_M_before <- past_cohort_periods_M[3]
+      periods_M <- past_cohort_periods_M[4]
+      
+      
+      Data_AF_M <- dat.keep_M %>% 
+        filter(DateTime >=  past_cohort_behavs_year_M$maxdate_pastcohort_behav[past_cohort_behavs_year_M$label_year==periods_M_before]  & DateTime <= past_cohort_behavs_year_M$maxdate_pastcohort_behav[past_cohort_behavs_year_M$label_year==periods_M]) %>%
+        droplevels()
+      
+      summary(Data_AF_M$DateTime)
+      summary(Data_AF_M)
+      
+      #This is a VERY key line to help Track2TrackMultiStack stack the tags in the correct stack! 
+      Data_AF_M$period <- periods_M
+      
+      
+      #add the number of birds into the summary table
+      summary_dat$number_birds[summary_dat$sex == "M" & summary_dat$label_year == periods_M] <- length(levels(Data_AF_M$TagID))
+      
+      
+      
+      
+      
+      #Male winter post breeding
+      periods_M_before <- past_cohort_periods_M[4]
+      periods_M <- past_cohort_periods_M[5]
+      
+      
+      Data_W_AfterB_M <- dat.keep_M %>% 
+        filter(DateTime >=  past_cohort_behavs_year_M$maxdate_pastcohort_behav[past_cohort_behavs_year_M$label_year==periods_M_before]  & DateTime <= past_cohort_behavs_year_M$maxdate_pastcohort_behav[past_cohort_behavs_year_M$label_year==periods_M]) %>%
+        droplevels()
+      
+      summary(Data_W_AfterB_M$DateTime)
+      summary(Data_W_AfterB_M)
+      
+      #This is a VERY key line to help Track2TrackMultiStack stack the tags in the correct stack! 
+      Data_W_AfterB_M$period <- periods_M
+      
+      
+      #add the number of birds into the summary table
+      summary_dat$number_birds[summary_dat$sex == "M" & summary_dat$label_year == periods_M] <- length(levels(Data_W_AfterB_M$TagID))
+      
   
+      
   
-  data_tt_21_22_M
+    
+      
+      # Final merge for the cohort #####
+      data_past_M <-Track2TrackMultiStack(rbind(Data_W_PreB_M, Data_SF_M, Data_Breed_M, Data_AF_M, Data_W_AfterB_M), by=c("TagID", "period"))
+      data_past_M
+      
+      
+      # Save
+      setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/data/2025 analysis") #HH laptop
+      save(data_cohort, file=paste0("NE103_2024 report_clean tracking data for ",nyr," past cohorts_Male.RData"))
+      
+      
       
     }
     
    
   
-    
+  
+  #Final merge all together:
+  
+  # Final merge for the whole of the year #####
+  data_year<-Track2TrackMultiStack(rbind(data_1d, data_1w, data_2, data_6, data_all, Data_W_PreB_F, Data_SF_F, Data_Breed_F, Data_AF_F, Data_W_AfterB_F, Data_W_PreB_M, Data_SF_M, Data_Breed_M, Data_AF_M, Data_W_AfterB_M ), by=c("TagID", "period"))
+  data_year
+  
+  
+  
+  
+  
+  # Save
+  setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/data/2025 analysis") #HH laptop
+  save(data_year, file=paste0("NE103_2024 report_clean tracking data for all ",nyr," data.RData"))
+  
     
   }
 
