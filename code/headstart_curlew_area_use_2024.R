@@ -430,12 +430,28 @@ data_final_final <- data_final[c(1:11194, 11197:220412),]
 exclue2024 <- data_final_final[c(200811:200857),]
 
 
-#flag no "LJ" consistent until "2023-11-25 14:12:21", Returns by sporadically: "2024-02-01 12:12:32", a a bit more consistant from: "2024-03-16 09:20:03"
+#flag no "LJ" consistent until "2023-11-25 14:12:21", Returns but sporadically: "2024-02-01 12:12:32", a bit more consistent from: "2024-03-16 09:20:03"
 #C(195962:195976)
 
-#flag no "LV" consistent until
+#flag no "LV" consistent until "2023-11-26 07:52:02", Returns but sporadically: "2024-01-19 13:21:03", a bit more consistent from: "2024-04-07 07:32:11"
+#c(199585:199600)
 
-#flag no "XJ" consistent until
+#flag no "XJ" consistent until "2023-10-11 00:04:03", Returns but sporadically: "2024-03-09 19:36:57", a bit more consistent from: "2024-05-18 00:37:02", 
+#c(121582:121657)
+
+
+
+#NOTES from messages to-from Chris Thaxter. It is possible to filter a Track() dataset by using BTOTrackingTools::subset_TMS(data, TagIDs = c("a","b")). 
+        #BUT you have to put in ALL the tag numbers you want to keep and there is no "!" short cut. 
+        
+        #INSTEAD you could convert the lists (if one list: data = TrackStack2Track(data). If two lists: data = TrackMultiStack2data(data))
+            # you can then convert it to a tibble and filter out what you don't want. E.g.: tibble(data) %>% filter(TagID != "a") etc, or data[data$TagID != "a",]
+            # And then you would convert it back to a Track using: Track() 
+                # THEN you can convert it back to a stacked list (if one list:  Track2TrackStack(). If two lists: data = Track2TrackMultiStack())
+
+        #Alternatively you just filter out the data you're not wanting at this point before the dataset gets converted to a Track()
+
+
 
 
 #save this out as the final dataset! 
@@ -1199,9 +1215,17 @@ lab_lat<-seq(new_lat_lower, new_lat_upper,length.out=length(seq(min(yRa), max(yR
 #   "#440154FF" "#31688EFF" "#35B779FF" "#FDE725FF"     # For TIA plots #four categories of the "Bins" = cut offs of the distribution, 50%, 75%, 95%, 100%
 
 
+#Habitat Selection ##
+# Load amt:: package
+library(amt) 
+
+## Load Land Cover Map 2021 25m Raster
+landuse <- raster::raster(here("data","NE103_LCM2021","LCM.tif"))
 
 
-#loop to run Utilisation Distribution TIA plots - HH ####
+
+#loop to run Utilisation Distribution TIA plots & habitat selection - HH ####
+
 #set up a loop here to run through all the years and all the categories:
 
 #HH NB - useful if going to use a loop
@@ -1230,10 +1254,23 @@ setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/data/2025 analysis
 load(file=paste0("NE103_2024 report_clean tracking data for all ",nyr," data.RData"))
 
 
-#loaded as data_2023. rename it:
+#loaded as data_year. rename it:
 data <- data_year
 
 
+if(nyr == "2021"){
+  
+  datasplit <- c("1 One Day" ,"2 One Week" ,"3 Two Weeks" , "4 Six Weeks" ,"5 End of December")
+  
+}else{
+  
+  datasplit <- c("1 One Day" ,"2 One Week" ,"3 Two Weeks" , "4 Six Weeks" ,"5 End of December" ,
+                 "6 Winter pre-breeding" , "7 Spring fuzzy" , "8a Female Breeding Season" , "8b Male Breeding Season" ,
+                 "9a Female Autumn fuzzy","9b Male Autumn fuzzy", "10 End of December - Winter" )
+  
+  
+  
+}
 
   for(p in 1:length(datasplit)){
     
@@ -1244,10 +1281,10 @@ data <- data_year
       TP <- paste0("",TP," ",nyr,"")
     }
     
+    #TIA analysis: select the specific list from the 'data' set
     tia_dat<-data[[TP]]
     
-    
-    
+     
     #add this in so that we can add it in as a label in the file name below
     cohort <- ifelse(p > 5, "PASTCOHORT", "COHORT")
     
@@ -1263,6 +1300,8 @@ data <- data_year
       plotlab <- paste0("",plotlab," ",nyr,"")
     }
     
+    
+    ###Utilisation Distribution TIA plots####
     #HH NB - these lines below then take each section of the data:
     #and 1) find the boundary for the grid, 2) then create a grid with 500 as the cellsize, 
     #3) calculate the amount of time each bird spends in each cell for a) whole population and b) individual birds 
@@ -1277,6 +1316,7 @@ data <- data_year
     #NOTE there are various warnings where a trip has too few data so it removed. 
       #NOTE Error thrown up for 2023 Spring transition 2023: #error in .local cannot derive coordinates from non-numeric matrix error only for "Yf(0E)O/-:Y/m" and there are only 2 GPS fixes so that is likely to be the issue - these are now removed from data_final_final and code works
       #NOTE Error thrown up for 2024 Winter post breeding 2024: Error in `$<-.data.frame`(`*tmp*`, "dum", value = 1) :     replacement has 1 row, data has 0.
+          ##this is for tag: "LU" but I suspect: "LJ", "LV" and "XJ" will also throw this error as they have less than 10 tracks too
     
     #grd_rank_birds<- rank_time(indata_grd, population = FALSE) # Individual level - currently not used
     
@@ -1317,9 +1357,258 @@ data <- data_year
     
     
     
+    #### HABITAT SELECTION ####
+    #Habitat selection
+    trk_dat<-TrackStack2Track(data[[TP]])
+   
+     #HH NB added in this code to 'droplevels' of the non-relevant TagID per time period
+    trk_dat<- trk_dat %>% droplevels()
+    
+    
+    # Convert to 'amt' track (using BTOTT headers) #HH NB - release col name updated - use release_site_final = combined Ken Hill, seperate Sandringham. Cohort col name updated - cohort_analysis - this uses the first cohorts = 1, and remaining cohorts = 2 
+    trk <- make_track(trk_dat, .x = longitude, .y = latitude, .t = DateTime, id = TagID, tide = tide, release=release_site_final, cohort=cohort_analysis, speed=ground.speed, crs = "epsg:4326")
+    
+    
+    # Transform to BNG
+    trk <- transform_coords(trk, "+proj=tmerc +lat_0=49 +lon_0=-2 +k=0.9996012717 +x_0=400000 +y_0=-100000 +ellps=airy +datum=OSGB36 +units=m +no_defs")
+    
+    
+    # Extract LCM variables
+    trk <- trk %>% 
+      extract_covariates(landuse)
+    
+    
+    #HH NB ADDED IN A FILTER HERE to remove NAs (equates to marine and non-UK fixes) SO THAT THE RANDOM POINTS (further down) ARE ONLY GENERATED IN THE UK. Therefore, this code is filtering the LCM results in trk to remove all NAs.
+    #NOTE this will remove some 'at sea' around the UK NAs as well as non-UK fixes 
+    trk <- trk %>% 
+      filter(!is.na(layer))
+    
+    
+    # Check sampling rate
+    summarize_sampling_rate_many(trk, cols="id")
+    
+    
+    # Speed filter to remove likely flight/commuting fixes - using ground.speed from Movebank (not amt calculation)
+    trk<-trk %>% filter(speed<4)
+    
+    
+    # Create random points for each individual (As above nesting issue)
+    
+    #HH NB - for Yf(0E)O/-:Y/m only has two fixes in this time period and so is removed for this part of the analysis
+    #ONLY USE THIS CODE FOR '8' = Spring Transition:  trk <- trk %>% filter(trk$id!= "Yf(0E)O/-:Y/m")
+    
+    
+    avail.pts <- trk %>%  nest(data=-c("id", "tide", "cohort", "release")) %>% 
+      mutate(rnd_pts = map(data, ~ random_points(., factor = 20, type="random"))) %>% 	
+      select(id, tide,cohort,release, rnd_pts) %>%  # you don't want to have the original point twice, hence drop data
+      unnest_legacy(cols=c(rnd_pts))
+    
+    
+    # Assign class as lost during nesting
+    class(avail.pts) <- c("random_points", class(avail.pts))
+    
+    
+    # Extract LCM values for random points
+    avail.pts <- avail.pts %>% 
+      extract_covariates(landuse)
+    
+    
+    # Make factor plotting friendly
+    avail.pts$used<-as.factor(avail.pts$case_)
+    avail.pts$used<-fct_recode(avail.pts$used, "Available" = "FALSE", "Used" = "TRUE")
+    
+    
+    #for Appendix save out a example plot of observed vrs random points - using 8 as only two birds so not too confusing with overlapping convex polygons
+    #create the file 
+    #jpeg(file="C:/Users/hannah.hereward/Documents/Projects/2024_curlewheadstarting/curlew_headstarting/output/Figures/NE103_Headstart CURLE_APPENDIXplot_8a_Breeding_F.jpg", width=15, height=15, units="cm", res=300)
+    #run the plot
+    #plot(avail.pts[avail.pts$id=="Yf(9J)O/-:Y/m_KenHill",])
+    #close the file
+    #dev.off() 
+    
+    
+    # Tidy LCM variable  # variable name 'layer' with new landuse data for 2022. HH NB - note that this produces warning messages presumably because some of the habitat numbers don't feature in each extraction
+    rsfdat <- avail.pts %>%  mutate(
+      layer = as.character(layer), 
+      layer = fct_collapse(layer,
+                           "Arable" = c("3"),
+                           "Grassland" = c("4","5","6","7"),
+                           "Coastal rock" = c("15", "17"),
+                           "Coastal sediment" = c("16", "18"),
+                           "Saltmarsh" = c("19"),
+                           "Other" = c("1", "2","8", "9", "10", "11", "12","13","14", "20", "21")))
+    
+    
+    # Reorder factor level
+    rsfdat$layer<- factor(rsfdat$layer, levels=c("Coastal sediment","Saltmarsh","Coastal Rock","Arable","Grassland","Other"))
+    
+    
+    # set response to numeric
+    rsfdat <- rsfdat %>% mutate(case_ = as.numeric(case_))
+    
+    
+    # Weight available data 
+    rsfdat$w <- ifelse(rsfdat$case_ == 1, 1, 5000)
+    
+    
+    # Set individual habitat factors (pooling all other habitats into single reference level)
+    rsfdat$Coastal <- ifelse(rsfdat$layer == "Coastal sediment", 1, 0)
+    rsfdat$Saltmarsh <- ifelse(rsfdat$layer == "Saltmarsh", 1, 0)
+    rsfdat$Arable <- ifelse(rsfdat$layer == "Arable", 1, 0)
+    rsfdat$Grassland <- ifelse(rsfdat$layer == "Grassland", 1, 0)
+    rsfdat$Other <- ifelse(rsfdat$layer == "Other", 1, 0)
+    
+    
+    
+    #rename the RSF files based on the timeframe - 1wk,2wks,6wks,all Jul-Dec
+    #HH NB - some of the categories will have NAs some of these are because they are too far out into the sea for the LCM map to categories them BUT others are outside of the UK and therefore outside of the UK LCM!
+    rsfdat
+    
+    
+    # Save rsfdat for each time period
+    setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/data/2025 analysis/") #HH laptop
+    
+    save(rsfdat, file=paste0("NE103_2023 report_RSF_data_cohort",nyr,"_",filelab,".RData")) 
+    
+    
+    
+    #### RSF plotting ##HH NB - Utilisation Distribution plots, habitat avalibility ####
+    
+    ## Available/Used Plot 
+    na.omit(rsfdat) %>% #filter(id=="Yf(0E)O/-:Y/m") %>%	                          	# Update period or ID
+      ggplot(.,  aes(x=layer,group=used))                                       +	      # select data and variables - using na.omit() here to exclude random points offshore outside LCM area. HH NB - LCM = layer in 2022 and 2023 LCM data so need to change this to layer
+      geom_bar(position=position_dodge(), aes(y=after_stat(prop), fill = used),
+               stat="count", colour="black")                                +       # select barplot of proportions presented side by side with black outline
+      scale_fill_manual(values=c("grey70", "grey20"))                       + 		  # define colours, plenty of good built in palettes if colour can be used
+      labs(y = "Proportion of fixes\n", fill="used", x="\nHabitat")         + 			# labels, \n indicates space between line and text
+      theme_classic()                                                       +       # remove default grid lines and grey background
+      theme(legend.title=element_blank(),  																	 			  # remove legend title
+            legend.position = c(0.9,0.8),                                           # specify legend position inside plot area
+            axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))   +       # rotated x axis labels for individual plots
+      #scale_y_continuous(expand = expansion(mult = c(0, .1)))               +       # remove gap between bars and axis lines
+      #ylim(c(0,0.6)) +                                                              #HH NB - use ylim 2023 = c(0,0.6) and scale_y_continuous for 2021&2022 
+      scale_y_continuous(breaks = seq(0,1,by=0.2), limits =c(0,1)) +
+      theme(axis.text.x = element_text(size = 12),axis.text.y = element_text(size = 12),
+            axis.title.x = element_text(size = 14),axis.title.y = element_text(size = 14)) +
+      ggtitle(paste0("",plotlab,""))   #    +
+    #facet_grid(rows=vars(release)) # if by tide:  facet_grid(rows=vars(tide)) or release site:   facet_grid(rows=vars(release)) or cohort:  facet_grid(rows=vars(cohort))
+    
+    
+    # Save plot (outside of Github)
+    setwd("C:/Users/hannah.hereward/Documents/Projects/2024_curlewheadstarting/curlew_headstarting/output/Figures 2025/Habitat_prop/")
+    ggsave(paste0("NE103_2023_Headstart CURLEW_",nyr,"_RSF plot_",filelab,".jpg"), width=15, height=15, units="cm", dpi=300)  ## UPDATE FILENAME
+    
+    
+    
+    #for cohorts
+    if(p<6){
+      
+      
+      ## Available/Used Plot 
+      na.omit(rsfdat) %>%                               	                          	# Update period or ID
+         ggplot(.,  aes(x=layer,group=used))                                       +	      # select data and variables - using na.omit() here to exclude random points offshore outside LCM area. HH NB - LCM = layer in 2022 and 2023 LCM data so need to change this to layer
+        geom_bar(position=position_dodge(), aes(y=after_stat(prop), fill = used),
+                 stat="count", colour="black")                                +       # select barplot of proportions presented side by side with black outline
+        scale_fill_manual(values=c("grey70", "grey20"))                       + 		  # define colours, plenty of good built in palettes if colour can be used
+        labs(y = "Proportion of fixes\n", fill="used", x="\nHabitat")         + 			# labels, \n indicates space between line and text
+        theme_classic()                                                       +       # remove default grid lines and grey background
+        theme(legend.title=element_blank(),  																	 			  # remove legend title
+              legend.position = c(0.9,0.8),                                           # specify legend position inside plot area
+              axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))   +       # rotated x axis labels for individual plots
+        #scale_y_continuous(expand = expansion(mult = c(0, .1)))               +       # remove gap between bars and axis lines
+        #ylim(c(0,0.6)) +                                                              #HH NB - use ylim 2023 = c(0,0.6) and scale_y_continuous for 2021&2022 
+        scale_y_continuous(breaks = seq(0,1,by=0.2), limits =c(0,1)) +
+        theme(axis.text.x = element_text(size = 12),axis.text.y = element_text(size = 12),
+              axis.title.x = element_text(size = 14),axis.title.y = element_text(size = 14)) +
+        ggtitle(paste0("",plotlab,""))     +
+        facet_wrap(facets=vars(cohort), ncol=1) 
+      
+      
+      # Save plot (outside of Github)
+      setwd("C:/Users/hannah.hereward/Documents/Projects/2024_curlewheadstarting/curlew_headstarting/output/Figures 2025/Habitat_prop/")
+      ggsave(paste0("NE103_2023_Headstart CURLEW_",nyr,"_RSF plot_",filelab,"_COHORT.jpg"), width=15, height=15, units="cm", dpi=300)  ## UPDATE FILENAME
+      
+    }
+    
+    
+    
+    #for release site
+    if(p<6){
+      
+      
+      ## Available/Used Plot 
+      na.omit(rsfdat) %>%                               	                          	# Update period or ID
+        ggplot(.,  aes(x=layer,group=used))                                       +	      # select data and variables - using na.omit() here to exclude random points offshore outside LCM area. HH NB - LCM = layer in 2022 and 2023 LCM data so need to change this to layer
+        geom_bar(position=position_dodge(), aes(y=after_stat(prop), fill = used),
+                 stat="count", colour="black")                                +       # select barplot of proportions presented side by side with black outline
+        scale_fill_manual(values=c("grey70", "grey20"))                       + 		  # define colours, plenty of good built in palettes if colour can be used
+        labs(y = "Proportion of fixes\n", fill="used", x="\nHabitat")         + 			# labels, \n indicates space between line and text
+        theme_classic()                                                       +       # remove default grid lines and grey background
+        theme(legend.title=element_blank(),  																	 			  # remove legend title
+              legend.position = c(0.9,0.8),                                           # specify legend position inside plot area
+              axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))   +       # rotated x axis labels for individual plots
+        #scale_y_continuous(expand = expansion(mult = c(0, .1)))               +       # remove gap between bars and axis lines
+        #ylim(c(0,0.6)) +                                                              #HH NB - use ylim 2023 = c(0,0.6) and scale_y_continuous for 2021&2022 
+        scale_y_continuous(breaks = seq(0,1,by=0.2), limits =c(0,1)) +
+        theme(axis.text.x = element_text(size = 12),axis.text.y = element_text(size = 12),
+              axis.title.x = element_text(size = 14),axis.title.y = element_text(size = 14)) +
+        ggtitle(paste0("",plotlab,""))     +
+        facet_wrap(facets=vars(release), ncol=1) 
+      
+      
+      # Save plot (outside of Github)
+      setwd("C:/Users/hannah.hereward/Documents/Projects/2024_curlewheadstarting/curlew_headstarting/output/Figures 2025/Habitat_prop/")
+      ggsave(paste0("NE103_2023_Headstart CURLEW_",nyr,"_RSF plot_",filelab,"_SITE.jpg"), width=15, height=15, units="cm", dpi=300)  ## UPDATE FILENAME
+      
+    }
+    
+    
+    
+    #for the july-dec tide
+    if(p==5){
+      
+      
+      ## Available/Used Plot 
+      na.omit(rsfdat) %>%                               	                          	# Update period or ID
+        filter(tide != "NA") %>%                                                          #FILTER ONLY TO BE USED FOR TIDE TO REMOVE THE NAs
+        ggplot(.,  aes(x=layer,group=used))                                       +	      # select data and variables - using na.omit() here to exclude random points offshore outside LCM area. HH NB - LCM = layer in 2022 and 2023 LCM data so need to change this to layer
+        geom_bar(position=position_dodge(), aes(y=after_stat(prop), fill = used),
+                 stat="count", colour="black")                                +       # select barplot of proportions presented side by side with black outline
+        scale_fill_manual(values=c("grey70", "grey20"))                       + 		  # define colours, plenty of good built in palettes if colour can be used
+        labs(y = "Proportion of fixes\n", fill="used", x="\nHabitat")         + 			# labels, \n indicates space between line and text
+        theme_classic()                                                       +       # remove default grid lines and grey background
+        theme(legend.title=element_blank(),  																	 			  # remove legend title
+              legend.position = c(0.9,0.8),                                           # specify legend position inside plot area
+              axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))   +       # rotated x axis labels for individual plots
+        #scale_y_continuous(expand = expansion(mult = c(0, .1)))               +       # remove gap between bars and axis lines
+        #ylim(c(0,0.6)) +                                                              #HH NB - use ylim 2023 = c(0,0.6) and scale_y_continuous for 2021&2022 
+        scale_y_continuous(breaks = seq(0,1,by=0.2), limits =c(0,1)) +
+        theme(axis.text.x = element_text(size = 12),axis.text.y = element_text(size = 12),
+              axis.title.x = element_text(size = 14),axis.title.y = element_text(size = 14)) +
+        ggtitle(paste0("",plotlab,""))     +
+      facet_grid(rows=vars(tide)) 
+      
+      
+      # Save plot (outside of Github)
+      setwd("C:/Users/hannah.hereward/Documents/Projects/2024_curlewheadstarting/curlew_headstarting/output/Figures 2025/Habitat_prop/")
+      ggsave(paste0("NE103_2023_Headstart CURLEW_",nyr,"_RSF plot_",filelab,"_TIDE.jpg"), width=15, height=15, units="cm", dpi=300)  ## UPDATE FILENAME
+      
+    }
+      
+    }
+    
     
     }
-}
+
 
 
 ####.####
+
+# PLOTTING  ##HH  NB - Utilisation Distribution TIA plots - THE UK and SE for 2021 & 2022 cohorts ####
+#NOT COPIED OVER CODE YET ####
+
+
+
+
+
+
