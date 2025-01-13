@@ -379,6 +379,8 @@ for(i in 1:nrow(dt_meta_gsp_TagID_update)){
 
 #NB - for birds that died the day of release we include them for the 1 day post release 
 
+
+
 #save the meta data out:
 #write.csv(dt_meta_gsp_TagID_update, here("data/metadata_TagID_deaddates_notransmision_behaviourdates_2021_2024.csv"), row.names = F)
 
@@ -408,8 +410,36 @@ colnames(data_final)
 tail(data_final)
 summary(data_final)
 
+
+
+
+#### Some final bits of cleaning up based on preliminary analysis further down.####
+
+#2023
+#flag no  "0E" only has two fixes in 'spring fuzz' so needs removing. These are "2023-03-28 18:22:15" and "2023-03-29 02:22:14" lines 11195 and 11196
+exclude <- data_final[c(11195, 11196),]
+
+#exclude the rows
+data_final_final <- data_final[c(1:11194, 11197:220412),]
+
+
+
+#2024
+#flag no "LU" consistent until "2023-11-23 13:36:33". Returns but sporadically: "2024-02-10 11:33:27" and then be consistently: "2024-10-17 01:28:03"
+#?
+exclue2024 <- data_final_final[c(200811:200857),]
+
+
+#flag no "LJ" consistent until "2023-11-25 14:12:21", Returns by sporadically: "2024-02-01 12:12:32", a a bit more consistant from: "2024-03-16 09:20:03"
+#C(195962:195976)
+
+#flag no "LV" consistent until
+
+#flag no "XJ" consistent until
+
+
 #save this out as the final dataset! 
-#saveRDS(data_final, (here("data/data_withcohorts_release_sites_tagduration_2021_2024.rds")))
+#saveRDS(data_final_final, (here("data/data_withcohorts_release_sites_tagduration_2021_2024.rds")))
 
 
 
@@ -423,13 +453,13 @@ lapply(lapply(load_pkg, rlang::quo_name), library, character.only = TRUE)
 #START HERE - Once all data is correct and cleaned and combined above you can start from here ####
 
 #read back in the data ####
-data_final <- readRDS(here("data/data_withcohorts_release_sites_tagduration_2021_2024.rds"))
+data_final_final <- readRDS(here("data/data_withcohorts_release_sites_tagduration_2021_2024.rds"))
 
-summary(data_final)
+summary(data_final_final)
 
 
 # Convert to BTOTT Track object ####
-data_tt<-Track(data_final) 
+data_tt<-Track(data_final_final) 
 data_tt<-clean_GPS(data_tt, drop_sats = 3, Thres = 30, GAP = 28800)
 #HH NB: new warning messages about "flt_switch" for each bird - an error from the Track(data) function with is a BTOTT function
 #See messages from Chris T about this but the summary is it is a flag option for clean_GPS - when importing data into movebank you can add a 
@@ -985,7 +1015,7 @@ lapply(lapply(load_pkg, rlang::quo_name), library, character.only = TRUE)
 
 ## read things in ####
 #If need the clean but raw data per row can read in this data:
-#data_final <- readRDS(here("data/data_withcohorts_release_sites_tagduration_2021_2024.rds"))
+#data_final_final <- readRDS(here("data/data_withcohorts_release_sites_tagduration_2021_2024.rds"))
 
 #summary(data_final)
 
@@ -1120,7 +1150,7 @@ plot_leaflet(data_site_san, lines=FALSE, col=viridis_pal()(length(unique(data_si
 # basic colour mark sightings plot using leaflet:: directly #HH NB - for the fieldwork year 2023-24 KMB going to do this bit ####CHECK THIS FOR THIS YEAR!!
 
 
-
+####.####
 
 # TIME IN AREA -- AREA USE UTILISATION DISTRIBUTIONS #HH NB - this essentially creates a grided version of a KDE ####
 library(sf)
@@ -1171,6 +1201,7 @@ lab_lat<-seq(new_lat_lower, new_lat_upper,length.out=length(seq(min(yRa), max(yR
 
 
 
+#loop to run Utilisation Distribution TIA plots - HH ####
 #set up a loop here to run through all the years and all the categories:
 
 #HH NB - useful if going to use a loop
@@ -1215,6 +1246,8 @@ data <- data_year
     
     tia_dat<-data[[TP]]
     
+    
+    
     #add this in so that we can add it in as a label in the file name below
     cohort <- ifelse(p > 5, "PASTCOHORT", "COHORT")
     
@@ -1241,7 +1274,11 @@ data <- data_year
     
     # rank the time cumulatively for plotting for each bird. #ranks the time spent in each cell
     grd_rank_all<- rank_time(indata_grd, population = TRUE) # Population level
-    grd_rank_birds<- rank_time(indata_grd, population = FALSE) # Individual level
+    #NOTE there are various warnings where a trip has too few data so it removed. 
+      #NOTE Error thrown up for 2023 Spring transition 2023: #error in .local cannot derive coordinates from non-numeric matrix error only for "Yf(0E)O/-:Y/m" and there are only 2 GPS fixes so that is likely to be the issue - these are now removed from data_final_final and code works
+      #NOTE Error thrown up for 2024 Winter post breeding 2024: Error in `$<-.data.frame`(`*tmp*`, "dum", value = 1) :     replacement has 1 row, data has 0.
+    
+    #grd_rank_birds<- rank_time(indata_grd, population = FALSE) # Individual level - currently not used
     
   
   
@@ -1266,7 +1303,7 @@ data <- data_year
     
     #HH NB. had error for this plot about memory. UPDATE: needed to specify the ukmap$geometry in the terra::plot above and now it works
     # UPDATE INDIVIDUAL BETWEEN PLOTS
-    plot_TIA(data=grd_rank_all,Add=TRUE,                    # UPDATE ID SELECTION. grd_rank_birds OR grd_rank_all ??
+    plot_TIA(data=grd_rank_all,Add=TRUE,                    # UPDATE ID SELECTION. grd_rank_all is the only one that was used by Gary before - one could put in "grd_rank_birds". BUT NOT DONE FOR THIS ANALYSIS!
              xra=xRa, yra=yRa,
              g_levs = c(1,0.95,0.75,0.5),
              c_levs = c(0.95,0.75,0.5),
@@ -1286,12 +1323,3 @@ data <- data_year
 
 
 ####.####
-
-# priniciple of the loop i'll need for later #####
-
-  
-  
-
-  
-  
-
