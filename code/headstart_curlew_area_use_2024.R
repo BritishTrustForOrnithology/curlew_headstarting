@@ -283,6 +283,8 @@ currcohorts$max_date_time_transmiss[currcohorts$flag_id=="NH"] <- dt_meta_gsp_Ta
 currcohorts$max_date_time_transmiss[currcohorts$flag_id=="NT"] <- dt_meta_gsp_TagID$dead_no_t_date_time[dt_meta_gsp_TagID$flag_id=="NT"]+86399
 currcohorts$max_date_time_transmiss[currcohorts$flag_id=="PU"] <- dt_meta_gsp_TagID$dead_no_t_date_time[dt_meta_gsp_TagID$flag_id=="PU"]+86399
 
+#currcohorts$max_date_time_transmiss[currcohorts$flag_id=="0E"] <- 
+
 
 
 #Save it 
@@ -974,6 +976,10 @@ for(y in 1:length(nyears)){
  
 
 ####.####
+# LOAD PACKAGES ####
+load_pkg <- rlang::quos(tidyverse,BTOTrackingTools, here, sp, leaflet, terra)  # quos() function to be lazy on "" around each package
+lapply(lapply(load_pkg, rlang::quo_name), library, character.only = TRUE)
+
 
 #ANALYSIS BEGIGNS! #####
 
@@ -1027,7 +1033,7 @@ datasplit <- c("1 One Day" ,"2 One Week" ,"3 Two Weeks" , "4 Six Weeks" ,"5 End 
 #2="10 End of December - Winter" 
 
 
-#### TIME IN AREA #HH NB - Leaflet plots ####
+# TIME IN AREA #HH NB - Leaflet plots ####
 library(viridisLite)
 library(viridis)
 
@@ -1091,11 +1097,11 @@ data_site <- TrackStack2Track(data[[1]])
 
 data_site_ken <- droplevels(data_site %>% filter(data_site$release_site_final=="Ken Hill"))
 unique(data_site_ken$TagID) #6
-plot_leaflet(data_site_ken, lines=FALSE, col=viridis_pal()(6)) # KMB, new colour scheme, needs libraries Viridis and ViridisLite
+plot_leaflet(data_site_ken, lines=FALSE, col=viridis_pal()(length(unique(data_site_ken$TagID)))) # KMB, new colour scheme, needs libraries Viridis and ViridisLite
 
 data_site_san <- droplevels(data_site %>% filter(data_site$release_site_final=="Sandringham 2"))
 unique(data_site_san$TagID) #5
-plot_leaflet(data_site_san, lines=FALSE, col=viridis_pal()(5))# KMB, new colour scheme, needs libraries Viridis and ViridisLite
+plot_leaflet(data_site_san, lines=FALSE, col=viridis_pal()(length(unique(data_site_san$TagID))))# KMB, new colour scheme, needs libraries Viridis and ViridisLite
 
 
 ## save per release site for 1wk post release ####
@@ -1104,11 +1110,11 @@ data_site <- TrackStack2Track(data[[3]])
 
 data_site_ken <- droplevels(data_site %>% filter(data_site$release_site_final=="Ken Hill"))
 unique(data_site_ken$TagID) #8
-plot_leaflet(data_site_ken, lines=FALSE, col=viridis_pal()(5)) # KMB, new colour scheme, needs libraries Viridis and ViridisLite
+plot_leaflet(data_site_ken, lines=FALSE, col=viridis_pal()(length(unique(data_site_ken$TagID)))) # KMB, new colour scheme, needs libraries Viridis and ViridisLite
 
 data_site_san <- droplevels(data_site %>% filter(data_site$release_site_final=="Sandringham 2"))
 unique(data_site_san$TagID) #9 (HH had 6 but 9 here for KMB)
-plot_leaflet(data_site_san, lines=FALSE, col=viridis_pal()(4)) # KMB, new colour scheme, needs libraries Viridis and ViridisLite
+plot_leaflet(data_site_san, lines=FALSE, col=viridis_pal()(length(unique(data_site_san$TagID)))) # KMB, new colour scheme, needs libraries Viridis and ViridisLite
 
 
 # basic colour mark sightings plot using leaflet:: directly #HH NB - for the fieldwork year 2023-24 KMB going to do this bit ####CHECK THIS FOR THIS YEAR!!
@@ -1116,18 +1122,176 @@ plot_leaflet(data_site_san, lines=FALSE, col=viridis_pal()(4)) # KMB, new colour
 
 
 
+# TIME IN AREA -- AREA USE UTILISATION DISTRIBUTIONS #HH NB - this essentially creates a grided version of a KDE ####
+library(sf)
+library(tidyterra)
+library(ggplot2)
 
+
+
+# Set arbitrary 'Colony' location to facilitate later functions. Using central Snettisham location here (HH NB Wild Ken Hill release pen 1 site)
+# but not used to define trips away from central place for Curlew
+ColLon = 0.50
+ColLat = 52.87
+
+# Set projection with 00 on the "colony"
+p4 <- sp::CRS(paste("+proj=laea +lon_0=", ColLon," +lat_0=", ColLat, " +units=m", sep=""))
+
+# read in simple UK shapefile map from btotrackingtools and re-project it
+ukmap <- BTOTrackingTools::ukmap
+ukmap <- sf::st_transform(ukmap,p4) #HH NB: ukmap is an sf not an sp. So changed code here from sp::spTransform to sf::st_transform
+
+
+
+## PLOTTING  ##HH  NB - Utilisation Distribution TIA plots - THE WASH ####
+
+# Set axes limit (units m here) - trial and error to set suitable bounds. centered on the colony. units m
+xRa<-c(-35000,28000)
+yRa<-c(-15000,25000)
+
+####--- this is setting up new units to put lat long onto the map without re-projecting the data... not ideal but it's what Garry did before ... 
+# prepare new axes in lat/long - 
+earth <- 6378.137
+m <- (1 / ((2 * pi / 360) * earth)) /1000
+
+new_lat_lower <- round(ColLat + (min(yRa) * m),1)     ## multiply xyRa by 100 if working in p4 units km
+new_lat_upper <- round(ColLat + (max(yRa) * m),1)
+new_long_lower <- round(ColLon + (min(xRa) * m) / cos(ColLat * (pi / 180)),1)
+new_long_upper <- round(ColLon + (max(xRa) * m) / cos(ColLat * (pi / 180)),1)	
+
+lab_long<-seq(new_long_lower, new_long_upper,length.out=length(seq(min(xRa), max(xRa),by=5000)))
+lab_lat<-seq(new_lat_lower, new_lat_upper,length.out=length(seq(min(yRa), max(yRa),by=5000)))
+
+# Get colours
+# Get hex colours from viridis (colour blind friendly)
+#scales::viridis_pal()(3)
+#   "#440154FF" "#21908CFF" "#FDE725FF"                 # For GPS plots
+#   "#440154FF" "#31688EFF" "#35B779FF" "#FDE725FF"     # For TIA plots #four categories of the "Bins" = cut offs of the distribution, 50%, 75%, 95%, 100%
+
+
+
+
+#set up a loop here to run through all the years and all the categories:
+
+#HH NB - useful if going to use a loop
+datasplit <- c("1 One Day" ,"2 One Week" ,"3 Two Weeks" , "4 Six Weeks" ,"5 End of December" ,
+               "6 Winter pre-breeding" , "7 Spring fuzzy" , "8a Female Breeding Season" , "8b Male Breeding Season" ,
+               "9a Female Autumn fuzzy","9b Male Autumn fuzzy", "10 End of December - Winter" )
+
+
+plotlabels <- c("One day post-release" ,"One week post-release" ,"Two weeks post-release" , "Six weeks post-release" ,"July-December" ,
+             "Winter - pre-breeding" , "Spring transition" , "Breeding season - Female" , "Breeding season - Male" ,
+             "Autumn transition - Female","Autumn transition - Male", "Winter - post-breeding")
+
+filelabels <- c("1_OneDay" ,"2_OneWeek" ,"3_TwoWeeks" , "4_SixWeeks" ,"5_July_December" ,
+               "6_WinterPreBreed" , "7_Spring_transition" , "8a_Breeding_female" , "8b_Breeding_male" ,
+               "9a_Autumn_transition_female","9b_Autumn_transition_male", "10_WinterPostBreed" )
+
+
+nyears <- c("2021", "2022", "2023", "2024")
+
+
+for(y in 1:length(nyears)){
+
+nyr <- nyears[y]
+
+setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/data/2025 analysis") #HH laptop
+load(file=paste0("NE103_2024 report_clean tracking data for all ",nyr," data.RData"))
+
+
+#loaded as data_2023. rename it:
+data <- data_year
+
+
+
+  for(p in 1:length(datasplit)){
+    
+    TP <- datasplit[p] 
+    
+    #add this if loop in for data split label to include the correct year
+    if(p > 5){
+      TP <- paste0("",TP," ",nyr,"")
+    }
+    
+    tia_dat<-data[[TP]]
+    
+    #add this in so that we can add it in as a label in the file name below
+    cohort <- ifelse(p > 5, "PASTCOHORT", "COHORT")
+    
+    #extract out the file label
+    filelab <- filelabels[p]
+    
+    #add in plot label
+    plotlab <- plotlabels[p]
+    
+    
+    #add this if loop in for plot label for july-december to include the correct year
+    if(p >4){
+      plotlab <- paste0("",plotlab," ",nyr,"")
+    }
+    
+    #HH NB - these lines below then take each section of the data:
+    #and 1) find the boundary for the grid, 2) then create a grid with 500 as the cellsize, 
+    #3) calculate the amount of time each bird spends in each cell for a) whole population and b) individual birds 
+    # get bounds for the grid 
+    llyrb = get_bounds(tia_dat, p4s=p4) # Defaults to UK BNG p4s = sp::CRS("+init=epsg:27700")
+    
+    # run TIA (trial and error on suitable cell size) # grid of cells. HH NB _ FYI - some of these have 'trips' removed. Chris T reckons this is because of the extra filtering and so for some points there will not be enough to do the amount of time in cell count and so they are removed
+    indata_grd <- get_TIA_grd(tia_dat, xRa=llyrb$xRa, yRa=llyrb$yRa, cellsize = 500, p4s=p4) # Laptop will not process next step if smaller grid size #Gary's code = cellsize=500
+    
+    # rank the time cumulatively for plotting for each bird. #ranks the time spent in each cell
+    grd_rank_all<- rank_time(indata_grd, population = TRUE) # Population level
+    grd_rank_birds<- rank_time(indata_grd, population = FALSE) # Individual level
+    
+  
+  
+    # Set directory (outside of Github here)
+    dir <- "C:/Users/hannah.hereward/Documents/Projects/2024_curlewheadstarting/curlew_headstarting/output/Figures 2025/TIA/" #HH laptop directory
+    plot_name<-paste0("NE103_Headstart CURLEW_TIA_2024_",cohort,"_",filelab,".tiff")
+    
+    
+    # Set plot device (saving hi-res base R maps)
+    tiff(paste0(dir,plot_name), width=25, height=23, units="cm", pointsize=18, res=600, compression ="lzw")
+    
+    #HH NB: updated as sp package was discontinued. terra used now according to plot_TIA
+    #removed: 
+    terra::plot(ukmap$geometry, xlim=xRa, ylim=yRa,col="grey80",border="grey80", axes=T, yaxt="n",  #need to specify here ukmap$geometry
+                xaxt="n", xlab="Longitude", ylab="Latitude",
+                main=paste0(plotlab))# UPDATE MANUALLY                     
+    #axis(1)
+    #axis(2)
+    axis(1, at=seq(min(xRa), max(xRa),by=5000), labels=round(lab_long,2)) 
+    axis(2, at=seq(min(yRa), max(yRa),by=5000), labels=round(lab_lat,2))
+    
+    
+    #HH NB. had error for this plot about memory. UPDATE: needed to specify the ukmap$geometry in the terra::plot above and now it works
+    # UPDATE INDIVIDUAL BETWEEN PLOTS
+    plot_TIA(data=grd_rank_all,Add=TRUE,                    # UPDATE ID SELECTION. grd_rank_birds OR grd_rank_all ??
+             xra=xRa, yra=yRa,
+             g_levs = c(1,0.95,0.75,0.5),
+             c_levs = c(0.95,0.75,0.5),
+             col_ramp_grd =c("#440154FF", "#31688EFF", "#35B779FF", "#FDE725FF"), #TIA colours for the 50%, 75%, 95% and 100%
+             #col_ramp_con =c("#31688EFF", "#35B779FF", "#FDE725FF"), #colours for the countour lines rather than grided 
+             cont_typ=1) # if this is 4 you can plot it outside the function and it returns an object in R 
+    
+    #HH NB. dev.off needs running to 'close' the tiff and save it - without running this bit it won't save !
+    dev.off()
+    
+    
+    
+    
+    
+    }
+}
+
+
+####.####
 
 # priniciple of the loop i'll need for later #####
-for(p in 1:length(datasplit)){
-  
-  TP <- datasplit[p] 
-  
-  BTOTrackingTools::plot_leaflet(data[[TP]], lines=FALSE, col=c(scales::viridis_pal()(length(data[[TP]])))) #code update - now "plot_leaflet" not "plot_leaflet_dev"
+
   
   
-  
-}
+
   
   
 
