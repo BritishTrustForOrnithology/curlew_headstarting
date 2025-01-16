@@ -83,15 +83,15 @@ summary(tide_dat)
 
 
 #save out this combined 4 year tide data
-#write_csv(tide_dat, "data/Wash_tide_data_Bulldog_July_Nov2021_July_December_2021_2024.csv")
+#write_csv(tide_dat, "data/2025 analysis/Wash_tide_data_Bulldog_July_Nov2021_July_December_2021_2024.csv")
 
 
-tide_dat <- read_csv(here("data/Wash_tide_data_Bulldog_July_Nov2021_July_December_2021_2024.csv")) 
+tide_dat <- read_csv(here("data/2025 analysis/Wash_tide_data_Bulldog_July_Nov2021_July_December_2021_2024.csv")) 
 summary(tide_dat)
 
 #filter out NAs
 tide_dat <- tide_dat %>% filter(!is.na(tide_dat$Observed_Height))
-
+summary(tide_dat)
 
 
 ### Find closest match to trk timestamp (package MALDIquant) ####
@@ -116,7 +116,7 @@ summary(as.factor(data$tide_diff))
 
 
 ##save data out so I don't keep having to read it all back in and do the tide stuff####
-saveRDS(data, here("data/data_with_tide_2021_2024.rds"))
+saveRDS(data, here("data/2025 analysis/data_with_tide_2021_2024.rds"))
 
 
 
@@ -124,7 +124,7 @@ saveRDS(data, here("data/data_with_tide_2021_2024.rds"))
 #Extract curlew metadata #####
 
 ##Read in the summary metadata table from googledrive folder 3:Data####
-dt_meta <- as_tibble(read.csv(here("data/headstart_curlew_individual_metadata.csv")))
+dt_meta <- as_tibble(read.csv(here("data/2025 analysis/headstart_curlew_individual_metadata.csv")))
 
 #filter for just GPS birds
 dt_meta_gsp <- dt_meta %>% filter(dt_meta$tag_gps_radio_none =="gps")
@@ -208,7 +208,7 @@ dt_meta_gsp_TagID$Date_6w <- dt_meta_gsp_TagID$release_date_time + ((86400*42)+8
 dt_meta_gsp_TagID$Date_6w_time <- difftime(dt_meta_gsp_TagID$Date_6w,dt_meta_gsp_TagID$release_date_time, units="days") 
 
 
-#July-Dec - release date to the correct decemeber date
+#July-Dec - release date to the year decemeber date
 dt_meta_gsp_TagID$Date_J_D_time <- difftime(as.POSIXct(ifelse(dt_meta_gsp_TagID$year == 2021, "2021-12-31 23:59:59",
                               ifelse(dt_meta_gsp_TagID$year == 2022, "2022-12-31 23:59:59", 
                                      ifelse(dt_meta_gsp_TagID$year == 2023, "2023-12-31 23:59:59", "2024-12-31 23:59:59"))), tz="UTC") ,dt_meta_gsp_TagID$release_date_time, units="days") 
@@ -243,15 +243,15 @@ dt_meta_gsp_TagID$daysalive <- difftime(as.POSIXct(dt_meta_gsp_TagID$dead_no_t_d
 
 
 #save the meta data out:
-#write.csv(dt_meta_gsp_TagID, here("data/metadata_TagID_deaddates_notransmision_2021_2024.csv"), row.names = F)
+#write.csv(dt_meta_gsp_TagID, here("data/2025 analysis/metadata_TagID_deaddates_notransmision_2021_2024.csv"), row.names = F)
 
-#dt_meta_gsp_TagID<-read.csv(here("data/metadata_TagID_deaddates_notransmision_2021_2024.csv"), header=T)
+#dt_meta_gsp_TagID<-read.csv(here("data/2025 analysis/metadata_TagID_deaddates_notransmision_2021_2024.csv"), header=T)
 
 
 ## Finally do a left_join on the dataset using the TagID as the join_by so that the meta data is populated for each GPS fix ####
 
 #read data back in
-data <- readRDS(here("data/data_with_tide_2021_2024.rds"))
+data <- readRDS(here("data/2025 analysis/data_with_tide_2021_2024.rds"))
 
 
 #left join
@@ -267,7 +267,7 @@ data<- data %>% select(-!!drop_cols)
 summary(data)
 
 ##save data out ####
-#saveRDS(data, here("data/data_withcohorts_release_sites_2021_2024.rds"))
+#saveRDS(data, here("data/2025 analysis/data_withcohorts_release_sites_2021_2024.rds"))
 
 
 
@@ -279,7 +279,8 @@ summary(data)
   #this is because some of the birds died within year of release and subsequent years of release
 
   #NOTE HH additions (14/01/2025) - after discussions with Katharine for year of release birds: we will exclude birds if their fixes do not fully fit within the category 
-        #this decisions comes because of the coefficent analysis later on comparing individual birds per time period
+            # EXCEPTIONS: for 6weeks post release we included anything above 5weeks (35days). For all data from release to end of Dec we included all data if fixes were beyond 31st October
+            #this decisions comes to balance wanting to retain as much data as possible but also the coefficent analysis later on comparing individual birds per time period
 
 
 #using the last datetime of transmission
@@ -298,21 +299,23 @@ currcohorts$daysalive_transmit <- ifelse(!is.na(currcohorts$daysalive),currcohor
 
 
 #final corrections to be made are for ones that have died but continued transmitting beyond the known death date:
+
+#re run the as.posixct to set it back into the correct datetime format
+dt_meta_gsp_TagID$dead_no_t_date_time <- as.POSIXct(dt_meta_gsp_TagID$dead_no_t_date_time, format = "%Y-%m-%d", usetz=T, tz="UTC")
+
 currcohorts$max_date_time_transmiss[currcohorts$flag_id=="JJ"] <- dt_meta_gsp_TagID$dead_no_t_date_time[dt_meta_gsp_TagID$flag_id=="JJ"]+86399
 currcohorts$max_date_time_transmiss[currcohorts$flag_id=="NH"] <- dt_meta_gsp_TagID$dead_no_t_date_time[dt_meta_gsp_TagID$flag_id=="NH"]+86399
 currcohorts$max_date_time_transmiss[currcohorts$flag_id=="NT"] <- dt_meta_gsp_TagID$dead_no_t_date_time[dt_meta_gsp_TagID$flag_id=="NT"]+86399
 currcohorts$max_date_time_transmiss[currcohorts$flag_id=="PU"] <- dt_meta_gsp_TagID$dead_no_t_date_time[dt_meta_gsp_TagID$flag_id=="PU"]+86399
 
-#currcohorts$max_date_time_transmiss[currcohorts$flag_id=="0E"] <- 
-
-
 
 #Save it 
-#write.csv(currcohorts, here("data/current_cohort_maxdatetime_2021_2024.csv"), row.names = F)
+#write.csv(currcohorts, here("data/2025 analysis/current_cohort_maxdatetime_2021_2024.csv"), row.names = F)
 
 #full join the currcohorts to dt_meta_gsp_TagID
 dt_meta_gsp_TagID_update <- dt_meta_gsp_TagID %>% full_join(currcohorts, by=join_by(year, flag_id, sex, release_date, cohort_analysis, daysalive))
-
+summary(dt_meta_gsp_TagID_update)
+head(dt_meta_gsp_TagID_update)
 
 
 #find the last category the bird has data in ####
@@ -474,35 +477,38 @@ for(i in 1:nrow(dt_meta_gsp_TagID_update)){
 
 
 #save the meta data out:
-#write.csv(dt_meta_gsp_TagID_update, here("data/metadata_TagID_deaddates_notransmision_behaviourdates_2021_2024.csv"), row.names = F)
+#write.csv(dt_meta_gsp_TagID_update, here("data/2025 analysis/metadata_TagID_deaddates_notransmision_behaviourdates_2021_2024.csv"), row.names = F)
 
 
 #create a sub-table to check we're happy with the final categories:
 #colnames(dt_meta_gsp_TagID_update)
-#checktable <- dt_meta_gsp_TagID_update[,c(2,3,5,7,12,13,15,16,17,21,22,23,29,38,41,42,43,45,46)]
+#checktable <- dt_meta_gsp_TagID_update[,c(2,3,5,7,12,13,15,16,17,21,22,23,34,38,41,42,43,44,45)]
 colnames(checktable)
 #[1] "year"                    "flag_id"                 "sex"                     "cohort_num"              "release_location"        "release_date"           
 #[7] "Fate"                    "state"                   "breeding_status"         "release_site_final"      "cohort_analysis"         "release_date_time"      
 #[13] "last_transmiss"          "max_date_time_transmiss" "daysalive_transmit"      "max_category"            "max_category_date"       "min_category"           
 #[19] "min_category_date"     
-#write.csv(checktable, here("data/tabletocheck.csv"), row.names=F)
+#write.csv(checktable, here("data/2025 analysis/tabletocheck.csv"), row.names=F)
 
 
 ####.####
 
+#update the column so that they are both datetime
+data$dead_no_t_date_time <- as.POSIXct(data$dead_no_t_date_time, format = "%Y-%m-%d", usetz=T, tz="UTC")
+
 # full join to the data_tt file
-colna <- colnames(data[c(17:46)])
+colna <- colnames(data[c(17:47)])
 data_update <- data %>% full_join(dt_meta_gsp_TagID_update, by=join_by(  "urn"  ,  "year", "flag_id", "ring", "sex" , "name" ,              
                                                                          "cohort_num" , "tag_gps_radio_none" , "tag_serial", "radio_tag_freq" ,"tagged_date" ,"release_location"   ,
                                                                          "release_date" , "migration_date", "Fate" , "state" ,  "breeding_status" , "comments" ,          
-                                                                         "release_site", "release_site_final" , "cohort_analysis" ,"release_date_time"  , "Date_1d" , "Date_1w"    ,        
-                                                                         "Date_2w" , "Date_6w" , "dead_date" , "last_transmiss", "dead_no_t_date_time", "daysalive" ))
+                                                                         "release_site", "release_site_final" , "cohort_analysis" ,"release_date_time"  , "Date_1d" ,"Date_1d_time", "Date_1w"    ,        
+                                                                         "Date_1w_time", "Date_2w", "Date_2w_time" , "Date_6w" , "Date_6w_time", "Date_J_D_time", "dead_date" , "last_transmiss", "dead_no_t_date_time", "daysalive" ))
 colnames(data_update)
 
 tail(data_update)
 
 #tidy up some columns so that we don't have replicates
-data_final <- data_update[,c(1:46,49:54)]
+data_final <- data_update[,c(1:51,54:61)]
 colnames(data_final)
 tail(data_final)
 summary(data_final)
@@ -514,28 +520,23 @@ summary(data_final)
 
 #2023 year data
 #flag no  "0E" only has two fixes in 'spring fuzz' so needs removing. These are "2023-03-28 18:22:15" and "2023-03-29 02:22:14" lines 11195 and 11196
-#exclude <- data_final[c(11195, 11196),]
-
-#exclude the rows
-#data_final_final <- data_final[c(1:11194, 11197:220412),]
-
-
+exclude0E <- data_final[c(11195, 11196),]
 
 #2024 year data
 #flag no "LU" consistent until "2023-11-23 13:36:33". Returns but sporadically: "2024-02-10 11:33:27" and then be consistently: "2024-10-17 01:28:03"
-#?
-#exclue2024 <- data_final_final[c(200811:200857),]
 
 #excluding two time periods where "LU" only have two fixes per time period
-excludeLU <- data_final_final[data_final_final$flag_id=="LU" & data_final_final$DateTime > "2023-12-31 23:59:00" & data_final_final$DateTime <= "2024-02-29 23:59:00"  #winter pre-breeding 2024
-                              |data_final_final$flag_id=="LU" & data_final_final$DateTime > "2024-03-31 23:59:00" & data_final_final$DateTime <= "2024-06-15 23:59:00"  ,] # 8a female breeding season 2024
-#200811,200812,200818,200819
+excludeLU <- data_final[data_final$flag_id=="LU" & data_final$DateTime > "2023-12-31 23:59:00" & data_final$DateTime <= "2024-02-29 23:59:00"  #winter pre-breeding 2024
+                              |data_final$flag_id=="LU" & data_final$DateTime > "2024-03-31 23:59:00" & data_final$DateTime <= "2024-06-15 23:59:00"  ,] # 8a female breeding season 2024
+#200813,200814,200820,200821
 
 
 
 #exclude the rows for both "OE" and "LU"
-data_final_final <- data_final[c(1:11194, 11197:200810, 200813:200817, 200820:220412),]
+data_final_final <- data_final[c(1:11194, 11197:200812, 200815:200819, 200822:220416),]
 
+
+#check these rows aren't there now
 
 
 #flag no "LJ" consistent until "2023-11-25 14:12:21", Returns but sporadically: "2024-02-01 12:12:32", a bit more consistent from: "2024-03-16 09:20:03"
@@ -589,9 +590,10 @@ testtable_XJ <- data.frame("LU" = data_final_final$DateTime[data_final_final$fla
 #write.csv(testtable_2023_2, here("data/2025 analysis/table_to_check_fixes_per_period_2023.csv"), row.names = F)
 
 
+###.####
 
 ###Once all the tweaking is done - save this out as the final dataset!  ####
-#saveRDS(data_final_final, (here("data/data_withcohorts_release_sites_tagduration_2021_2024.rds")))
+#saveRDS(data_final_final, (here("data/2025 analysis/data_withcohorts_release_sites_tagduration_2021_2024.rds")))
 
 
 
@@ -605,7 +607,7 @@ lapply(lapply(load_pkg, rlang::quo_name), library, character.only = TRUE)
 #START HERE - Once all data is correct and cleaned and combined above you can start from here ####
 
 #read back in the data ####
-data_final_final <- readRDS(here("data/data_withcohorts_release_sites_tagduration_2021_2024.rds"))
+data_final_final <- readRDS(here("data/2025 analysis/data_withcohorts_release_sites_tagduration_2021_2024.rds"))
 
 summary(data_final_final)
 
