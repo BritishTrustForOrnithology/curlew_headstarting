@@ -329,15 +329,12 @@ past_cohort_behavs$maxdate_pastcohort_behav <- as.POSIXct(past_cohort_behavs$max
 
 
 
-###LOOP 1 option - uses max category, so would include birds even if their fixes stop before the max end of that time period ####
+###LOOP 1 combined with LOOP 2 - uses max category, so would include birds even if their fixes stop before the max end of that time period  & creates MIN category- so doesn't include birds if their fixes stop before the end of the max end of that time period ####
 
-##HH TO COMBINED LOOP 1 and LOOP 2?????? #####
+#additional data frame to summarises the number of days per time period - if it's useful to check the number of days per time period
+#time_period_1d_JD <-data.frame(rowID = c(1:6), period = c("0 Days", "1 One Day"  ,  "2 One Week"  , "3 Two Weeks" ,  "4 Six Weeks"   , "5 End of December" ), time_days = c("0", unique(dt_meta_gsp_TagID_update$Date_1d_time), unique(dt_meta_gsp_TagID_update$Date_1w_time), unique(dt_meta_gsp_TagID_update$Date_2w_time), unique(dt_meta_gsp_TagID_update$Date_6w_time), "100"))
 
-#additional data frame to summarises the number of days per time period
-time_period_1d_JD <-data.frame(rowID = c(1:6), period = c("0 Days", "1 One Day"  ,  "2 One Week"  , "3 Two Weeks" ,  "4 Six Weeks"   , "5 End of December" ), time_days = c("0", unique(dt_meta_gsp_TagID_update$Date_1d_time), unique(dt_meta_gsp_TagID_update$Date_1w_time), unique(dt_meta_gsp_TagID_update$Date_2w_time), unique(dt_meta_gsp_TagID_update$Date_6w_time), "100"))
-
-#add a blank column into this dataset for category name and associated date so that the results can be read in to it:
-#add a blank column into this dataset for category name and associated date so that the results can be read in to it:
+#add a blank column into the metadata dataset for category name and associated date so that the results can be read in to it for both max category and min category:
 dt_meta_gsp_TagID_update$max_category <- NA
 dt_meta_gsp_TagID_update$max_category_date <- NA
 
@@ -360,6 +357,11 @@ for(i in 1:nrow(dt_meta_gsp_TagID_update)){
   decdate <-  as.POSIXct(ifelse(year_released == 2021, "2021-12-31 23:59:59",
                  ifelse(year_released == 2022, "2022-12-31 23:59:59", 
                 ifelse(year_released == 2023, "2023-12-31 23:59:59", "2024-12-31 23:59:59"))), tz="UTC")
+  
+  octdate <- as.POSIXct(ifelse(year_released == 2021, "2021-10-31 23:59:59",
+                               ifelse(year_released == 2022, "2022-10-31 23:59:59", 
+                                      ifelse(year_released == 2023, "2023-10-31 23:59:59", "2024-10-31 23:59:59"))), tz="UTC")
+  
   
   
   #a set of ifelse's to run through the dates based on the 1day, 1week, 2weeks, 6weeks and end of December post release
@@ -408,74 +410,30 @@ for(i in 1:nrow(dt_meta_gsp_TagID_update)){
   }
 
   
- 
   
-}
-
-
-#NB - for birds that died the day of release they are NOT included in the 1 day post release 
-
-
-
-#save the meta data out:
-#write.csv(dt_meta_gsp_TagID_update, here("data/metadata_TagID_deaddates_notransmision_behaviourdates_2021_2024.csv"), row.names = F)
-
-
-#create a sub-table to check we're happy with the final categories:
-#colnames(dt_meta_gsp_TagID_update)
-#checktable <- dt_meta_gsp_TagID_update[,c(2,3,5,7,12,13,15,16,17,21,22,23,29,33,36,37,38)]
-colnames(checktable)
-#write.csv(checktable, here("data/tabletocheck.csv"), row.names=F)
-
-
-
-###LOOP 2 option - uses max category, so would include birds even if their fixes stop before the max end of that time period ####
-
-#set up a loop to run through each of the tagged birds in turn. First to check if they fit into the first year categories. 
-#Then how many further year categories did their transmissions remain in
-for(i in 1:nrow(dt_meta_gsp_TagID_update)){
   
-  id <- dt_meta_gsp_TagID_update$flag_id[i]
-  
-  dat.in <- dt_meta_gsp_TagID_update[i,]
-  
-  #year released
-  year_released <- dat.in$year
-  
-  #december date according to the year of release
-  decdate <-  as.POSIXct(ifelse(year_released == 2021, "2021-12-31 23:59:59",
-                                ifelse(year_released == 2022, "2022-12-31 23:59:59", 
-                                       ifelse(year_released == 2023, "2023-12-31 23:59:59", "2024-12-31 23:59:59"))), tz="UTC")
-  
-  #novdate <-  as.POSIXct(ifelse(year_released == 2021, "2021-11-30 23:59:59",
-  #                              ifelse(year_released == 2022, "2022-11-30 23:59:59", 
-  #                                     ifelse(year_released == 2023, "2023-11-30 23:59:59", "2024-11-30 23:59:59"))), tz="UTC")
-  
-  octdate <- as.POSIXct(ifelse(year_released == 2021, "2021-10-31 23:59:59",
-                               ifelse(year_released == 2022, "2022-10-31 23:59:59", 
-                                      ifelse(year_released == 2023, "2023-10-31 23:59:59", "2024-10-31 23:59:59"))), tz="UTC")
-  
+  #LOOP 2 for min category:
   
   #a set of ifelse's to run through the dates based on the 1day, 1week, 2weeks, 6weeks and end of December post release
   dt_meta_gsp_TagID_update$min_category[dt_meta_gsp_TagID_update$flag_id==id] <-  ifelse(dat.in$max_date_time_transmiss <= dat.in$release_date_time, "Pre Release", 
                                                                                          ifelse(dat.in$max_date_time_transmiss<= dat.in$Date_1d, "0 Days",
-                                                                                           ifelse(dat.in$max_date_time_transmiss<= dat.in$Date_1w, "1 One Day",
+                                                                                                ifelse(dat.in$max_date_time_transmiss<= dat.in$Date_1w, "1 One Day",
                                                                                                        ifelse(dat.in$max_date_time_transmiss <= dat.in$Date_2w, "2 One Week",
-                                                                                                               ifelse(dat.in$datediff < 35 & dat.in$max_date_time_transmiss <= dat.in$Date_6w,  "3 Two Weeks",
-                                                                                                              ifelse(dat.in$datediff >= 35 & dat.in$max_date_time_transmiss <= dat.in$Date_6w, "4 Six Weeks",
-                                                                                                                    
-                                                                                                              ifelse(dat.in$max_date_time_transmiss <= octdate, "4 Six Weeks",  
-                                                                                                                     ifelse(dat.in$max_date_time_transmiss <= decdate, "5 End of December", "Post December"))))))))
+                                                                                                              ifelse(dat.in$datediff < 35 & dat.in$max_date_time_transmiss <= dat.in$Date_6w,  "3 Two Weeks",
+                                                                                                                     ifelse(dat.in$datediff >= 35 & dat.in$max_date_time_transmiss <= dat.in$Date_6w, "4 Six Weeks",
+                                                                                                                            
+                                                                                                                            ifelse(dat.in$max_date_time_transmiss <= octdate, "4 Six Weeks",  
+                                                                                                                                   ifelse(dat.in$max_date_time_transmiss <= decdate, "5 End of December", "Post December"))))))))
   
   dt_meta_gsp_TagID_update$min_category_date[dt_meta_gsp_TagID_update$flag_id==id] <-  ifelse(dat.in$max_date_time_transmiss <= dat.in$release_date, NA, 
                                                                                               ifelse(dat.in$max_date_time_transmiss<= dat.in$Date_1d, NA,
-                                                                                              ifelse(dat.in$max_date_time_transmiss<= dat.in$Date_1w, paste(as.POSIXct(dat.in$Date_1d, tz="UTC")),
-                                                                                                     ifelse(dat.in$max_date_time_transmiss <= dat.in$Date_2w, paste(as.POSIXct(dat.in$Date_1w, tz="UTC")),
-                                                                                                            
-                                                                                                            ifelse(dat.in$datediff < 35 & dat.in$max_date_time_transmiss <= dat.in$Date_6w, paste(as.POSIXct(dat.in$Date_2w, tz="UTC")),
-                                                                                                                   ifelse(dat.in$datediff >= 35 & dat.in$max_date_time_transmiss <= dat.in$Date_6w, paste(as.POSIXct(dat.in$Date_6w, tz="UTC")),
-                                                                                                                             ifelse(dat.in$max_date_time_transmiss <= octdate, paste(as.POSIXct(dat.in$Date_6w, tz="UTC")),
-                                                                                                                          ifelse(dat.in$max_date_time_transmiss <= decdate, paste(as.POSIXct(decdate, tz="UTC")), "Post December"))))))))
+                                                                                                     ifelse(dat.in$max_date_time_transmiss<= dat.in$Date_1w, paste(as.POSIXct(dat.in$Date_1d, tz="UTC")),
+                                                                                                            ifelse(dat.in$max_date_time_transmiss <= dat.in$Date_2w, paste(as.POSIXct(dat.in$Date_1w, tz="UTC")),
+                                                                                                                   
+                                                                                                                   ifelse(dat.in$datediff < 35 & dat.in$max_date_time_transmiss <= dat.in$Date_6w, paste(as.POSIXct(dat.in$Date_2w, tz="UTC")),
+                                                                                                                          ifelse(dat.in$datediff >= 35 & dat.in$max_date_time_transmiss <= dat.in$Date_6w, paste(as.POSIXct(dat.in$Date_6w, tz="UTC")),
+                                                                                                                                 ifelse(dat.in$max_date_time_transmiss <= octdate, paste(as.POSIXct(dat.in$Date_6w, tz="UTC")),
+                                                                                                                                        ifelse(dat.in$max_date_time_transmiss <= decdate, paste(as.POSIXct(decdate, tz="UTC")), "Post December"))))))))
   
   
   
@@ -506,15 +464,13 @@ for(i in 1:nrow(dt_meta_gsp_TagID_update)){
     
     
   }
-  
-  
-  
+ 
   
 }
 
 
-#NB - for birds that died the day of release they are NOT included in the 1 day post release 
-
+#NB - in the MAX category - birds that died the day of release they ARE included in the 1 day post release 
+#NB - in the MIN category - birds that died the day of release they are NOT included in the 1 day post release 
 
 
 #save the meta data out:
@@ -530,124 +486,6 @@ colnames(checktable)
 #[13] "last_transmiss"          "max_date_time_transmiss" "daysalive_transmit"      "max_category"            "max_category_date"       "min_category"           
 #[19] "min_category_date"     
 #write.csv(checktable, here("data/tabletocheck.csv"), row.names=F)
-
-
-###LOOP 3 option - includes the use of timeperiod times and a "final_category_" , so would NOT include birds if their fixes stop before the max end of that time period ####
-
-#additional data frame to summarises the number of days per time period
-time_period_1d_JD <-data.frame(rowID = c(1:6), period = c("0 Days", "1 One Day"  ,  "2 One Week"  , "3 Two Weeks" ,  "4 Six Weeks"   , "5 End of December" ), time_days = c("0", unique(dt_meta_gsp_TagID_update$Date_1d_time), unique(dt_meta_gsp_TagID_update$Date_1w_time), unique(dt_meta_gsp_TagID_update$Date_2w_time), unique(dt_meta_gsp_TagID_update$Date_6w_time), "100"))
-
-#add a blank column into this dataset for category name and associated date so that the results can be read in to it:
-dt_meta_gsp_TagID_update$max_category <- NA
-dt_meta_gsp_TagID_update$max_category_date <- NA
-
-dt_meta_gsp_TagID_update$min_category <- NA
-dt_meta_gsp_TagID_update$min_category_date <- NA
-
-#set up a loop to run through each of the tagged birds in turn. First to check if they fit into the first year categories. 
-#Then how many further year categories did their transmissions remain in
-for(i in 1:nrow(dt_meta_gsp_TagID_update)){
-  
-  id <- dt_meta_gsp_TagID_update$flag_id[i]
-  
-  dat.in <- dt_meta_gsp_TagID_update[i,]
-  
-  #year released
-  year_released <- dat.in$year
-  
-  #december date according to the year of release
-  decdate <-  as.POSIXct(ifelse(year_released == 2021, "2021-12-31 23:59:59",
-                                ifelse(year_released == 2022, "2022-12-31 23:59:59", 
-                                       ifelse(year_released == 2023, "2023-12-31 23:59:59", "2024-12-31 23:59:59"))), tz="UTC")
-  
-  novdate <-  as.POSIXct(ifelse(year_released == 2021, "2021-11-30 23:59:59",
-                                ifelse(year_released == 2022, "2022-11-30 23:59:59", 
-                                       ifelse(year_released == 2023, "2023-11-30 23:59:59", "2024-11-30 23:59:59"))), tz="UTC")
-  
-  
-  #a set of ifelse's to run through the dates based on the 1day, 1week, 2weeks, 6weeks and end of December post release
-  dt_meta_gsp_TagID_update$min_category[dt_meta_gsp_TagID_update$flag_id==id] <-  ifelse(dat.in$max_date_time_transmiss <= dat.in$release_date_time, "Pre Release", 
-                                                                                         ifelse(dat.in$max_date_time_transmiss<= dat.in$Date_1d, "0 Days",
-                                                                                                ifelse(dat.in$max_date_time_transmiss<= dat.in$Date_1w, "1 One Day",
-                                                                                                       ifelse(dat.in$max_date_time_transmiss <= dat.in$Date_2w, "2 One Week",
-                                                                                                              ifelse(dat.in$max_date_time_transmiss <= dat.in$Date_6w, "3 Two Weeks",
-                                                                                                                     ifelse(dat.in$max_date_time_transmiss <= novdate, "4 Six Weeks",  
-                                                                                                                            ifelse(dat.in$max_date_time_transmiss <= decdate, "5 End of December", "Post December")))))))
-  
-  dt_meta_gsp_TagID_update$min_category_date[dt_meta_gsp_TagID_update$flag_id==id] <-  ifelse(dat.in$max_date_time_transmiss <= dat.in$release_date, NA, 
-                                                                                              ifelse(dat.in$max_date_time_transmiss<= dat.in$Date_1d, NA,
-                                                                                                     ifelse(dat.in$max_date_time_transmiss<= dat.in$Date_1w, paste(as.POSIXct(dat.in$Date_1d, tz="UTC")),
-                                                                                                            ifelse(dat.in$max_date_time_transmiss <= dat.in$Date_2w, paste(as.POSIXct(dat.in$Date_1w, tz="UTC")),
-                                                                                                                   ifelse(dat.in$max_date_time_transmiss <= dat.in$Date_6w, paste(as.POSIXct(dat.in$Date_2w, tz="UTC")),
-                                                                                                                          ifelse(dat.in$max_date_time_transmiss <= novdate, paste(as.POSIXct(novdate, tz="UTC"))),
-                                                                                                                          ifelse(dat.in$max_date_time_transmiss <= decdate, paste(as.POSIXct(decdate, tz="UTC")), "Post December"))))))
-  
-  
-  #This ifelse above creates a max category that the bird could be in. But most of them do not have enough fixes to contribute to the max category so putting in...
-  # an additional catch here to double check the categories
-  timeperiod <-  dt_meta_gsp_TagID_update$max_category[dt_meta_gsp_TagID_update$flag_id==id]
-  timeperiod_back <- time_period_1d_JD$period[time_period_1d_JD$rowID[time_period_1d_JD$period == timeperiod]-1]
-  dt_meta_gsp_TagID_update$final_category[dt_meta_gsp_TagID_update$flag_id==id] <- 
-    ifelse(dat.in$datediff < time_period_1d_JD$time_days[time_period_1d_JD$period == timeperiod], timeperiod_back, timeperiod )
-  
-  
-  dt_meta_gsp_TagID_update$final_category_date[dt_meta_gsp_TagID_update$flag_id==id] <-  ifelse(dat.in$max_date_time_transmiss <= dat.in$release_date, NA, 
-                                                                                                ifelse(dat.in$max_date_time_transmiss<= dat.in$Date_1d, paste(as.POSIXct(dat.in$Date_1d, tz="UTC")),
-                                                                                                       ifelse(dat.in$max_date_time_transmiss <= dat.in$Date_1w, paste(as.POSIXct(dat.in$Date_1w, tz="UTC")),
-                                                                                                              ifelse(dat.in$max_date_time_transmiss <= dat.in$Date_2w, paste(as.POSIXct(dat.in$Date_2w, tz="UTC")),
-                                                                                                                     ifelse(dat.in$max_date_time_transmiss <= dat.in$Date_6w, paste(as.POSIXct(dat.in$Date_6w,  tz="UTC")),
-                                                                                                                            ifelse(dat.in$max_date_time_transmiss <= decdate, paste(as.POSIXct(decdate, tz="UTC")), "Post December"))))))
-  
-  
-  
-  #Then this if loop is in the check if the bird survived to 'post december' then runs through more code to extract the appropriate rows in the past cohort behaviour csv 
-  #then uses a which query to find the date closest to the last date of transmission
-  if(dt_meta_gsp_TagID_update$max_category[dt_meta_gsp_TagID_update$flag_id==id] == "Post December"){
-    
-    #year + 1 to get the first year the cohort returns
-    year_return <- year_released+1
-    
-    #sex
-    MF <- dat.in$sex
-    
-    #added this in to catch the few birds which had an unknown sex # HANNAH TO CHECK WITH KATHARINE whether these should be categorised as M or F for the purposes of the dates
-    MF <- ifelse(MF == "U", "F", MF)
-    
-    #filter the past cohort behaviours to year+1 and the sex
-    past_cohort_filter <- past_cohort_behavs %>% filter(year>year_released & sex == MF)
-    
-    
-    #run a which query to find the row that is the last row that include the date
-    dt_meta_gsp_TagID_update$max_category[dt_meta_gsp_TagID_update$flag_id==id] <- past_cohort_filter$label_year[min(which(past_cohort_filter$maxdate_pastcohort_behav > dat.in$max_date_time_transmiss))]
-    
-    lab <- dt_meta_gsp_TagID_update$max_category[dt_meta_gsp_TagID_update$flag_id==id]
-    
-    #extracting the date for the respective label
-    dt_meta_gsp_TagID_update$max_category_date[dt_meta_gsp_TagID_update$flag_id==id] <- paste(as.POSIXct(past_cohort_filter$maxdate_pastcohort_behav[past_cohort_filter$label_year == lab], tz="UTC"))
-    
-    
-  }
-  
-  
-  
-  
-}
-
-
-#NB - for birds that died the day of release they are NOT included in the 1 day post release 
-
-
-
-#save the meta data out:
-#write.csv(dt_meta_gsp_TagID_update, here("data/metadata_TagID_deaddates_notransmision_behaviourdates_2021_2024.csv"), row.names = F)
-
-
-#create a sub-table to check we're happy with the final categories:
-#colnames(dt_meta_gsp_TagID_update)
-#checktable <- dt_meta_gsp_TagID_update[,c(2,3,5,7,12,13,15,16,17,21,22,23,29,33,36,37,38)]
-colnames(checktable)
-#write.csv(checktable, here("data/tabletocheck.csv"), row.names=F)
-
 
 
 ####.####
@@ -672,9 +510,9 @@ summary(data_final)
 
 
 
-#### Some final bits of cleaning up based on preliminary analysis further down.####
+#### Some final bits of cleaning up based on preliminary analysis further down FOR THE PAST COHORT DATA ONLY (because loop 1 & 2 sort out the issues of the current cohort).####
 
-#2023
+#2023 year data
 #flag no  "0E" only has two fixes in 'spring fuzz' so needs removing. These are "2023-03-28 18:22:15" and "2023-03-29 02:22:14" lines 11195 and 11196
 #exclude <- data_final[c(11195, 11196),]
 
@@ -683,7 +521,7 @@ summary(data_final)
 
 
 
-#2024
+#2024 year data
 #flag no "LU" consistent until "2023-11-23 13:36:33". Returns but sporadically: "2024-02-10 11:33:27" and then be consistently: "2024-10-17 01:28:03"
 #?
 #exclue2024 <- data_final_final[c(200811:200857),]
@@ -855,7 +693,6 @@ for(y in 1:length(nyears)){
   #one day - Filters to keep it just to one day for all data
   data_1d <-  dat.in_cohort %>% 
     filter(dat.in_cohort$DateTime >= dat.in_cohort$release_date_posi & dat.in_cohort$DateTime <= dat.in_cohort$Date_1d) %>% 
-    #filter(max_category !=  "1 One Day") %>% #added this in to remove birds that do not have fixes throughout the whole of this time period - ALTERNATIVE TO THE FILTERING in LOOP1&LOOP2
     droplevels() 
   
     summary(as.factor(data_1d$max_category))
@@ -876,7 +713,6 @@ for(y in 1:length(nyears)){
   data_1w <- dat.in_cohort %>%
     filter(dat.in_cohort$DateTime >= dat.in_cohort$release_date_posi & dat.in_cohort$DateTime <= dat.in_cohort$Date_1w) %>%
     filter(max_category !=  "1 One Day") %>% 
-   # filter(max_category !=  "2 One Week")%>%   #added this in to remove birds that do not have fixes throughout the whole of this time period - ALTERNATIVE TO THE FILTERING in LOOP1&LOOP2
     droplevels() 
     
      
@@ -899,7 +735,6 @@ for(y in 1:length(nyears)){
     filter(DateTime >= release_date_posi & DateTime <= Date_2w )  %>% 
     filter(max_category !=  "1 One Day") %>%
     filter(max_category !=  "2 One Week")%>% 
-    #filter(max_category !=  "3 Two Weeks")%>%   #added this in to remove birds that do not have fixes throughout the whole of this time period - ALTERNATIVE TO THE FILTERING in LOOP1&LOOP2
     droplevels()
   
   
@@ -924,7 +759,6 @@ for(y in 1:length(nyears)){
     filter(max_category !=  "1 One Day") %>%
     filter(max_category !=  "2 One Week") %>%
     filter(max_category !=  "3 Two Weeks")%>% 
-    #filter(max_category !=  "4 Six Weeks")%>%  #added this in to remove birds that do not have fixes throughout the whole of this time period- ALTERNATIVE TO THE FILTERING in LOOP1&LOOP2
     droplevels()
     
   summary(data_6$DateTime)
@@ -947,7 +781,6 @@ for(y in 1:length(nyears)){
     filter(max_category !=  "2 One Week") %>%
     filter(max_category !=  "3 Two Weeks") %>%
     filter(max_category !=  "4 Six Weeks") %>% 
-   # filter(max_category !=  "5 end of December")%>%  #none excluded added this in to remove birds that do not have fixes throughout the whole of this time period - ALTERNATIVE TO THE FILTERING in LOOP1&LOOP2
     droplevels()
     
   data_all$period <- "5 End of December"
@@ -971,7 +804,7 @@ for(y in 1:length(nyears)){
   
   
   
-  # Final merge for the 2023 cohort #####
+  # Final merge for the current year cohort #####
   data_cohort<-Track2TrackMultiStack(rbind(data_1d, data_1w, data_2, data_6, data_all), by=c("TagID", "period"))
   data_cohort
   
@@ -986,9 +819,7 @@ for(y in 1:length(nyears)){
   ####then create a sub dataset for past cohorts still recording in nyr
   #Need to do something a bit different for the past cohorts
   
-  
-  
-  dat.in_pastcohort <-  dat.in_c %>% 
+    dat.in_pastcohort <-  dat.in_c %>% 
     filter(year != nyr) %>% 
     droplevels()
   
