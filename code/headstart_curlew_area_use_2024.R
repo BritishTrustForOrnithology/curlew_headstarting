@@ -683,10 +683,10 @@ for(y in 1:length(nyears)){
   summary(dat.in_cohort$year)
   
   #checks the categories remaining
-  summary(as.factor(dat.in_cohort$max_category))
+  summary(as.factor(dat.in_cohort$min_category))
   
-  #checks the total number of data rows per max_category
-  table(dat.in_cohort$max_category)
+  #checks the total number of data rows per min_category
+  table(dat.in_cohort$min_category)
   
   
   
@@ -695,9 +695,10 @@ for(y in 1:length(nyears)){
   #one day - Filters to keep it just to one day for all data
   data_1d <-  dat.in_cohort %>% 
     filter(dat.in_cohort$DateTime >= dat.in_cohort$release_date_posi & dat.in_cohort$DateTime <= dat.in_cohort$Date_1d) %>% 
+    filter(min_category !=  "0 Days") %>%
     droplevels() 
   
-    summary(as.factor(data_1d$max_category))
+    summary(as.factor(data_1d$min_category))
     summary(data_1d$DateTime)
     
    #check max number of hours is less than 48hrs
@@ -714,12 +715,13 @@ for(y in 1:length(nyears)){
   #one week - filters data to just one week after release but removing the birds that were only in one day category
   data_1w <- dat.in_cohort %>%
     filter(dat.in_cohort$DateTime >= dat.in_cohort$release_date_posi & dat.in_cohort$DateTime <= dat.in_cohort$Date_1w) %>%
-    filter(max_category !=  "1 One Day") %>% 
+    filter(min_category !=  "0 Days") %>%
+    filter(min_category !=  "1 One Day") %>% 
     droplevels() 
     
      
  
-   summary(as.factor(data_1w$max_category))
+  summary(as.factor(data_1w$min_category))
   summary(data_1w$DateTime)
   #check max number of hours is less than 192hrs (1 week + 24hrs)
   max(data_1w$DateTime - data_1w$release_date_posi)
@@ -735,13 +737,14 @@ for(y in 1:length(nyears)){
   #two weeks - filters data to just two weeks after release but removes the birds that were only in one day and one week categories
   data_2 <- dat.in_cohort %>% 
     filter(DateTime >= release_date_posi & DateTime <= Date_2w )  %>% 
-    filter(max_category !=  "1 One Day") %>%
-    filter(max_category !=  "2 One Week")%>% 
+    filter(min_category !=  "0 Days") %>%
+    filter(min_category !=  "1 One Day") %>%
+    filter(min_category !=  "2 One Week")%>% 
     droplevels()
   
   
   summary(data_2$DateTime)
-  summary(as.factor(data_2$max_category))
+  summary(as.factor(data_2$min_category))
   #check max number of hours is less than 390hrs
   max(data_2$DateTime - data_2$release_date_posi)
   
@@ -758,13 +761,14 @@ for(y in 1:length(nyears)){
   #six weeks - filters data to six weeks post release, but removes the birds that were only in one day and one week and two week categories
   data_6 <- dat.in_cohort %>% 
     filter(DateTime >= release_date_posi & DateTime <= Date_6w)  %>% 
-    filter(max_category !=  "1 One Day") %>%
-    filter(max_category !=  "2 One Week") %>%
-    filter(max_category !=  "3 Two Weeks")%>% 
+    filter(min_category !=  "0 Days") %>%
+    filter(min_category !=  "1 One Day") %>%
+    filter(min_category !=  "2 One Week") %>%
+    filter(min_category !=  "3 Two Weeks")%>% 
     droplevels()
     
   summary(data_6$DateTime)
-  summary(as.factor(data_6$max_category))
+  summary(as.factor(data_6$min_category))
   #check max number of hours is less than 1032hrs
   max(data_6$DateTime - data_6$release_date_posi)
   
@@ -779,21 +783,23 @@ for(y in 1:length(nyears)){
   
   #This combines all data up until the end of December- HH to check this is correct - data regardless of when the data stopped = YES
   data_all <- dat.in_cohort %>%
-    filter(max_category !=  "1 One Day") %>%
-    filter(max_category !=  "2 One Week") %>%
-    filter(max_category !=  "3 Two Weeks") %>%
-    filter(max_category !=  "4 Six Weeks") %>% 
+    filter(min_category !=  "0 Days") %>%
+    filter(min_category !=  "1 One Day") %>%
+    filter(min_category !=  "2 One Week") %>%
+    filter(min_category !=  "3 Two Weeks") %>%
+    filter(min_category !=  "4 Six Weeks") %>% 
     droplevels()
     
   data_all$period <- "5 End of December"
   
   summary(data_all$DateTime)
-  summary(as.factor(data_all$max_category))
+  summary(as.factor(data_all$min_category))
 
-  data_all <- rbind(data_all, data_1d[data_1d$max_category=="1 One Day",], data_1w[data_1w$max_category=="2 One Week",], data_2[data_2$max_category=="3 Two Weeks",], data_6[data_6$max_category=="4 Six Weeks",] )
- 
-  summary(data_all$DateTime)
-  summary(as.factor(data_all$max_category))
+  
+  #NOTE THIS IS HASH TAGGED OUT FOR NOW - because all data July-Dec only includes birds which have data beyond November of that year. This could be brought back in again to include ALL data if needed
+  #data_all <- rbind(data_all, data_1d[data_1d$min_category=="1 One Day",], data_1w[data_1w$min_category=="2 One Week",], data_2[data_2$min_category=="3 Two Weeks",], data_6[data_6$min_category=="4 Six Weeks",] )
+  #summary(data_all$DateTime)
+  #summary(as.factor(data_all$min_category))
   
   
   #This is a VERY key line to help Track2TrackMultiStack stack the tags in the correct stack! 
@@ -1159,6 +1165,8 @@ for(y in 1:length(nyears)){
 }
   
   
+#save the summary_dat out
+#write.csv(summary_dat, here("output/Tables 2025/summarycountbirds_pertimeperiod_peryear.csv"), row.names = F)
  
 
 ####.####
@@ -1171,13 +1179,14 @@ lapply(lapply(load_pkg, rlang::quo_name), library, character.only = TRUE)
 
 ## read things in ####
 #If need the clean but raw data per row can read in this data:
-#data_final_final <- readRDS(here("data/data_withcohorts_release_sites_tagduration_2021_2024.rds"))
+#data_final_final <- readRDS(here("data/2025 analysis/data_withcohorts_release_sites_tagduration_2021_2024.rds"))
 
 #summary(data_final_final)
 
 
 #read in the meta data just in case useful:
-dt_meta_gsp_TagID_update <- read.csv(here("data/metadata_TagID_deaddates_notransmision_behaviourdates_2021_2024.csv"), header=T)
+dt_meta_gsp_TagID_update <- read.csv(here("data/2025 analysis/metadata_TagID_deaddates_notransmision_behaviourdates_2021_2024.csv"), header=T)
+head(dt_meta_gsp_TagID_update)
 
 
 #looooop set up ####
@@ -2101,7 +2110,7 @@ x_out_wide <- x_out_wide[,c(1,3,6,4,2,5)]
 
 
 #write.csv(AUC_dat, here("output/Tables 2025/AUC_outputs.csv"), row.names=F) # this allows you to read out the output data as a csv for easiest copying to the report
-#write.csv(beta_dat, here("output/Tables 2025/beta_outputs.csv"), row.names=F) # this allows you to read out the output data as a csv for easiest copying to the report
+write.csv(beta_dat, here("output/Tables 2025/beta_outputs.csv"), row.names=F)  # this allows you to read out the output data as a csv for easiest copying to the report
 #write.csv(mytest.contrast_dat, here("output/Tables 2025/mytests_outputs.csv"), row.names=F) # this allows you to read out the output data as a csv for easiest copying to the report
 
 
