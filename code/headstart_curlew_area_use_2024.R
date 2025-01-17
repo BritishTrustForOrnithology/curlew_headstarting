@@ -518,76 +518,115 @@ summary(data_final)
 
 #### Some final bits of cleaning up based on preliminary analysis further down FOR THE PAST COHORT DATA ONLY (because loop 1 & 2 sort out the issues of the current cohort).####
 
-#2023 year data
-#flag no  "0E" only has two fixes in 'spring fuzz' so needs removing. These are "2023-03-28 18:22:15" and "2023-03-29 02:22:14" lines 11195 and 11196
-exclude0E <- data_final[c(11195, 11196),]
-
-#2024 year data
-#flag no "LU" consistent until "2023-11-23 13:36:33". Returns but sporadically: "2024-02-10 11:33:27" and then be consistently: "2024-10-17 01:28:03"
-
-#excluding two time periods where "LU" only have two fixes per time period
-excludeLU <- data_final[data_final$flag_id=="LU" & data_final$DateTime > "2023-12-31 23:59:00" & data_final$DateTime <= "2024-02-29 23:59:00"  #winter pre-breeding 2024
-                              |data_final$flag_id=="LU" & data_final$DateTime > "2024-03-31 23:59:00" & data_final$DateTime <= "2024-06-15 23:59:00"  ,] # 8a female breeding season 2024
-#200813,200814,200820,200821
-
-
-
-#exclude the rows for both "OE" and "LU"
-data_final_final <- data_final[c(1:11194, 11197:200812, 200815:200819, 200822:220416),]
-
-
-#check these rows aren't there now
-
-
-#flag no "LJ" consistent until "2023-11-25 14:12:21", Returns but sporadically: "2024-02-01 12:12:32", a bit more consistent from: "2024-03-16 09:20:03"
-#C(195962:195976)
-
-#flag no "LV" consistent until "2023-11-26 07:52:02", Returns but sporadically: "2024-01-19 13:21:03", a bit more consistent from: "2024-04-07 07:32:11"
-#c(199585:199600)
-
-#flag no "XJ" consistent until "2023-10-11 00:04:03", Returns but sporadically: "2024-03-09 19:36:57", a bit more consistent from: "2024-05-18 00:37:02", 
-#c(121582:121657)
-
-
-#create some test tables to check the gaps
-testtable_LU <- data.frame("LU" = data_final_final$DateTime[data_final_final$flag_id=="LU"])
-testtable_LJ <- data.frame("LU" = data_final_final$DateTime[data_final_final$flag_id=="LJ"])
-testtable_LV <- data.frame("LU" = data_final_final$DateTime[data_final_final$flag_id=="LV"])
-testtable_XJ <- data.frame("LU" = data_final_final$DateTime[data_final_final$flag_id=="XJ"])
-
+#NOTE this code has been added in back up here retrospectively so you need to run down to get data as a track object before you can run these bits of code:
 
 #NOTES from messages to-from Chris Thaxter. It is possible to filter a Track() dataset by using BTOTrackingTools::subset_TMS(data, TagIDs = c("a","b")). 
-        #BUT you have to put in ALL the tag numbers you want to keep and there is no "!" short cut. 
-        
-        #INSTEAD you could convert the lists (if one list: data = TrackStack2Track(data). If two lists: data = TrackMultiStack2data(data))
-            # you can then convert it to a tibble and filter out what you don't want. E.g.: tibble(data) %>% filter(TagID != "a") etc, or data[data$TagID != "a",]
-            # And then you would convert it back to a Track using: Track() 
-                # THEN you can convert it back to a stacked list (if one list:  Track2TrackStack(). If two lists: data = Track2TrackMultiStack())
+#BUT you have to put in ALL the tag numbers you want to keep and there is no "!" short cut. 
 
-        #Alternatively you just filter out the data you're not wanting at this point before the dataset gets converted to a Track()
+#INSTEAD you could convert the lists (if one list: data = TrackStack2Track(data). If two lists: data = TrackMultiStack2data(data))
+# you can then convert it to a tibble and filter out what you don't want. E.g.: tibble(data) %>% filter(TagID != "a") etc, or data[data$TagID != "a",]
+# And then you would convert it back to a Track using: Track() 
+# THEN you can convert it back to a stacked list (if one list:  Track2TrackStack(). If two lists: data = Track2TrackMultiStack())
 
+#Alternatively you just filter out the data you're not wanting at this point before the dataset gets converted to a Track()
 
 #test tables using the chris T method to extract out the stacked rows and summarise to check if any birds need filtering from certain sections
-#data_2024 <- data
-#testtable_2024 <- TrackMultiStack2Track(data_2024)
 
-#testtable_2024_2 <- data.frame(testtable_2024) %>% 
-#group_by(flag_id, period) %>%
-#  count() 
+#From this and from the Utilisation Distribution TIA plot section 'get_TIA_grd' you can see which birds cause an error (notes on why are in that section below)
 
-#save as csv to look at with Katharine and Sam
-#write.csv(testtable_2024_2, here("data/2025 analysis/table_to_check_fixes_per_period_2024.csv"), row.names = F)
+
+
+###2023 year data####
+#list of birds and time periods: 
+    #"0E"  'spring fuzz' - two fixes need removing
 
 
 #data_2023 <- data
 #testtable_2023 <- TrackMultiStack2Track(data_2023)
 
 #testtable_2023_2 <- data.frame(testtable_2023) %>% 
-#  group_by(flag_id, period) %>%
+#group_by(flag_id, period) %>%  
 #  count() 
 
 #save as csv to look at with Katharine and Sam
 #write.csv(testtable_2023_2, here("data/2025 analysis/table_to_check_fixes_per_period_2023.csv"), row.names = F)
+
+
+#"0E": 'spring fuzz' - two fixes need removing
+exclude0E <- (data$`7 Spring fuzzy 2023`$`Yf(0E)O/-:Y/m`$DateTime)
+
+#check these are definitely all LU timesdates
+data_final %>% filter(data_final$DateTime %in% exclude0E)
+
+
+
+
+
+###2024 year data ####
+#list of birds and time periods: 
+#"LU": has two fixes in winter pre-breeding  2024 and 5 fives in spring fuzzy 2024 and two fixes 8a female breeding season 2024 - need removing
+#"7K"  15 tracks for in 6 Winter pre-breeding 2024 that need excluding
+#LV": 5 fixes in winter pre-breeding  2024 and 5 fixes in spring fuzzy 2024
+
+#"9L": spent the first couple of years in France - only one data point is in the UK for spring fuzzy 2024 - added an if loop at the point needed in the code 
+      #BUT COULD COMPLETELY REMOVE IT FROM THIS TIME PERIOD INSTEAD????
+
+
+#create some test tables to check the gaps
+#testtable_LU <- data.frame("LU" = data_final_final$DateTime[data_final_final$flag_id=="LU"])
+#testtable_LJ <- data.frame("LU" = data_final_final$DateTime[data_final_final$flag_id=="LJ"])
+#testtable_LV <- data.frame("LU" = data_final_final$DateTime[data_final_final$flag_id=="LV"])
+#testtable_XJ <- data.frame("LU" = data_final_final$DateTime[data_final_final$flag_id=="XJ"])
+
+
+#data_2024 <- data
+#testtable_2024 <- TrackMultiStack2Track(data_2024)
+
+#table out 
+#testtable_2024_2 <- data.frame(testtable_2024) %>% 
+group_by(flag_id, period) %>%
+  count() 
+
+#save as csv to look at with Katharine and Sam
+#write.csv(testtable_2024_2, here("data/2025 analysis/table_to_check_fixes_per_period_2024.csv"), row.names = F)
+
+
+#"LU": has two fixes in winter pre-breeding  2024 and 5 fives in spring fuzzy 2024 and two fixes 8a female breeding season 2024 both need removing
+excludeLU <- c(data$`6 Winter pre-breeding 2024`$`Yf(LU)O/-:Y/m_Sandringham`$DateTime, data$`7 Spring fuzzy 2024`$`Yf(LU)O/-:Y/m_Sandringham`$DateTime, data$`8a Female Breeding Season 2024`$`Yf(LU)O/-:Y/m_Sandringham`$DateTime)
+
+#check these are definitely all LU timesdates
+data_final %>% filter(data_final$DateTime %in% excludeLU)
+
+
+
+#"7K": excluding 15 tracks for in 6 Winter pre-breeding 2024
+#extracting out a list of datetime from the track:
+exclude7k <- (data$`6 Winter pre-breeding 2024`$`Yf(7K)O/-:Y/m_Sandringham`$DateTime)
+
+#use this datetime list to check them in data_final
+data_final %>% filter(data_final$DateTime %in% exclude7k )
+
+
+#LV": 5 fixes in winter pre-breeding  2024 and 5 fixes in spring fuzzy 2024
+#extracting out a list of datetime from the track:
+excludeLV <- c(data$`6 Winter pre-breeding 2024`$`Yf(LV)O/-:Y/m_KenHill`$DateTime, data$`7 Spring fuzzy 2024`$`Yf(LV)O/-:Y/m_KenHill`$DateTime)
+
+#use this datetime list to check them in data_final
+data_final %>% filter(data_final$DateTime %in% excludeLV )
+
+
+
+#save the whole list of dates to be filtered in case I need it again:
+allexclude <- c(exclude0E, excludeLU, exclude7k, excludeLV)
+#saveRDS(allexclude, here("data/2025 analysis/listofdatestoexclude_2023_2024_anlaysis.rds"))
+
+
+
+###final removal of all 'exclude' fixes:####
+#exclude the rows for "OE" and "LU", "7k"
+data_final_final <- data_final %>% filter(! data_final$DateTime %in% c(exclude0E, excludeLU, exclude7k, excludeLV))
+
+
 
 
 ###.####
@@ -614,8 +653,8 @@ summary(data_final_final)
 
 # Convert to BTOTT Track object ####
 data_tt<-Track(data_final_final) 
-data_tt<-clean_GPS(data_tt, drop_sats = 3, Thres = 30, GAP = 28800)
-#HH NB: new warning messages about "flt_switch" for each bird - an error from the Track(data) function with is a BTOTT function
+data_tt<-clean_GPS(data_tt, drop_sats = 3, Thres = 30, GAP = 28800) #HH NEW NOTE 2024 analysis: GAP here constrains the function to not interpolate time in between this gap of 28800 seconds = 8 hours (chat message from Chris T 17/01/2025)
+#HH NB 2023 analysis: new warning messages about "flt_switch" for each bird - an error from the Track(data) function with is a BTOTT function
 #See messages from Chris T about this but the summary is it is a flag option for clean_GPS - when importing data into movebank you can add a 
 #column to tell you if it is dodgy data or not and then add a second column to clean it/remove it... as the dataset I am working with doesn't have this column
 # I can disregard this warning
@@ -1482,12 +1521,21 @@ if(nyr == "2021"){
     # run TIA (trial and error on suitable cell size) # grid of cells. HH NB _ FYI - some of these have 'trips' removed. Chris T reckons this is because of the extra filtering and so for some points there will not be enough to do the amount of time in cell count and so they are removed
     indata_grd <- get_TIA_grd(tia_dat, xRa=llyrb$xRa, yRa=llyrb$yRa, cellsize = 500, p4s=p4) # Laptop will not process next step if smaller grid size #Gary's code = cellsize=500
     
-    # rank the time cumulatively for plotting for each bird. #ranks the time spent in each cell
-    grd_rank_all<- rank_time(indata_grd, population = TRUE) # Population level
     #NOTE there are various warnings where a trip has too few data so it removed. 
       #NOTE Error thrown up for 2023 Spring transition 2023: #error in .local cannot derive coordinates from non-numeric matrix error only for "Yf(0E)O/-:Y/m" and there are only 2 GPS fixes so that is likely to be the issue - these are now removed from data_final_final and code works
       #NOTE Error thrown up for 2024 Winter post breeding 2024: Error in `$<-.data.frame`(`*tmp*`, "dum", value = 1) :     replacement has 1 row, data has 0.
           ##this is for tag: "LU" but I suspect: "LJ", "LV" and "XJ" will also throw this error as they have less than 10 tracks too
+    
+    #NOTE UPDATE (17/01/2025 - chat message from Chris T). Some birds cause an error at this point, there is as two fold reason for this
+      #1 when the data was cleaned up ("clean_GPS") 'GAP' is used to restrain the analysis to not interpolate time in between 'gaps', this becomes important when the data is gappy anyway (e.g. winter when tags aren't recording as much),
+            #the default 'gap' of 8hrs is used in this analysis. This will isolate data points when the data is already gappy.
+      #2 once filtered by this 'gap' then the data is put into 'trips' which needs a minimum of three fixes per trip for data resolution. 
+      #because of both of these filters it means that some birds end up with no trips (due to limited fixes to start with)
+      #manual updating of the code is needed higher up to filter these out (ideally this would be able to be done in the function but it is not possible yet)
+    
+    
+    # rank the time cumulatively for plotting for each bird. #ranks the time spent in each cell
+    grd_rank_all<- rank_time(indata_grd, population = TRUE) # Population level
     
     #grd_rank_birds<- rank_time(indata_grd, population = FALSE) # Individual level - currently not used
     
@@ -1556,6 +1604,19 @@ if(nyr == "2021"){
     trk <- trk %>% 
       filter(!is.na(layer))
     
+    #table to check the count of fixes 
+    test <- trk %>% group_by(id) %>% count()
+    
+    #if loop added because "9L" is mostly in France but has one fix in the UK so has one habitat point. Because of having a lot of other fixes it has not been filtered and remains in the dataset
+      #INSTEAD I COULD FILTER IT FROM THE DATA SET??????
+    if(min(test$n) <2){
+      
+      trk <- trk %>% filter(! trk$id == test$id[test$n<2])
+      
+    }
+    
+    #table to check the count of fixes 
+    test <- trk %>% group_by(id) %>% count()
     
     # Check sampling rate
     summarize_sampling_rate_many(trk, cols="id")
@@ -2124,12 +2185,12 @@ if(nyr == "2021"){
             strip.text.x = element_text(size = 12, face="bold")) +
       theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
             panel.background = element_blank(), axis.line = element_line(colour = "black"))+
-      ggtitle(paste0("",plotlab,"(all birds)"))   ## UPDATE MANUALLY #HH NB if cropping to ignore outliers add in (cropped - one outlier outside view)
+      ggtitle(paste0("",plotlab," (all birds)"))   ## UPDATE MANUALLY #HH NB if cropping to ignore outliers add in (cropped - one outlier outside view)
     
     
     # Save plot
     setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/output/Figures 2025/RSS/") #HH NB laptop
-    ggsave("NE103_",nyr,"_Headtsart CURLE_RSS plot_",filelab,".jpg", width=15, height=15, units="cm", dpi=300)  ## UPDATE FILENAME
+    ggsave(paste0("NE103_",nyr,"_Headtsart CURLE_RSS plot_",filelab,".jpg"), width=15, height=15, units="cm", dpi=300)  ## UPDATE FILENAME
     
    
     
