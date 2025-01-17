@@ -819,7 +819,7 @@ for(y in 1:length(nyears)){
   
   # Save
   setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/data/2025 analysis") #HH laptop
-  save(data_cohort, file=paste0("NE103_2024 report_clean tracking data for ",nyr," cohort.RData"))
+  save(data_cohort, file=paste0("NE103_",nyr," report_clean tracking data for ",nyr," cohort.RData"))
   
   
   
@@ -846,7 +846,7 @@ for(y in 1:length(nyears)){
     
     # Save
     setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/data/2025 analysis") #HH laptop
-    save(data_year, file=paste0("NE103_2024 report_clean tracking data for all ",nyr," data.RData"))
+    save(data_year, file=paste0("NE103_",nyr," report_clean tracking data for all ",nyr," data.RData"))
     
     
     
@@ -985,7 +985,7 @@ for(y in 1:length(nyears)){
       
       # Save
       setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/data/2025 analysis") #HH laptop
-      save(data_cohort, file=paste0("NE103_2024 report_clean tracking data for ",nyr," past cohorts_Female.RData"))
+      save(data_cohort, file=paste0("NE103_",nyr," report_clean tracking data for ",nyr," past cohorts_Female.RData"))
       
       
       
@@ -1004,7 +1004,7 @@ for(y in 1:length(nyears)){
         
         # Save
         setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/data/2025 analysis") #HH laptop
-        save(data_year, file=paste0("NE103_2024 report_clean tracking data for all ",nyr," data.RData"))
+        save(data_year, file=paste0("NE103_",nyr," report_clean tracking data for all ",nyr," data.RData"))
         
         
         
@@ -1143,7 +1143,7 @@ for(y in 1:length(nyears)){
       
       # Save
       setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/data/2025 analysis") #HH laptop
-      save(data_cohort, file=paste0("NE103_2024 report_clean tracking data for ",nyr," past cohorts_Male.RData"))
+      save(data_cohort, file=paste0("NE103_",nyr," report_clean tracking data for ",nyr," past cohorts_Male.RData"))
       
       
     
@@ -1158,7 +1158,7 @@ for(y in 1:length(nyears)){
   
    # Save
   setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/data/2025 analysis") #HH laptop
-  save(data_year, file=paste0("NE103_2024 report_clean tracking data for all ",nyr," data.RData"))
+  save(data_year, file=paste0("NE103_",nyr," report_clean tracking data for all ",nyr," data.RData"))
   
       }
   }
@@ -1200,7 +1200,7 @@ nyears <- c("2021", "2022", "2023", "2024")
 nyr <- nyears[4]
 
 setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/data/2025 analysis") #HH laptop
-load(file=paste0("NE103_2024 report_clean tracking data for all ",nyr," data.RData"))
+load(file=paste0("NE103_",nyr," report_clean tracking data for all ",nyr," data.RData"))
 
 
 #loaded as data_2023. rename it:
@@ -1421,7 +1421,7 @@ for(y in 1:length(nyears)){
 nyr <- nyears[y]
 
 setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/data/2025 analysis") #HH laptop
-load(file=paste0("NE103_2024 report_clean tracking data for all ",nyr," data.RData"))
+load(file=paste0("NE103_",nyr," report_clean tracking data for all ",nyr," data.RData"))
 
 
 #loaded as data_year. rename it:
@@ -1495,7 +1495,7 @@ if(nyr == "2021"){
   
     # Set directory (outside of Github here)
     dir <- "C:/Users/hannah.hereward/Documents/Projects/2024_curlewheadstarting/curlew_headstarting/output/Figures 2025/TIA/" #HH laptop directory
-    plot_name<-paste0("NE103_Headstart CURLEW_TIA_2024_",cohort,"_",filelab,".tiff")
+    plot_name<-paste0("NE103_Headstart CURLE_TIA_",nyr,"_",cohort,"_",filelab,".tiff")
     
     
     # Set plot device (saving hi-res base R maps)
@@ -1551,6 +1551,8 @@ if(nyr == "2021"){
     
     #HH NB ADDED IN A FILTER HERE to remove NAs (equates to marine and non-UK fixes) SO THAT THE RANDOM POINTS (further down) ARE ONLY GENERATED IN THE UK. Therefore, this code is filtering the LCM results in trk to remove all NAs.
     #NOTE this will remove some 'at sea' around the UK NAs as well as non-UK fixes 
+    summary(trk)
+    
     trk <- trk %>% 
       filter(!is.na(layer))
     
@@ -1639,7 +1641,7 @@ if(nyr == "2021"){
     # Save rsfdat for each time period
     setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/data/2025 analysis/") #HH laptop
     
-    save(rsfdat, file=paste0("NE103_2023 report_RSF_data_cohort",nyr,"_",filelab,".RData")) 
+    save(rsfdat, file=paste0("NE103_",nyr," report_RSF_data_cohort_",nyr,"_",filelab,".RData")) 
     
     
     
@@ -1667,7 +1669,7 @@ if(nyr == "2021"){
     
     # Save plot (outside of Github)
     setwd("C:/Users/hannah.hereward/Documents/Projects/2024_curlewheadstarting/curlew_headstarting/output/Figures 2025/Habitat_prop/")
-    ggsave(paste0("NE103_2023_Headstart CURLEW_",nyr,"_RSF plot_",filelab,".jpg"), width=15, height=15, units="cm", dpi=300)  ## UPDATE FILENAME
+    ggsave(paste0("NE103_",nyr,"_Headstart CURLE_RSF plot_",filelab,".jpg"), width=15, height=15, units="cm", dpi=300)  ## UPDATE FILENAME
     
     
     
@@ -1697,7 +1699,7 @@ if(nyr == "2021"){
       
       # Save plot (outside of Github)
       setwd("C:/Users/hannah.hereward/Documents/Projects/2024_curlewheadstarting/curlew_headstarting/output/Figures 2025/Habitat_prop/")
-      ggsave(paste0("NE103_2023_Headstart CURLEW_",nyr,"_RSF plot_",filelab,"_COHORT.jpg"), width=15, height=15, units="cm", dpi=300)  ## UPDATE FILENAME
+      ggsave(paste0("NE103_",nyr,"_Headstart CURLE_RSF plot_",filelab,"_COHORT.jpg"), width=15, height=15, units="cm", dpi=300)  ## UPDATE FILENAME
       
     }
     
@@ -1729,7 +1731,7 @@ if(nyr == "2021"){
       
       # Save plot (outside of Github)
       setwd("C:/Users/hannah.hereward/Documents/Projects/2024_curlewheadstarting/curlew_headstarting/output/Figures 2025/Habitat_prop/")
-      ggsave(paste0("NE103_2023_Headstart CURLEW_",nyr,"_RSF plot_",filelab,"_SITE.jpg"), width=15, height=15, units="cm", dpi=300)  ## UPDATE FILENAME
+      ggsave(paste0("NE103_",nyr,"_Headstart CURLEW_RSF plot_",filelab,"_SITE.jpg"), width=15, height=15, units="cm", dpi=300)  ## UPDATE FILENAME
       
     }
     
@@ -1762,7 +1764,7 @@ if(nyr == "2021"){
       
       # Save plot (outside of Github)
       setwd("C:/Users/hannah.hereward/Documents/Projects/2024_curlewheadstarting/curlew_headstarting/output/Figures 2025/Habitat_prop/")
-      ggsave(paste0("NE103_2023_Headstart CURLEW_",nyr,"_RSF plot_",filelab,"_TIDE.jpg"), width=15, height=15, units="cm", dpi=300)  ## UPDATE FILENAME
+      ggsave(paste0("NE103_",nyr,"_Headstart CURLEW_RSF plot_",filelab,"_TIDE.jpg"), width=15, height=15, units="cm", dpi=300)  ## UPDATE FILENAME
       
     }
     
@@ -2021,7 +2023,7 @@ if(nyr == "2021"){
     
     # Save data 
     setwd("C:/Users/hannah.hereward/Documents/Projects/2024_curlewheadstarting/curlew_headstarting/data/2025 analysis/")
-    save(rsf_coefs_hab, file=paste0("NE103_2023 report_RSF_models_cohort",nyr,"_",filelab,".RData"))
+    save(rsf_coefs_hab, file=paste0("NE103_",nyr," report_RSF_models_",cohort,"_",filelab,".RData"))
       
     
     ## Stat testing RSF - two-stage modeling ####
@@ -2040,6 +2042,7 @@ if(nyr == "2021"){
     x_out$year <- nyr
     x_out$Period <- TP
     x_out$cohort <- cohort
+    x_out$n <- as.character(x_out$n) #have to turn "n" a character as it is currently a list and it won't read out as a csv if it is still a list
     colnames(x_out)[1] <- "TagID"
     colnames(x_out)[2] <- "Habitat"
     colnames(x_out)[3] <- "Beta"
@@ -2079,7 +2082,56 @@ if(nyr == "2021"){
     ## Gary's Note - following advice from Fieberg RSF/amt course (2019) but needs considering how to better
     # carry out testing when many model fits are poor (and coefficients then include outliers)
     
+    ## RSS PLOTS #####
+    ## Set data - need: rsf_coefs_hab
     
+    ##NOTE from 2023 analysis - need to manually check for outliers and do a scale restriction if there are so there are two graphs - one with the outliers and one without.
+    
+    # Reorder factor levels
+    rsf_coefs_hab$term<- factor(rsf_coefs_hab$term, levels=c("Saltmarsh", "Coastal", "Arable", "Grassland", "Other"))
+    
+    # Set mean and sd around individual selection coefficients
+    d2a <- na.omit(rsf_coefs_hab) %>%
+      filter(term!="(Intercept)") %>% 
+      mutate(id = factor(id)) %>% group_by(term) %>%
+      summarize(
+        mean = mean(exp(estimate)),
+        ymin = mean - 1.96 * sd(exp(estimate)),
+        ymax = mean + 1.96 * sd(exp(estimate)))
+    
+    # Add column for number of factors in plot
+    d2a$x <- 1:nrow(d2a) 
+    
+    
+    options(scipen=3000000)
+    # Plot (habitat factor listed under term from model outputs)
+    rsf_coefs_hab %>% filter(term!="(Intercept)") %>%	ggplot(., ) +
+      geom_point(aes(x = term, y = exp(estimate), group = id, col = id),
+                 position = position_dodge(width = 0.7))+
+      scale_colour_viridis_d() +
+      geom_rect(mapping = aes(xmin = x - .4, xmax = x + .4, ymin = ymin,
+                              ymax = ymax), data = d2a, inherit.aes = FALSE,
+                fill = "grey90", alpha=0.5) +
+      geom_segment(mapping = aes(x = x - .4, xend = x + .4,
+                                 y = mean, yend = mean), data = d2a, inherit.aes = FALSE,
+                   linewidth = 1) +
+      geom_hline(yintercept = 0, lty = 2) +
+      labs(x = "Habitat", y = "Relative Selection Strength") +
+      #coord_cartesian(ylim=c(-10,30)) +                                         #keep this line in ONLY when need to constrain the y axis
+      theme(legend.position="none") +
+      theme(axis.text.x = element_text(size = 12),axis.text.y = element_text(size = 12),
+            axis.title.x = element_text(size = 14),axis.title.y = element_text(size = 14),
+            strip.text.x = element_text(size = 12, face="bold")) +
+      theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+            panel.background = element_blank(), axis.line = element_line(colour = "black"))+
+      ggtitle(paste0("",plotlab,"(all birds)"))   ## UPDATE MANUALLY #HH NB if cropping to ignore outliers add in (cropped - one outlier outside view)
+    
+    
+    # Save plot
+    setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/output/Figures 2025/RSS/") #HH NB laptop
+    ggsave("NE103_",nyr,"_Headtsart CURLE_RSS plot_",filelab,".jpg", width=15, height=15, units="cm", dpi=300)  ## UPDATE FILENAME
+    
+   
     
     
     }
@@ -2110,7 +2162,7 @@ x_out_wide <- x_out_wide[,c(1,3,6,4,2,5)]
 
 
 #write.csv(AUC_dat, here("output/Tables 2025/AUC_outputs.csv"), row.names=F) # this allows you to read out the output data as a csv for easiest copying to the report
-write.csv(beta_dat, here("output/Tables 2025/beta_outputs.csv"), row.names=F)  # this allows you to read out the output data as a csv for easiest copying to the report
+#write.csv(beta_dat, here("output/Tables 2025/beta_outputs.csv"), row.names=F)  # this allows you to read out the output data as a csv for easiest copying to the report
 #write.csv(mytest.contrast_dat, here("output/Tables 2025/mytests_outputs.csv"), row.names=F) # this allows you to read out the output data as a csv for easiest copying to the report
 
 
@@ -2119,9 +2171,169 @@ write.csv(beta_dat, here("output/Tables 2025/beta_outputs.csv"), row.names=F)  #
 ####.####
 
 # PLOTTING  ##HH  NB - Utilisation Distribution TIA plots - THE UK and SE for 2021 & 2022 cohorts ####
-#NOT COPIED OVER CODE YET ####
+#This is to assess if the older cohort birds are using other parts of the UK aside from the Wash which are accounted for in the avalible/used panel but not in the TIA
+#2023 - only the Breeding season (Female) had one - Rotchester
+
+#Use same colony lat and long as for the wash
+
+# Set axes limit (units m here) - trial and error to set suitable bounds. centered on the colony. units m
+
+#whole of UK
+xRa<-c(-622435.4,224987.6)
+yRa<-c(-414008.8,886812.5)
 
 
+#slight zoom in:
+xRa<-c(-622435.4,124987.6)
+yRa<-c(-314008.8,686812.5)
+
+
+#southeast of the UK
+xRa<-c(-122435.4,24987.6)
+yRa<-c(-214008.8,86812.5)
+
+####--- this is setting up new units to put lat long onto the map without re-projecting the data... not ideal but it's what Garry did before ... 
+# prepare new axes in lat/long - 
+earth <- 6378.137
+m <- (1 / ((2 * pi / 360) * earth)) /1000
+
+new_lat_lower <- round(ColLat + (min(yRa) * m),1)     ## multiply xyRa by 100 if working in p4 units km
+new_lat_upper <- round(ColLat + (max(yRa) * m),1)
+new_long_lower <- round(ColLon + (min(xRa) * m) / cos(ColLat * (pi / 180)),1)
+new_long_upper <- round(ColLon + (max(xRa) * m) / cos(ColLat * (pi / 180)),1)	
+
+lab_long<-seq(new_long_lower, new_long_upper,length.out=length(seq(min(xRa), max(xRa),by=5000)))
+lab_lat<-seq(new_lat_lower, new_lat_upper,length.out=length(seq(min(yRa), max(yRa),by=5000)))
+
+
+# Get colours
+# Get hex colours from viridis (colour blind friendly)
+#scales::viridis_pal()(3)
+#   "#440154FF" "#21908CFF" "#FDE725FF"                 # For GPS plots
+#   "#440154FF" "#31688EFF" "#35B779FF" "#FDE725FF"     # For TIA plots #four categories of the "Bins" = cut offs of the distribution, 50%, 75%, 95%, 100%
+
+
+for(y in 1:length(nyears)){
+  
+  nyr <- nyears[y]
+  
+  setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/data/2025 analysis") #HH laptop
+  load(file=paste0("NE103_",nyr," report_clean tracking data for all ",nyr," data.RData"))
+  
+  
+  #loaded as data_year. rename it:
+  data <- data_year
+
+   # "6 Winter pre-breeding" , "7 Spring fuzzy" ,
+  datasplit <- c( "8a Female Breeding Season" , "8b Male Breeding Season" ,
+                   "9a Female Autumn fuzzy","9b Male Autumn fuzzy", "10 End of December - Winter" )
+    
+  #"Winter - pre-breeding" , "Spring transition" , 
+  plotlabels <- c("Breeding season - Female" , "Breeding season - Male" ,
+                  "Autumn transition - Female","Autumn transition - Male", "Winter - post-breeding")
+  #"6_WinterPreBreed" , "7_Spring_transition" ,
+  filelabels <- c( "8a_Breeding_female" , "8b_Breeding_male" ,
+                  "9a_Autumn_transition_female","9b_Autumn_transition_male", "10_WinterPostBreed" )
+  
+  
+  
+  for(p in 1:length(datasplit)){
+    
+    TP <- datasplit[p] 
+    
+    #add this if loop in for data split label to include the correct year
+    TP <- paste0("",TP," ",nyr,"")
+
+    
+    #TIA analysis: select the specific list from the 'data' set
+    tia_dat<-data[[TP]]
+    
+    
+    #add this in so that we can add it in as a label in the file name below
+    cohort <- ("PASTCOHORT")
+    
+    #extract out the file label
+    filelab <- filelabels[p]
+    
+    #add in plot label
+    plotlab <- plotlabels[p]
+    
+    
+    #add this if loop in for plot label for july-december to include the correct year
+    plotlab <- paste0("",plotlab," ",nyr,"")
+    
+    
+    
+    ## Utilisation Distribution TIA plots####
+    #HH NB - these lines below then take each section of the data:
+    #and 1) find the boundary for the grid, 2) then create a grid with 500 as the cellsize, 
+    #3) calculate the amount of time each bird spends in each cell for a) whole population and b) individual birds 
+    # get bounds for the grid 
+    llyrb = get_bounds(tia_dat, p4s=p4) # Defaults to UK BNG p4s = sp::CRS("+init=epsg:27700") 
+    ##CHECK THAT I ACTUALLY STILL NEED p4 HERE!!!!!!!!
+    
+    # run TIA (trial and error on suitable cell size) # grid of cells. HH NB _ FYI - some of these have 'trips' removed. Chris T reckons this is because of the extra filtering and so for some points there will not be enough to do the amount of time in cell count and so they are removed
+    indata_grd <- get_TIA_grd(tia_dat, xRa=llyrb$xRa, yRa=llyrb$yRa, cellsize = 500, p4s=p4) # Laptop will not process next step if smaller grid size #Gary's code = cellsize=500
+    
+    # rank the time cumulatively for plotting for each bird. #ranks the time spent in each cell
+    grd_rank_all<- rank_time(indata_grd, population = TRUE) # Population level
+    #NOTE there are various warnings where a trip has too few data so it removed. 
+    #NOTE Error thrown up for 2023 Spring transition 2023: #error in .local cannot derive coordinates from non-numeric matrix error only for "Yf(0E)O/-:Y/m" and there are only 2 GPS fixes so that is likely to be the issue - these are now removed from data_final_final and code works
+    #NOTE Error thrown up for 2024 Winter post breeding 2024: Error in `$<-.data.frame`(`*tmp*`, "dum", value = 1) :     replacement has 1 row, data has 0.
+    ##this is for tag: "LU" but I suspect: "LJ", "LV" and "XJ" will also throw this error as they have less than 10 tracks too
+    
+    #grd_rank_birds<- rank_time(indata_grd, population = FALSE) # Individual level - currently not used
+    
+    
+    
+    # Set directory (outside of Github here)
+    dir <- "C:/Users/hannah.hereward/Documents/Projects/2024_curlewheadstarting/curlew_headstarting/output/Figures 2025/TIA/" #HH laptop directory
+    plot_name<-paste0("NE103_Headstart CURLE_TIA_",nyr,"_",cohort,"_",filelab,"_UK.tiff")
+    
+    
+    # Set plot device (saving hi-res base R maps)
+    tiff(paste0(dir,plot_name), width=25, height=23, units="cm", pointsize=18, res=600, compression ="lzw")
+    
+    #HH NB: updated as sp package was discontinued. terra used now according to plot_TIA
+    #removed: 
+    terra::plot(ukmap$geometry, xlim=xRa, ylim=yRa,col="grey80",border="grey80", axes=T, yaxt="n",  #need to specify here ukmap$geometry
+                xaxt="n", xlab="Longitude", ylab="Latitude",
+                main=paste0(plotlab))# UPDATE MANUALLY                     
+    #axis(1)
+    #axis(2)
+    axis(1, at=seq(min(xRa), max(xRa),by=5000), labels=round(lab_long,2)) 
+    axis(2, at=seq(min(yRa), max(yRa),by=5000), labels=round(lab_lat,2))
+    
+    
+    #HH NB. had error for this plot about memory. UPDATE: needed to specify the ukmap$geometry in the terra::plot above and now it works
+    # UPDATE INDIVIDUAL BETWEEN PLOTS
+    plot_TIA(data=grd_rank_all,Add=TRUE,                    # UPDATE ID SELECTION. grd_rank_all is the only one that was used by Gary before - one could put in "grd_rank_birds". BUT NOT DONE FOR THIS ANALYSIS!
+             xra=xRa, yra=yRa,
+             g_levs = c(1,0.95,0.75,0.5),
+             c_levs = c(0.95,0.75,0.5),
+             col_ramp_grd =c("#440154FF", "#31688EFF", "#35B779FF", "#FDE725FF"), #TIA colours for the 50%, 75%, 95% and 100%
+             #col_ramp_con =c("#31688EFF", "#35B779FF", "#FDE725FF"), #colours for the countour lines rather than grided 
+             cont_typ=1) # if this is 4 you can plot it outside the function and it returns an object in R 
+    
+    #HH NB. dev.off needs running to 'close' the tiff and save it - without running this bit it won't save !
+    dev.off()
+    
+    
+  }
+}
+
+
+
+####.####
+
+# NOTE ADDITIONAL CODE NOT COPIED OVER FROM 2023 headings below ####
+
+#### Misc plotting ####
+
+#### Colour ring plots (saved from interactive plot)
+
+
+#### UNUSED/TEST CODE ####
 
 
 
