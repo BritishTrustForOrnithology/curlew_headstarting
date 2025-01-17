@@ -83,7 +83,7 @@ summary(tide_dat)
 
 
 #save out this combined 4 year tide data
-#write_csv(tide_dat, "data/2025 analysis/Wash_tide_data_Bulldog_July_Nov2021_July_December_2021_2024.csv")
+#write_csv(tide_dat, here("data/2025 analysis/Wash_tide_data_Bulldog_July_Nov2021_July_December_2021_2024.csv"))
 
 
 tide_dat <- read_csv(here("data/2025 analysis/Wash_tide_data_Bulldog_July_Nov2021_July_December_2021_2024.csv")) 
@@ -617,14 +617,14 @@ data_final %>% filter(data_final$DateTime %in% excludeLV )
 
 
 #save the whole list of dates to be filtered in case I need it again:
-allexclude <- c(exclude0E, excludeLU, exclude7k, excludeLV)
+#allexclude <- c(exclude0E, excludeLU, exclude7k, excludeLV)
 #saveRDS(allexclude, here("data/2025 analysis/listofdatestoexclude_2023_2024_anlaysis.rds"))
 
-
+allexclude <- read_rds(here("data/2025 analysis/listofdatestoexclude_2023_2024_anlaysis.rds"))
 
 ###final removal of all 'exclude' fixes:####
 #exclude the rows for "OE" and "LU", "7k"
-data_final_final <- data_final %>% filter(! data_final$DateTime %in% c(exclude0E, excludeLU, exclude7k, excludeLV))
+data_final_final <- data_final %>% filter(! data_final$DateTime %in% allexclude)
 
 
 
@@ -654,6 +654,7 @@ summary(data_final_final)
 # Convert to BTOTT Track object ####
 data_tt<-Track(data_final_final) 
 data_tt<-clean_GPS(data_tt, drop_sats = 3, Thres = 30, GAP = 28800) #HH NEW NOTE 2024 analysis: GAP here constrains the function to not interpolate time in between this gap of 28800 seconds = 8 hours (chat message from Chris T 17/01/2025)
+
 #HH NB 2023 analysis: new warning messages about "flt_switch" for each bird - an error from the Track(data) function with is a BTOTT function
 #See messages from Chris T about this but the summary is it is a flag option for clean_GPS - when importing data into movebank you can add a 
 #column to tell you if it is dodgy data or not and then add a second column to clean it/remove it... as the dataset I am working with doesn't have this column
@@ -1242,7 +1243,7 @@ setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/data/2025 analysis
 load(file=paste0("NE103_",nyr," report_clean tracking data for all ",nyr," data.RData"))
 
 
-#loaded as data_2023. rename it:
+#loaded as data_year. rename it:
 data <- data_year
 
 
@@ -2193,6 +2194,35 @@ if(nyr == "2021"){
     ggsave(paste0("NE103_",nyr,"_Headtsart CURLE_RSS plot_",filelab,".jpg"), width=15, height=15, units="cm", dpi=300)  ## UPDATE FILENAME
     
    
+   
+    options(scipen=3000000)
+    # Plot (habitat factor listed under term from model outputs)
+    rsf_coefs_hab %>% filter(term!="(Intercept)") %>%	ggplot(., ) +
+      geom_point(aes(x = term, y = exp(estimate), group = id, col = id),
+                 position = position_dodge(width = 0.7))+
+      scale_colour_viridis_d() +
+      geom_rect(mapping = aes(xmin = x - .4, xmax = x + .4, ymin = ymin,
+                              ymax = ymax), data = d2a, inherit.aes = FALSE,
+                fill = "grey90", alpha=0.5) +
+      geom_segment(mapping = aes(x = x - .4, xend = x + .4,
+                                 y = mean, yend = mean), data = d2a, inherit.aes = FALSE,
+                   linewidth = 1) +
+      geom_hline(yintercept = 0, lty = 2) +
+      labs(x = "Habitat", y = "Relative Selection Strength") +
+      coord_cartesian(ylim=c(-10,30)) +                                         #keep this line in ONLY when need to constrain the y axis
+      theme(legend.position="none") +
+      theme(axis.text.x = element_text(size = 12),axis.text.y = element_text(size = 12),
+            axis.title.x = element_text(size = 14),axis.title.y = element_text(size = 14),
+            strip.text.x = element_text(size = 12, face="bold")) +
+      theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+            panel.background = element_blank(), axis.line = element_line(colour = "black"))+
+      ggtitle(paste0("",plotlab," (cropped)"))   ## UPDATE MANUALLY #HH NB if cropping to ignore outliers add in (cropped - one outlier outside view)
+    
+    
+    # Save plot
+    setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/output/Figures 2025/RSS/") #HH NB laptop
+    ggsave(paste0("NE103_",nyr,"_Headtsart CURLE_RSS plot_",filelab,"_CROPPED.jpg"), width=15, height=15, units="cm", dpi=300)  ## UPDATE FILENAME
+    
     
     
     }
@@ -2229,7 +2259,7 @@ x_out_wide <- x_out_wide[,c(1,3,6,4,2,5)]
 
 
 
-####.####
+####. ####. #### . ####  
 
 # PLOTTING  ##HH  NB - Utilisation Distribution TIA plots - THE UK and SE for 2021 & 2022 cohorts ####
 #This is to assess if the older cohort birds are using other parts of the UK aside from the Wash which are accounted for in the avalible/used panel but not in the TIA
