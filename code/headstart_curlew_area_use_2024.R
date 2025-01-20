@@ -631,6 +631,124 @@ data_final_final <- data_final %>% filter(! data_final$DateTime %in% allexclude)
 
 ###.####
 
+
+
+#trial #this uses ifelse to filter out each unique tag and release date into the different categories
+  
+data_final_final_2023 <- data_final_final %>% filter(data_final_final$DateTime >= as.POSIXct("2023-01-31 00:00:00", tz="UTC") & data_final_final$DateTime  <= as.POSIXct("2023-12-31 23:59:59", tz="UTC") )
+
+data_final_final_2023 <- data_final_final_2023 %>% filter(data_final_final_2023$year == "2023")
+
+data_final_final_2023$Period <- ifelse(data_final_final_2023$DateTime < data_final_final_2023$release_date_time, "Pre Release",
+                                ifelse(data_final_final_2023$DateTime< data_final_final_2023$Date_1d, "1 One Day",
+                                       ifelse(data_final_final_2023$DateTime < data_final_final_2023$Date_1w, "2 One Week",
+                                              ifelse(data_final_final_2023$DateTime < data_final_final_2023$Date_2w, "3 Two Weeks",
+                                                     ifelse(data_final_final_2023$DateTime < data_final_final_2023$Date_6w, "4 Six Weeks", 
+                                                            ifelse(data_final_final_2023$DateTime < as.POSIXct("2023-12-31 23:59:59", tz="UTC"), "5 End of December", "Post December"))))))
+
+summary(as.factor(data_final_final_2023$Period))
+# Set ID factor
+data_final_final_2023$TagID<-as.factor(as.character(data_final_final_2023$TagID)) 
+
+
+data_tt_2023<-Track(data_final_final_2023) 
+data_tt_2023<-clean_GPS(data_tt_2023, drop_sats = 3, Thres = 30, GAP = 28800)
+
+
+
+#THEN need to take these into account in the filtering below:
+
+#subset the data based on these Periods of time - BUT to keep the first day, first week, first two weeks in the subsequent ones they need to be combined together
+data_1d <- data_tt_2023 %>% filter(data_tt_2023$Period == "1 One Day")
+data_1d <- data_1d %>% filter(data_1d$TagID != "Yf(YN)O/-:Y/m_KenHill") %>% droplevels()
+data_1d <- data_1d %>% filter(data_1d$TagID != "Yf(YU)O/-:Y/m_KenHill") %>% droplevels()
+
+summary(as.factor(data_1d$Period))
+
+data_1d$Period <- "1 One Day"
+
+summary(as.factor(data_1d$Period))
+summary(as.factor(data_1d$TagID))
+unique(data_1d$TagID) #18
+
+
+data_1w <- data_tt_2023 %>% filter(data_tt_2023$Period == "1 One Day" | data_tt_2023$Period == "2 One Week")
+data_1w <- data_1w %>% filter(data_1w$TagID != "Yf(YN)O/-:Y/m_KenHill") %>% droplevels()
+data_1w <- data_1w %>% filter(data_1w$TagID != "Yf(YU)O/-:Y/m_KenHill") %>% droplevels()
+data_1w <- data_1w %>% filter(data_1w$TagID != "Yf(XT)O/-:Y/m_KenHill") %>% droplevels()
+
+
+summary(as.factor(data_1w$Period))
+
+data_1w$Period <- "2 One Week"
+
+summary(as.factor(data_1w$Period))
+summary(as.factor(data_1w$TagID))
+unique(data_1w$TagID) #17
+
+
+data_2 <- data_tt_2023 %>% filter(data_tt_2023$Period == "1 One Day" | data_tt_2023$Period == "2 One Week" | data_tt_2023$Period == "3 Two Weeks")
+data_2 <- data_2 %>% filter(data_2$TagID != "Yf(YN)O/-:Y/m_KenHill") %>% droplevels()
+data_2 <- data_2 %>% filter(data_2$TagID != "Yf(YU)O/-:Y/m_KenHill") %>% droplevels()
+data_2 <- data_2 %>% filter(data_2$TagID != "Yf(LA)O/-:Y/m_Sandringham") %>% droplevels()
+data_2 <- data_2 %>% filter(data_2$TagID != "Yf(XT)O/-:Y/m_KenHill") %>% droplevels()
+
+
+summary(as.factor(data_2$Period))
+
+data_2$Period <- "3 Two Weeks"
+
+summary(as.factor(data_2$Period))
+summary(as.factor(data_2$TagID))
+unique(data_2$TagID) #16
+
+
+data_6 <- data_tt_2023 %>% filter(data_tt_2023$Period == "1 One Day" | data_tt_2023$Period == "2 One Week" | data_tt_2023$Period == "3 Two Weeks" | data_tt_2023$Period == "4 Six Weeks")
+data_6 <- data_6 %>% filter(data_6$TagID != "Yf(YN)O/-:Y/m_KenHill") %>% droplevels()
+data_6 <- data_6 %>% filter(data_6$TagID != "Yf(YU)O/-:Y/m_KenHill") %>% droplevels()
+data_6 <- data_6 %>% filter(data_6$TagID != "Yf(LA)O/-:Y/m_Sandringham") %>% droplevels()
+data_6 <- data_6 %>% filter(data_6$TagID != "Yf(LP)O/-:Y/m_KenHill") %>% droplevels()
+data_6 <- data_6 %>% filter(data_6$TagID != "Yf(XT)O/-:Y/m_KenHill") %>% droplevels()
+
+summary(as.factor(data_6$Period))
+
+data_6$Period <- "4 Six Weeks"
+
+summary(as.factor(data_6$Period))
+summary(as.factor(data_6$TagID))
+unique(data_6$TagID) #15
+
+
+data_all <- data_tt_2023 %>% filter(data_tt_2023$Period == "1 One Day" | data_tt_2023$Period == "2 One Week" | 
+                                      data_tt_2023$Period == "3 Two Weeks" | data_tt_2023$Period == "4 Six Weeks" | 
+                                      data_tt_2023$Period == "5 End of December")
+data_all <- data_all %>% filter(data_all$TagID != "Yf(YN)O/-:Y/m_KenHill") %>% droplevels()
+data_all <- data_all %>% filter(data_all$TagID != "Yf(YU)O/-:Y/m_KenHill") %>% droplevels()
+data_all <- data_all %>% filter(data_all$TagID != "Yf(LA)O/-:Y/m_Sandringham") %>% droplevels()
+data_all <- data_all %>% filter(data_all$TagID != "Yf(LP)O/-:Y/m_KenHill") %>% droplevels()
+data_all <- data_all %>% filter(data_all$TagID != "Yf(YX)O/-:Y/m_Sandringham") %>% droplevels()
+data_all <- data_all %>% filter(data_all$TagID != "Yf(XU)O/-:Y/m_KenHill") %>% droplevels()
+data_all <- data_all %>% filter(data_all$TagID != "Yf(XT)O/-:Y/m_KenHill") %>% droplevels()
+
+summary(as.factor(data_all$Period))
+
+data_all$Period <- "5 End of December"
+
+summary(data_all$DateTime)
+summary(as.factor(data_all$Period))
+summary(as.factor(data_all$TagID))
+unique(data_all$TagID) #13
+
+
+
+data_2023cohort<-Track2TrackMultiStack(rbind(data_1d, data_1w, data_2, data_6, data_all), by=c("TagID", "Period"))
+data_2023cohort
+
+
+
+
+
+
 ###Once all the tweaking is done - save this out as the final dataset!  ####
 #saveRDS(data_final_final, (here("data/2025 analysis/data_withcohorts_release_sites_tagduration_2021_2024.rds")))
 
@@ -2177,6 +2295,12 @@ if(nyr == "2021"){
     
     ## RSS PLOTS #####
     ## Set data - need: rsf_coefs_hab
+    #read data back in
+    # Save data 
+    setwd("C:/Users/hannah.hereward/Documents/Projects/2024_curlewheadstarting/curlew_headstarting/data/2025 analysis/")
+    load(file=paste0("NE103_",nyr," report_RSF_models_",cohort,"_",filelab,".RData"))
+    
+    
     
     ##NOTE from 2023 analysis - need to manually check for outliers and do a scale restriction if there are so there are two graphs - one with the outliers and one without.
     
@@ -2222,7 +2346,7 @@ if(nyr == "2021"){
     
     # Save plot
     setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/output/Figures 2025/RSS/") #HH NB laptop
-    ggsave(paste0("NE103_",nyr,"_Headtsart CURLE_RSS plot_",filelab,".jpg"), width=15, height=15, units="cm", dpi=300)  ## UPDATE FILENAME
+    ggsave(paste0("NE103_",nyr,"_Headtsart CURLE_RSS plot_",filelab,".png"), width=15, height=15, units="cm", dpi=300)  ## UPDATE FILENAME
     
    
    
@@ -2252,7 +2376,7 @@ if(nyr == "2021"){
     
     # Save plot
     setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/output/Figures 2025/RSS/") #HH NB laptop
-    ggsave(paste0("NE103_",nyr,"_Headtsart CURLE_RSS plot_",filelab,"_CROPPED.jpg"), width=15, height=15, units="cm", dpi=300)  ## UPDATE FILENAME
+    ggsave(paste0("NE103_",nyr,"_Headtsart CURLE_RSS plot_",filelab,"_CROPPED.png"), width=15, height=15, units="cm", dpi=300)  ## UPDATE FILENAME
     
     
     
