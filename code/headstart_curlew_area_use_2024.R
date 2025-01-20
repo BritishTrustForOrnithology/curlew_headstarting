@@ -1472,11 +1472,42 @@ if(nyr == "2021"){
   
   datasplit <- c("1 One Day" ,"2 One Week" ,"3 Two Weeks" , "4 Six Weeks" ,"5 End of December")
   
-}else{
+  plotlabels <- c("One day post-release" ,"One week post-release" ,"Two weeks post-release" , "Six weeks post-release" ,"July-December" )
+  
+  filelabels <- c("1_OneDay" ,"2_OneWeek" ,"3_TwoWeeks" , "4_SixWeeks" ,"5_July_December" )
+  
+  
+  
+}else if(nyr == "2022"){
+  
+  datasplit <- c("1 One Day" ,"2 One Week" ,"3 Two Weeks" , "4 Six Weeks" ,"5 End of December" ,
+                 "6 Winter pre-breeding" , "7 Spring fuzzy" , "8a Female Breeding Season" , 
+                 "9a Female Autumn fuzzy", "10 End of December - Winter" )
+  
+  plotlabels <- c("One day post-release" ,"One week post-release" ,"Two weeks post-release" , "Six weeks post-release" ,"July-December" ,
+                  "Winter - pre-breeding" , "Spring transition" , "Breeding season - Female" , 
+                  "Autumn transition - Female", "Winter - post-breeding")
+  
+  filelabels <- c("1_OneDay" ,"2_OneWeek" ,"3_TwoWeeks" , "4_SixWeeks" ,"5_July_December" ,
+                  "6_WinterPreBreed" , "7_Spring_transition" , "8a_Breeding_female" ,
+                  "9a_Autumn_transition_female", "10_WinterPostBreed" )
+  
+  
+  
+  
+} else {
   
   datasplit <- c("1 One Day" ,"2 One Week" ,"3 Two Weeks" , "4 Six Weeks" ,"5 End of December" ,
                  "6 Winter pre-breeding" , "7 Spring fuzzy" , "8a Female Breeding Season" , "8b Male Breeding Season" ,
                  "9a Female Autumn fuzzy","9b Male Autumn fuzzy", "10 End of December - Winter" )
+  
+  plotlabels <- c("One day post-release" ,"One week post-release" ,"Two weeks post-release" , "Six weeks post-release" ,"July-December" ,
+                  "Winter - pre-breeding" , "Spring transition" , "Breeding season - Female" , "Breeding season - Male" ,
+                  "Autumn transition - Female","Autumn transition - Male", "Winter - post-breeding")
+  
+  filelabels <- c("1_OneDay" ,"2_OneWeek" ,"3_TwoWeeks" , "4_SixWeeks" ,"5_July_December" ,
+                  "6_WinterPreBreed" , "7_Spring_transition" , "8a_Breeding_female" , "8b_Breeding_male" ,
+                  "9a_Autumn_transition_female","9b_Autumn_transition_male", "10_WinterPostBreed" )
   
   
   
@@ -1608,7 +1639,7 @@ if(nyr == "2021"){
     #table to check the count of fixes 
     test <- trk %>% group_by(id) %>% count()
     
-    #if loop added because "9L" is mostly in France but has one fix in the UK so has one habitat point. Because of having a lot of other fixes it has not been filtered and remains in the dataset
+    #if loop added because "9L" is mostly in France but has one fix in the UK so has one habitat point (Female spring fuzzy 2024). Because of having a lot of other fixes it has not been filtered and remains in the dataset
       #INSTEAD I COULD FILTER IT FROM THE DATA SET??????
     if(min(test$n) <2){
       
