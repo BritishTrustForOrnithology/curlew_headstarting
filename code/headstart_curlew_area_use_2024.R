@@ -635,7 +635,7 @@ data_final_final <- data_final %>% filter(! data_final$DateTime %in% allexclude)
 
 #trial #this uses ifelse to filter out each unique tag and release date into the different categories
   
-data_final_final_2023 <- data_final_final %>% filter(data_final_final$DateTime >= as.POSIXct("2023-01-31 00:00:00", tz="UTC") & data_final_final$DateTime  <= as.POSIXct("2023-12-31 23:59:59", tz="UTC") )
+data_final_final_2023 <- data_final_final %>% filter(data_final_final$DateTime > as.POSIXct("2022-12-31 23:59:59", tz="UTC") & data_final_final$DateTime  <= as.POSIXct("2023-12-31 23:59:59", tz="UTC") )
 
 data_final_final_2023 <- data_final_final_2023 %>% filter(data_final_final_2023$year == "2023")
 
