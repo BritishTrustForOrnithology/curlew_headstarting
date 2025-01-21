@@ -639,6 +639,12 @@ data_final_final_2023 <- data_final_final %>% filter(data_final_final$DateTime >
 
 data_final_final_2023 <- data_final_final_2023 %>% filter(data_final_final_2023$year == "2023")
 
+
+#update all the date time columns for 1 day, 1 week, 2 weeks, 6 weeks, end of Dec
+data_final_final_2023$Date_1d <- as.POSIXct(data_final_final_2023$Date_1d, format = "%Y-%m-%d %H:%M:%S", tz="UTC")
+
+
+
 data_final_final_2023$Period <- ifelse(data_final_final_2023$DateTime < data_final_final_2023$release_date_time, "Pre Release",
                                 ifelse(data_final_final_2023$DateTime< data_final_final_2023$Date_1d, "1 One Day",
                                        ifelse(data_final_final_2023$DateTime < data_final_final_2023$Date_1w, "2 One Week",
@@ -768,10 +774,19 @@ data_final_final <- readRDS(here("data/2025 analysis/data_withcohorts_release_si
 
 summary(data_final_final)
 
+#update all the date time columns for 1 day, 1 week, 2 weeks, 6 weeks, end of Dec
+data_final_final$Date_1d <- as.POSIXct(data_final_final$Date_1d, format = "%Y-%m-%d %H:%M:%S", tz="UTC")
+data_final_final$Date_1w <- as.POSIXct(data_final_final$Date_1w, format = "%Y-%m-%d %H:%M:%S", tz="UTC")
+data_final_final$Date_2w <- as.POSIXct(data_final_final$Date_2w, format = "%Y-%m-%d %H:%M:%S", tz="UTC")
+data_final_final$Date_6w <- as.POSIXct(data_final_final$Date_6w, format = "%Y-%m-%d %H:%M:%S", tz="UTC")
+
+
 
 # Convert to BTOTT Track object ####
-data_tt<-Track(data_final_final) 
-data_tt<-clean_GPS(data_tt, drop_sats = 3, Thres = 30, GAP = 28800) #HH NEW NOTE 2024 analysis: GAP here constrains the function to not interpolate time in between this gap of 28800 seconds = 8 hours (chat message from Chris T 17/01/2025)
+#HH UPDATE NOTE 21/01/2025 for some reason when it is converted to tracks it looses the as.POSIXct on the Date_1d, Date_1w etc... so moving this into the loop
+
+#data_tt<-Track(data_final_final) 
+#data_tt<-clean_GPS(data_tt, drop_sats = 3, Thres = 30, GAP = 28800) #HH NEW NOTE 2024 analysis: GAP here constrains the function to not interpolate time in between this gap of 28800 seconds = 8 hours (chat message from Chris T 17/01/2025)
 
 #HH NB 2023 analysis: new warning messages about "flt_switch" for each bird - an error from the Track(data) function with is a BTOTT function
 #See messages from Chris T about this but the summary is it is a flag option for clean_GPS - when importing data into movebank you can add a 
@@ -780,10 +795,10 @@ data_tt<-clean_GPS(data_tt, drop_sats = 3, Thres = 30, GAP = 28800) #HH NEW NOTE
 
 
 # Set ID factor
-data_tt$TagID<-as.factor(as.character(data_tt$TagID)) 
+#data_tt$TagID<-as.factor(as.character(data_tt$TagID)) 
 
 #try plotting all the data
-plot(data_tt$longitude, data_tt$latitude)
+#plot(data_tt$longitude, data_tt$latitude)
 
 
 
@@ -870,6 +885,15 @@ for(y in 1:length(nyears)){
     summary_dat$number_birds[summary_dat$year == nyr & summary_dat$pastcohort_behaviours == "1 One Day"] <- length(levels(data_1d$TagID))
     
     
+    #turn it into a Track using BTOTT
+    data_1d_tt <-Track(data_1d) 
+    data_1d_tt<-clean_GPS(data_1d_tt, drop_sats = 3, Thres = 30, GAP = 28800) #HH NEW NOTE 2024 analysis: GAP here constrains the function to not interpolate time in between this gap of 28800 seconds = 8 hours (chat message from Chris T 17/01/2025)
+    
+    # Set ID factor
+    data_1d_tt$TagID<-as.factor(as.character(data_1d_tt$TagID)) 
+    
+    
+    
   #one week - filters data to just one week after release but removing the birds that were only in one day category
   data_1w <- dat.in_cohort %>%
     filter(dat.in_cohort$DateTime >= dat.in_cohort$release_date_posi & dat.in_cohort$DateTime <= dat.in_cohort$Date_1w) %>%
@@ -890,6 +914,15 @@ for(y in 1:length(nyears)){
   
   #add the number of birds into the summary table
   summary_dat$number_birds[summary_dat$year == nyr & summary_dat$pastcohort_behaviours == "2 One Week"] <- length(levels(data_1w$TagID))
+  
+  
+  #turn it into a Track using BTOTT
+  data_1w_tt <-Track(data_1w) 
+  data_1w_tt<-clean_GPS(data_1w_tt, drop_sats = 3, Thres = 30, GAP = 28800) #HH NEW NOTE 2024 analysis: GAP here constrains the function to not interpolate time in between this gap of 28800 seconds = 8 hours (chat message from Chris T 17/01/2025)
+  
+  # Set ID factor
+  data_1w_tt$TagID<-as.factor(as.character(data_1w_tt$TagID)) 
+  
   
   
   #two weeks - filters data to just two weeks after release but removes the birds that were only in one day and one week categories
@@ -916,6 +949,15 @@ for(y in 1:length(nyears)){
   
   
   
+  #turn it into a Track using BTOTT
+  data_2_tt <-Track(data_2) 
+  data_2_tt<-clean_GPS(data_2_tt, drop_sats = 3, Thres = 30, GAP = 28800) #HH NEW NOTE 2024 analysis: GAP here constrains the function to not interpolate time in between this gap of 28800 seconds = 8 hours (chat message from Chris T 17/01/2025)
+  
+  # Set ID factor
+  data_2_tt$TagID<-as.factor(as.character(data_2_tt$TagID)) 
+  
+  
+  
   #six weeks - filters data to six weeks post release, but removes the birds that were only in one day and one week and two week categories
   data_6 <- dat.in_cohort %>% 
     filter(DateTime >= release_date_posi & DateTime <= Date_6w)  %>% 
@@ -937,6 +979,17 @@ for(y in 1:length(nyears)){
 
   #add the number of birds into the summary table
   summary_dat$number_birds[summary_dat$year == nyr & summary_dat$pastcohort_behaviours == "4 Six Weeks"] <- length(levels(data_6$TagID))
+  
+  
+  
+  #turn it into a Track using BTOTT
+  data_6_tt <-Track(data_6) 
+  data_6_tt<-clean_GPS(data_6_tt, drop_sats = 3, Thres = 30, GAP = 28800) #HH NEW NOTE 2024 analysis: GAP here constrains the function to not interpolate time in between this gap of 28800 seconds = 8 hours (chat message from Chris T 17/01/2025)
+  
+  # Set ID factor
+  data_6_tt$TagID<-as.factor(as.character(data_6_tt$TagID)) 
+  
+  
   
   
   #This combines all data up until the end of December- HH to check this is correct - data regardless of when the data stopped = YES
@@ -969,10 +1022,21 @@ for(y in 1:length(nyears)){
   
   
   
+  #turn it into a Track using BTOTT
+  data_all_tt <-Track(data_all) 
+  data_all_tt<-clean_GPS(data_all_tt, drop_sats = 3, Thres = 30, GAP = 28800) #HH NEW NOTE 2024 analysis: GAP here constrains the function to not interpolate time in between this gap of 28800 seconds = 8 hours (chat message from Chris T 17/01/2025)
+
+  # Set ID factor
+  data_all_tt$TagID<-as.factor(as.character(data_all_tt$TagID)) 
+  
+  
+  
+  
   
   # Final merge for the current year cohort #####
-  data_cohort<-Track2TrackMultiStack(rbind(data_1d, data_1w, data_2, data_6, data_all), by=c("TagID", "period"))
+  data_cohort<-Track2TrackMultiStack(rbind(data_1d_tt, data_1w_tt, data_2_tt, data_6_tt, data_all_tt), by=c("TagID", "period"))
   data_cohort
+  
   
   
   # Save
@@ -1045,6 +1109,13 @@ for(y in 1:length(nyears)){
       #add the number of birds into the summary table
       summary_dat$number_birds[summary_dat$sex == "F" & summary_dat$label_year == periods_F] <- length(levels(Data_W_PreB_F$TagID))
       
+      
+      #turn it into a Track using BTOTT
+      data_all_tt <-Track(data_all) 
+      data_all_tt<-clean_GPS(data_all_tt, drop_sats = 3, Thres = 30, GAP = 28800) #HH NEW NOTE 2024 analysis: GAP here constrains the function to not interpolate time in between this gap of 28800 seconds = 8 hours (chat message from Chris T 17/01/2025)
+      
+      # Set ID factor
+      data_all_tt$TagID<-as.factor(as.character(data_all_tt$TagID)) 
       
       
       
@@ -1574,6 +1645,8 @@ filelabels <- c("1_OneDay" ,"2_OneWeek" ,"3_TwoWeeks" , "4_SixWeeks" ,"5_July_De
 nyears <- c("2021", "2022", "2023", "2024")
 
 
+#ADD IN HERE A SET SEED ######
+
 for(y in 1:length(nyears)){
 
 nyr <- nyears[y]
@@ -1781,7 +1854,7 @@ if(nyr == "2021"){
     #HH NB - for Yf(0E)O/-:Y/m only has two fixes in this time period and so is removed for this part of the analysis
     #ONLY USE THIS CODE FOR '8' = Spring Transition:  trk <- trk %>% filter(trk$id!= "Yf(0E)O/-:Y/m")
     
-    
+    set.seed(c(1,2,3,4))
     avail.pts <- trk %>%  nest(data=-c("id", "tide", "cohort", "release")) %>% 
       mutate(rnd_pts = map(data, ~ random_points(., factor = 20, type="random"))) %>% 	
       select(id, tide,cohort,release, rnd_pts) %>%  # you don't want to have the original point twice, hence drop data
@@ -1806,7 +1879,7 @@ if(nyr == "2021"){
     #create the file 
     #jpeg(file="C:/Users/hannah.hereward/Documents/Projects/2024_curlewheadstarting/curlew_headstarting/output/Figures 2025/NE103_Headstart CURLEW_2024_APPENDIXplot_8a_Breeding_F.jpg", width=15, height=15, units="cm", res=300)
     #run the plot
-    #plot(avail.pts[avail.pts$id=="Yf(9J)O/-:Y/m_KenHill",])
+    #plot(avail.pts[avail.pts$id=="Yf(XT)O/-:Y/m_KenHill",])
     #close the file
     #dev.off() 
     
