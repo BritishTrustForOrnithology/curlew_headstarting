@@ -1117,7 +1117,8 @@ trk<-trk %>% filter(speed<4)
 #HH NB - for Yf(0E)O/-:Y/m only has two fixes in this time period and so is removed for this part of the analysis
 #ONLY USE THIS CODE FOR '8' = Spring Transition:  trk <- trk %>% filter(trk$id!= "Yf(0E)O/-:Y/m")
 
-
+#set.seed() added here 21/01/2025 to check the new code for 2024 analysis and this code from 2023 analysis produced the same results 
+#set.seed(c(1,2,3,4))
 avail.pts <- trk %>%  nest(data=-c("id", "tide", "cohort", "release")) %>% 
   mutate(rnd_pts = map(data, ~ random_points(., factor = 20, type="random"))) %>% 	
   select(id, tide,cohort,release, rnd_pts) %>%  # you don't want to have the original point twice, hence drop data
