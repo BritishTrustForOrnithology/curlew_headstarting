@@ -269,6 +269,8 @@ summary(data)
 ##save data out ####
 #saveRDS(data, here("data/2025 analysis/data_withcohorts_release_sites_2021_2024.rds"))
 
+#read back in
+#data <- readRDS(here("data/2025 analysis/data_withcohorts_release_sites_2021_2024.rds"))
 
 
 ####.####
@@ -327,7 +329,7 @@ past_cohort_behavs <- read.csv(here("data/pastcohort_behaviours_maxdates.csv"), 
 past_cohort_behavs$label_year <- paste(past_cohort_behavs$pastcohort_behaviours, past_cohort_behavs$year)
 
 #make the date time column a posi
-past_cohort_behavs$maxdate_pastcohort_behav <- as.POSIXct(past_cohort_behavs$maxdate_pastcohort_behav, format = "%d/%m/%Y %H:%M", tz="UTC")
+past_cohort_behavs$maxdate_pastcohort_behav <- as.POSIXct(past_cohort_behavs$maxdate_pastcohort_behav, format = "%d/%m/%Y %H:%M:%S", tz="UTC")
 
 
 
@@ -479,6 +481,8 @@ for(i in 1:nrow(dt_meta_gsp_TagID_update)){
 #save the meta data out:
 #write.csv(dt_meta_gsp_TagID_update, here("data/2025 analysis/metadata_TagID_deaddates_notransmision_behaviourdates_2021_2024.csv"), row.names = F)
 
+#read it back in if needed:
+#dt_meta_gsp_TagID_update <- read.csv(here("data/2025 analysis/metadata_TagID_deaddates_notransmision_behaviourdates_2021_2024.csv"), header = T)
 
 #create a sub-table to check we're happy with the final categories:
 #colnames(dt_meta_gsp_TagID_update)
@@ -495,6 +499,8 @@ colnames(checktable)
 
 #update the column so that they are both datetime
 data$dead_no_t_date_time <- as.POSIXct(data$dead_no_t_date_time, format = "%Y-%m-%d", usetz=T, tz="UTC")
+dt_meta_gsp_TagID_update$dead_no_t_date_time <- as.POSIXct(dt_meta_gsp_TagID_update$dead_no_t_date_time, format = "%Y-%m-%d", usetz=T, tz="UTC")
+
 
 # full join to the data_tt file
 colna <- colnames(data[c(17:47)])
@@ -559,7 +565,15 @@ exclude0E <- (data$`7 Spring fuzzy 2023`$`Yf(0E)O/-:Y/m`$DateTime)
 data_final %>% filter(data_final$DateTime %in% exclude0E)
 
 
+#one more bird has come up (22/01/2025) that needs removing for End of Decemter 2023 winter - "9J" 
+#testtable_2023_3 <- data.frame(Data_W_AfterB_M) %>% 
+#  group_by(flag_id) %>% 
+#  count()
 
+exclude9J <- (Data_W_AfterB_M$DateTime[Data_W_AfterB_M$flag_id=="9J"])
+
+#check these are definitely all LU timesdates
+data_final_final %>% filter(data_final_final$DateTime %in% exclude9J)
 
 
 ###2024 year data ####
@@ -620,139 +634,33 @@ data_final %>% filter(data_final$DateTime %in% excludeLV )
 #allexclude <- c(exclude0E, excludeLU, exclude7k, excludeLV)
 #saveRDS(allexclude, here("data/2025 analysis/listofdatestoexclude_2023_2024_anlaysis.rds"))
 
+#allexclude <- read_rds(here("data/2025 analysis/listofdatestoexclude_2023_2024_anlaysis.rds"))
+
+#add in 9J for winter post breeding 2024 
+#allexclude <- c(allexclude, exclude9J)
+
+
+#saveRDS(allexclude, here("data/2025 analysis/listofdatestoexclude_2023_2024_anlaysis.rds"))
+
 allexclude <- read_rds(here("data/2025 analysis/listofdatestoexclude_2023_2024_anlaysis.rds"))
+
+
+
 
 ###final removal of all 'exclude' fixes:####
 #exclude the rows for "OE" and "LU", "7k"
 data_final_final <- data_final %>% filter(! data_final$DateTime %in% allexclude)
 
 
+### final tweaking to check how many fixes there were in Dec 2024 after 7th because this is when the sensor stopped working on the tide bouy
+
+dec2024fixes <- data_final_final %>% filter(DateTime > "2024-12-07" )
+
+dec2024fixes %>%
+  group_by(flag_id) %>% count()
 
 
 ###.####
-
-
-
-#trial #this uses ifelse to filter out each unique tag and release date into the different categories
-  
-data_final_final_2023 <- data_final_final %>% filter(data_final_final$DateTime > as.POSIXct("2022-12-31 23:59:59", tz="UTC") & data_final_final$DateTime  <= as.POSIXct("2023-12-31 23:59:59", tz="UTC") )
-
-data_final_final_2023 <- data_final_final_2023 %>% filter(data_final_final_2023$year == "2023")
-
-
-#update all the date time columns for 1 day, 1 week, 2 weeks, 6 weeks, end of Dec
-data_final_final_2023$Date_1d <- as.POSIXct(data_final_final_2023$Date_1d, format = "%Y-%m-%d %H:%M:%S", tz="UTC")
-
-
-
-data_final_final_2023$Period <- ifelse(data_final_final_2023$DateTime < data_final_final_2023$release_date_time, "Pre Release",
-                                ifelse(data_final_final_2023$DateTime< data_final_final_2023$Date_1d, "1 One Day",
-                                       ifelse(data_final_final_2023$DateTime < data_final_final_2023$Date_1w, "2 One Week",
-                                              ifelse(data_final_final_2023$DateTime < data_final_final_2023$Date_2w, "3 Two Weeks",
-                                                     ifelse(data_final_final_2023$DateTime < data_final_final_2023$Date_6w, "4 Six Weeks", 
-                                                            ifelse(data_final_final_2023$DateTime < as.POSIXct("2023-12-31 23:59:59", tz="UTC"), "5 End of December", "Post December"))))))
-
-summary(as.factor(data_final_final_2023$Period))
-# Set ID factor
-data_final_final_2023$TagID<-as.factor(as.character(data_final_final_2023$TagID)) 
-
-
-data_tt_2023<-Track(data_final_final_2023) 
-data_tt_2023<-clean_GPS(data_tt_2023, drop_sats = 3, Thres = 30, GAP = 28800)
-
-
-
-#THEN need to take these into account in the filtering below:
-
-#subset the data based on these Periods of time - BUT to keep the first day, first week, first two weeks in the subsequent ones they need to be combined together
-data_1d <- data_tt_2023 %>% filter(data_tt_2023$Period == "1 One Day")
-data_1d <- data_1d %>% filter(data_1d$TagID != "Yf(YN)O/-:Y/m_KenHill") %>% droplevels()
-data_1d <- data_1d %>% filter(data_1d$TagID != "Yf(YU)O/-:Y/m_KenHill") %>% droplevels()
-
-summary(as.factor(data_1d$Period))
-
-data_1d$Period <- "1 One Day"
-
-summary(as.factor(data_1d$Period))
-summary(as.factor(data_1d$TagID))
-unique(data_1d$TagID) #18
-
-
-data_1w <- data_tt_2023 %>% filter(data_tt_2023$Period == "1 One Day" | data_tt_2023$Period == "2 One Week")
-data_1w <- data_1w %>% filter(data_1w$TagID != "Yf(YN)O/-:Y/m_KenHill") %>% droplevels()
-data_1w <- data_1w %>% filter(data_1w$TagID != "Yf(YU)O/-:Y/m_KenHill") %>% droplevels()
-data_1w <- data_1w %>% filter(data_1w$TagID != "Yf(XT)O/-:Y/m_KenHill") %>% droplevels()
-
-
-summary(as.factor(data_1w$Period))
-
-data_1w$Period <- "2 One Week"
-
-summary(as.factor(data_1w$Period))
-summary(as.factor(data_1w$TagID))
-unique(data_1w$TagID) #17
-
-
-data_2 <- data_tt_2023 %>% filter(data_tt_2023$Period == "1 One Day" | data_tt_2023$Period == "2 One Week" | data_tt_2023$Period == "3 Two Weeks")
-data_2 <- data_2 %>% filter(data_2$TagID != "Yf(YN)O/-:Y/m_KenHill") %>% droplevels()
-data_2 <- data_2 %>% filter(data_2$TagID != "Yf(YU)O/-:Y/m_KenHill") %>% droplevels()
-data_2 <- data_2 %>% filter(data_2$TagID != "Yf(LA)O/-:Y/m_Sandringham") %>% droplevels()
-data_2 <- data_2 %>% filter(data_2$TagID != "Yf(XT)O/-:Y/m_KenHill") %>% droplevels()
-
-
-summary(as.factor(data_2$Period))
-
-data_2$Period <- "3 Two Weeks"
-
-summary(as.factor(data_2$Period))
-summary(as.factor(data_2$TagID))
-unique(data_2$TagID) #16
-
-
-data_6 <- data_tt_2023 %>% filter(data_tt_2023$Period == "1 One Day" | data_tt_2023$Period == "2 One Week" | data_tt_2023$Period == "3 Two Weeks" | data_tt_2023$Period == "4 Six Weeks")
-data_6 <- data_6 %>% filter(data_6$TagID != "Yf(YN)O/-:Y/m_KenHill") %>% droplevels()
-data_6 <- data_6 %>% filter(data_6$TagID != "Yf(YU)O/-:Y/m_KenHill") %>% droplevels()
-data_6 <- data_6 %>% filter(data_6$TagID != "Yf(LA)O/-:Y/m_Sandringham") %>% droplevels()
-data_6 <- data_6 %>% filter(data_6$TagID != "Yf(LP)O/-:Y/m_KenHill") %>% droplevels()
-data_6 <- data_6 %>% filter(data_6$TagID != "Yf(XT)O/-:Y/m_KenHill") %>% droplevels()
-
-summary(as.factor(data_6$Period))
-
-data_6$Period <- "4 Six Weeks"
-
-summary(as.factor(data_6$Period))
-summary(as.factor(data_6$TagID))
-unique(data_6$TagID) #15
-
-
-data_all <- data_tt_2023 %>% filter(data_tt_2023$Period == "1 One Day" | data_tt_2023$Period == "2 One Week" | 
-                                      data_tt_2023$Period == "3 Two Weeks" | data_tt_2023$Period == "4 Six Weeks" | 
-                                      data_tt_2023$Period == "5 End of December")
-data_all <- data_all %>% filter(data_all$TagID != "Yf(YN)O/-:Y/m_KenHill") %>% droplevels()
-data_all <- data_all %>% filter(data_all$TagID != "Yf(YU)O/-:Y/m_KenHill") %>% droplevels()
-data_all <- data_all %>% filter(data_all$TagID != "Yf(LA)O/-:Y/m_Sandringham") %>% droplevels()
-data_all <- data_all %>% filter(data_all$TagID != "Yf(LP)O/-:Y/m_KenHill") %>% droplevels()
-data_all <- data_all %>% filter(data_all$TagID != "Yf(YX)O/-:Y/m_Sandringham") %>% droplevels()
-data_all <- data_all %>% filter(data_all$TagID != "Yf(XU)O/-:Y/m_KenHill") %>% droplevels()
-data_all <- data_all %>% filter(data_all$TagID != "Yf(XT)O/-:Y/m_KenHill") %>% droplevels()
-
-summary(as.factor(data_all$Period))
-
-data_all$Period <- "5 End of December"
-
-summary(data_all$DateTime)
-summary(as.factor(data_all$Period))
-summary(as.factor(data_all$TagID))
-unique(data_all$TagID) #13
-
-
-
-data_2023cohort<-Track2TrackMultiStack(rbind(data_1d, data_1w, data_2, data_6, data_all), by=c("TagID", "Period"))
-data_2023cohort
-
-
-
-
 
 
 ###Once all the tweaking is done - save this out as the final dataset!  ####
@@ -779,6 +687,19 @@ data_final_final$Date_1d <- as.POSIXct(data_final_final$Date_1d, format = "%Y-%m
 data_final_final$Date_1w <- as.POSIXct(data_final_final$Date_1w, format = "%Y-%m-%d %H:%M:%S", tz="UTC")
 data_final_final$Date_2w <- as.POSIXct(data_final_final$Date_2w, format = "%Y-%m-%d %H:%M:%S", tz="UTC")
 data_final_final$Date_6w <- as.POSIXct(data_final_final$Date_6w, format = "%Y-%m-%d %H:%M:%S", tz="UTC")
+data_final_final$release_date_posi <- as.POSIXct(data_final_final$release_date_posi, format = "%Y-%m-%d", tz="UTC")
+
+
+
+#read in csv which summaries all the categories for past cohort behaviours and max dates
+past_cohort_behavs <- read.csv(here("data/pastcohort_behaviours_maxdates.csv"), header=T)
+
+#add in a unique label ID
+past_cohort_behavs$label_year <- paste(past_cohort_behavs$pastcohort_behaviours, past_cohort_behavs$year)
+
+#make the date time column a posi
+past_cohort_behavs$maxdate_pastcohort_behav <- as.POSIXct(past_cohort_behavs$maxdate_pastcohort_behav, format = "%d/%m/%Y %H:%M:%S", tz="UTC")
+
 
 
 
@@ -803,6 +724,19 @@ data_final_final$Date_6w <- as.POSIXct(data_final_final$Date_6w, format = "%Y-%m
 
 
 #NEXT create separate files per year - for cohort released and remaining from previous cohorts, all the split by stage ####
+
+#Using the same name as the code already set up:
+data_tt <- data_final_final
+
+#update all the date time columns for 1 day, 1 week, 2 weeks, 6 weeks, end of Dec
+data_tt$Date_1d <- as.POSIXct(data_tt$Date_1d, format = "%Y-%m-%d %H:%M:%S", tz="UTC")
+data_tt$Date_1w <- as.POSIXct(data_tt$Date_1w, format = "%Y-%m-%d %H:%M:%S", tz="UTC")
+data_tt$Date_2w <- as.POSIXct(data_tt$Date_2w, format = "%Y-%m-%d %H:%M:%S", tz="UTC")
+data_tt$Date_6w <- as.POSIXct(data_tt$Date_6w, format = "%Y-%m-%d %H:%M:%S", tz="UTC")
+data_tt$release_date_posi <- as.POSIXct(data_tt$release_date_posi, format = "%Y-%m-%d", tz="UTC")
+
+
+
 
 nyears <- c("2021", "2022", "2023", "2024")
 cohort_periods <- c("1 One Day"  ,  "2 One Week"  , "3 Two Weeks" ,  "4 Six Weeks"   , "5 End of December" )
@@ -882,7 +816,7 @@ for(y in 1:length(nyears)){
     data_1d$period <- "1 One Day"
     
     #add the number of birds into the summary table
-    summary_dat$number_birds[summary_dat$year == nyr & summary_dat$pastcohort_behaviours == "1 One Day"] <- length(levels(data_1d$TagID))
+    summary_dat$number_birds[summary_dat$year == nyr & summary_dat$pastcohort_behaviours == "1 One Day"] <- length(unique(data_1d$TagID))
     
     
     #turn it into a Track using BTOTT
@@ -913,7 +847,7 @@ for(y in 1:length(nyears)){
   
   
   #add the number of birds into the summary table
-  summary_dat$number_birds[summary_dat$year == nyr & summary_dat$pastcohort_behaviours == "2 One Week"] <- length(levels(data_1w$TagID))
+  summary_dat$number_birds[summary_dat$year == nyr & summary_dat$pastcohort_behaviours == "2 One Week"] <- length(unique(data_1w$TagID))
   
   
   #turn it into a Track using BTOTT
@@ -945,7 +879,7 @@ for(y in 1:length(nyears)){
   
   
   #add the number of birds into the summary table
-  summary_dat$number_birds[summary_dat$year == nyr & summary_dat$pastcohort_behaviours == "3 Two Weeks"] <- length(levels(data_2$TagID))
+  summary_dat$number_birds[summary_dat$year == nyr & summary_dat$pastcohort_behaviours == "3 Two Weeks"] <- length(unique(data_2$TagID))
   
   
   
@@ -978,7 +912,7 @@ for(y in 1:length(nyears)){
   
 
   #add the number of birds into the summary table
-  summary_dat$number_birds[summary_dat$year == nyr & summary_dat$pastcohort_behaviours == "4 Six Weeks"] <- length(levels(data_6$TagID))
+  summary_dat$number_birds[summary_dat$year == nyr & summary_dat$pastcohort_behaviours == "4 Six Weeks"] <- length(unique(data_6$TagID))
   
   
   
@@ -1018,7 +952,7 @@ for(y in 1:length(nyears)){
   
 
   #add the number of birds into the summary table
-  summary_dat$number_birds[summary_dat$year == nyr & summary_dat$pastcohort_behaviours == "5 End of December"] <- length(levels(data_all$TagID))
+  summary_dat$number_birds[summary_dat$year == nyr & summary_dat$pastcohort_behaviours == "5 End of December"] <- length(unique(data_all$TagID))
   
   
   
@@ -1055,14 +989,16 @@ for(y in 1:length(nyears)){
   
   summary(dat.in_pastcohort$year)
   summary(dat.in_pastcohort$DateTime)
-  summary(dat.in_pastcohort$TagID)
+  table(unique(dat.in_pastcohort$TagID))
   
   
   #put in a loop catch for 2021 which doesn't have any past cohort data!
   if(nyr==2021){
     
+    print(2021)
+    
     # Final merge for the whole of the year #####
-    data_year<-Track2TrackMultiStack(rbind(data_1d, data_1w, data_2, data_6, data_all), by=c("TagID", "period"))
+    data_year<-Track2TrackMultiStack(rbind(data_1d_tt, data_1w_tt, data_2_tt, data_6_tt, data_all_tt), by=c("TagID", "period"))
     data_year
     
     
@@ -1072,11 +1008,10 @@ for(y in 1:length(nyears)){
     
     
     
-  }else{
+  } else if(nyr == 2022 ){     
     
-  
-  #male or female
-  
+    print(2022)
+    
     #FEMALE OR UNKNOWN#
     
     #filter the data
@@ -1107,15 +1042,15 @@ for(y in 1:length(nyears)){
       Data_W_PreB_F$period <- periods_F
       
       #add the number of birds into the summary table
-      summary_dat$number_birds[summary_dat$sex == "F" & summary_dat$label_year == periods_F] <- length(levels(Data_W_PreB_F$TagID))
+      summary_dat$number_birds[summary_dat$sex == "F" & summary_dat$label_year == periods_F] <- length(unique(Data_W_PreB_F$TagID))
       
       
       #turn it into a Track using BTOTT
-      data_all_tt <-Track(data_all) 
-      data_all_tt<-clean_GPS(data_all_tt, drop_sats = 3, Thres = 30, GAP = 28800) #HH NEW NOTE 2024 analysis: GAP here constrains the function to not interpolate time in between this gap of 28800 seconds = 8 hours (chat message from Chris T 17/01/2025)
+      Data_W_PreB_F_tt <-Track(Data_W_PreB_F) 
+      Data_W_PreB_F_tt<-clean_GPS(Data_W_PreB_F_tt, drop_sats = 3, Thres = 30, GAP = 28800) #HH NEW NOTE 2024 analysis: GAP here constrains the function to not interpolate time in between this gap of 28800 seconds = 8 hours (chat message from Chris T 17/01/2025)
       
       # Set ID factor
-      data_all_tt$TagID<-as.factor(as.character(data_all_tt$TagID)) 
+      Data_W_PreB_F_tt$TagID<-as.factor(as.character(Data_W_PreB_F_tt$TagID)) 
       
       
       
@@ -1136,7 +1071,15 @@ for(y in 1:length(nyears)){
       
       
       #add the number of birds into the summary table
-      summary_dat$number_birds[summary_dat$sex == "F" & summary_dat$label_year == periods_F] <- length(levels(Data_SF_F$TagID))
+      summary_dat$number_birds[summary_dat$sex == "F" & summary_dat$label_year == periods_F] <- length(unique(Data_SF_F$TagID))
+      
+      
+      #turn it into a Track using BTOTT
+      Data_SF_F_tt <-Track(Data_SF_F) 
+      Data_SF_F_tt<-clean_GPS(Data_SF_F_tt, drop_sats = 3, Thres = 30, GAP = 28800) #HH NEW NOTE 2024 analysis: GAP here constrains the function to not interpolate time in between this gap of 28800 seconds = 8 hours (chat message from Chris T 17/01/2025)
+      
+      # Set ID factor
+      Data_SF_F_tt$TagID<-as.factor(as.character(Data_SF_F_tt$TagID)) 
       
       
       
@@ -1158,7 +1101,15 @@ for(y in 1:length(nyears)){
       
       
       #add the number of birds into the summary table
-      summary_dat$number_birds[summary_dat$sex == "F" & summary_dat$label_year == periods_F] <- length(levels(Data_Breed_F$TagID))
+      summary_dat$number_birds[summary_dat$sex == "F" & summary_dat$label_year == periods_F] <- length(unique(Data_Breed_F$TagID))
+      
+      
+      #turn it into a Track using BTOTT
+      Data_Breed_F_tt <-Track(Data_Breed_F) 
+      Data_Breed_F_tt<-clean_GPS(Data_Breed_F_tt, drop_sats = 3, Thres = 30, GAP = 28800) #HH NEW NOTE 2024 analysis: GAP here constrains the function to not interpolate time in between this gap of 28800 seconds = 8 hours (chat message from Chris T 17/01/2025)
+      
+      # Set ID factor
+      Data_Breed_F_tt$TagID<-as.factor(as.character(Data_Breed_F_tt$TagID)) 
       
       
       
@@ -1180,7 +1131,16 @@ for(y in 1:length(nyears)){
       
       
       #add the number of birds into the summary table
-      summary_dat$number_birds[summary_dat$sex == "F" & summary_dat$label_year == periods_F] <- length(levels(Data_AF_F$TagID))
+      summary_dat$number_birds[summary_dat$sex == "F" & summary_dat$label_year == periods_F] <- length(unique(Data_AF_F$TagID))
+      
+      
+      #turn it into a Track using BTOTT
+      Data_AF_F_tt <-Track(Data_AF_F) 
+      Data_AF_F_tt<-clean_GPS(Data_AF_F_tt, drop_sats = 3, Thres = 30, GAP = 28800) #HH NEW NOTE 2024 analysis: GAP here constrains the function to not interpolate time in between this gap of 28800 seconds = 8 hours (chat message from Chris T 17/01/2025)
+      
+      # Set ID factor
+      Data_AF_F_tt$TagID<-as.factor(as.character(Data_AF_F_tt$TagID)) 
+      
       
       
       
@@ -1201,14 +1161,21 @@ for(y in 1:length(nyears)){
       
       
       #add the number of birds into the summary table
-      summary_dat$number_birds[summary_dat$sex == "F" & summary_dat$label_year == periods_F] <- length(levels(Data_W_AfterB_F$TagID))
+      summary_dat$number_birds[summary_dat$sex == "F" & summary_dat$label_year == periods_F] <- length(unique(Data_W_AfterB_F$TagID))
       
+      
+      #turn it into a Track using BTOTT
+      Data_W_AfterB_F_tt <-Track(Data_W_AfterB_F) 
+      Data_W_AfterB_F_tt<-clean_GPS(Data_W_AfterB_F_tt, drop_sats = 3, Thres = 30, GAP = 28800) #HH NEW NOTE 2024 analysis: GAP here constrains the function to not interpolate time in between this gap of 28800 seconds = 8 hours (chat message from Chris T 17/01/2025)
+      
+      # Set ID factor
+      Data_W_AfterB_F_tt$TagID<-as.factor(as.character(Data_W_AfterB_F_tt$TagID)) 
       
       
       
       
       # Final merge for the cohort #####
-      data_past_F <-Track2TrackMultiStack(rbind(Data_W_PreB_F, Data_SF_F, Data_Breed_F, Data_AF_F, Data_W_AfterB_F), by=c("TagID", "period"))
+      data_past_F <-Track2TrackMultiStack(rbind(Data_W_PreB_F_tt, Data_SF_F_tt, Data_Breed_F_tt, Data_AF_F_tt, Data_W_AfterB_F_tt), by=c("TagID", "period"))
       data_past_F
       
       
@@ -1216,18 +1183,12 @@ for(y in 1:length(nyears)){
       setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/data/2025 analysis") #HH laptop
       save(data_cohort, file=paste0("NE103_",nyr," report_clean tracking data for ",nyr," past cohorts_Female.RData"))
       
-      
-      
-      
-      
-      
- #this if loop in to catch the 2022 year where there were no male past cohorts
-      if(nyr==2022){
+      #this catches the 2022 year where there were no male past cohorts
         
         #Final merge all together:
         
         # Final merge for the whole of the year #####
-        data_year<-Track2TrackMultiStack(rbind(data_1d, data_1w, data_2, data_6, data_all, Data_W_PreB_F, Data_SF_F, Data_Breed_F, Data_AF_F, Data_W_AfterB_F), by=c("TagID", "period"))
+        data_year<-Track2TrackMultiStack(rbind(data_1d_tt, data_1w_tt, data_2_tt, data_6_tt, data_all_tt, Data_W_PreB_F_tt, Data_SF_F_tt, Data_Breed_F_tt, Data_AF_F_tt, Data_W_AfterB_F_tt), by=c("TagID", "period"))
         data_year
         
         
@@ -1237,7 +1198,183 @@ for(y in 1:length(nyears)){
         
         
         
-      }else{
+      }else  {
+        
+        print("2023-2024")
+        
+        #FEMALE OR UNKNOWN#
+        
+        #filter the data
+        dat.keep_F <- dat.in_pastcohort %>% filter(sex == "F"| sex == "U") %>% droplevels()
+        summary(dat.keep_F)
+        
+        #filter to past_cohort_behavs dataframe to get the year and sex time periods
+        past_cohort_behavs_year <- past_cohort_behavs %>% filter(sex=="F" & year== nyr)
+        
+        #use the table above to then create a list of labels
+        past_cohort_periods_F <- past_cohort_behavs_year$label_year
+        
+        
+        
+        #winter pre breeding
+        #because it didn't quite work to have it in a loop the periods_F <- line is really important to loop over the different labels 
+        periods_F <- past_cohort_periods_F[1]
+        
+        
+        Data_W_PreB_F <- dat.keep_F %>% 
+          filter(DateTime >= jandate  & DateTime <= past_cohort_behavs_year$maxdate_pastcohort_behav[past_cohort_behavs_year$label_year==periods_F]) %>%
+          droplevels()
+        
+        summary(Data_W_PreB_F$DateTime)
+        summary(Data_W_PreB_F)
+        
+        #This is a VERY key line to help Track2TrackMultiStack stack the tags in the correct stack! 
+        Data_W_PreB_F$period <- periods_F
+        
+        #add the number of birds into the summary table
+        summary_dat$number_birds[summary_dat$sex == "F" & summary_dat$label_year == periods_F] <- length(unique(Data_W_PreB_F$TagID))
+        
+        
+        #turn it into a Track using BTOTT
+        Data_W_PreB_F_tt <-Track(Data_W_PreB_F) 
+        Data_W_PreB_F_tt<-clean_GPS(Data_W_PreB_F_tt, drop_sats = 3, Thres = 30, GAP = 28800) #HH NEW NOTE 2024 analysis: GAP here constrains the function to not interpolate time in between this gap of 28800 seconds = 8 hours (chat message from Chris T 17/01/2025)
+        
+        # Set ID factor
+        Data_W_PreB_F_tt$TagID<-as.factor(as.character(Data_W_PreB_F_tt$TagID)) 
+        
+        
+        
+        #spring fuzz
+        periods_F_before <- past_cohort_periods_F[1]
+        periods_F <- past_cohort_periods_F[2]
+        
+        
+        Data_SF_F <- dat.keep_F %>% 
+          filter(DateTime >=  past_cohort_behavs_year$maxdate_pastcohort_behav[past_cohort_behavs_year$label_year==periods_F_before]  & DateTime <= past_cohort_behavs$maxdate_pastcohort_behav[past_cohort_behavs$sex=="F" & past_cohort_behavs$label_year==periods_F]) %>%
+          droplevels()
+        
+        summary(Data_SF_F$DateTime)
+        summary(Data_SF_F)
+        
+        #This is a VERY key line to help Track2TrackMultiStack stack the tags in the correct stack! 
+        Data_SF_F$period <- periods_F
+        
+        
+        #add the number of birds into the summary table
+        summary_dat$number_birds[summary_dat$sex == "F" & summary_dat$label_year == periods_F] <- length(unique(Data_SF_F$TagID))
+        
+        
+        #turn it into a Track using BTOTT
+        Data_SF_F_tt <-Track(Data_SF_F) 
+        Data_SF_F_tt<-clean_GPS(Data_SF_F_tt, drop_sats = 3, Thres = 30, GAP = 28800) #HH NEW NOTE 2024 analysis: GAP here constrains the function to not interpolate time in between this gap of 28800 seconds = 8 hours (chat message from Chris T 17/01/2025)
+        
+        # Set ID factor
+        Data_SF_F_tt$TagID<-as.factor(as.character(Data_SF_F_tt$TagID)) 
+        
+        
+        
+        
+        #Female breeding
+        periods_F_before <- past_cohort_periods_F[2]
+        periods_F <- past_cohort_periods_F[3]
+        
+        
+        Data_Breed_F <- dat.keep_F %>% 
+          filter(DateTime >=  past_cohort_behavs_year$maxdate_pastcohort_behav[past_cohort_behavs_year$label_year==periods_F_before]  & DateTime <= past_cohort_behavs$maxdate_pastcohort_behav[past_cohort_behavs$sex=="F" & past_cohort_behavs$label_year==periods_F]) %>%
+          droplevels()
+        
+        summary(Data_Breed_F$DateTime)
+        summary(Data_Breed_F)
+        
+        #This is a VERY key line to help Track2TrackMultiStack stack the tags in the correct stack! 
+        Data_Breed_F$period <- periods_F
+        
+        
+        #add the number of birds into the summary table
+        summary_dat$number_birds[summary_dat$sex == "F" & summary_dat$label_year == periods_F] <- length(unique(Data_Breed_F$TagID))
+        
+        
+        #turn it into a Track using BTOTT
+        Data_Breed_F_tt <-Track(Data_Breed_F) 
+        Data_Breed_F_tt<-clean_GPS(Data_Breed_F_tt, drop_sats = 3, Thres = 30, GAP = 28800) #HH NEW NOTE 2024 analysis: GAP here constrains the function to not interpolate time in between this gap of 28800 seconds = 8 hours (chat message from Chris T 17/01/2025)
+        
+        # Set ID factor
+        Data_Breed_F_tt$TagID<-as.factor(as.character(Data_Breed_F_tt$TagID)) 
+        
+        
+        
+        
+        #Female autumn fuzz
+        periods_F_before <- past_cohort_periods_F[3]
+        periods_F <- past_cohort_periods_F[4]
+        
+        
+        Data_AF_F <- dat.keep_F %>% 
+          filter(DateTime >=  past_cohort_behavs_year$maxdate_pastcohort_behav[past_cohort_behavs_year$label_year==periods_F_before]  & DateTime <= past_cohort_behavs$maxdate_pastcohort_behav[past_cohort_behavs$sex=="F" & past_cohort_behavs$label_year==periods_F]) %>%
+          droplevels()
+        
+        summary(Data_AF_F$DateTime)
+        summary(Data_AF_F)
+        
+        #This is a VERY key line to help Track2TrackMultiStack stack the tags in the correct stack! 
+        Data_AF_F$period <- periods_F
+        
+        
+        #add the number of birds into the summary table
+        summary_dat$number_birds[summary_dat$sex == "F" & summary_dat$label_year == periods_F] <- length(unique(Data_AF_F$TagID))
+        
+        
+        #turn it into a Track using BTOTT
+        Data_AF_F_tt <-Track(Data_AF_F) 
+        Data_AF_F_tt<-clean_GPS(Data_AF_F_tt, drop_sats = 3, Thres = 30, GAP = 28800) #HH NEW NOTE 2024 analysis: GAP here constrains the function to not interpolate time in between this gap of 28800 seconds = 8 hours (chat message from Chris T 17/01/2025)
+        
+        # Set ID factor
+        Data_AF_F_tt$TagID<-as.factor(as.character(Data_AF_F_tt$TagID)) 
+        
+        
+        
+        
+        #Female winter after breeding
+        periods_F_before <- past_cohort_periods_F[4]
+        periods_F <- past_cohort_periods_F[5]
+        
+        
+        Data_W_AfterB_F <- dat.keep_F %>% 
+          filter(DateTime >=  past_cohort_behavs_year$maxdate_pastcohort_behav[past_cohort_behavs_year$label_year==periods_F_before]  & DateTime <= past_cohort_behavs$maxdate_pastcohort_behav[past_cohort_behavs$sex=="F" & past_cohort_behavs$label_year==periods_F]) %>%
+          droplevels()
+        
+        summary(Data_W_AfterB_F$DateTime)
+        summary(Data_W_AfterB_F)
+        
+        #This is a VERY key line to help Track2TrackMultiStack stack the tags in the correct stack! 
+        Data_W_AfterB_F$period <- periods_F
+        
+        
+        #add the number of birds into the summary table
+        summary_dat$number_birds[summary_dat$sex == "F" & summary_dat$label_year == periods_F] <- length(unique(Data_W_AfterB_F$TagID))
+        
+        
+        #turn it into a Track using BTOTT
+        Data_W_AfterB_F_tt <-Track(Data_W_AfterB_F) 
+        Data_W_AfterB_F_tt<-clean_GPS(Data_W_AfterB_F_tt, drop_sats = 3, Thres = 30, GAP = 28800) #HH NEW NOTE 2024 analysis: GAP here constrains the function to not interpolate time in between this gap of 28800 seconds = 8 hours (chat message from Chris T 17/01/2025)
+        
+        # Set ID factor
+        Data_W_AfterB_F_tt$TagID<-as.factor(as.character(Data_W_AfterB_F_tt$TagID)) 
+        
+        
+        
+        
+        # Final merge for the cohort #####
+        data_past_F <-Track2TrackMultiStack(rbind(Data_W_PreB_F_tt, Data_SF_F_tt, Data_Breed_F_tt, Data_AF_F_tt, Data_W_AfterB_F_tt), by=c("TagID", "period"))
+        data_past_F
+        
+        
+        # Save
+        setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/data/2025 analysis") #HH laptop
+        save(data_cohort, file=paste0("NE103_",nyr," report_clean tracking data for ",nyr," past cohorts_Female.RData"))
+        
+        
+        
       #MALE#
       #filter the data
       dat.keep_M <- dat.in_pastcohort %>% filter(sex == "M") %>% droplevels()
@@ -1268,7 +1405,15 @@ for(y in 1:length(nyears)){
       Data_W_PreB_M$period <- periods_M
       
       #add the number of birds into the summary table
-      summary_dat$number_birds[summary_dat$sex == "M" & summary_dat$label_year == periods_M] <- length(levels(Data_W_PreB_M$TagID))
+      summary_dat$number_birds[summary_dat$sex == "M" & summary_dat$label_year == periods_M] <- length(unique(Data_W_PreB_M$TagID))
+      
+      
+      #turn it into a Track using BTOTT
+      Data_W_PreB_M_tt <-Track(Data_W_PreB_M) 
+      Data_W_PreB_M_tt<-clean_GPS(Data_W_PreB_M_tt, drop_sats = 3, Thres = 30, GAP = 28800) #HH NEW NOTE 2024 analysis: GAP here constrains the function to not interpolate time in between this gap of 28800 seconds = 8 hours (chat message from Chris T 17/01/2025)
+      
+      # Set ID factor
+      Data_W_PreB_M_tt$TagID<-as.factor(as.character(Data_W_PreB_M_tt$TagID)) 
       
       
       
@@ -1291,7 +1436,14 @@ for(y in 1:length(nyears)){
       
       
       #add the number of birds into the summary table
-      summary_dat$number_birds[summary_dat$sex == "M" & summary_dat$label_year == periods_M] <- length(levels(Data_SF_M$TagID))
+      summary_dat$number_birds[summary_dat$sex == "M" & summary_dat$label_year == periods_M] <- length(unique(Data_SF_M$TagID))
+      
+      #turn it into a Track using BTOTT
+      Data_SF_M_tt <-Track(Data_SF_M) 
+      Data_SF_M_tt<-clean_GPS(Data_SF_M_tt, drop_sats = 3, Thres = 30, GAP = 28800) #HH NEW NOTE 2024 analysis: GAP here constrains the function to not interpolate time in between this gap of 28800 seconds = 8 hours (chat message from Chris T 17/01/2025)
+      
+      # Set ID factor
+      Data_SF_M_tt$TagID<-as.factor(as.character(Data_SF_M_tt$TagID)) 
       
       
       
@@ -1313,7 +1465,14 @@ for(y in 1:length(nyears)){
       
       
       #add the number of birds into the summary table
-      summary_dat$number_birds[summary_dat$sex == "M" & summary_dat$label_year == periods_M] <- length(levels(Data_Breed_M$TagID))
+      summary_dat$number_birds[summary_dat$sex == "M" & summary_dat$label_year == periods_M] <- length(unique(Data_Breed_M$TagID))
+      
+      #turn it into a Track using BTOTT
+      Data_Breed_M_tt <-Track(Data_Breed_M) 
+      Data_Breed_M_tt<-clean_GPS(Data_Breed_M_tt, drop_sats = 3, Thres = 30, GAP = 28800) #HH NEW NOTE 2024 analysis: GAP here constrains the function to not interpolate time in between this gap of 28800 seconds = 8 hours (chat message from Chris T 17/01/2025)
+      
+      # Set ID factor
+      Data_Breed_M_tt$TagID<-as.factor(as.character(Data_Breed_M_tt$TagID)) 
       
       
       
@@ -1335,8 +1494,14 @@ for(y in 1:length(nyears)){
       
       
       #add the number of birds into the summary table
-      summary_dat$number_birds[summary_dat$sex == "M" & summary_dat$label_year == periods_M] <- length(levels(Data_AF_M$TagID))
+      summary_dat$number_birds[summary_dat$sex == "M" & summary_dat$label_year == periods_M] <- length(unique(Data_AF_M$TagID))
       
+      #turn it into a Track using BTOTT
+      Data_AF_M_tt <-Track(Data_AF_M) 
+      Data_AF_M_tt<-clean_GPS(Data_AF_M_tt, drop_sats = 3, Thres = 30, GAP = 28800) #HH NEW NOTE 2024 analysis: GAP here constrains the function to not interpolate time in between this gap of 28800 seconds = 8 hours (chat message from Chris T 17/01/2025)
+      
+      # Set ID factor
+      Data_AF_M_tt$TagID<-as.factor(as.character(Data_AF_M_tt$TagID)) 
       
       
       
@@ -1358,15 +1523,22 @@ for(y in 1:length(nyears)){
       
       
       #add the number of birds into the summary table
-      summary_dat$number_birds[summary_dat$sex == "M" & summary_dat$label_year == periods_M] <- length(levels(Data_W_AfterB_M$TagID))
+      summary_dat$number_birds[summary_dat$sex == "M" & summary_dat$label_year == periods_M] <- length(unique(Data_W_AfterB_M$TagID))
       
   
+      #turn it into a Track using BTOTT
+      Data_W_AfterB_M_tt <-Track(Data_W_AfterB_M) 
+      Data_W_AfterB_M_tt<-clean_GPS(Data_W_AfterB_M_tt, drop_sats = 3, Thres = 30, GAP = 28800) #HH NEW NOTE 2024 analysis: GAP here constrains the function to not interpolate time in between this gap of 28800 seconds = 8 hours (chat message from Chris T 17/01/2025)
+      
+      # Set ID factor
+      Data_W_AfterB_M_tt$TagID<-as.factor(as.character(Data_W_AfterB_M_tt$TagID)) 
+      
       
   
     
       
       # Final merge for the cohort #####
-      data_past_M <-Track2TrackMultiStack(rbind(Data_W_PreB_M, Data_SF_M, Data_Breed_M, Data_AF_M, Data_W_AfterB_M), by=c("TagID", "period"))
+      data_past_M <-Track2TrackMultiStack(rbind(Data_W_PreB_M_tt, Data_SF_M_tt, Data_Breed_M_tt, Data_AF_M_tt, Data_W_AfterB_M_tt), by=c("TagID", "period"))
       data_past_M
       
       
@@ -1381,7 +1553,7 @@ for(y in 1:length(nyears)){
   #Final merge all together:
   
   # Final merge for the whole of the year #####
-  data_year<-Track2TrackMultiStack(rbind(data_1d, data_1w, data_2, data_6, data_all, Data_W_PreB_F, Data_SF_F, Data_Breed_F, Data_AF_F, Data_W_AfterB_F, Data_W_PreB_M, Data_SF_M, Data_Breed_M, Data_AF_M, Data_W_AfterB_M ), by=c("TagID", "period"))
+  data_year<-Track2TrackMultiStack(rbind(data_1d_tt, data_1w_tt, data_2_tt, data_6_tt, data_all_tt, Data_W_PreB_F_tt, Data_SF_F_tt, Data_Breed_F_tt, Data_AF_F_tt, Data_W_AfterB_F_tt, Data_W_PreB_M_tt, Data_SF_M_tt, Data_Breed_M_tt, Data_AF_M_tt, Data_W_AfterB_M_tt ), by=c("TagID", "period"))
   data_year
   
   
@@ -1391,7 +1563,7 @@ for(y in 1:length(nyears)){
   
       }
   }
-}
+
   
   
 #save the summary_dat out
@@ -1646,6 +1818,7 @@ nyears <- c("2021", "2022", "2023", "2024")
 
 
 #ADD IN HERE A SET SEED ######
+set.seed(c(1,2,3,4))
 
 for(y in 1:length(nyears)){
 
@@ -1853,8 +2026,8 @@ if(nyr == "2021"){
     
     #HH NB - for Yf(0E)O/-:Y/m only has two fixes in this time period and so is removed for this part of the analysis
     #ONLY USE THIS CODE FOR '8' = Spring Transition:  trk <- trk %>% filter(trk$id!= "Yf(0E)O/-:Y/m")
+
     
-    set.seed(c(1,2,3,4))
     avail.pts <- trk %>%  nest(data=-c("id", "tide", "cohort", "release")) %>% 
       mutate(rnd_pts = map(data, ~ random_points(., factor = 20, type="random"))) %>% 	
       select(id, tide,cohort,release, rnd_pts) %>%  # you don't want to have the original point twice, hence drop data
@@ -1924,7 +2097,6 @@ if(nyr == "2021"){
     
     # Save rsfdat for each time period
     setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/data/2025 analysis/") #HH laptop
-    
     save(rsfdat, file=paste0("NE103_",nyr," report_RSF_data_cohort_",nyr,"_",filelab,".RData")) 
     
     
@@ -2067,7 +2239,7 @@ if(nyr == "2021"){
     
     
     
-    #UPDATE - can't loop because the habitat caregories in the rsfdat file are column headings and the column selection isn't working 
+    #UPDATE - can't loop because the habitat categories in the rsfdat file are column headings and the column selection isn't working 
             #need another for loop here to loop over the five habitat categories: Coastal,Grassland, Saltmarsh, Arable, Other
     #So instead copying the same code from last year that I updated long hand 
     
@@ -2369,9 +2541,10 @@ if(nyr == "2021"){
     ## RSS PLOTS #####
     ## Set data - need: rsf_coefs_hab
     #read data back in
+    
     # Save data 
-    setwd("C:/Users/hannah.hereward/Documents/Projects/2024_curlewheadstarting/curlew_headstarting/data/2025 analysis/")
-    load(file=paste0("NE103_",nyr," report_RSF_models_",cohort,"_",filelab,".RData"))
+    #setwd("C:/Users/hannah.hereward/Documents/Projects/2024_curlewheadstarting/curlew_headstarting/data/2025 analysis/")
+    #load(file=paste0("NE103_",nyr," report_RSF_models_",cohort,"_",filelab,".RData"))
     
     
     
