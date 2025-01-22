@@ -540,6 +540,14 @@ summary(data_final)
 
 #From this and from the Utilisation Distribution TIA plot section 'get_TIA_grd' you can see which birds cause an error (notes on why are in that section below)
 
+###2022 year data ####
+#"0E"  'End of December 2022' winter post breeding - seven fixes need removing
+
+exclude0E_22 <- (data$`10 End of December - Winter 2022`$`Yf(0E)O/-:Y/m`$DateTime)
+
+#check these are definitely all LU timesdates
+data_final_final %>% filter(data_final_final$DateTime %in% exclude0E_22)
+
 
 
 ###2023 year data####
@@ -634,7 +642,7 @@ data_final %>% filter(data_final$DateTime %in% excludeLV )
 #allexclude <- c(exclude0E, excludeLU, exclude7k, excludeLV)
 #saveRDS(allexclude, here("data/2025 analysis/listofdatestoexclude_2023_2024_anlaysis.rds"))
 
-#allexclude <- read_rds(here("data/2025 analysis/listofdatestoexclude_2023_2024_anlaysis.rds"))
+#allexclude <- readRDS(here("data/2025 analysis/listofdatestoexclude_2023_2024_anlaysis.rds"))
 
 #add in 9J for winter post breeding 2024 
 #allexclude <- c(allexclude, exclude9J)
@@ -642,7 +650,15 @@ data_final %>% filter(data_final$DateTime %in% excludeLV )
 
 #saveRDS(allexclude, here("data/2025 analysis/listofdatestoexclude_2023_2024_anlaysis.rds"))
 
-allexclude <- read_rds(here("data/2025 analysis/listofdatestoexclude_2023_2024_anlaysis.rds"))
+#allexclude <- readRDS(here("data/2025 analysis/listofdatestoexclude_2023_2024_anlaysis.rds"))
+
+
+#add in 0E winter post breeding 2022 
+#allexclude <- c(allexclude, exclude0E_22)
+
+#saveRDS(allexclude, here("data/2025 analysis/listofdatestoexclude_2023_2024_anlaysis.rds"))
+
+allexclude <- readRDS(here("data/2025 analysis/listofdatestoexclude_2023_2024_anlaysis.rds"))
 
 
 
@@ -652,8 +668,7 @@ allexclude <- read_rds(here("data/2025 analysis/listofdatestoexclude_2023_2024_a
 data_final_final <- data_final %>% filter(! data_final$DateTime %in% allexclude)
 
 
-### final tweaking to check how many fixes there were in Dec 2024 after 7th because this is when the sensor stopped working on the tide bouy
-
+### final tweaking to check how many fixes there were in Dec 2024 after 7th because this is when the sensor stopped working on the tide bouy ####
 dec2024fixes <- data_final_final %>% filter(DateTime > "2024-12-07" )
 
 dec2024fixes %>%
@@ -675,7 +690,7 @@ dec2024fixes %>%
 load_pkg <- rlang::quos(tidyverse,BTOTrackingTools, here, sp, leaflet, terra)  # quos() function to be lazy on "" around each package
 lapply(lapply(load_pkg, rlang::quo_name), library, character.only = TRUE)
 
-#START HERE - Once all data is correct and cleaned and combined above you can start from here ####
+#START HERE - TO CREATE THE BTO TRACKS - Once all data is correct and cleaned and combined above you can start from here ####
 
 #read back in the data ####
 data_final_final <- readRDS(here("data/2025 analysis/data_withcohorts_release_sites_tagduration_2021_2024.rds"))
@@ -1144,38 +1159,10 @@ for(y in 1:length(nyears)){
       
       
       
-      #Female winter after breeding
-      periods_F_before <- past_cohort_periods_F[4]
-      periods_F <- past_cohort_periods_F[5]
-      
-      
-      Data_W_AfterB_F <- dat.keep_F %>% 
-        filter(DateTime >=  past_cohort_behavs_year$maxdate_pastcohort_behav[past_cohort_behavs_year$label_year==periods_F_before]  & DateTime <= past_cohort_behavs$maxdate_pastcohort_behav[past_cohort_behavs$sex=="F" & past_cohort_behavs$label_year==periods_F]) %>%
-        droplevels()
-      
-      summary(Data_W_AfterB_F$DateTime)
-      summary(Data_W_AfterB_F)
-      
-      #This is a VERY key line to help Track2TrackMultiStack stack the tags in the correct stack! 
-      Data_W_AfterB_F$period <- periods_F
-      
-      
-      #add the number of birds into the summary table
-      summary_dat$number_birds[summary_dat$sex == "F" & summary_dat$label_year == periods_F] <- length(unique(Data_W_AfterB_F$TagID))
-      
-      
-      #turn it into a Track using BTOTT
-      Data_W_AfterB_F_tt <-Track(Data_W_AfterB_F) 
-      Data_W_AfterB_F_tt<-clean_GPS(Data_W_AfterB_F_tt, drop_sats = 3, Thres = 30, GAP = 28800) #HH NEW NOTE 2024 analysis: GAP here constrains the function to not interpolate time in between this gap of 28800 seconds = 8 hours (chat message from Chris T 17/01/2025)
-      
-      # Set ID factor
-      Data_W_AfterB_F_tt$TagID<-as.factor(as.character(Data_W_AfterB_F_tt$TagID)) 
-      
-      
       
       
       # Final merge for the cohort #####
-      data_past_F <-Track2TrackMultiStack(rbind(Data_W_PreB_F_tt, Data_SF_F_tt, Data_Breed_F_tt, Data_AF_F_tt, Data_W_AfterB_F_tt), by=c("TagID", "period"))
+      data_past_F <-Track2TrackMultiStack(rbind(Data_W_PreB_F_tt, Data_SF_F_tt, Data_Breed_F_tt, Data_AF_F_tt), by=c("TagID", "period"))
       data_past_F
       
       
@@ -1188,7 +1175,7 @@ for(y in 1:length(nyears)){
         #Final merge all together:
         
         # Final merge for the whole of the year #####
-        data_year<-Track2TrackMultiStack(rbind(data_1d_tt, data_1w_tt, data_2_tt, data_6_tt, data_all_tt, Data_W_PreB_F_tt, Data_SF_F_tt, Data_Breed_F_tt, Data_AF_F_tt, Data_W_AfterB_F_tt), by=c("TagID", "period"))
+        data_year<-Track2TrackMultiStack(rbind(data_1d_tt, data_1w_tt, data_2_tt, data_6_tt, data_all_tt, Data_W_PreB_F_tt, Data_SF_F_tt, Data_Breed_F_tt, Data_AF_F_tt), by=c("TagID", "period"))
         data_year
         
         
@@ -1678,6 +1665,8 @@ plot_leaflet(data[[2]], lines=FALSE, col=c(scales::viridis_pal()(length(data[[2]
 #only need this plot for all data up to December
 data_tide<-TrackStack2Track(data[[6]])
 
+#ADD IN HERE CODE TO FILTER THE DATA TO BE LESS THAN 7th Dec (inclusive) 
+
 data_tide<-data_tide %>% filter(tide!="NA")
 data_tide$Tide<-as.character(fct_recode(data_tide$tide, "High tide" = "HW", "Low tide" = "LW") )
 plot_leaflet(data_tide, plotby="Tide", lines=FALSE, col=c("#31688EFF","#35B779FF")) #code update - now "plot_leaflet" not "plot_leaflet_dev"
@@ -1817,7 +1806,7 @@ filelabels <- c("1_OneDay" ,"2_OneWeek" ,"3_TwoWeeks" , "4_SixWeeks" ,"5_July_De
 nyears <- c("2021", "2022", "2023", "2024")
 
 
-#ADD IN HERE A SET SEED ######
+#SET SEED - THEN run through the loop ######
 set.seed(c(1,2,3,4))
 
 for(y in 1:length(nyears)){
@@ -1846,15 +1835,15 @@ if(nyr == "2021"){
   
   datasplit <- c("1 One Day" ,"2 One Week" ,"3 Two Weeks" , "4 Six Weeks" ,"5 End of December" ,
                  "6 Winter pre-breeding" , "7 Spring fuzzy" , "8a Female Breeding Season" , 
-                 "9a Female Autumn fuzzy", "10 End of December - Winter" )
+                 "9a Female Autumn fuzzy" ) #winter post breeding removed because only 7 fixes
   
   plotlabels <- c("One day post-release" ,"One week post-release" ,"Two weeks post-release" , "Six weeks post-release" ,"July-December" ,
                   "Winter - pre-breeding" , "Spring transition" , "Breeding season - Female" , 
-                  "Autumn transition - Female", "Winter - post-breeding")
+                  "Autumn transition - Female")
   
   filelabels <- c("1_OneDay" ,"2_OneWeek" ,"3_TwoWeeks" , "4_SixWeeks" ,"5_July_December" ,
                   "6_WinterPreBreed" , "7_Spring_transition" , "8a_Breeding_female" ,
-                  "9a_Autumn_transition_female", "10_WinterPostBreed" )
+                  "9a_Autumn_transition_female" )
   
   
   
@@ -2112,7 +2101,7 @@ if(nyr == "2021"){
       labs(y = "Proportion of fixes\n", fill="used", x="\nHabitat")         + 			# labels, \n indicates space between line and text
       theme_classic()                                                       +       # remove default grid lines and grey background
       theme(legend.title=element_blank(),  																	 			  # remove legend title
-            legend.position = c(0.9,0.8),                                           # specify legend position inside plot area
+            legend.position = c(0.9,0.9),                                           # specify legend position inside plot area
             axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))   +       # rotated x axis labels for individual plots
       #scale_y_continuous(expand = expansion(mult = c(0, .1)))               +       # remove gap between bars and axis lines
       #ylim(c(0,0.6)) +                                                              #HH NB - use ylim 2023 = c(0,0.6) and scale_y_continuous for 2021&2022 
@@ -2142,7 +2131,7 @@ if(nyr == "2021"){
         labs(y = "Proportion of fixes\n", fill="used", x="\nHabitat")         + 			# labels, \n indicates space between line and text
         theme_classic()                                                       +       # remove default grid lines and grey background
         theme(legend.title=element_blank(),  																	 			  # remove legend title
-              legend.position = c(0.9,0.8),                                           # specify legend position inside plot area
+              legend.position = c(0.9,0.9),                                           # specify legend position inside plot area
               axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))   +       # rotated x axis labels for individual plots
         #scale_y_continuous(expand = expansion(mult = c(0, .1)))               +       # remove gap between bars and axis lines
         #ylim(c(0,0.6)) +                                                              #HH NB - use ylim 2023 = c(0,0.6) and scale_y_continuous for 2021&2022 
@@ -2174,7 +2163,7 @@ if(nyr == "2021"){
         labs(y = "Proportion of fixes\n", fill="used", x="\nHabitat")         + 			# labels, \n indicates space between line and text
         theme_classic()                                                       +       # remove default grid lines and grey background
         theme(legend.title=element_blank(),  																	 			  # remove legend title
-              legend.position = c(0.9,0.8),                                           # specify legend position inside plot area
+              legend.position = c(0.9,0.9),                                           # specify legend position inside plot area
               axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))   +       # rotated x axis labels for individual plots
         #scale_y_continuous(expand = expansion(mult = c(0, .1)))               +       # remove gap between bars and axis lines
         #ylim(c(0,0.6)) +                                                              #HH NB - use ylim 2023 = c(0,0.6) and scale_y_continuous for 2021&2022 
@@ -2207,7 +2196,7 @@ if(nyr == "2021"){
         labs(y = "Proportion of fixes\n", fill="used", x="\nHabitat")         + 			# labels, \n indicates space between line and text
         theme_classic()                                                       +       # remove default grid lines and grey background
         theme(legend.title=element_blank(),  																	 			  # remove legend title
-              legend.position = c(0.9,0.8),                                           # specify legend position inside plot area
+              legend.position = c(0.9,0.9),                                           # specify legend position inside plot area
               axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))   +       # rotated x axis labels for individual plots
         #scale_y_continuous(expand = expansion(mult = c(0, .1)))               +       # remove gap between bars and axis lines
         #ylim(c(0,0.6)) +                                                              #HH NB - use ylim 2023 = c(0,0.6) and scale_y_continuous for 2021&2022 
@@ -2633,21 +2622,9 @@ if(nyr == "2021"){
 
 
 
-#need to reshape the AUC and beta tables 
-
-RSF_coef_dat_out <- full_join(beta_dat[c(1:3,5:7)],AUC_dat, by=c("year", "cohort", "Period", "Habitat", "TagID"))
-
-#turn wide
-library(reshape2)
-RSF_coef_dat_out_id <- unique(RSF_coef_dat_out$TagID) 
-RSF_coef_dat_out_wide <- dcast(RSF_coef_dat_out, TagID  ~ Habitat, value.var="Beta" & "AUC")
-x_out_wide$id<- factor(x_out_wide$id, levels= x_out_id)
-x_out_wide <- x_out_wide[,c(1,3,6,4,2,5)]
-#write_csv(x_out_wide, here("output/myestimates.csv")) # this allows you to read out the output data as a csv for easiest copying to the report
 
 
-
-# and save the tables out
+# save the tables out
 #AUC_dat
 #beta_dat
 #mytest.contrast_dat 
@@ -2656,6 +2633,26 @@ x_out_wide <- x_out_wide[,c(1,3,6,4,2,5)]
 #write.csv(AUC_dat, here("output/Tables 2025/AUC_outputs.csv"), row.names=F) # this allows you to read out the output data as a csv for easiest copying to the report
 #write.csv(beta_dat, here("output/Tables 2025/beta_outputs.csv"), row.names=F)  # this allows you to read out the output data as a csv for easiest copying to the report
 #write.csv(mytest.contrast_dat, here("output/Tables 2025/mytests_outputs.csv"), row.names=F) # this allows you to read out the output data as a csv for easiest copying to the report
+
+
+
+#need to reshape the AUC and beta tables for easiesr translation into the report tables
+library(reshape2)
+
+RSF_coef_dat_out <- full_join(beta_dat[c(1:3,5:7)],AUC_dat, by=c("year", "cohort", "Period", "Habitat", "TagID"))
+
+RSF_coef_dat_out_wide <- RSF_coef_dat_out %>% pivot_wider(names_from = Habitat, values_from = c( "Beta" , "AUC"))
+
+#resort it
+colnames(RSF_coef_dat_out_wide)
+RSF_coef_dat_out_wide <- data.frame(RSF_coef_dat_out_wide[c(1:4,5,10,7,12,6,11,8,13,9,14)])
+
+
+#write_csv(RSF_coef_dat_out_wide, here("output/Tables 2025/Beta_AUC_estimates_2021_2024.csv")) # this allows you to read out the output data as a csv for easiest copying to the report
+
+
+
+
 
 
 
