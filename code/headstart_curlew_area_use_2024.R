@@ -70,7 +70,7 @@ tide_dat_23 <- read_csv(here("data/Wash_tide_data_Bulldog_July_December_2023.csv
 summary(tide_dat_23)
 
 
-#2024 #currently only to the end of 7th December 2024. Missing rest of December 2024! 
+#2024 #currently only to the end of 7th December 2024. Missing rest of December 2024! #UPDATE missing due to the sensor breaking and it not being fixed yet
 tide_dat_24 <- read_csv(here("data/Wash_tide_data_Bulldog_July_December_2024.csv"), 
                         col_types = cols(Observed_DateTime = col_datetime(format = "%d/%m/%Y %H:%M"), Predicted_DateTime = col_datetime(format = "%d/%m/%Y %H:%M")))
 summary(tide_dat_24)
@@ -543,10 +543,10 @@ summary(data_final)
 ###2022 year data ####
 #"0E"  'End of December 2022' winter post breeding - seven fixes need removing
 
-exclude0E_22 <- (data$`10 End of December - Winter 2022`$`Yf(0E)O/-:Y/m`$DateTime)
+#exclude0E_22 <- (data$`10 End of December - Winter 2022`$`Yf(0E)O/-:Y/m`$DateTime)
 
 #check these are definitely all LU timesdates
-data_final_final %>% filter(data_final_final$DateTime %in% exclude0E_22)
+#data_final_final %>% filter(data_final_final$DateTime %in% exclude0E_22)
 
 
 
@@ -567,10 +567,10 @@ data_final_final %>% filter(data_final_final$DateTime %in% exclude0E_22)
 
 
 #"0E": 'spring fuzz' - two fixes need removing
-exclude0E <- (data$`7 Spring fuzzy 2023`$`Yf(0E)O/-:Y/m`$DateTime)
+#exclude0E <- (data$`7 Spring fuzzy 2023`$`Yf(0E)O/-:Y/m`$DateTime)
 
 #check these are definitely all LU timesdates
-data_final %>% filter(data_final$DateTime %in% exclude0E)
+#data_final %>% filter(data_final$DateTime %in% exclude0E)
 
 
 #one more bird has come up (22/01/2025) that needs removing for End of Decemter 2023 winter - "9J" 
@@ -578,10 +578,10 @@ data_final %>% filter(data_final$DateTime %in% exclude0E)
 #  group_by(flag_id) %>% 
 #  count()
 
-exclude9J <- (Data_W_AfterB_M$DateTime[Data_W_AfterB_M$flag_id=="9J"])
+#exclude9J <- (Data_W_AfterB_M$DateTime[Data_W_AfterB_M$flag_id=="9J"])
 
 #check these are definitely all LU timesdates
-data_final_final %>% filter(data_final_final$DateTime %in% exclude9J)
+#data_final_final %>% filter(data_final_final$DateTime %in% exclude9J)
 
 
 ###2024 year data ####
@@ -606,35 +606,35 @@ data_final_final %>% filter(data_final_final$DateTime %in% exclude9J)
 
 #table out 
 #testtable_2024_2 <- data.frame(testtable_2024) %>% 
-group_by(flag_id, period) %>%
-  count() 
+#group_by(flag_id, period) %>%
+#  count() 
 
 #save as csv to look at with Katharine and Sam
 #write.csv(testtable_2024_2, here("data/2025 analysis/table_to_check_fixes_per_period_2024.csv"), row.names = F)
 
 
 #"LU": has two fixes in winter pre-breeding  2024 and 5 fives in spring fuzzy 2024 and two fixes 8a female breeding season 2024 both need removing
-excludeLU <- c(data$`6 Winter pre-breeding 2024`$`Yf(LU)O/-:Y/m_Sandringham`$DateTime, data$`7 Spring fuzzy 2024`$`Yf(LU)O/-:Y/m_Sandringham`$DateTime, data$`8a Female Breeding Season 2024`$`Yf(LU)O/-:Y/m_Sandringham`$DateTime)
+#excludeLU <- c(data$`6 Winter pre-breeding 2024`$`Yf(LU)O/-:Y/m_Sandringham`$DateTime, data$`7 Spring fuzzy 2024`$`Yf(LU)O/-:Y/m_Sandringham`$DateTime, data$`8a Female Breeding Season 2024`$`Yf(LU)O/-:Y/m_Sandringham`$DateTime)
 
 #check these are definitely all LU timesdates
-data_final %>% filter(data_final$DateTime %in% excludeLU)
+#data_final %>% filter(data_final$DateTime %in% excludeLU)
 
 
 
 #"7K": excluding 15 tracks for in 6 Winter pre-breeding 2024
 #extracting out a list of datetime from the track:
-exclude7k <- (data$`6 Winter pre-breeding 2024`$`Yf(7K)O/-:Y/m_Sandringham`$DateTime)
+#exclude7k <- (data$`6 Winter pre-breeding 2024`$`Yf(7K)O/-:Y/m_Sandringham`$DateTime)
 
 #use this datetime list to check them in data_final
-data_final %>% filter(data_final$DateTime %in% exclude7k )
+#data_final %>% filter(data_final$DateTime %in% exclude7k )
 
 
 #LV": 5 fixes in winter pre-breeding  2024 and 5 fixes in spring fuzzy 2024
 #extracting out a list of datetime from the track:
-excludeLV <- c(data$`6 Winter pre-breeding 2024`$`Yf(LV)O/-:Y/m_KenHill`$DateTime, data$`7 Spring fuzzy 2024`$`Yf(LV)O/-:Y/m_KenHill`$DateTime)
+#excludeLV <- c(data$`6 Winter pre-breeding 2024`$`Yf(LV)O/-:Y/m_KenHill`$DateTime, data$`7 Spring fuzzy 2024`$`Yf(LV)O/-:Y/m_KenHill`$DateTime)
 
 #use this datetime list to check them in data_final
-data_final %>% filter(data_final$DateTime %in% excludeLV )
+#data_final %>% filter(data_final$DateTime %in% excludeLV )
 
 
 
@@ -668,11 +668,14 @@ allexclude <- readRDS(here("data/2025 analysis/listofdatestoexclude_2023_2024_an
 data_final_final <- data_final %>% filter(! data_final$DateTime %in% allexclude)
 
 
-### final tweaking to check how many fixes there were in Dec 2024 after 7th because this is when the sensor stopped working on the tide bouy ####
-dec2024fixes <- data_final_final %>% filter(DateTime > "2024-12-07" )
+### final checks on how many fixes there were in Dec 2024 after 7th because this is when the sensor stopped working on the tide bouy ####
+#after discussion with Katharine - happy for me to ignore these dates for the tide related analysis but keep them in for the remaining analysis
+#NOTE there are 131 fixes - this isn't enough to get a good idea of tide change from 8th Dec-31st Dec. 
 
-dec2024fixes %>%
-  group_by(flag_id) %>% count()
+#dec2024fixes <- data_final_final %>% filter(DateTime > "2024-12-07" )
+
+#dec2024fixes %>%
+#  group_by(flag_id) %>% count()
 
 
 ###.####
@@ -2630,14 +2633,14 @@ if(nyr == "2021"){
 #mytest.contrast_dat 
 
 
-#write.csv(AUC_dat, here("output/Tables 2025/AUC_outputs.csv"), row.names=F) # this allows you to read out the output data as a csv for easiest copying to the report
-#write.csv(beta_dat, here("output/Tables 2025/beta_outputs.csv"), row.names=F)  # this allows you to read out the output data as a csv for easiest copying to the report
-#write.csv(mytest.contrast_dat, here("output/Tables 2025/mytests_outputs.csv"), row.names=F) # this allows you to read out the output data as a csv for easiest copying to the report
+write.csv(AUC_dat, here("output/Tables 2025/AUC_outputs.csv"), row.names=F) # this allows you to read out the output data as a csv for easiest copying to the report
+write.csv(beta_dat, here("output/Tables 2025/beta_outputs.csv"), row.names=F)  # this allows you to read out the output data as a csv for easiest copying to the report
+write.csv(mytest.contrast_dat, here("output/Tables 2025/mytests_outputs.csv"), row.names=F) # this allows you to read out the output data as a csv for easiest copying to the report
 
 
 
 #need to reshape the AUC and beta tables for easiesr translation into the report tables
-library(reshape2)
+#library(reshape2)
 
 RSF_coef_dat_out <- full_join(beta_dat[c(1:3,5:7)],AUC_dat, by=c("year", "cohort", "Period", "Habitat", "TagID"))
 
@@ -2646,7 +2649,7 @@ RSF_coef_dat_out_wide <- RSF_coef_dat_out %>% pivot_wider(names_from = Habitat, 
 #resort it
 colnames(RSF_coef_dat_out_wide)
 RSF_coef_dat_out_wide <- data.frame(RSF_coef_dat_out_wide[c(1:4,5,10,7,12,6,11,8,13,9,14)])
-
+colnames(RSF_coef_dat_out_wide)
 
 #write_csv(RSF_coef_dat_out_wide, here("output/Tables 2025/Beta_AUC_estimates_2021_2024.csv")) # this allows you to read out the output data as a csv for easiest copying to the report
 
