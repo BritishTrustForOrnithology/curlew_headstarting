@@ -2040,13 +2040,15 @@ if(nyr == "2021"){
     avail.pts$used<-fct_recode(avail.pts$used, "Available" = "FALSE", "Used" = "TRUE")
     
     
+    if(nyr==2024 & TP == "8b Male Breeding Season 2024"){
     #for Appendix save out a example plot of observed vrs random points - using 8 as only two birds so not too confusing with overlapping convex polygons
     #create the file 
-    #jpeg(file="C:/Users/hannah.hereward/Documents/Projects/2024_curlewheadstarting/curlew_headstarting/output/Figures 2025/NE103_Headstart CURLEW_2024_APPENDIXplot_8a_Breeding_F.jpg", width=15, height=15, units="cm", res=300)
+    jpeg(file=paste0("C:/Users/hannah.hereward/Documents/Projects/2024_curlewheadstarting/curlew_headstarting/output/Figures 2025/NE103_Headstart CURLEW_",nyr,"_APPENDIXplot_8b_Breeding_M.jpg"), width=15, height=15, units="cm", res=300)
     #run the plot
-    #plot(avail.pts[avail.pts$id=="Yf(XT)O/-:Y/m_KenHill",])
+    plot(avail.pts[avail.pts$id=="Yf(9J)O/-:Y/m_KenHill",])
     #close the file
-    #dev.off() 
+    dev.off() 
+    }
     
     
     # Tidy LCM variable  # variable name 'layer' with new landuse data for 2022. HH NB - note that this produces warning messages presumably because some of the habitat numbers don't feature in each extraction
@@ -2185,12 +2187,79 @@ if(nyr == "2021"){
     
     
     
-    #for the july-dec tide
+    #for the july-dec tide. NOTE for using this for 2021 data need to cap this at November because the tide data in Dec 2021 is patchy
     if(p==5){
       
+      if(nyr==2024){ #added this loop in because in 2024 the tide data stopped after the 7th Dec.
       
+        
+        #need to filter out the data points that are beyond the 7th Dec 2024 #39 points removed
+        trk_filter<-trk %>% filter(! t_ > "2024-12-07")
+        
+        
+        
+        avail.pts_filter <- trk_filter %>%  nest(data=-c("id", "tide", "cohort", "release")) %>% 
+          mutate(rnd_pts = map(data, ~ random_points(., factor = 20, type="random"))) %>% 	
+          select(id, tide,cohort,release, rnd_pts) %>%  # you don't want to have the original point twice, hence drop data
+          unnest_legacy(cols=c(rnd_pts))
+        
+        
+        # Assign class as lost during nesting
+        class(avail.pts_filter) <- c("random_points", class(avail.pts_filter))
+        
+        
+        # Extract LCM values for random points
+        avail.pts_filter <- avail.pts_filter %>% 
+          extract_covariates(landuse)
+        
+        
+        # Make factor plotting friendly
+        avail.pts_filter$used<-as.factor(avail.pts_filter$case_)
+        avail.pts_filter$used<-fct_recode(avail.pts_filter$used, "Available" = "FALSE", "Used" = "TRUE")
+        
+        # Tidy LCM variable  # variable name 'layer' with new landuse data for 2022. HH NB - note that this produces warning messages presumably because some of the habitat numbers don't feature in each extraction
+        rsfdat_filter <- avail.pts_filter %>%  mutate(
+          layer = as.character(layer), 
+          layer = fct_collapse(layer,
+                               "Arable" = c("3"),
+                               "Grassland" = c("4","5","6","7"),
+                               "Coastal rock" = c("15", "17"),
+                               "Coastal sediment" = c("16", "18"),
+                               "Saltmarsh" = c("19"),
+                               "Other" = c("1", "2","8", "9", "10", "11", "12","13","14", "20", "21")))
+        #might get a warning about unknown levels - this is because they're not in the datafile
+        
+        # Reorder factor level
+        rsfdat_filter$layer<- factor(rsfdat_filter$layer, levels=c("Coastal sediment","Saltmarsh","Coastal Rock","Arable","Grassland","Other"))
+        
+        
+        # set response to numeric
+        rsfdat_filter <- rsfdat_filter %>% mutate(case_ = as.numeric(case_))
+        
+        
+        # Weight available data 
+        rsfdat_filter$w <- ifelse(rsfdat_filter$case_ == 1, 1, 5000)
+        
+        
+        # Set individual habitat factors (pooling all other habitats into single reference level)
+        rsfdat_filter$Coastal <- ifelse(rsfdat_filter$layer == "Coastal sediment", 1, 0)
+        rsfdat_filter$Saltmarsh <- ifelse(rsfdat_filter$layer == "Saltmarsh", 1, 0)
+        rsfdat_filter$Arable <- ifelse(rsfdat_filter$layer == "Arable", 1, 0)
+        rsfdat_filter$Grassland <- ifelse(rsfdat_filter$layer == "Grassland", 1, 0)
+        rsfdat_filter$Other <- ifelse(rsfdat_filter$layer == "Other", 1, 0)
+        
+        
+        
+        #rename the RSF files based on the timeframe - 1wk,2wks,6wks,all Jul-Dec
+        #HH NB - some of the categories will have NAs some of these are because they are too far out into the sea for the LCM map to categories them BUT others are outside of the UK and therefore outside of the UK LCM!
+        rsfdat_filter
+        
+        
+        
+        
+        
       ## Available/Used Plot 
-      na.omit(rsfdat) %>%                               	                          	# Update period or ID
+      na.omit(rsfdat_filter) %>%                               	                          	# Update period or ID
         filter(tide != "NA") %>%                                                          #FILTER ONLY TO BE USED FOR TIDE TO REMOVE THE NAs
         ggplot(.,  aes(x=layer,group=used))                                       +	      # select data and variables - using na.omit() here to exclude random points offshore outside LCM area. HH NB - LCM = layer in 2022 and 2023 LCM data so need to change this to layer
         geom_bar(position=position_dodge(), aes(y=after_stat(prop), fill = used),
@@ -2213,6 +2282,47 @@ if(nyr == "2021"){
       # Save plot (outside of Github)
       setwd("C:/Users/hannah.hereward/Documents/Projects/2024_curlewheadstarting/curlew_headstarting/output/Figures 2025/Habitat_prop/")
       ggsave(paste0("NE103_",nyr,"_Headstart CURLEW_RSF plot_",filelab,"_TIDE.jpg"), width=15, height=15, units="cm", dpi=300)  ## UPDATE FILENAME
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      }else{
+        
+        ## Available/Used Plot 
+        na.omit(rsfdat) %>%                               	                          	# Update period or ID
+          filter(tide != "NA") %>%                                                          #FILTER ONLY TO BE USED FOR TIDE TO REMOVE THE NAs
+          ggplot(.,  aes(x=layer,group=used))                                       +	      # select data and variables - using na.omit() here to exclude random points offshore outside LCM area. HH NB - LCM = layer in 2022 and 2023 LCM data so need to change this to layer
+          geom_bar(position=position_dodge(), aes(y=after_stat(prop), fill = used),
+                   stat="count", colour="black")                                +       # select barplot of proportions presented side by side with black outline
+          scale_fill_manual(values=c("grey70", "grey20"))                       + 		  # define colours, plenty of good built in palettes if colour can be used
+          labs(y = "Proportion of fixes\n", fill="used", x="\nHabitat")         + 			# labels, \n indicates space between line and text
+          theme_classic()                                                       +       # remove default grid lines and grey background
+          theme(legend.title=element_blank(),  																	 			  # remove legend title
+                legend.position = c(0.9,0.9),                                           # specify legend position inside plot area
+                axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))   +       # rotated x axis labels for individual plots
+          #scale_y_continuous(expand = expansion(mult = c(0, .1)))               +       # remove gap between bars and axis lines
+          #ylim(c(0,0.6)) +                                                              #HH NB - use ylim 2023 = c(0,0.6) and scale_y_continuous for 2021&2022 
+          scale_y_continuous(breaks = seq(0,1,by=0.2), limits =c(0,1)) +
+          theme(axis.text.x = element_text(size = 12),axis.text.y = element_text(size = 12),
+                axis.title.x = element_text(size = 14),axis.title.y = element_text(size = 14)) +
+          ggtitle(paste0("",plotlab,""))     +
+          facet_wrap(facets=vars(tide), ncol=1, strip.position = "right") 
+        
+        
+        # Save plot (outside of Github)
+        setwd("C:/Users/hannah.hereward/Documents/Projects/2024_curlewheadstarting/curlew_headstarting/output/Figures 2025/Habitat_prop/")
+        ggsave(paste0("NE103_",nyr,"_Headstart CURLEW_RSF plot_",filelab,"_TIDE.jpg"), width=15, height=15, units="cm", dpi=300)  ## UPDATE FILENAME
+        
+        
+        
+        
+      }
+      
       
     }
     
@@ -2504,6 +2614,11 @@ if(nyr == "2021"){
     m1<-lm(x$estimate~x$term)
     summary(m1)
     
+    #added in these two lines to extract out the overall F value, the two DFs and the associated P value - these all are used in text in the report
+    fstat <- summary(m1)$fstatistic
+    fp <- pf(summary(m1)$fstatistic[[1]], summary(m1)$fstatistic[[2]], summary(m1)$fstatistic[[3]], lower.tail = F)
+    
+    
     # Check contrasts
     mytest <- emmeans(m1, ~ term)
     mytest.contrast <- contrast(regrid(mytest))
@@ -2517,6 +2632,10 @@ if(nyr == "2021"){
     mytest.contrast$year <- nyr
     mytest.contrast$Period <- TP
     mytest.contrast$cohort <- cohort
+    mytest.contrast$fstat <- fstat[1]
+    mytest.contrast$fstat_df1 <- fstat[2]
+    mytest.contrast$fstat_df2 <- fstat[3]
+    mytest.contrast$fstat_p <- fp
     
     #re order the contrast rows:
     mytest.contrast <- mytest.contrast[c(1,2,3,5,4),]
