@@ -1771,8 +1771,12 @@ lab_lat<-seq(new_lat_lower, new_lat_upper,length.out=length(seq(min(yRa), max(yR
 library(amt) 
 
 ## Load Land Cover Map 2021 25m Raster
-landuse <- raster::raster(here("data","NE103_LCM2021","LCM.tif"))
+#NOTE THIS IS THE WASH ONLY!!!
+#landuse <- raster::raster(here("data","NE103_LCM2021","LCM.tif"))
 
+#this is a new raster
+landuse <- raster::raster(here("data","NE103_LCM2021_UK","gblcm25m2021_UK.tif"))
+ 
 
 #RSF model set up ##
 #have to run this long hand so no loops over the five categories 
@@ -2030,7 +2034,6 @@ if(nyr == "2021"){
       
     #and one more additional loop for east England zoom
    
-      
       #Use same colony lat and long as for the wash
       
       # Set axes limit (units m here) - trial and error to set suitable bounds. centered on the colony. units m
