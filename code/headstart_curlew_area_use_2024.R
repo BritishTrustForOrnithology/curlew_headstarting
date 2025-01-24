@@ -573,16 +573,6 @@ summary(data_final)
 #data_final %>% filter(data_final$DateTime %in% exclude0E)
 
 
-#one more bird has come up (22/01/2025) that needs removing for End of Decemter 2023 winter - "9J" 
-#testtable_2023_3 <- data.frame(Data_W_AfterB_M) %>% 
-#  group_by(flag_id) %>% 
-#  count()
-
-#exclude9J <- (Data_W_AfterB_M$DateTime[Data_W_AfterB_M$flag_id=="9J"])
-
-#check these are definitely all LU timesdates
-#data_final_final %>% filter(data_final_final$DateTime %in% exclude9J)
-
 
 ###2024 year data ####
 #list of birds and time periods: 
@@ -644,7 +634,22 @@ summary(data_final)
 
 #allexclude <- readRDS(here("data/2025 analysis/listofdatestoexclude_2023_2024_anlaysis.rds"))
 
+
+
 #add in 9J for winter post breeding 2024 
+#one more bird has come up (22/01/2025) that needs removing for End of Decemter 2023 winter - "9J" 
+#testtable_2023_3 <- data.frame(Data_W_AfterB_M) %>% 
+#  group_by(flag_id) %>% 
+#  count()
+
+#exclude9J <- (Data_W_AfterB_M$DateTime[Data_W_AfterB_M$flag_id=="9J"])
+
+#check these are definitely all 9J timesdates
+#data_final_final %>% filter(data_final_final$DateTime %in% exclude9J)
+
+
+
+
 #allexclude <- c(allexclude, exclude9J)
 
 
@@ -1668,7 +1673,9 @@ plot_leaflet(data[[2]], lines=FALSE, col=c(scales::viridis_pal()(length(data[[2]
 #only need this plot for all data up to December
 data_tide<-TrackStack2Track(data[[6]])
 
-#ADD IN HERE CODE TO FILTER THE DATA TO BE LESS THAN 7th Dec (inclusive) 
+#Filter data_tide for 2024 because the bouy sensor stopped recording so we only have high and low tided data up to 7th Dec 2024 (inclusive) 
+data_tide <- data_tide %>% filter(DateTime < "2024-12-08")
+
 
 data_tide<-data_tide %>% filter(tide!="NA")
 data_tide$Tide<-as.character(fct_recode(data_tide$tide, "High tide" = "HW", "Low tide" = "LW") )
@@ -1684,7 +1691,7 @@ scales::viridis_pal()(9)
 data_site <- TrackStack2Track(data[[1]])
 
 data_site_ken <- droplevels(data_site %>% filter(data_site$release_site_final=="Ken Hill"))
-unique(data_site_ken$TagID) #6
+unique(data_site_ken$TagID) #5
 plot_leaflet(data_site_ken, lines=FALSE, col=viridis_pal()(length(unique(data_site_ken$TagID)))) # KMB, new colour scheme, needs libraries Viridis and ViridisLite
 
 data_site_san <- droplevels(data_site %>% filter(data_site$release_site_final=="Sandringham 2"))
@@ -1962,6 +1969,125 @@ if(nyr == "2021"){
     
     #HH NB. dev.off needs running to 'close' the tiff and save it - without running this bit it won't save !
     dev.off()
+    
+    
+    #adding mini loop to extract UK wide maps:
+    if(nyr==2024 & p > 5){
+      
+      #Use same colony lat and long as for the wash
+      
+      # Set axes limit (units m here) - trial and error to set suitable bounds. centered on the colony. units m
+      
+      #whole of UK
+      xRa_UK<-c(-622435.4,224987.6)
+      yRa_UK<-c(-414008.8,886812.5)
+      
+      
+      new_lat_lower_UK <- round(ColLat + (min(yRa_UK) * m),1)     ## multiply xyRa by 100 if working in p4 units km
+      new_lat_upper_UK <- round(ColLat + (max(yRa_UK) * m),1)
+      new_long_lower_UK <- round(ColLon + (min(xRa_UK) * m) / cos(ColLat * (pi / 180)),1)
+      new_long_upper_UK <- round(ColLon + (max(xRa_UK) * m) / cos(ColLat * (pi / 180)),1)	
+      
+      lab_long_UK<-seq(new_long_lower_UK, new_long_upper_UK,length.out=length(seq(min(xRa_UK), max(xRa_UK),by=5000)))
+      lab_lat_UK<-seq(new_lat_lower_UK, new_lat_upper_UK,length.out=length(seq(min(yRa_UK), max(yRa_UK),by=5000)))
+      
+      
+      
+      
+      
+      # Set directory (outside of Github here)
+      dir <- "C:/Users/hannah.hereward/Documents/Projects/2024_curlewheadstarting/curlew_headstarting/output/Figures 2025/TIA/" #HH laptop directory
+      plot_name<-paste0("NE103_Headstart CURLE_TIA_",nyr,"_",cohort,"_",filelab,"_UK.tiff")
+      
+      
+      # Set plot device (saving hi-res base R maps)
+      tiff(paste0(dir,plot_name), width=25, height=23, units="cm", pointsize=18, res=600, compression ="lzw")
+      
+      #HH NB: updated as sp package was discontinued. terra used now according to plot_TIA
+      #removed: 
+      terra::plot(ukmap$geometry, xlim=xRa_UK, ylim=yRa_UK,col="grey80",border="grey80", axes=T, yaxt="n",  #need to specify here ukmap$geometry
+                  xaxt="n", xlab="Longitude", ylab="Latitude",
+                  main=paste0(plotlab))# UPDATE MANUALLY                     
+      #axis(1)
+      #axis(2)
+      axis(1, at=seq(min(xRa_UK), max(xRa_UK),by=5000), labels=round(lab_long_UK,2)) 
+      axis(2, at=seq(min(yRa_UK), max(yRa_UK),by=5000), labels=round(lab_lat_UK,2))
+      
+      
+      #HH NB. had error for this plot about memory. UPDATE: needed to specify the ukmap$geometry in the terra::plot above and now it works
+      # UPDATE INDIVIDUAL BETWEEN PLOTS
+      plot_TIA(data=grd_rank_all,Add=TRUE,                    # UPDATE ID SELECTION. grd_rank_all is the only one that was used by Gary before - one could put in "grd_rank_birds". BUT NOT DONE FOR THIS ANALYSIS!
+               xra=xRa_UK, yra=yRa_UK,
+               g_levs = c(1,0.95,0.75,0.5),
+               c_levs = c(0.95,0.75,0.5),
+               col_ramp_grd =c("#440154FF", "#31688EFF", "#35B779FF", "#FDE725FF"), #TIA colours for the 50%, 75%, 95% and 100%
+               #col_ramp_con =c("#31688EFF", "#35B779FF", "#FDE725FF"), #colours for the countour lines rather than grided 
+               cont_typ=1) # if this is 4 you can plot it outside the function and it returns an object in R 
+      
+      #HH NB. dev.off needs running to 'close' the tiff and save it - without running this bit it won't save !
+      dev.off()
+      
+      
+    #and one more additional loop for east England zoom
+   
+      
+      #Use same colony lat and long as for the wash
+      
+      # Set axes limit (units m here) - trial and error to set suitable bounds. centered on the colony. units m
+      
+      #whole of UK
+      #southeast of the UK
+      xRa_SE<-c(-122435.4,24987.6)
+      yRa_SE<-c(-214008.8,86812.5)
+      
+      
+      new_lat_lower_SE <- round(ColLat + (min(yRa_SE) * m),1)     ## multiply xyRa by 100 if working in p4 units km
+      new_lat_upper_SE <- round(ColLat + (max(yRa_SE) * m),1)
+      new_long_lower_SE <- round(ColLon + (min(xRa_SE) * m) / cos(ColLat * (pi / 180)),1)
+      new_long_upper_SE <- round(ColLon + (max(xRa_SE) * m) / cos(ColLat * (pi / 180)),1)	
+      
+      lab_long_SE<-seq(new_long_lower_SE, new_long_upper_SE,length.out=length(seq(min(xRa_SE), max(xRa_SE),by=5000)))
+      lab_lat_SE<-seq(new_lat_lower_SE, new_lat_upper_SE,length.out=length(seq(min(yRa_SE), max(yRa_SE),by=5000)))
+      
+      
+      
+      
+      
+      # Set directory (outside of Github here)
+      dir <- "C:/Users/hannah.hereward/Documents/Projects/2024_curlewheadstarting/curlew_headstarting/output/Figures 2025/TIA/" #HH laptop directory
+      plot_name<-paste0("NE103_Headstart CURLE_TIA_",nyr,"_",cohort,"_",filelab,"_SouthEastEngland.tiff")
+      
+      
+      # Set plot device (saving hi-res base R maps)
+      tiff(paste0(dir,plot_name), width=25, height=23, units="cm", pointsize=18, res=600, compression ="lzw")
+      
+      #HH NB: updated as sp package was discontinued. terra used now according to plot_TIA
+      #removed: 
+      terra::plot(ukmap$geometry, xlim=xRa_SE, ylim=yRa_SE,col="grey80",border="grey80", axes=T, yaxt="n",  #need to specify here ukmap$geometry
+                  xaxt="n", xlab="Longitude", ylab="Latitude",
+                  main=paste0(plotlab))# UPDATE MANUALLY                     
+      #axis(1)
+      #axis(2)
+      axis(1, at=seq(min(xRa_SE), max(xRa_SE),by=5000), labels=round(lab_long_SE,2)) 
+      axis(2, at=seq(min(yRa_SE), max(yRa_SE),by=5000), labels=round(lab_lat_SE,2))
+      
+      
+      #HH NB. had error for this plot about memory. UPDATE: needed to specify the ukmap$geometry in the terra::plot above and now it works
+      # UPDATE INDIVIDUAL BETWEEN PLOTS
+      plot_TIA(data=grd_rank_all,Add=TRUE,                    # UPDATE ID SELECTION. grd_rank_all is the only one that was used by Gary before - one could put in "grd_rank_birds". BUT NOT DONE FOR THIS ANALYSIS!
+               xra=xRa_SE, yra=yRa_SE,
+               g_levs = c(1,0.95,0.75,0.5),
+               c_levs = c(0.95,0.75,0.5),
+               col_ramp_grd =c("#440154FF", "#31688EFF", "#35B779FF", "#FDE725FF"), #TIA colours for the 50%, 75%, 95% and 100%
+               #col_ramp_con =c("#31688EFF", "#35B779FF", "#FDE725FF"), #colours for the countour lines rather than grided 
+               cont_typ=1) # if this is 4 you can plot it outside the function and it returns an object in R 
+      
+      #HH NB. dev.off needs running to 'close' the tiff and save it - without running this bit it won't save !
+      dev.off()
+      
+      
+      
+    }
     
     
     
@@ -2778,6 +2904,7 @@ colnames(RSF_coef_dat_out_wide)
 
 
 
+####.####
 
 
 
@@ -2785,158 +2912,9 @@ colnames(RSF_coef_dat_out_wide)
 
 ####. ####. #### . ####  
 
-# PLOTTING  ##HH  NB - Utilisation Distribution TIA plots - THE UK and SE for 2021 & 2022 cohorts ####
+# PLOTTING Utilisation Distribution TIA plots - THE UK and SE for 2021 & 2022 cohorts ####
 #This is to assess if the older cohort birds are using other parts of the UK aside from the Wash which are accounted for in the avalible/used panel but not in the TIA
-#2023 - only the Breeding season (Female) had one - Rotchester
-
-#Use same colony lat and long as for the wash
-
-# Set axes limit (units m here) - trial and error to set suitable bounds. centered on the colony. units m
-
-#whole of UK
-xRa<-c(-622435.4,224987.6)
-yRa<-c(-414008.8,886812.5)
-
-
-#slight zoom in:
-xRa<-c(-622435.4,124987.6)
-yRa<-c(-314008.8,686812.5)
-
-
-#southeast of the UK
-xRa<-c(-122435.4,24987.6)
-yRa<-c(-214008.8,86812.5)
-
-####--- this is setting up new units to put lat long onto the map without re-projecting the data... not ideal but it's what Garry did before ... 
-# prepare new axes in lat/long - 
-earth <- 6378.137
-m <- (1 / ((2 * pi / 360) * earth)) /1000
-
-new_lat_lower <- round(ColLat + (min(yRa) * m),1)     ## multiply xyRa by 100 if working in p4 units km
-new_lat_upper <- round(ColLat + (max(yRa) * m),1)
-new_long_lower <- round(ColLon + (min(xRa) * m) / cos(ColLat * (pi / 180)),1)
-new_long_upper <- round(ColLon + (max(xRa) * m) / cos(ColLat * (pi / 180)),1)	
-
-lab_long<-seq(new_long_lower, new_long_upper,length.out=length(seq(min(xRa), max(xRa),by=5000)))
-lab_lat<-seq(new_lat_lower, new_lat_upper,length.out=length(seq(min(yRa), max(yRa),by=5000)))
-
-
-# Get colours
-# Get hex colours from viridis (colour blind friendly)
-#scales::viridis_pal()(3)
-#   "#440154FF" "#21908CFF" "#FDE725FF"                 # For GPS plots
-#   "#440154FF" "#31688EFF" "#35B779FF" "#FDE725FF"     # For TIA plots #four categories of the "Bins" = cut offs of the distribution, 50%, 75%, 95%, 100%
-
-
-for(y in 1:length(nyears)){
-  
-  nyr <- nyears[y]
-  
-  setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/data/2025 analysis") #HH laptop
-  load(file=paste0("NE103_",nyr," report_clean tracking data for all ",nyr," data.RData"))
-  
-  
-  #loaded as data_year. rename it:
-  data <- data_year
-
-   # "6 Winter pre-breeding" , "7 Spring fuzzy" ,
-  datasplit <- c( "8a Female Breeding Season" , "8b Male Breeding Season" ,
-                   "9a Female Autumn fuzzy","9b Male Autumn fuzzy", "10 End of December - Winter" )
-    
-  #"Winter - pre-breeding" , "Spring transition" , 
-  plotlabels <- c("Breeding season - Female" , "Breeding season - Male" ,
-                  "Autumn transition - Female","Autumn transition - Male", "Winter - post-breeding")
-  #"6_WinterPreBreed" , "7_Spring_transition" ,
-  filelabels <- c( "8a_Breeding_female" , "8b_Breeding_male" ,
-                  "9a_Autumn_transition_female","9b_Autumn_transition_male", "10_WinterPostBreed" )
-  
-  
-  
-  for(p in 1:length(datasplit)){
-    
-    TP <- datasplit[p] 
-    
-    #add this if loop in for data split label to include the correct year
-    TP <- paste0("",TP," ",nyr,"")
-
-    
-    #TIA analysis: select the specific list from the 'data' set
-    tia_dat<-data[[TP]]
-    
-    
-    #add this in so that we can add it in as a label in the file name below
-    cohort <- ("PASTCOHORT")
-    
-    #extract out the file label
-    filelab <- filelabels[p]
-    
-    #add in plot label
-    plotlab <- plotlabels[p]
-    
-    
-    #add this if loop in for plot label for july-december to include the correct year
-    plotlab <- paste0("",plotlab," ",nyr,"")
-    
-    
-    
-    ## Utilisation Distribution TIA plots####
-    #HH NB - these lines below then take each section of the data:
-    #and 1) find the boundary for the grid, 2) then create a grid with 500 as the cellsize, 
-    #3) calculate the amount of time each bird spends in each cell for a) whole population and b) individual birds 
-    # get bounds for the grid 
-    llyrb = get_bounds(tia_dat, p4s=p4) # Defaults to UK BNG p4s = sp::CRS("+init=epsg:27700") 
-    ##CHECK THAT I ACTUALLY STILL NEED p4 HERE!!!!!!!!
-    
-    # run TIA (trial and error on suitable cell size) # grid of cells. HH NB _ FYI - some of these have 'trips' removed. Chris T reckons this is because of the extra filtering and so for some points there will not be enough to do the amount of time in cell count and so they are removed
-    indata_grd <- get_TIA_grd(tia_dat, xRa=llyrb$xRa, yRa=llyrb$yRa, cellsize = 500, p4s=p4) # Laptop will not process next step if smaller grid size #Gary's code = cellsize=500
-    
-    # rank the time cumulatively for plotting for each bird. #ranks the time spent in each cell
-    grd_rank_all<- rank_time(indata_grd, population = TRUE) # Population level
-    #NOTE there are various warnings where a trip has too few data so it removed. 
-    #NOTE Error thrown up for 2023 Spring transition 2023: #error in .local cannot derive coordinates from non-numeric matrix error only for "Yf(0E)O/-:Y/m" and there are only 2 GPS fixes so that is likely to be the issue - these are now removed from data_final_final and code works
-    #NOTE Error thrown up for 2024 Winter post breeding 2024: Error in `$<-.data.frame`(`*tmp*`, "dum", value = 1) :     replacement has 1 row, data has 0.
-    ##this is for tag: "LU" but I suspect: "LJ", "LV" and "XJ" will also throw this error as they have less than 10 tracks too
-    
-    #grd_rank_birds<- rank_time(indata_grd, population = FALSE) # Individual level - currently not used
-    
-    
-    
-    # Set directory (outside of Github here)
-    dir <- "C:/Users/hannah.hereward/Documents/Projects/2024_curlewheadstarting/curlew_headstarting/output/Figures 2025/TIA/" #HH laptop directory
-    plot_name<-paste0("NE103_Headstart CURLE_TIA_",nyr,"_",cohort,"_",filelab,"_UK.tiff")
-    
-    
-    # Set plot device (saving hi-res base R maps)
-    tiff(paste0(dir,plot_name), width=25, height=23, units="cm", pointsize=18, res=600, compression ="lzw")
-    
-    #HH NB: updated as sp package was discontinued. terra used now according to plot_TIA
-    #removed: 
-    terra::plot(ukmap$geometry, xlim=xRa, ylim=yRa,col="grey80",border="grey80", axes=T, yaxt="n",  #need to specify here ukmap$geometry
-                xaxt="n", xlab="Longitude", ylab="Latitude",
-                main=paste0(plotlab))# UPDATE MANUALLY                     
-    #axis(1)
-    #axis(2)
-    axis(1, at=seq(min(xRa), max(xRa),by=5000), labels=round(lab_long,2)) 
-    axis(2, at=seq(min(yRa), max(yRa),by=5000), labels=round(lab_lat,2))
-    
-    
-    #HH NB. had error for this plot about memory. UPDATE: needed to specify the ukmap$geometry in the terra::plot above and now it works
-    # UPDATE INDIVIDUAL BETWEEN PLOTS
-    plot_TIA(data=grd_rank_all,Add=TRUE,                    # UPDATE ID SELECTION. grd_rank_all is the only one that was used by Gary before - one could put in "grd_rank_birds". BUT NOT DONE FOR THIS ANALYSIS!
-             xra=xRa, yra=yRa,
-             g_levs = c(1,0.95,0.75,0.5),
-             c_levs = c(0.95,0.75,0.5),
-             col_ramp_grd =c("#440154FF", "#31688EFF", "#35B779FF", "#FDE725FF"), #TIA colours for the 50%, 75%, 95% and 100%
-             #col_ramp_con =c("#31688EFF", "#35B779FF", "#FDE725FF"), #colours for the countour lines rather than grided 
-             cont_typ=1) # if this is 4 you can plot it outside the function and it returns an object in R 
-    
-    #HH NB. dev.off needs running to 'close' the tiff and save it - without running this bit it won't save !
-    dev.off()
-    
-    
-  }
-}
-
+#2024 - includes various of the past cohort time periods. Loops now in the main loop to extract a UK wide and a south east zoom for each time period
 
 
 ####.####
