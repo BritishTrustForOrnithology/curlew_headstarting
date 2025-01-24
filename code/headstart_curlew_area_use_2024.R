@@ -1869,6 +1869,8 @@ if(nyr == "2021"){
   
 }
 
+
+
   for(p in 1:length(datasplit)){
     
     TP <- datasplit[p] 
@@ -2679,7 +2681,7 @@ if(nyr == "2021"){
     
     options(scipen=3000000)
     # Plot (habitat factor listed under term from model outputs)
-    rsf_coefs_hab %>% filter(term!="(Intercept)") %>%	ggplot(., ) +
+   plot <- rsf_coefs_hab %>% filter(term!="(Intercept)") %>%	ggplot(., ) +
       geom_point(aes(x = term, y = exp(estimate), group = id, col = id),
                  position = position_dodge(width = 0.7))+
       scale_colour_viridis_d() +
@@ -2703,13 +2705,14 @@ if(nyr == "2021"){
     
     # Save plot
     setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/output/Figures 2025/RSS/") #HH NB laptop
-    ggsave(paste0("NE103_",nyr,"_Headtsart CURLE_RSS plot_",filelab,".png"), width=15, height=15, units="cm", dpi=300)  ## UPDATE FILENAME
+    ggsave(plot, file=paste0("NE103_",nyr,"_Headtsart CURLE_RSS plot_",filelab,".png"), width=15, height=15, units="cm", dpi=300)  ## UPDATE FILENAME
     
+    print(plot)
    
    
     options(scipen=3000000)
     # Plot (habitat factor listed under term from model outputs)
-    rsf_coefs_hab %>% filter(term!="(Intercept)") %>%	ggplot(., ) +
+    plot2 <- rsf_coefs_hab %>% filter(term!="(Intercept)") %>%	ggplot(., ) +
       geom_point(aes(x = term, y = exp(estimate), group = id, col = id),
                  position = position_dodge(width = 0.7))+
       scale_colour_viridis_d() +
@@ -2730,10 +2733,11 @@ if(nyr == "2021"){
             panel.background = element_blank(), axis.line = element_line(colour = "black"))+
       ggtitle(paste0("",plotlab," (cropped)"))   ## UPDATE MANUALLY #HH NB if cropping to ignore outliers add in (cropped - one outlier outside view)
     
+    print(plot2)
     
     # Save plot
     setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/output/Figures 2025/RSS/") #HH NB laptop
-    ggsave(paste0("NE103_",nyr,"_Headtsart CURLE_RSS plot_",filelab,"_CROPPED.png"), width=15, height=15, units="cm", dpi=300)  ## UPDATE FILENAME
+    ggsave(plot2, file=paste0("NE103_",nyr,"_Headtsart CURLE_RSS plot_",filelab,"_CROPPED.png"), width=15, height=15, units="cm", dpi=300)  ## UPDATE FILENAME
     
     
     
