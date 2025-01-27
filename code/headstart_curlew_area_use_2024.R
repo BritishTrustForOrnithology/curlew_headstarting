@@ -1772,10 +1772,10 @@ library(amt)
 
 ## Load Land Cover Map 2021 25m Raster
 #NOTE THIS IS THE WASH ONLY!!!
-#landuse <- raster::raster(here("data","NE103_LCM2021","LCM.tif"))
+landuse <- raster::raster(here("data","NE103_LCM2021","LCM.tif"))
 
-#this is a new raster
-landuse <- raster::raster(here("data","NE103_LCM2021_UK","gblcm25m2021_UK.tif"))
+#this is a new raster which is the WHOLE of GB
+#landuse <- raster::raster(here("data","NE103_LCM2021_UK","gblcm25m2021_UK.tif"))
  
 
 #RSF model set up ##
@@ -1790,6 +1790,11 @@ beta_dat <- data.frame()
 
 #and one for the my tests outputs
 mytest.contrast_dat <- data.frame()
+
+
+#number of NAs
+nas_dat <- data.frame()
+
 
 
 # Stat testing RSF - two-stage modeling ##
@@ -1976,7 +1981,7 @@ if(nyr == "2021"){
     
     
     #adding mini loop to extract UK wide maps:
-    if(nyr==2024 & p > 5){
+    if(nyr==2024){
       
       #Use same colony lat and long as for the wash
       
@@ -2038,10 +2043,14 @@ if(nyr == "2021"){
       
       # Set axes limit (units m here) - trial and error to set suitable bounds. centered on the colony. units m
       
-      #whole of UK
-      #southeast of the UK
-      xRa_SE<-c(-122435.4,24987.6)
-      yRa_SE<-c(-214008.8,86812.5)
+      #southeast of the UK - these are eastings and northings but are converted to lat and long so doesn't work to plot on a map
+            #these are from 2023 report analysis 
+      #xRa_SE<-c(-122435.4,24987.6)
+      #yRa_SE<-c(-214008.8,86812.5)
+      
+      #wider southeast of the UK - wider needed for 2024 analysis
+      xRa_SE<-c(-122435.4,124987.6)
+      yRa_SE<-c(-214008.8,206812.5)
       
       
       new_lat_lower_SE <- round(ColLat + (min(yRa_SE) * m),1)     ## multiply xyRa by 100 if working in p4 units km
@@ -2059,7 +2068,7 @@ if(nyr == "2021"){
       # Set directory (outside of Github here)
       dir <- "C:/Users/hannah.hereward/Documents/Projects/2024_curlewheadstarting/curlew_headstarting/output/Figures 2025/TIA/" #HH laptop directory
       plot_name<-paste0("NE103_Headstart CURLE_TIA_",nyr,"_",cohort,"_",filelab,"_SouthEastEngland.tiff")
-      
+     
       
       # Set plot device (saving hi-res base R maps)
       tiff(paste0(dir,plot_name), width=25, height=23, units="cm", pointsize=18, res=600, compression ="lzw")
@@ -2120,6 +2129,11 @@ if(nyr == "2021"){
     #NOTE this will remove some 'at sea' around the UK NAs as well as non-UK fixes 
     summary(trk)
     
+    #add in to the nas_dat file the number of NAs
+    nas_out <- data.frame(year = nyr, time_period = filelab, LCM_NAs = sum(is.na(trk$layer)) )
+    nas_dat <- rbind(nas_dat, nas_out)
+    
+    #filter the NAs out
     trk <- trk %>% 
       filter(!is.na(layer))
     
@@ -2151,8 +2165,31 @@ if(nyr == "2021"){
     #ONLY USE THIS CODE FOR '8' = Spring Transition:  trk <- trk %>% filter(trk$id!= "Yf(0E)O/-:Y/m")
 
     
-    avail.pts <- trk %>%  nest(data=-c("id", "tide", "cohort", "release")) %>% 
-      mutate(rnd_pts = map(data, ~ random_points(., factor = 20, type="random"))) %>% 	
+  #  avail.pts <- trk %>%  tidyr::nest(data=-c("id", "tide", "cohort", "release")) %>% #-c is a minus because it is what you 'non-nested columns' which is what you are interested in but you don't want nested
+  #    mutate(rnd_pts = map(data, ~ random_points(., factor = 20, type="random"))) %>% #creating 20 random points per -c("id", "tide", "cohort", "release")	... but factor appears to have been deprecated in version 0.1.6 (unfortunately not noticed in 2023 analysis).
+  #    select(id, tide,cohort,release, rnd_pts) %>%  # you don't want to have the original point twice, hence drop data
+  #    unnest_legacy(cols=c(rnd_pts))
+    
+    
+    
+    #CODE UPDATE HERE HH 2025 - due to 'factor' being deprecated and so needing an alternative way of getting the correct number of random points 
+    avail.pts <- trk %>%  tidyr::nest(data=-c("id", "tide", "cohort", "release"))  #-c is a minus because it is what you 'non-nested columns' which is what you are interested in but you don't want nested
+    
+    
+    #new part in here because the original code used factor = 20... which is now deprecated so instead we need to use n = but this is literally the number of points added and so for us we want to use the number of GPS fixes per row * 20. 
+    #so create new column to put in the number of rows of data per row
+    avail.pts$data_nrow <- NA
+    
+    #loop this so that we get the individual count per row
+    for(t in 1:length(avail.pts$id)){
+      
+      avail.pts$data_nrow[[t]] <- nrow(avail.pts$data[[t]])
+      
+    }
+    
+    #then carry on in tidyr to mutate etc... 
+    avail.pts <- avail.pts %>%
+      mutate(rnd_pts = map(data, ~ random_points(., n= data_nrow*20 , type="random"))) %>% #  factor appears to have been deprecated in version 0.1.6 (unfortunately not noticed in 2023 analysis) so need to use n = .
       select(id, tide,cohort,release, rnd_pts) %>%  # you don't want to have the original point twice, hence drop data
       unnest_legacy(cols=c(rnd_pts))
     
@@ -2883,11 +2920,13 @@ if(nyr == "2021"){
 #AUC_dat
 #beta_dat
 #mytest.contrast_dat 
+#nas_dat
 
 
 write.csv(AUC_dat, here("output/Tables 2025/AUC_outputs.csv"), row.names=F) # this allows you to read out the output data as a csv for easiest copying to the report
 write.csv(beta_dat, here("output/Tables 2025/beta_outputs.csv"), row.names=F)  # this allows you to read out the output data as a csv for easiest copying to the report
 write.csv(mytest.contrast_dat, here("output/Tables 2025/mytests_outputs.csv"), row.names=F) # this allows you to read out the output data as a csv for easiest copying to the report
+write.csv(nas_dat, here("output/Tables 2025/number_nas_per_year_timeperiod.csv"), row.names=F) # this allows you to read out the output data as a csv for easiest copying to the report
 
 
 
