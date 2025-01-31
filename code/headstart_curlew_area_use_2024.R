@@ -2948,8 +2948,100 @@ colnames(RSF_coef_dat_out_wide)
 
 ####.####
 
+# a small additional loop to run to extract out how many and for which habitat there are outliers for the RSS ####
+
+#load in rsf_coefs_hab files to check the individuals that are outliers on the RSS figures
+
+nyears <- c("2021", "2022", "2023", "2024")
+
+#y<-4
+
+#nyr <- nyears[y]
 
 
+datasplit <- c("1 One Day" ,"2 One Week" ,"3 Two Weeks" , "4 Six Weeks" ,"5 End of December" ,
+               "6 Winter pre-breeding" , "7 Spring fuzzy" , "8a Female Breeding Season" , "8b Male Breeding Season" ,
+               "9a Female Autumn fuzzy","9b Male Autumn fuzzy", "10 End of December - Winter" )
+
+
+
+filelabels <- c("1_OneDay" ,"2_OneWeek" ,"3_TwoWeeks" , "4_SixWeeks" ,"5_July_December" ,
+                "6_WinterPreBreed" , "7_Spring_transition" , "8a_Breeding_female" , "8b_Breeding_male" ,
+                "9a_Autumn_transition_female","9b_Autumn_transition_male", "10_WinterPostBreed" )
+
+
+
+#keep_tagID
+keep_tagID_all <- data.frame()
+
+
+
+for(p in 1:length(datasplit)){
+  
+  TP <- datasplit[p] 
+  
+  #add this if loop in for data split label to include the correct year
+  if(p > 5){
+    TP <- paste0("",TP," ",nyr,"")
+  }
+  
+  #TIA analysis: select the specific list from the 'data' set
+  tia_dat<-data[[TP]]
+  
+  
+  #add this in so that we can add it in as a label in the file name below
+  cohort <- ifelse(p > 5, "PASTCOHORT", "COHORT")
+  
+  #extract out the file label
+  filelab <- filelabels[p]
+  
+  
+  
+  #add this if loop in for plot label for july-december to include the correct year
+  if(p >4){
+    plotlab <- paste0("",plotlab," ",nyr,"")
+  }
+  
+  
+  
+  setwd("C:/Users/hannah.hereward/Documents/Projects/2024_curlewheadstarting/curlew_headstarting/data/2025 analysis/")
+  load(file=paste0("NE103_",nyr," report_RSF_models_",cohort,"_",filelab,".RData"))
+  
+  
+  
+  # Reorder factor levels
+  rsf_coefs_hab$term<- factor(rsf_coefs_hab$term, levels=c("Saltmarsh", "Coastal", "Arable", "Grassland", "Other"))
+  
+  trial <- data.frame(rsf_coefs_hab)
+  
+  trial <- trial %>% filter(!is.na(trial$term))
+  
+  trial$exp <- exp(trial$estimate)
+  
+  max_exp <- max(trial$exp, na.rm = T)
+  
+  if(max_exp > 29){
+    
+    keep_tagID <- trial %>% filter(trial$exp > 29)
+    keep_tagID$period <- filelab
+    
+    
+    keep_tagID_all <- rbind(keep_tagID_all, keep_tagID)
+    
+    
+  }
+}
+
+
+
+mean <- mean(trial$exp[trial$term=="Saltmarsh"],na.rm=T)
+ymin = mean - 1.96 * sd(trial$exp[trial$term=="Saltmarsh"],na.rm=T)
+ymax = mean + 1.96 * sd(trial$exp[trial$term=="Saltmarsh"],na.rm=T)
+
+
+mean <- mean(trial$exp[trial$term=="Coastal"],na.rm=T)
+ymin = mean - 1.96 * sd(trial$exp[trial$term=="Coastal"],na.rm=T)
+ymax = mean + 1.96 * sd(trial$exp[trial$term=="Coastal"],na.rm=T)
 
 
 ####. ####. #### . ####  
