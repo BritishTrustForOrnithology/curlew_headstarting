@@ -3222,7 +3222,7 @@ rsfdat <- trk %>%  mutate(
 #might get a warning about unknown levels - this is because they're not in the datafile
 
 # Reorder factor level
-rsfdat$layer<- factor(rsfdat$layer, levels=c("Coastal sediment","Saltmarsh","Coastal Rock","Arable","Grassland","Other"))
+rsfdat$layer<- factor(rsfdat$layer, levels=c("Grassland","Coastal sediment","Saltmarsh","Coastal Rock","Arable","Other"))
 
 
 #plot check
@@ -3243,9 +3243,9 @@ rsf_tab_out <- rsfdat %>%
 rsf_tab_out <- data.frame(rsf_tab_out)
 
 
-#rsf_tab_out$layer<- factor(rsf_tab_out$layer, levels=c("Other","Grassland","Arable", "Coastal Rock","Saltmarsh","Coastal sediment"))
+rsf_tab_out$layer<- factor(rsf_tab_out$layer, levels=c("Other","Arable", "Coastal Rock","Saltmarsh","Coastal sediment","Grassland"))
 
-rsf_tab_out$layer<- factor(rsf_tab_out$layer, levels=c("Coastal sediment","Saltmarsh","Coastal Rock","Arable","Grassland","Other"))
+#rsf_tab_out$layer<- factor(rsf_tab_out$layer, levels=c("Grassland","Coastal sediment","Saltmarsh","Coastal Rock","Arable","Other"))
 
 
 #create a separate column for FlagID
@@ -3260,7 +3260,7 @@ rsf_tab <- rbind(rsf_tab, rsf_tab_out)
 
 plot3 <- ggplot(data=rsf_tab_out, aes(x = layer, y = percentage_of_total,  fill = layer)) +
   geom_bar(position = "stack", stat="identity")  +
-  scale_fill_viridis(discrete=T, name = "Habitat layer") +
+   scale_fill_viridis(discrete=T, name = "Habitat layer", direction= -1) +
   ylim(c(0,101)) +
   geom_hline(yintercept=0) +
   xlab("Habitat layer")+
@@ -3276,11 +3276,14 @@ plot3 <- ggplot(data=rsf_tab_out, aes(x = layer, y = percentage_of_total,  fill 
 setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/output/Figures 2025/extra_plots/") #HH NB laptop
 ggsave(plot3, file=paste0("NE103_",nyr,"_Headtsart CURLE_perc_hab_plots_",filelab,"_facetwrap.png"), width=15, height=15, units="cm", dpi=300)  ## UPDATE FILENAME
 
+scales::viridis_pal()(5)
 
+#"#440154FF" "#3B528BFF" "#21908CFF" "#5DC863FF" "#FDE725FF"
 
 plot4 <- ggplot(data=rsf_tab_out, aes(x = flag_ID, y = percentage_of_total,  fill = layer)) +
   geom_bar(position = "stack", stat="identity")  +
-  scale_fill_viridis(discrete=T, name = "Habitat layer") +
+ # scale_fill_viridis(discrete=T, name = "Habitat layer", direction= -1) +
+  scale_fill_manual(values = c( "#440154FF","#FDE725FF",  "#3B528BFF" ,"#21908CFF", "#5DC863FF"), name="Habitat layer")+
   ylim(c(0,101)) +
   geom_hline(yintercept=0) +
   xlab("Individual birds")+
