@@ -2959,6 +2959,7 @@ nyears <- c("2021", "2022", "2023", "2024")
 #nyr <- nyears[y]
 
 
+
 datasplit <- c("1 One Day" ,"2 One Week" ,"3 Two Weeks" , "4 Six Weeks" ,"5 End of December" ,
                "6 Winter pre-breeding" , "7 Spring fuzzy" , "8a Female Breeding Season" , "8b Male Breeding Season" ,
                "9a Female Autumn fuzzy","9b Male Autumn fuzzy", "10 End of December - Winter" )
@@ -2969,6 +2970,20 @@ filelabels <- c("1_OneDay" ,"2_OneWeek" ,"3_TwoWeeks" , "4_SixWeeks" ,"5_July_De
                 "6_WinterPreBreed" , "7_Spring_transition" , "8a_Breeding_female" , "8b_Breeding_male" ,
                 "9a_Autumn_transition_female","9b_Autumn_transition_male", "10_WinterPostBreed" )
 
+
+if(nyr == "2022"){
+  
+  datasplit <- c("1 One Day" ,"2 One Week" ,"3 Two Weeks" , "4 Six Weeks" ,"5 End of December" ,
+                 "6 Winter pre-breeding" , "7 Spring fuzzy" , "8a Female Breeding Season" , 
+                 "9a Female Autumn fuzzy" ) #winter post breeding removed because only 7 fixes
+  
+  
+  filelabels <- c("1_OneDay" ,"2_OneWeek" ,"3_TwoWeeks" , "4_SixWeeks" ,"5_July_December" ,
+                  "6_WinterPreBreed" , "7_Spring_transition" , "8a_Breeding_female" ,
+                  "9a_Autumn_transition_female" )
+  
+  
+}
 
 
 #keep_tagID
