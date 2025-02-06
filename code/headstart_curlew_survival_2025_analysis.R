@@ -86,10 +86,9 @@ resight$year_obs <- str_sub(resight$visit_date, 7,10)
 GPS <- read.csv(here("data/2025 analysis/gps_annual_encounter_matrix.csv"), header=T)
 
 
+##create data frames ready for RMark ####
 
-#create data frames ready for RMark
-
-
+#Resightings
 resight_RM <- resight %>%
   group_by(ring_no, year_obs) %>%
   count()
@@ -119,9 +118,14 @@ resight_RM_wide$X2025 <- ifelse(resight_RM_wide$X2025 < 1, 1, resight_RM_wide$X2
 
 
 #combine into one column
-resight_RM_wide_final <- resight_RM_wide %>% mutate(survival=paste(X2021 ,X2022, X2024 ,X2023, X2025, sep = "")) 
+resight_RM_wide_final <- resight_RM_wide %>% mutate(survival=paste(X2021 ,X2022 ,X2023, X2024, X2025, sep = "")) 
 
 
+
+#GPS 
+GPS_RM <- GPS %>% mutate(survival=paste(X2021 ,X2022, X2023,X2024 , sep = ""))
+
+head(GPS_RM)
 
 
 
