@@ -15,6 +15,11 @@
   #time = is included so that it can vary over time
   # . or dot = constrained so time is constant across the years
 
+
+
+
+####.####.####
+
 #TRIAL of survival analysis with the CJS model for data on male European dippers ####
 
 
@@ -73,7 +78,8 @@ edm.results <- model.table(model.list = c("Phi.dot.p.dot",
 kable(edm.results, digits = 3)
 
 
-#trial using the dipper data by this website instead: https://jamesepaterson.github.io/jamespatersonblog/2020-04-26_introduction_to_CJS.html
+#trial using the dipper data by this website instead:#### 
+    #https://jamesepaterson.github.io/jamespatersonblog/2020-04-26_introduction_to_CJS.html 
 
 #process data (and set grouping variables)
 #dipper.proc <- process.data(edm)
@@ -84,7 +90,8 @@ kable(edm.results, digits = 3)
 
 
 
-#trial using the dipper data by this webpage: https://www.montana.edu/screel/teaching/bioe-440r-521/course-outline/BIOE_440_CJS_dipper_example.html
+#trial using the dipper data by this webpage: ####
+    #https://www.montana.edu/screel/teaching/bioe-440r-521/course-outline/BIOE_440_CJS_dipper_example.html
 
 #process data (and set grouping variables)
 dipper.processed <- process.data(edm)
@@ -128,6 +135,7 @@ dipper.table <- collect.models(type = "CJS")
 dipper.table
 
 
+####.####.####
 
 
 #NE103 -- Curlew headstarting -- survival analysis ####
@@ -137,8 +145,6 @@ dipper.table
 # this website has more explination of the background to CJS which was useful: https://jamesepaterson.github.io/jamespatersonblog/2020-04-26_introduction_to_CJS.html
 
 #This is possibly the older webpage from montana again but again gives more explanations: https://www.montana.edu/screel/teaching/bioe-440r-521/course-outline/BIOE_440_CJS_dipper_example.html
-
-
 
 
 
@@ -155,7 +161,7 @@ dipper.table
 
 
 
-# LOAD PACKAGES ####
+## LOAD PACKAGES ####
 load_pkg <- rlang::quos(tidyverse,BTOTrackingTools, here, sp, leaflet, terra)  # quos() function to be lazy on "" around each package
 lapply(lapply(load_pkg, rlang::quo_name), library, character.only = TRUE)
 
@@ -165,6 +171,8 @@ library(RMark)
 
 library(dplyr)
 library(ggplot2)
+library(viridisLite)
+library(viridis)
 
 ##read in and manipulate the data into the correct format ####
 
@@ -213,7 +221,8 @@ resight_RM_wide$X2024 <- ifelse(resight_RM_wide$X2024 > 1, 1, resight_RM_wide$X2
 resight_RM_wide$X2025 <- ifelse(resight_RM_wide$X2025 > 1, 1, resight_RM_wide$X2025)
 
 
-#combine into one column
+#NOTE column x2023 is after x2024!! So need to make sure the paste is the correct order
+#combine into one column #NB labeled 'ch' because this is the column name needed for RMark
 resight_RM_wide_final <- resight_RM_wide %>% mutate(ch=paste(X2021 ,X2022 ,X2023, X2024, X2025, sep = "")) 
 
 
@@ -225,7 +234,7 @@ resight_RM_wide_final <- resight_RM_wide %>% mutate(ch=paste(X2021 ,X2022 ,X2023
 GPS <- read.csv(here("data/2025 analysis/gps_annual_encounter_matrix.csv"), header=T)
 
 
-#combine all year columns into one column
+#combine all year columns into one column #NB labeled 'ch' because this is the column name needed for RMark
 GPS_RM <- GPS %>% mutate(ch=paste(X2021 ,X2022, X2023,X2024 , sep = ""))
 
 head(GPS_RM)
@@ -311,7 +320,34 @@ curlew_resight.results
 #real
 curlew_resight_phi.time.p.dot$results$real
 
-#So the results for the re-sighted tagged birds. The probability of animals survival from time 1 was 0.31, from time 2 was 0.57 from time 3 was 0.80 and time 4 was 0.12 and the probability of detection was 0.50! 
+#So the results for the re-sighted tagged birds. The probability of animals survival from time 1 was 0.31, from time 2 was 0.57 from time 3 was 0.80 and time 4 was 0.11 and the probability of detection was 0.50! 
+#estimate        se       lcl       ucl fixed note
+#Phi g1 c1 a0 t1 0.3051436 0.0713047 0.1851166 0.4591445           
+#Phi g1 c1 a1 t2 0.5747348 0.1006158 0.3762119 0.7517653           
+#Phi g1 c1 a2 t3 0.8001420 0.1489878 0.3920053 0.9613300           
+#Phi g1 c1 a3 t4 0.1073813 0.0441095 0.0465417 0.2286764           
+#p g1 c1 a1 t2   0.5010953 0.0832719 0.3433337 0.6586392   
+
+
+resight_outputs <- data.frame(curlew_resight_phi.time.p.dot$results$real)
+resight_outputs$year <- c(2021, 2022, 2023, 2024, "P")
+
+
+ggplot(data = resight_outputs[c(1:4),], aes(x = year, y=estimate))+
+  geom_bar(stat="identity", fill="lightgrey")+
+  geom_errorbar(aes(ymin=(estimate-se), ymax=(estimate+se)))+
+  xlab("Year of observation")+
+  ylab("Probability of survival")+
+  geom_hline(aes(yintercept=0.50,  linetype = "Probability of detection"), show.legend = T) +
+  scale_linetype_manual(name = "", values = c("dashed"))+
+  ggtitle("a")+
+  ylim(c(0,1))+
+  theme_classic()
+
+
+setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/output/Figures 2025/extra_plots/") #HH NB laptop
+ggsave(file=paste0("NE103_2024_Headtsart CURLE_survival_resightedbirds.png"), width=15, height=15, units="cm", dpi=300)  ## UPDATE FILENAME
+
 
 
 
@@ -381,5 +417,30 @@ curlew_gps_phi.time.p.dot$results$real
 #Phi g1 c1 a1 t2 0.7692308 0.1168545 0.4784491 0.9237344           
 #Phi g1 c1 a2 t3 0.4666667 0.0910840 0.2992613 0.6419310           
 #p g1 c1 a1 t2   1.0000000 0.0000000 1.0000000 1.0000000      
+
+
+
+gps_outputs <- data.frame(curlew_gps_phi.time.p.dot$results$real)
+gps_outputs$year <- c(2021, 2022, 2023, "P")
+
+
+
+ggplot(data = gps_outputs[c(1:3),], aes(x = year, y=estimate))+
+  geom_bar(stat="identity", fill="lightgrey")+
+  geom_errorbar(aes(ymin=(estimate-se), ymax=(estimate+se)))+
+  xlab("Year of observation")+
+  ylab("Probability of survival")+
+  geom_hline(aes(yintercept=1,  linetype = "Probability of detection"), show.legend = T) +
+  scale_linetype_manual(name = "", values = c("dashed"))+
+  ggtitle("b")+
+  ylim(c(0,1))+
+  theme_classic()
+
+
+setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/output/Figures 2025/extra_plots/") #HH NB laptop
+ggsave(file=paste0("NE103_2024_Headtsart CURLE_survival_GPSbirds.png"), width=15, height=15, units="cm", dpi=300)  ## UPDATE FILENAME
+
+
+
 
 
