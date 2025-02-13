@@ -350,6 +350,25 @@ ggsave(file=paste0("NE103_2024_Headtsart CURLE_survival_resightedbirds.png"), wi
 
 
 
+#Ribbon
+ggplot(data = resight_outputs[c(1:4),], aes(x = year, y=estimate))+
+  geom_point()+
+  geom_line(aes(y=estimate, group = 1))+
+  geom_ribbon(aes(x = 1:length(year), ymax = ucl, ymin = lcl), fill="lightgrey", alpha=0.3)+
+  xlab("Year of observation")+
+  ylab("Probability of survival")+
+  geom_hline(aes(yintercept=0.50,  linetype = "Probability of detection"), show.legend = T) +
+  scale_linetype_manual(name = "", values = c("dashed"))+
+  ggtitle("a")+
+  ylim(c(0,1))+
+  theme_classic()
+
+
+setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/output/Figures 2025/extra_plots/") #HH NB laptop
+ggsave(file=paste0("NE103_2024_Headtsart CURLE_survival_resightedbirds_ribbon.png"), width=25, height=15, units="cm", dpi=300)  ## UPDATE FILENAME
+
+
+
 
 
 ####GPS####
@@ -422,9 +441,10 @@ curlew_gps_phi.time.p.dot$results$real
 
 gps_outputs <- data.frame(curlew_gps_phi.time.p.dot$results$real)
 gps_outputs$year <- c(2021, 2022, 2023, "P")
+gps_outputs$year_factor <- as.factor(c(2021, 2022, 2023, NA))
 
 
-
+#bar plot
 ggplot(data = gps_outputs[c(1:3),], aes(x = year, y=estimate))+
   geom_bar(stat="identity", fill="lightgrey")+
   geom_errorbar(aes(ymin=(estimate-se), ymax=(estimate+se)))+
@@ -437,10 +457,30 @@ ggplot(data = gps_outputs[c(1:3),], aes(x = year, y=estimate))+
   theme_classic()
 
 
+
+
+
 setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/output/Figures 2025/extra_plots/") #HH NB laptop
 ggsave(file=paste0("NE103_2024_Headtsart CURLE_survival_GPSbirds.png"), width=15, height=15, units="cm", dpi=300)  ## UPDATE FILENAME
 
 
+
+#Ribbon
+ggplot(data = gps_outputs[c(1:3),], aes(x = year, y=estimate))+
+  geom_point()+
+  geom_line(aes(y=estimate, group = 1))+
+  geom_ribbon(aes(x = 1:length(year), ymax = ucl, ymin = lcl), fill="lightgrey", alpha=0.3)+
+  xlab("Year of observation")+
+  ylab("Probability of survival")+
+  geom_hline(aes(yintercept=1,  linetype = "Probability of detection"), show.legend = T) +
+  scale_linetype_manual(name = "", values = c("dashed"))+
+  ggtitle("b")+
+  ylim(c(0,1))+
+  theme_classic()
+
+
+setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/output/Figures 2025/extra_plots/") #HH NB laptop
+ggsave(file=paste0("NE103_2024_Headtsart CURLE_survival_GPSbirds_ribbon.png"), width=25, height=15, units="cm", dpi=300)  ## UPDATE FILENAME
 
 
 
