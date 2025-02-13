@@ -3312,6 +3312,310 @@ ggsave(plot4, file=paste0("NE103_",nyr,"_Headtsart CURLE_perc_hab_plots_",filela
 write.csv(rsf_tab, here("output/Tables 2025/percentage_use_of_habitats_per_bird_per_time_period.csv"), row.names=F) # this allows you to read out the output data as a csv for easiest copying to the report
 
 
+####.####
+
+##Loop for 9L, 7K, 8L, 9J ####
+
+#birds to keep
+
+birdskeep <- c("Yf(9L)O/-:Y/m_KenHill", "Yf(7K)O/-:Y/m_Sandringham", "Yf(8L)O/-:Y/m_Sandringham", "Yf(9J)O/-:Y/m_KenHill")
+
+#select year 
+nyears_2 <- c("2022", "2023", "2024")
+
+#new data frame
+rsf_tab_birds <- data.frame()
+
+
+for(y in 1:length(nyears_2)){
+  
+  nyr <- nyears_2[y]
+  
+  setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/data/2025 analysis") #HH laptop
+  load(file=paste0("NE103_",nyr," report_clean tracking data for all ",nyr," data.RData"))
+  
+  
+  #loaded as data_year. rename it:
+  data <- data_year
+  
+  
+  if(nyr == "2022"){
+    
+    datasplit <- c("1 One Day" ,"2 One Week" ,"3 Two Weeks" , "4 Six Weeks" ,"5 End of December" ,
+                   "6 Winter pre-breeding" , "7 Spring fuzzy" , "8a Female Breeding Season" , 
+                   "9a Female Autumn fuzzy" ) #winter post breeding removed because only 7 fixes
+    
+    plotlabels <- c("One day post-release" ,"One week post-release" ,"Two weeks post-release" , "Six weeks post-release" ,"July-December" ,
+                    "Winter - pre-breeding" , "Spring transition" , "Breeding season - Female" , 
+                    "Autumn transition - Female")
+    
+    filelabels <- c("1_OneDay" ,"2_OneWeek" ,"3_TwoWeeks" , "4_SixWeeks" ,"5_July_December" ,
+                    "6_WinterPreBreed" , "7_Spring_transition" , "8a_Breeding_female" ,
+                    "9a_Autumn_transition_female" )
+    
+    
+    
+    
+  } else {
+    
+    datasplit <- c("1 One Day" ,"2 One Week" ,"3 Two Weeks" , "4 Six Weeks" ,"5 End of December" ,
+                   "6 Winter pre-breeding" , "7 Spring fuzzy" , "8a Female Breeding Season" , "8b Male Breeding Season" ,
+                   "9a Female Autumn fuzzy","9b Male Autumn fuzzy", "10 End of December - Winter" )
+    
+    plotlabels <- c("One day post-release" ,"One week post-release" ,"Two weeks post-release" , "Six weeks post-release" ,"July-December" ,
+                    "Winter - pre-breeding" , "Spring transition" , "Breeding season - Female" , "Breeding season - Male" ,
+                    "Autumn transition - Female","Autumn transition - Male", "Winter - post-breeding")
+    
+    filelabels <- c("1_OneDay" ,"2_OneWeek" ,"3_TwoWeeks" , "4_SixWeeks" ,"5_July_December" ,
+                    "6_WinterPreBreed" , "7_Spring_transition" , "8a_Breeding_female" , "8b_Breeding_male" ,
+                    "9a_Autumn_transition_female","9b_Autumn_transition_male", "10_WinterPostBreed" )
+    
+    
+    
+  }
+  
+  
+
+
+for(p in 1:length(datasplit)){
+  
+  TP <- datasplit[p] 
+  
+  #add this if loop in for data split label to include the correct year
+  if(p > 5){
+    TP <- paste0("",TP," ",nyr,"")
+  }
+  
+  #TIA analysis: select the specific list from the 'data' set
+  tia_dat<-data[[TP]]
+  
+  
+  #add this in so that we can add it in as a label in the file name below
+  cohort <- ifelse(p > 5, "PASTCOHORT", "COHORT")
+  
+  #extract out the file label
+  filelab <- filelabels[p]
+  
+  #add in plot label
+  plotlab <- plotlabels[p]
+  
+  
+  #add this if loop in for plot label for july-december to include the correct year
+  if(p >4){
+    plotlab <- paste0("",plotlab," ",nyr,"")
+  }
+  
+  
+  
+  
+  ## HABITAT SELECTION ####
+  #Habitat selection
+  trk_dat<-TrackStack2Track(data[[TP]])
+  
+  #HH NB added in this code to 'droplevels' of the non-relevant TagID per time period
+  trk_dat<- trk_dat %>% droplevels()
+  
+  
+  # Convert to 'amt' track (using BTOTT headers) #HH NB - release col name updated - use release_site_final = combined Ken Hill, seperate Sandringham. Cohort col name updated - cohort_analysis - this uses the first cohorts = 1, and remaining cohorts = 2 
+  trk <- make_track(trk_dat, .x = longitude, .y = latitude, .t = DateTime, id = TagID, tide = tide, release=release_site_final, cohort=cohort_analysis, speed=ground.speed, crs = "epsg:4326")
+  
+  
+  # Transform to BNG
+  trk <- transform_coords(trk, "+proj=tmerc +lat_0=49 +lon_0=-2 +k=0.9996012717 +x_0=400000 +y_0=-100000 +ellps=airy +datum=OSGB36 +units=m +no_defs")
+  
+  
+  # Extract LCM variables
+  trk <- trk %>% 
+    extract_covariates(landuse_GB)
+  
+  
+  #HH NB ADDED IN A FILTER HERE to remove NAs (equates to marine and non-UK fixes) SO THAT THE RANDOM POINTS (further down) ARE ONLY GENERATED IN THE UK. Therefore, this code is filtering the LCM results in trk to remove all NAs.
+  #NOTE this will remove some 'at sea' around the UK NAs as well as non-UK fixes 
+  summary(trk)
+  
+  #filter the NAs out
+  trk <- trk %>% 
+    filter(!is.na(layer))
+  
+  #table to check the count of fixes 
+  test <- trk %>% group_by(id) %>% count()
+  
+  #if loop added because "9L" is mostly in France but has one fix in the UK so has one habitat point (Female spring fuzzy 2024). Because of having a lot of other fixes it has not been filtered and remains in the dataset
+  #INSTEAD I COULD FILTER IT FROM THE DATA SET??????
+  if(min(test$n) <2){
+    
+    trk <- trk %>% filter(! trk$id == test$id[test$n<2])
+    
+  }
+  
+  #table to check the count of fixes 
+  test <- trk %>% group_by(id) %>% count()
+  
+  # Check sampling rate
+  summarize_sampling_rate_many(trk, cols="id")
+  
+  
+  # Speed filter to remove likely flight/commuting fixes - using ground.speed from Movebank (not amt calculation)
+  trk<-trk %>% filter(speed<4)
+  
+  
+  # Tidy LCM variable  # variable name 'layer' with new landuse data for 2022. HH NB - note that this produces warning messages presumably because some of the habitat numbers don't feature in each extraction
+  rsfdat <- trk %>%  mutate(
+    layer = as.character(layer), 
+    layer = fct_collapse(layer,
+                         "Arable" = c("3"),
+                         "Grassland" = c("4","5","6","7"),
+                         "Coastal rock" = c("15", "17"),
+                         "Coastal sediment" = c("16", "18"),
+                         "Saltmarsh" = c("19"),
+                         "Other" = c("1", "2","8", "9", "10", "11", "12","13","14", "20", "21")))
+  #might get a warning about unknown levels - this is because they're not in the datafile
+  
+  # Reorder factor level
+  rsfdat$layer<- factor(rsfdat$layer, levels=c("Grassland","Coastal sediment","Saltmarsh","Coastal Rock","Arable","Other"))
+  
+  
+  #plot check
+  #ggplot()+ geom_sf(data=ukmap) + geom_point(data=rsfdat, aes(x=x_, y=y_, col=id)) + theme_classic()
+  
+  
+  #create a table of counts of outputs 
+  rsf_tab_out <- rsfdat %>%
+    group_by(id, layer) %>%
+    count() %>%
+    group_by(id) %>%
+    mutate(
+      total_value = sum(n),
+      percentage_of_total = n/total_value * 100
+    ) %>%
+    ungroup()
+  
+  rsf_tab_out <- data.frame(rsf_tab_out)
+  
+  
+  rsf_tab_out$layer<- factor(rsf_tab_out$layer, levels=c("Other","Arable", "Coastal Rock","Saltmarsh","Coastal sediment","Grassland"))
+  
+  #rsf_tab_out$layer<- factor(rsf_tab_out$layer, levels=c("Grassland","Coastal sediment","Saltmarsh","Coastal Rock","Arable","Other"))
+  
+  
+  #create a separate column for FlagID
+  rsf_tab_out$flag_ID <- str_sub(rsf_tab_out$id, 4,5)
+  
+  rsf_tab_out$period <- filelab  
+  
+  rsf_tab_out$year <- nyr
+  
+  
+  #filter to only include the four birds of interest:
+  rsf_tab_out_birds <- rsf_tab_out %>% filter(rsf_tab_out$id %in% birdskeep)
+  
+  
+  #rbind the rsf_tab out
+  rsf_tab_birds <- rbind(rsf_tab_birds, rsf_tab_out_birds)
+  
+  
+  if(nrow(rsf_tab_out_birds) >1){
+  
+  #plots
+  
+  plot5 <- ggplot(data=rsf_tab_out_birds, aes(x = layer, y = percentage_of_total,  fill = layer)) +
+    geom_bar(position = "stack", stat="identity")  +
+    scale_fill_viridis(discrete=T, name = "Habitat layer", direction= -1) +
+    ylim(c(0,101)) +
+    geom_hline(yintercept=0) +
+    xlab("Habitat layer")+
+    ylab("Percentage of GPS fixes per habitat layer")+
+    ggtitle(paste0("",plotlab,""))+
+    theme_classic()+
+    theme(axis.text.x = element_text(angle = 45, hjust=1))+
+    facet_wrap(~flag_ID)
+  
+  
+  
+  # Save plot
+  setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/output/Figures 2025/extra_plots/") #HH NB laptop
+  ggsave(plot5, file=paste0("NE103_",nyr,"_Headtsart CURLE_perc_hab_plots_",filelab,"_facetwrap_birdspecific.png"), width=15, height=15, units="cm", dpi=300)  ## UPDATE FILENAME
+  
+  scales::viridis_pal()(5)
+  
+  #"#440154FF" "#3B528BFF" "#21908CFF" "#5DC863FF" "#FDE725FF"
+  
+  plot6 <- ggplot(data=rsf_tab_out_birds, aes(x = flag_ID, y = percentage_of_total,  fill = layer)) +
+    geom_bar(position = "stack", stat="identity")  +
+    # scale_fill_viridis(discrete=T, name = "Habitat layer", direction= -1) +
+    scale_fill_manual(values = c( "#440154FF","#FDE725FF",  "#3B528BFF" ,"#21908CFF", "#5DC863FF"), name="Habitat layer")+
+    ylim(c(0,101)) +
+    geom_hline(yintercept=0) +
+    xlab("Individual birds")+
+    ylab("Percentage of GPS fixes per habitat layer")+
+    ggtitle(paste0("",plotlab,""))+
+    theme_classic()
+  
+  
+  
+  # Save plot
+  setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/output/Figures 2025/extra_plots/") #HH NB laptop
+  ggsave(plot6, file=paste0("NE103_",nyr,"_Headtsart CURLE_perc_hab_plots_",filelab,"_birdspecific.png"), width=15, height=15, units="cm", dpi=300)  ## UPDATE FILENAME
+  
+  
+  
+  
+  }
+  
+  
+}
+  
+}
+
+
+#write out the data frame
+write.csv(rsf_tab_birds, here("output/Tables 2025/percentage_use_of_habitats_per_bird_per_time_period_7K_8L_9J_9L.csv"), row.names=F) # this allows you to read out the output data as a csv for easiest copying to the report
+
+
+#filter to remove one day, one week, two weeks and six weeks
+rsf_tab_birds_filter <- rsf_tab_birds %>% 
+  filter(!rsf_tab_birds$period %in% c("1_OneDay", "2_OneWeek", "3_TwoWeeks", "4_SixWeeks"  ))
+
+
+
+#create a table of counts of outputs per year
+rsf_tab_birds_final <- rsf_tab_birds_filter %>%
+  group_by(id, flag_ID, layer, year) %>%
+  summarise(n2 = sum(n)) %>%
+  group_by(id, year) %>%
+  mutate(
+    total_value_2 = sum(n2),
+    percentage_of_total_2 = n2/total_value_2 * 100
+  ) %>%
+  ungroup()
+
+
+
+
+plot7<- ggplot(data=rsf_tab_birds_final, aes(x = year, y = percentage_of_total_2,  fill = layer)) +
+  geom_bar(position = "stack", stat="identity")  +
+  # scale_fill_viridis(discrete=T, name = "Habitat layer", direction= -1) +
+  scale_fill_manual(values = c( "#440154FF","#FDE725FF",  "#3B528BFF" ,"#21908CFF", "#5DC863FF"), name="Habitat layer")+
+  ylim(c(0,101)) +
+  geom_hline(yintercept=0) +
+  xlab("Individual birds")+
+  ylab("Percentage of GPS fixes per habitat layer")+
+ # ggtitle(paste0("",plotlab,""))+
+  theme_classic()+
+  facet_wrap(~flag_ID)
+
+
+
+# Save plot
+setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/output/Figures 2025/extra_plots/") #HH NB laptop
+ggsave(plot7, file=paste0("NE103_",nyr,"_Headtsart CURLE_perc_hab_plots_",filelab,"_7K_8L_9J_9L_wholeyear.png"), width=15, height=15, units="cm", dpi=300)  ## UPDATE FILENAME
+
+
+
+
+
+
+
 
 
 
