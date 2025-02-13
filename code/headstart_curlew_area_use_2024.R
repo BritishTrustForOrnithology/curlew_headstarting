@@ -3572,6 +3572,9 @@ for(p in 1:length(datasplit)){
 write.csv(rsf_tab_birds, here("output/Tables 2025/percentage_use_of_habitats_per_bird_per_time_period_7K_8L_9J_9L.csv"), row.names=F) # this allows you to read out the output data as a csv for easiest copying to the report
 
 
+
+##Additional code to summarise the data by year % and for four specific birds #####
+
 #filter to remove one day, one week, two weeks and six weeks
 rsf_tab_birds_filter <- rsf_tab_birds %>% 
   filter(!rsf_tab_birds$period %in% c("1_OneDay", "2_OneWeek", "3_TwoWeeks", "4_SixWeeks"  ))
@@ -3598,7 +3601,7 @@ plot7<- ggplot(data=rsf_tab_birds_final, aes(x = year, y = percentage_of_total_2
   scale_fill_manual(values = c( "#440154FF","#FDE725FF",  "#3B528BFF" ,"#21908CFF", "#5DC863FF"), name="Habitat layer")+
   ylim(c(0,101)) +
   geom_hline(yintercept=0) +
-  xlab("Individual birds")+
+  xlab("Year")+
   ylab("Percentage of GPS fixes per habitat layer")+
  # ggtitle(paste0("",plotlab,""))+
   theme_classic()+
@@ -3612,10 +3615,29 @@ ggsave(plot7, file=paste0("NE103_",nyr,"_Headtsart CURLE_perc_hab_plots_",filela
 
 
 
+##Additional code to summarise by time period per year ####
 
 
+#filter to remove one day, one week, two weeks and six weeks
+rsf_tab_birds_filter_2 <- rsf_tab_birds %>% 
+  filter(rsf_tab_birds$period %in% c("6_WinterPreBreed" , "7_Spring_transition","8a_Breeding_female", "8b_Breeding_male"))
 
 
+#"Winter - pre-breeding" , "Spring transition" , "Breeding season - Female" , "Breeding season - Male"
+
+ ggplot(data=rsf_tab_birds_filter_2[rsf_tab_birds_filter_2$period=="6_WinterPreBreed",], aes(x = year, y = percentage_of_total,  fill = layer)) +
+  geom_bar(position = "stack", stat="identity")  +
+  # scale_fill_viridis(discrete=T, name = "Habitat layer", direction= -1) +
+  scale_fill_manual(values = c( "#440154FF","#FDE725FF",  "#3B528BFF" ,"#21908CFF", "#5DC863FF"), name="Habitat layer")+
+  ylim(c(0,101)) +
+  geom_hline(yintercept=0) +
+  xlab("Year")+
+  ylab("Percentage of GPS fixes per habitat layer")+
+  ggtitle("Winter - pre-breeding")+
+  theme_classic()+
+  facet_wrap(vars(,flag_ID), ncol=2)
+
+ 
 
 
 
