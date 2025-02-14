@@ -123,4 +123,53 @@ dt_meta_gsp_TagID_update$max_category_date[dt_meta_gsp_TagID_update$flag_id==id]
 
 
 
+###Once all the tweaking is done - save this out as the final dataset!  ####
+#saveRDS(washdat, (here("data/2025 analysis - The Wash/TheWashData_cleanedup_******.rds")))
+
+
+
+####.####
+
+
+# LOAD PACKAGES ####
+load_pkg <- rlang::quos(tidyverse,BTOTrackingTools, here, sp, leaflet, terra)  # quos() function to be lazy on "" around each package
+lapply(lapply(load_pkg, rlang::quo_name), library, character.only = TRUE)
+
+
+#START HERE - TO CREATE THE BTO TRACKS - Once all data is correct and cleaned and combined above you can start from here ####
+#read back in the data ####
+#washdat <- readRDS(here("data/2025 analysis - The Wash/TheWashData_cleanedup_******.rds"))
+
+summary(washdat)
+
+
+
+
+#NEXT create separate files per year - for cohort released and remaining from previous cohorts, all the split by stage ####
+
+#Using the same name as the code already set up:
+data_tt_W <- washdat
+
+
+nyears_W <- c("2022", "2023")
+cohort_periods_W <- c( )
+
+
+#FEMALE OR UNKNOWN#
+
+#filter the data
+dat.keep_F <- dat.in_pastcohort %>% filter(sex == "F"| sex == "U") %>% droplevels()
+summary(dat.keep_F)
+
+#filter to past_cohort_behavs dataframe to get the year and sex time periods
+past_cohort_behavs_year <- past_cohort_behavs %>% filter(sex=="F" & year== nyr)
+
+#use the table above to then create a list of labels
+past_cohort_periods_F <- past_cohort_behavs_year$label_year
+
+
+
+
+
+
 
