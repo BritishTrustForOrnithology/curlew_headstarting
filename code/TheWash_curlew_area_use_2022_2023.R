@@ -91,6 +91,35 @@ summary(washdat)
 # EXCEPTIONS: for 6weeks post release we included anything above 5weeks (35days). For all data from release to end of Dec we included all data if fixes were beyond 31st October
 #this decisions comes to balance wanting to retain as much data as possible but also the coefficent analysis later on comparing individual birds per time period
 
+#use the past cohort data frame to extract the ones needed for this
+past_cohort_behavs_thewash <- past_cohort_behavs %>% filter(!pastcohort_behaviours %in% c("6 Winter pre-breeding" ,"7 Spring fuzzy" )) %>% filter(year != 2024)
+
+ifelse(washdat$TimeDate <  paste(as.POSIXct(past_cohort_behavs_thewash$maxdate_pastcohort_behav, tz="UTC")),
+       ifelse(washdat$TimeDate <  paste(as.POSIXct(past_cohort_behavs_thewash$maxdate_pastcohort_behav, tz="UTC")),
+         
+       ))
+
+#year + 1 to get the first year the cohort returns
+year_return <- year_released+1
+
+#sex
+MF <- dat.in$sex
+
+#added this in to catch the few birds which had an unknown sex # HANNAH TO CHECK WITH KATHARINE whether these should be categorised as M or F for the purposes of the dates
+MF <- ifelse(MF == "U", "F", MF)
+
+#filter the past cohort behaviours to year+1 and the sex
+past_cohort_filter <- past_cohort_behavs %>% filter(year>year_released & sex == MF)
+
+
+#run a which query to find the row that is the last row that include the date
+dt_meta_gsp_TagID_update$max_category[dt_meta_gsp_TagID_update$flag_id==id] <- past_cohort_filter$label_year[min(which(past_cohort_filter$maxdate_pastcohort_behav > dat.in$max_date_time_transmiss))]
+
+lab <- dt_meta_gsp_TagID_update$max_category[dt_meta_gsp_TagID_update$flag_id==id]
+
+#extracting the date for the respective label
+dt_meta_gsp_TagID_update$max_category_date[dt_meta_gsp_TagID_update$flag_id==id] <- paste(as.POSIXct(past_cohort_filter$maxdate_pastcohort_behav[past_cohort_filter$label_year == lab], tz="UTC"))
+
 
 
 
