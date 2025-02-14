@@ -357,7 +357,7 @@ ggplot(data = resight_outputs[c(1:4),], aes(x = year, y=estimate))+
   geom_ribbon(aes(x = 1:length(year), ymax = ucl, ymin = lcl), fill="lightgrey", alpha=0.3)+
   xlab("Year of observation")+
   ylab("Probability of survival")+
-  geom_hline(aes(yintercept=0.50,  linetype = "Probability of detection"), show.legend = T) +
+  #geom_hline(aes(yintercept=0.50,  linetype = "Probability of detection"), show.legend = T) +
   scale_linetype_manual(name = "", values = c("dashed"))+
   ggtitle("a")+
   ylim(c(0,1))+
@@ -472,7 +472,7 @@ ggplot(data = gps_outputs[c(1:3),], aes(x = year, y=estimate))+
   geom_ribbon(aes(x = 1:length(year), ymax = ucl, ymin = lcl), fill="lightgrey", alpha=0.3)+
   xlab("Year of observation")+
   ylab("Probability of survival")+
-  geom_hline(aes(yintercept=1,  linetype = "Probability of detection"), show.legend = T) +
+ # geom_hline(aes(yintercept=1,  linetype = "Probability of detection"), show.legend = T) +
   scale_linetype_manual(name = "", values = c("dashed"))+
   ggtitle("b")+
   ylim(c(0,1))+
