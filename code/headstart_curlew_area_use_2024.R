@@ -3593,6 +3593,8 @@ rsf_tab_birds_final <- rsf_tab_birds_filter %>%
   ungroup()
 
 
+# Reorder factor level
+rsf_tab_birds_final$flag_ID <- factor(rsf_tab_birds_final$flag_ID, levels=c("7K","9J", "8L","9L"))
 
 
 plot7<- ggplot(data=rsf_tab_birds_final, aes(x = year, y = percentage_of_total_2,  fill = layer)) +
@@ -3611,7 +3613,7 @@ plot7<- ggplot(data=rsf_tab_birds_final, aes(x = year, y = percentage_of_total_2
 
 # Save plot
 setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/output/Figures 2025/extra_plots/") #HH NB laptop
-ggsave(plot7, file=paste0("NE103_",nyr,"_Headtsart CURLE_perc_hab_plots_",filelab,"_7K_8L_9J_9L_wholeyear.png"), width=15, height=15, units="cm", dpi=300)  ## UPDATE FILENAME
+ggsave(plot7, file=paste0("NE103_2024_Headtsart CURLE_perc_hab_plots_7K_8L_9J_9L_wholeyear.png"), width=15, height=15, units="cm", dpi=300)  ## UPDATE FILENAME
 
 
 
@@ -3622,10 +3624,31 @@ ggsave(plot7, file=paste0("NE103_",nyr,"_Headtsart CURLE_perc_hab_plots_",filela
 rsf_tab_birds_filter_2 <- rsf_tab_birds %>% 
   filter(rsf_tab_birds$period %in% c("6_WinterPreBreed" , "7_Spring_transition","8a_Breeding_female", "8b_Breeding_male"))
 
+# Reorder factor level
+rsf_tab_birds_filter_2$flag_ID <- factor(rsf_tab_birds_filter_2$flag_ID, levels=c("7K","9J", "8L","9L"))
+
+
 
 #"Winter - pre-breeding" , "Spring transition" , "Breeding season - Female" , "Breeding season - Male"
 
- ggplot(data=rsf_tab_birds_filter_2[rsf_tab_birds_filter_2$period=="6_WinterPreBreed",], aes(x = year, y = percentage_of_total,  fill = layer)) +
+
+datasplit2 <- c( "6 Winter pre-breeding" , "7 Spring fuzzy" , "8a Female Breeding Season" , "8b Male Breeding Season"  )
+
+plotlabels2 <- c("Winter - pre-breeding" , "Spring transition" , "Breeding season - Female" , "Breeding season - Male" )
+
+filelabels2 <- c( "6_WinterPreBreed" , "7_Spring_transition" , "8a_Breeding_female" , "8b_Breeding_male"  )
+
+
+
+
+for(p in 1:length(datasplit2)){
+  
+  TP <- datasplit2[p] 
+  plotlab2 <- plotlabels2[p]
+  filelab2 <- filelabels2[p]
+  
+
+plot8 <-  ggplot(data=rsf_tab_birds_filter_2[rsf_tab_birds_filter_2$period==paste0("",filelab2,""),], aes(x = year, y = percentage_of_total,  fill = layer)) +
   geom_bar(position = "stack", stat="identity")  +
   # scale_fill_viridis(discrete=T, name = "Habitat layer", direction= -1) +
   scale_fill_manual(values = c( "#440154FF","#FDE725FF",  "#3B528BFF" ,"#21908CFF", "#5DC863FF"), name="Habitat layer")+
@@ -3633,11 +3656,14 @@ rsf_tab_birds_filter_2 <- rsf_tab_birds %>%
   geom_hline(yintercept=0) +
   xlab("Year")+
   ylab("Percentage of GPS fixes per habitat layer")+
-  ggtitle("Winter - pre-breeding")+
+  ggtitle(paste0("",plotlab2,""))+
   theme_classic()+
-  facet_wrap(vars(,flag_ID), ncol=2)
+  facet_wrap(vars(flag_ID), ncol=2)
 
  
+ # Save plot
+ setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/output/Figures 2025/extra_plots/") #HH NB laptop
+ ggsave(plot8, file=paste0("NE103_2024_Headtsart CURLE_perc_hab_plots_",filelab2,"_7K_8L_9J_9L.png"), width=15, height=15, units="cm", dpi=300)  ## UPDATE FILENAME
+ 
 
-
-
+}
