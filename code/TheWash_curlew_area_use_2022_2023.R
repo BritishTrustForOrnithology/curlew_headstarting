@@ -651,4 +651,4 @@ for(y in 1:length(nyears_wash)){
   
 }
 
-    
+write.csv(nas_dat, here("output/Tables 2025/The Wash/number_nas_per_year_timeperiod_TheWash.csv"), row.names=F) # this allows you to read out the output data as a csv for easiest copying to the report
