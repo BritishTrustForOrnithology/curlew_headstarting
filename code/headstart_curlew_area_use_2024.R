@@ -1832,6 +1832,8 @@ for(y in 1:length(nyears)){
 
 nyr <- nyears[y]
 
+print(nyr)
+
 setwd("~/Projects/2024_curlewheadstarting/curlew_headstarting/data/2025 analysis") #HH laptop
 load(file=paste0("NE103_",nyr," report_clean tracking data for all ",nyr," data.RData"))
 
@@ -1891,10 +1893,15 @@ if(nyr == "2021"){
     
     TP <- datasplit[p] 
     
+    
     #add this if loop in for data split label to include the correct year
     if(p > 5){
       TP <- paste0("",TP," ",nyr,"")
     }
+    
+    
+    print(TP)
+    
     
     #TIA analysis: select the specific list from the 'data' set
     tia_dat<-data[[TP]]
@@ -2187,10 +2194,13 @@ if(nyr == "2021"){
       
     }
     
-    #then carry on in tidyr to mutate etc... 
+    
+    #then carry on in tidyr to mutate etc... NOTE HH update 20/02/2025 random_points still not generating the correct number of points so have to use pmap instead! #  factor appears to have been deprecated in version 0.1.6 (unfortunately not noticed in 2023 analysis) so need to use n = .
     avail.pts <- avail.pts %>%
-      mutate(rnd_pts = map(data, ~ random_points(., n= data_nrow*20 , type="random"))) %>% #  factor appears to have been deprecated in version 0.1.6 (unfortunately not noticed in 2023 analysis) so need to use n = .
-      select(id, tide,cohort,release, rnd_pts) %>%  # you don't want to have the original point twice, hence drop data
+      mutate(rnd_pts = pmap(., function(id, tide,cohort,release,data,data_nrow){
+        random_points(data, n=data_nrow*20, type="random")
+      })) %>%
+      select(id,  tide,cohort,release, rnd_pts) %>%  # you don't want to have the original point twice, hence drop data
       unnest_legacy(cols=c(rnd_pts))
     
     
