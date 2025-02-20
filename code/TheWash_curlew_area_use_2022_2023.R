@@ -62,7 +62,7 @@ summary(washdat)
 
 
 ##save data out so I don't keep having to read it all back in and do the tide stuff####
-saveRDS(washdat, here("data/2025 analysis - The Wash/wwrg_curlew_jul_dec_all_years_cleaned.rds"))
+#saveRDS(washdat, here("data/2025 analysis - The Wash/wwrg_curlew_jul_dec_all_years_cleaned.rds"))
 
 
 
@@ -140,11 +140,6 @@ washdat_meta
 washdat <- full_join(washdat, washdat_meta)
 
 summary(washdat)
-
-
-
-#last thing is to add a July-Dec column
-
 
 
 
@@ -410,6 +405,7 @@ ukmap <- sf::st_transform(ukmap,p4) #HH NB: ukmap is an sf not an sp. So changed
 # Load amt:: package
 library(amt) 
 
+
 ## Load Land Cover Map 2021 25m Raster
 #NOTE THIS IS THE WASH ONLY!!!
 landuse <- raster::raster(here("data","NE103_LCM2021","LCM.tif"))
@@ -548,9 +544,13 @@ for(y in 1:length(nyears_wash)){
       
     }
     
-    #then carry on in tidyr to mutate etc... 
+    
+    
+    #then carry on in tidyr to mutate etc... NOTE HH update 20/02/2025 random_points still not generating the correct number of points so have to use pmap instead! #  factor appears to have been deprecated in version 0.1.6 (unfortunately not noticed in 2023 analysis) so need to use n = .
     avail.pts <- avail.pts %>%
-      mutate(rnd_pts = map(data, ~ random_points(., n= data_nrow*20 , type="random"))) %>% #  factor appears to have been deprecated in version 0.1.6 (unfortunately not noticed in 2023 analysis) so need to use n = .
+      mutate(rnd_pts = pmap(., function(id,data,data_nrow){
+        random_points(data, n=data_nrow*20, type="random")
+      })) %>%
       select(id,  rnd_pts) %>%  # you don't want to have the original point twice, hence drop data
       unnest_legacy(cols=c(rnd_pts))
     
