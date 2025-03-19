@@ -8,8 +8,12 @@
 # Code to create visualisations of GPS tracking data
 
 
+# Data preparation
+
+
 # 17/11/2023: Major code updates to remove use of moveVis and basemaps due to issues with terra dependency and raster map tiles not plotting properly
 # 21/11/2023: Major code revisions to use move2 package instead of move to interface with Movebank
+# 4/6/2025: Major code updates to re-introduce use of moveVis now that it is working again
 
 # ======================   Variables to pass to setup code source  ===========
 
@@ -18,8 +22,13 @@
 # project_details <- list(project_name, output_version_name, workspace_version_name)
 # package_details <- c("package name 1", "package name 2")
 
-project_details <- list(project_name="curlew_headstarting", output_version_date="2024-09", workspace_version_date="2024-09")
-package_details <- c("sf","tidyverse","move2","ggmap","RColorBrewer","viridisLite","rcartocolor","lubridate","suncalc","cowplot","sfheaders", "maptiles", "tidyterra","rnaturalearth","rnaturalearthdata")
+project_details <- list(project_name="curlew_headstarting", output_version_date="2025-06", workspace_version_date="2025-06")
+package_details <- c("sf","tidyverse","move2","ggmap","RColorBrewer","viridisLite","rcartocolor","lubridate","suncalc","cowplot","sfheaders", "maptiles", "tidyterra","rnaturalearth","rnaturalearthdata","basemaps","suncalc")
+
+# install moveVis package
+# remotes::install_github("16eagle/moveVis")
+library(moveVis)
+
 seed_number <- 1
 
 
@@ -48,7 +57,7 @@ source(file.path("code/source_setup_code_rproj.R"))
 
 # =======================    Control values   =================
 
-select_year <- 2022
+select_year <- c(2021:2024)
 today_date <- Sys.Date()
 
 # filtering criteria birds
@@ -63,13 +72,13 @@ wash_obs_only <- FALSE # show only Wash-area GPS data on map
 filter_by_date <- TRUE # filter GPS data by date
 filter_last_60_days <- FALSE # filter data to last 60 days
 set_first_date <- "2024-01-01" # in format "yyyy-mm-dd"
-set_last_date <- "2024-09-09"
+set_last_date <- "2025-06-04"
 
 # filtering criteria other
 filter_height_speed <- FALSE # filter flight heights & speeds
 
 # data management criteria
-update_gdrive_data <- FALSE # download fresh data from google drive
+update_gdrive_data <- TRUE # download fresh data from google drive
 
 # ====  Load functions  =================================
 
@@ -103,7 +112,7 @@ if (filter_birds) {
 # Filter metadata to only include tags of a certain year release
 if (filter_year) {
   dt_meta_tags <- dt_meta_tags %>% 
-    filter(year == select_year)
+    filter(year %in% select_year)
 }
 
 # ---- Get movebank tag data -----------
@@ -288,130 +297,8 @@ all_tags_filtered <- all_tags_filtered %>%
   arrange(individual_local_identifier, timestamp)
 
 
-# =======================    Static maps   =================
-
-# # Quick look at all tracks together Wash-area
-# ggplot() +
-#   geom_sf(data = ne_coastline(returnclass = "sf", 10)) +
-#   theme_linedraw() +
-#   geom_sf(data = all_tags_filtered) +
-#   geom_sf(data = mt_track_lines(all_tags_filtered), aes(color = `individual_local_identifier`)) +
-#   coord_sf(xlim = c(0.1, 1),
-#            ylim = c(52.6, 53.2)
-#   )
 
 
-# List of birds to create maps for  -----------------
 
-bird_flag_list <- unique(all_tags_filtered$flag_id)
-bird_flag_list
-
-
-# Static visualisation with inset maps   -----------------
-
-if (map_all_birds_together) {
-  
-  # path map
-  draw_movement_map_all_birds(all_tags_filtered, map_type = "path", basemap_alpha = 0.8, out_type = "jpg", map_dpi = 150, map_buffer_km = 5)
-  
-  # point map
-  draw_movement_map_all_birds(all_tags_filtered, map_type = "points", basemap_alpha = 0.8, out_type = "jpg", map_dpi = 150, map_buffer_km = 5)
-  
-  # path + point map
-  draw_movement_map_all_birds(all_tags_filtered, map_type = "path points", basemap_alpha = 0.8, out_type = "jpg", map_dpi = 150, map_buffer_km = 5)
-  
-} else {
-  
-  for (b in bird_flag_list) {
-    
-    # filter movement data to site, cohort
-    individual_df <- all_tags_filtered %>% 
-      filter(flag_id %in% b)
-    
-    # skip to next bird if no data from the last month
-    if (nrow(individual_df) < 1) next
-    
-    # map aesthetics can be controlled by function arguments
-    # filter_date = TRUE will filter to last 60 days of data
-    # map_colour = colour of path / points
-    # basemap_alpha = alpha level of the main basemap
-    # out_type = image file output type (png or jpg)
-    # map_dpi = DPI of image output
-    # map_buffer_km = basemap buffer around GPS track data, in km
-    # path_alpha = alpha level of the path
-    
-    # path map
-    draw_movement_map(individual_df, map_type = "path", filter_date = filter_by_date, map_colour="magenta", basemap_alpha = 1, out_type = "png", map_dpi = 150, map_buffer_km = 10, path_alpha = 0.5)
-    
-    # point map
-    draw_movement_map(individual_df, map_type = "points", filter_date = filter_by_date, map_colour="magenta", basemap_alpha = 1, out_type = "png", map_dpi = 150, map_buffer_km = 10)
-    
-    # path + point map
-    draw_movement_map(individual_df, map_type = "path points", filter_date = filter_by_date, map_colour="magenta", basemap_alpha = 1, out_type = "jpg", map_dpi = 150, map_buffer_km = 10, path_alpha = 0.5)
-    
-    
-    
-  }
-  
-}
-
-
-# plot all obs for only the Wash area polygon
-
-if (wash_obs_only) {
-  
-  # bounding box polygon around the Wash / North Norfolk coast
-  #gis_wash_dir <- file.path("../../GIS/curlew/headstarting") # Sam's computer GIS filepath
-  gis_wash_dir <- file.path("../GIS/curlew/wwrg/") # Katharine's computer GIS path
-  
-  # Load WWRG Wash study shapefile -----------------
-  #wash_area <- st_read(file.path(gis_wash_dir, "wash_north_norfolk_study_area_polygon.shp"))
-  wash_area <- st_read(file.path(gis_wash_dir, "wwrg_wash_study_area_polygon.shp"))
-  
-  if (map_all_birds_together) {
-    
-  # filter all_tags_points (sf object)
-  # clip to only those points falling within the Wash study area
-  bird_df_sf <-  all_tags_filtered %>% 
-    # filter(flag_id %in% bird_flag_list) %>%
-    st_intersection(., wash_area) %>% 
-    mutate(year_as_factor = as.factor(year))
-    
-  # should not be mapped as path or path/points with terminus point as this gives false impression that it is the 'end of the track'
-  # map only as points
-  draw_movement_map_all_birds(bird_df_sf, map_type = "points", filter_date = filter_by_date, basemap_alpha = 0.8, out_type = "png", map_dpi = 150, map_buffer_km = 1)
-    
-  } else {
-    
-    for (b in bird_flag_list) {
-      
-      # filter all_tags_points (sf object)
-      # clip to only those points falling within the Wash study area
-      bird_df_sf <-  all_tags_filtered %>% 
-        filter(flag_id %in% bird_flag_list) %>%
-        st_intersection(., wash_area) %>% 
-        mutate(year_as_factor = as.factor(year))
-      
-      # skip to next bird if no data
-      if (nrow(bird_df_sf) < 1) next
-      
-      # map aesthetics can be controlled by function arguments
-      # filter_date = TRUE will filter to last 60 days of data
-      # map_colour = colour of path / points
-      # basemap_alpha = alpha level of the main basemap
-      # out_type = image file output type (png or jpg)
-      # map_dpi = DPI of image output
-      # map_buffer_km = basemap buffer around GPS track data, in km
-      # path_alpha = alpha level of the path
-      
-      # point map
-      draw_movement_map(bird_df_sf, map_type = "points", filter_date = filter_by_date, map_colour="magenta", basemap_alpha = 1, out_type = "png", map_dpi = 150, map_buffer_km = 1)
-
-    }
-  }
-  
-  
-  
-}
 
 
