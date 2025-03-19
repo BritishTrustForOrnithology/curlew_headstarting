@@ -1,0 +1,697 @@
+---
+title: "NE103_plots"
+---
+
+```{r load packages}
+library(ggplot2)
+library(plyr)
+library(dplyr)
+library(tidyr)
+library(ggeffects)
+library(cowplot)
+library(stringr)
+library(ggpattern)
+library(ggpubr)
+library(patchwork)
+library(gridExtra)
+```
+
+```{r load data}
+### all dfs wrangled into manageable format using excel
+
+data1 <- read.csv("./data/WS_review_dataS1.csv") ### years operational, reasons for operating and other ongoing conservation management
+data2 <- read.csv("./data/WS_review_dataS2.csv") ### egg collection timing and distance between donor and rearing location
+data3 <- read.csv("./data/WS_review_data_req.csv") ### raw data request data
+data4 <- read.csv("./data/WS_review_dataS3.csv") ### survey and marking (ringing and tagging) methods
+data5 <- read.csv("./data/WS_review_dataS4.csv") ### distance from rear to release, method of release, distance from wild pops and cues
+```
+
+```{r wrangle operating year data for plotting fig1}
+years <- data1 %>% separate_rows(op_years) ### df to long format based on operating years column
+
+years <- years[ !(years$project_name %in% "UK (Norfolk)" & years$op_years == "2019"), ] 
+### remove Norfolk project from 2019 (no birds released)
+
+years <- years[ !(years$project_name %in% "UK (Shropshire)" & years$op_years == "2020"), ]
+### remove Shropshire from 2020 (no birds released)
+```
+
+```{r Figure 1}
+fig1 <- ggplot(years, aes(x = op_years, fill = project_name, group = group)) +
+        geom_bar(position="stack") + 
+        scale_fill_brewer(palette="Paired") + 
+        scale_y_continuous(name = "No. of projects", expand = c(0, 0), limits = c(0, 10), breaks = seq(0, 10, 2)) +
+        scale_x_discrete(name = "Operating year", label = c("1999–2013","2014","2015", "2016", "2017", "2018", "2019", "2020", "2021", "2022", "2023")) +
+        theme_classic() + 
+        theme(legend.position = c(0.195,0.685), ### legend correctly positioned for WS formatting
+              legend.background =element_blank(),
+              legend.title = element_blank(),
+              axis.title=element_text(size=10),
+              axis.text = element_text(size=8),
+              axis.line = element_line(linewidth=0.4),
+              legend.text = element_text(size=9),
+              text = element_text(family = "sans serif", colour = "black")) + 
+              coord_cartesian(clip = "off") 
+
+fig1
+
+ggsave(fig1, file="./output/WS_review_Fig1.png", dpi=300, width=135, height=120, units=c("mm")) ### size correct for WS format
+```
+
+```{r wrangle reason for operating data for plotting fig2}
+reason1 <- data1 %>% separate_rows(orig_reason, sep = ",") ### df to long format based on orignal reason for operating
+reason2 <- data1 %>% separate_rows(curr_reason, sep = ",") ### df to long format based on current reason for operating
+
+reason2 <- reason2[ !(reason2$project_name %in% "UK (Severn and Avon)"), ]
+### remove SAV from current reasons for operating (project only operated for one year)
+```
+
+```{r wrangle management data for plotting fig2}
+mgmt1 <- data1 %>% separate_rows(mgmt_cu, sep = ",") ### df to long format based on management for curlew
+mgmt2 <- data1 %>% separate_rows(mgmt_other, sep = ",") ### df to long format based on management for other reasons
+```
+
+```{r Figure 2}
+### original reason for headstarting
+a <- ggplot(reason1, aes(x = orig_reason)) +
+     geom_bar(fill = "#66c2a5") + 
+     scale_y_continuous(name = "", expand = c(0, 0), limits = c(0, 10), breaks = seq(0, 10, 2)) +
+     scale_x_discrete(name = "", labels = function(x) recode(x, "Re-introduce curlews to an area with no existing wild breeding population" = "Re-introduce Curlews to an area with no existing wild breeding population") %>% str_wrap(width = 47)) +
+     coord_flip() + ### flipped axis to accomodate long axis labels
+     theme_classic() + 
+     theme(axis.title=element_text(size=10),
+           axis.text = element_text(size=8),
+           axis.line = element_line(linewidth=0.4),
+           axis.text.x=element_blank(),
+           plot.margin = margin(r = 5, l = 0, t = 5, b = 0),
+           text = element_text(family = "sans serif"))
+
+### current reason for headstarting
+b <- ggplot(reason2, aes(x = factor (curr_reason, level = c("Eggs/chicks are usually predated", "Eggs are going to be destroyed by agricultural operations", "Eggs are going to be destroyed by other human-caused reasons (not including predation)", "Re-introduce curlews to an area with no existing wild breeding population", "To increase the low productivity of the wild breeding population", "To increase the size of a small breeding population")))) +
+    geom_bar(position="stack", fill = "#66c2a5") + 
+    scale_y_continuous(name = "", expand = c(0, 0), limits = c(0, 10), breaks = seq(0, 10, 2)) +
+    scale_x_discrete(name = "", labels = function(curr_reason) str_wrap(curr_reason, width = 47)) +
+    coord_flip() +
+    theme_classic() + 
+    theme(axis.title=element_text(size=10),
+          axis.text = element_text(size=8),
+          axis.line = element_line(linewidth=0.4),
+          axis.text.y=element_blank(),
+          axis.text.x=element_blank(),
+          plot.margin = margin(r = 7, l = 0, t = 5, b = 5),
+          text = element_text(family = "sans serif"))
+
+### Management tools for curlew
+c <- ggplot(mgmt1, aes(x = factor (mgmt_cu, level = c("None", "Water management", "Farmland management", "Grassland management", "Lethal predator control", "Fencing (to protect from predators and/or agricultural activities)")), fill = project_name, group = group)) +
+    geom_bar(position="stack", fill = "#66c2a5") + 
+    scale_y_continuous(name = "No. of projects", expand = c(0, 0), limits = c(0, 10), breaks = seq(0, 10, 2)) +
+    scale_x_discrete(name = "", labels = function(mgmt_other) str_wrap(mgmt_other, width = 47)) +
+    coord_flip() +
+    theme_classic() +  
+    theme(axis.title=element_text(size=10),
+          axis.text = element_text(size=8),
+          axis.title.x = element_text(hjust = 3),
+          axis.line = element_line(linewidth=0.4),
+          plot.margin = margin(r = 5, l = 0, t = 0, b = 5),
+          text = element_text(family = "sans serif"))
+
+### Management tools for other reasons/species
+d <- ggplot(mgmt2, aes(x = factor (mgmt_other, level = c("None", "Water management", "Farmland management", "Grassland management", "Lethal predator control", "Fencing (to protect from predators and/or agricultural activities)")), fill = project_name, group = group)) +
+    geom_bar(position="stack", fill = "#66c2a5") + 
+    scale_y_continuous(name = "", expand = c(0, 0), limits = c(0, 10), breaks = seq(0, 10, 2)) +
+    scale_x_discrete(name = "", labels = function(mgmt_other) str_wrap(mgmt_other, width = 47)) +
+    coord_flip() +
+    theme_classic() +   
+    theme(axis.title=element_text(size=10),
+          axis.text = element_text(size=8),
+          axis.line = element_line(linewidth=0.4),
+          plot.margin = margin(r = 7, l = 0, t = 0, b = 5),
+          text = element_text(family = "sans serif"),
+          axis.text.y=element_blank())
+
+### Create aligned titles as empty plots with only text
+title_left <- ggplot() + 
+  ggtitle("(a)") + 
+  theme_void() + 
+  theme(plot.title = element_text(size = 10, hjust = -2.1, vjust = -1.5, face = "bold"))
+
+title_right <- ggplot() + 
+  ggtitle("(b)") + 
+  theme_void() + 
+  theme(plot.title = element_text(size = 10, hjust = -0.1, vjust = -1.5, face = "bold"))
+
+title_bottom_left <- ggplot() + 
+  ggtitle("(c)") + 
+  theme_void() + 
+  theme(plot.title = element_text(size = 10, hjust = -2.1, vjust = -1.5, face = "bold"))
+
+title_bottom_right <- ggplot() + 
+  ggtitle("(d)") + 
+  theme_void() + 
+  theme(plot.title = element_text(size = 10, hjust = -0.1, vjust = -1.5, face = "bold"))
+
+### Arrange plots in a clean 3-row layout
+fig2 <- (
+  (title_left | title_right) /   
+  (a | b) /                     
+  (title_bottom_left | title_bottom_right) /  
+  (c | d)                        
+) +  
+  plot_layout(heights = c(0.05, 1.5, 0.05, 1.5), guides = "collect") + 
+  plot_annotation(theme = theme(plot.margin = margin(0, 0, 0, 0)))
+
+# Print the arranged plot
+print(fig2)
+
+
+ggsave(fig2, file="./output/WS_review_Fig2.png", dpi=300, width=135, height=135, units=c("mm")) ### size correct for WS format
+```
+
+```{r wrangle egg collection for plotting fig3}
+eggy <- data2 %>% separate_rows(get_eggs, sep = ",") ### df to long format based on egg collection method
+
+dist <- data2 %>% separate_rows(dist_donor_rear, sep = ",") ### df to long format based on distance from donor to rearing locations
+
+dist2 <- data5 %>% separate_rows(rearing_release, sep = ",") ### df to long format based on distance from rearing to release locations
+```
+
+```{r Figure 3}
+### Timing of egg collection
+e <- ggplot(eggy, aes(x = get_eggs)) +
+  geom_bar(position="stack", fill = "#66c2a5") + 
+  scale_y_continuous(name = "No. of projects", expand = c(0, 0), limits = c(0, 10), breaks = seq(0, 10, 2)) +
+  scale_x_discrete(name = "(a)", labels = function(get_eggs) str_wrap(get_eggs, width = 50)) +
+  coord_flip() +
+  theme_classic() +
+  theme(axis.title=element_text(size=10),
+        axis.text = element_text(size=8),
+        axis.line = element_line(linewidth=0.4),
+        axis.title.y = element_text(hjust = 1, size = 10, angle = 0, face = "bold"),
+        text = element_text(family = "sans serif"))
+
+### Distance between egg collection and release site
+f <- ggplot(dist, aes(x = factor(dist_donor_rear, level = c("< 30 km", "> 100 km", "0-100 km")))) +
+  geom_bar(position="stack", fill = "#66c2a5") + 
+  scale_y_continuous(name = "No. of projects", expand = c(0, 0), limits = c(0, 6), breaks = seq(0, 6, 2)) +
+  scale_x_discrete(name = "", labels = c("< 30 km" = "<30", 
+                            "> 100 km" = ">100", 
+                            "0-100 km" = "0–100")) +
+  theme_classic() + 
+  theme(axis.title=element_text(size=10),
+        axis.text = element_text(size=8),
+        axis.title.x = element_text(hjust = 1.5),
+        axis.line = element_line(linewidth=0.4),
+        axis.title.y = element_text(margin = margin(r = 7)),
+        text = element_text(family = "sans serif"))
+
+
+### Distance between rearing facility and release site
+g <- ggplot(dist2, aes(x = factor(rearing_release, level = c("< 1 km", "1-5 km", "6-20 km", "21-50 km", "51-100 km")))) +
+  geom_bar(position="stack", fill = "#66c2a5") + 
+  scale_y_continuous(name = "", expand = c(0, 0), limits = c(0, 6), breaks = seq(0, 6, 2)) +
+  scale_x_discrete(name = "", labels = c("< 1 km" = "<1", 
+                            "1-5 km" = "1–5", 
+                            "6-20 km" = "6–20", 
+                            "21-50 km" = "21–50", 
+                            "51-100 km" = "51–100")) +
+  theme_classic() + 
+  theme(axis.text.y = element_blank(),
+        axis.title=element_text(size=10),
+        axis.text = element_text(size=8),
+        axis.line = element_line(linewidth=0.4),
+        text = element_text(family = "sans serif"))
+
+### Combine plots
+fig3 <- plot_grid(
+  e,
+  plot_grid(
+    f, g, 
+    ncol = 2, rel_widths = c(1, 1.06)
+  ),  
+  ncol = 1, 
+  rel_heights = c(1, 0.8),  
+  rel_widths = c(1, 0.6)
+)
+
+### add plot labels
+fig3a <- ggdraw(fig3) + 
+  draw_plot_label(
+    label = c("(b)", "(c)"), 
+    x = c(0.011, 0.485),  
+    y = c(0.485, 0.485),
+    hjust = 0,
+    size = 10, 
+    fontface = "bold"
+  ) +
+  
+  draw_label(
+    label = "Distance (km)",
+    x = 0.5,  # Adjust this value to position between plots f and g
+    y = 0.025,  # Adjust this value to position below plots f and g
+    size = 10,
+    fontfamily = "sans serif"
+  )
+
+fig3a
+
+ggsave(fig3a, file="./output/WS_review_Fig3.png", dpi=300, width=135, height=135, units=c("mm")) ### size correct for WS format
+```
+
+```{r wrangle chick release data for plotting fig4}
+how2 <- data5 %>% separate_rows(how, sep = ",") ### df to long format based on chick release method
+
+cohort <- data5 %>% separate_rows(cohort_no, sep = ",") ### df to long format based on cohort size
+```
+
+```{r Figure 4}
+### Release strategies
+a <- ggplot(how2, aes(x = factor (how, level = c("Chicks are transported from the rearing location to the release location in a keeping cage or box and then immediately released", "Chicks are kept in a pen at the release location for at least 1 day prior to release", "Chicks are kept in a pen at the release location for at least 1 week prior to release", "Chicks are kept in a pen at the release location for at least 3 weeks prior to release", "Chicks are kept in a pen at the release location from shortly after hatch")))) +
+    geom_bar(position="stack", fill = "#66c2a5") + 
+    scale_y_continuous(name = "No. of projects", expand = c(0, 0), limits = c(0, 6), breaks = seq(0, 6, 2)) +
+    scale_x_discrete(name = "", labels = function(how) str_wrap(c(
+      "Chicks are transported from the rearing location to the release location in a keeping cage or box and then immediately released" = "Transported from rearing site to release site in keeping cage or box. Immediately released",
+      "Chicks are kept in a pen at the release location for at least 1 day prior to release" = "Kept in pen at release site ≥ 1 day",
+      "Chicks are kept in a pen at the release location for at least 1 week prior to release" = "Kept in pen at release site ≥ 1 week",
+      "Chicks are kept in a pen at the release location for at least 3 weeks prior to release" = "Kept in pen at release site ≥ 3 weeks",
+      "Chicks are kept in a pen at the release location from shortly after hatch" = "Kept in pen at release site from just after hatch"
+    ), width = 54)) +
+    coord_flip() +
+    theme_classic() + 
+    theme(axis.title=element_text(size=10),
+          axis.text = element_text(size=8),
+          axis.line = element_line(linewidth=0.4), 
+          text = element_text(family = "sans serif"))
+          
+### cohort size
+b <- ggplot(cohort, aes(x = factor (cohort_no, level = c("1-5", "6-10", "11-15", "16-20", "> 20")))) +
+    geom_bar(position="stack", fill = "#66c2a5") + 
+    scale_y_continuous(name = "No. of projects", expand = c(0, 0), limits = c(0, 10), breaks = seq(0, 10, 2)) +
+    scale_x_discrete(name = "Cohort size (chicks)", labels = function(cohort_no) str_wrap(c("1-5" = "1–5",
+      "6-10" = "6–10",
+      "11-15" = "11–15",
+      "16-20" = "16–20",
+      "> 20" = ">20"), width = 54)) +
+    ##coord_flip() +
+    theme_classic() + 
+    theme(axis.title=element_text(size=10),
+        axis.text = element_text(size=8),
+        axis.line = element_line(linewidth=0.4),
+        axis.title.y = element_text(size=10, margin = margin(r = 8)),
+        text = element_text(family = "sans serif"),
+        plot.margin = margin(r = 2, l = 15, t = 5, b = 5),)
+
+### combine plots
+fig4 <- plot_grid(
+  a,
+  plot_grid(
+    b, 
+    ncol = 1, rel_widths = c(1, 0.8)
+  ),  
+  ncol = 1, 
+  rel_heights = c(1, 0.8),  
+  rel_widths = c(1, 1)
+)
+fig4
+
+# add plot labels
+fig4a <- ggdraw(fig4) + 
+  draw_plot_label(
+    label = c("(a)", "(b)"), 
+    x = c(0.011, 0.011),  
+    y = c(1, 0.5),  
+    hjust = 0,
+    size = 10, 
+    fontface = "bold"
+  )
+
+fig4a
+
+ggsave(fig4a, file="./output/WS_review_Fig4.png", dpi=300, width=120, height=100, units=c("mm")) ### size correct for WS format
+```
+
+```{r wrangle conspecific/generic cue data for plotting fig5}
+cue1 <- data5 %>% separate_rows(conspec_cue, sep = ",") ### df to long format based on conspecific cues
+cue1$conspec_cue <- factor(cue1$conspec_cue, levels=c("Chicks are released into an area with over-wintering curlew","Chicks are released into an area with migratory curlew", "Chicks are released into an area with breeding curlew but after wild adults and juveniles have departed", "Chicks are released into an area with potential local wild juvenile curlew", "Chicks are released into an area with breeding adult curlew", "Chicks are released into an area without any breeding curlew")) ### order data
+
+cue2 <- data5 %>% separate_rows(congen_cue, sep = ",") ### df to long format based on congeneric cues
+cue2$congen_cue <- factor(cue2$congen_cue, levels=c("Chicks are released into an area with over-wintering waders","Chicks are released into an area with migratory waders", "Chicks are released into an area with breeding waders but after wild adults and juveniles have departed", "Chicks are released into an area with potential local wild juveniles", "Chicks are released into an area with breeding adult waders", "Chicks are released into an area without any breeding waders")) ### order data
+```
+
+```{r Figure 5}
+### Release site details regarding other curlew populations
+c <- ggplot(cue1, aes(x = conspec_cue)) +
+    geom_bar(position="stack", fill = "#66c2a5") + 
+    scale_y_continuous(name = "", expand = c(0, 0), limits = c(0, 6), breaks = seq(0, 6, 2)) +
+    scale_x_discrete(name = "", labels = function(conspec_cue) str_wrap(c(
+      "Chicks are released into an area without any breeding curlew" = "Released into area with no breeding Curlew",
+      "Chicks are released into an area with breeding adult curlew" = "Released into area with breeding adults",
+      "Chicks are released into an area with potential local wild juvenile curlew" = "Released into area with potential wild juvenile Curlew",
+      "Chicks are released into an area with breeding curlew but after wild adults and juveniles have departed" = "Released into area with breeding Curlew after wild adults and juveniles have departed",
+      "Chicks are released into an area with migratory curlew" = "Released into area with migratory Curlew",
+      "Chicks are released into an area with over-wintering curlew" = "Released into area with over-wintering Curlew"
+    ), width = 54)) +
+    coord_flip() +
+    theme_classic() + 
+  theme(axis.title=element_text(size=10),
+        axis.text = element_text(size=8),
+        axis.line = element_line(linewidth=0.4), 
+        text = element_text(family = "sans serif"),
+        plot.margin = margin(r = 10, l = 10, t = 5, b = 0),
+          axis.text.x = element_blank())
+
+### Release site details regarding other wader populations
+d <- ggplot(cue2, aes(x = congen_cue)) +
+    geom_bar(position="stack", fill = "#66c2a5") + 
+    scale_y_continuous(name = "No. of projects", expand = c(0, 0), limits = c(0, 6), breaks = seq(0, 6, 2)) +
+    scale_x_discrete(name = "", labels = function(congen_cue) str_wrap(c(
+      "Chicks are released into an area without any breeding waders" = "Released into area with no breeding waders",
+      "Chicks are released into an area with breeding adult waders" = "Released into area with breeding adults",
+      "Chicks are released into an area with potential local wild juvenile waders" = "Released into area with potential wild juvenile waders",
+      "Chicks are released into an area with breeding waders but after wild adults and juveniles have departed" = "Released into area with breeding waders after wild adults and juveniles have departed",
+      "Chicks are released into an area with migratory wader" = "Released into area with migratory waders",
+      "Chicks are released into an area with over-wintering waders" = "Released into area with over-wintering waders"
+    ), width = 54)) +
+    coord_flip() +
+    theme_classic() + 
+  theme(axis.title=element_text(size=10),
+        axis.text = element_text(size=8),
+        axis.line = element_line(linewidth=0.4), 
+        text = element_text(family = "sans serif"),
+        plot.margin = margin(r = 10, l = 10, t = 0, b = 0))
+
+### Distance between wild curlew population and release sites
+e <- ggplot(data5, aes(x = factor (wild_cu_release, level = c("< 1 km", "1-5 km", "6-20 km", "> 21 km")))) +
+    geom_bar(position="stack", fill = "#66c2a5") + 
+    scale_y_continuous(name = "No. of projects", expand = c(0, 0), limits = c(0, 8), breaks = seq(0, 8, 2)) +
+    scale_x_discrete(name = "", labels = function(wild_cu_release) str_wrap(c("< 1 km" = "<1",
+      "1-5 km" = "1–5",
+      "6-20 km" = "6–20",
+      "> 21 km" = ">21"), width = 54)) +
+    theme_classic() + 
+    theme(axis.title=element_text(size=10),
+        axis.text = element_text(size=8),
+        axis.line = element_line(linewidth=0.4),
+        text = element_text(family = "sans serif"),
+        axis.title.x = element_text(hjust = 1.5),
+        axis.title.y = element_text(size=10, margin = margin(r = 8)),
+        plot.margin = margin(r = 10, l = 11, t = 5, b = 5))
+
+### Distance between wild wader population and release sites
+f <- ggplot(data5, aes(x = factor (wild_wad_release, level = c("< 1 km", "1-5 km", "6-20 km")))) +
+    geom_bar(position="stack", fill = "#66c2a5") + 
+    scale_y_continuous(name = "", expand = c(0, 0), limits = c(0, 8), breaks = seq(0, 8, 2)) +
+    scale_x_discrete(name = "", labels = function(wild_wad_release) str_wrap(c("< 1 km" = "<1",
+      "1-5 km" = "1–5",
+      "6-20 km" = "6–20"), width = 54)) +
+    theme_classic() + 
+    theme(axis.title=element_text(size=10),
+        axis.text = element_text(size=8),
+        axis.text.y = element_blank(),
+        axis.line = element_line(linewidth=0.4), 
+        text = element_text(family = "sans serif"),
+        plot.margin = margin(r = 10, l = 6, t = 5, b = 5))
+
+### add plot labels
+c1 <- c + ggtitle("(a)") + 
+  theme(plot.title = element_text(size = 10, face = "bold", hjust = -1.2, vjust = 0))
+
+d1 <- d + ggtitle("(b)") +
+  theme(plot.title = element_text(size = 10, face = "bold", hjust = -1.2, vjust = 0))
+
+e1 <- e + ggtitle("(c)") +
+  theme(plot.title = element_text(size = 10, face = "bold", hjust = -0.255, vjust = 1))
+
+f1 <- f + ggtitle("(d)") + 
+  theme(plot.title = element_text(size = 10, face = "bold", hjust = -0.15, vjust = 1))
+
+### create grobs of plots
+c_grob <- ggplotGrob(c1)
+d_grob <- ggplotGrob(d1)
+e_grob <- ggplotGrob(e1)
+f_grob <- ggplotGrob(f1)
+
+### Use grid.arrange to arrange the plots manually
+combined_plot <- grid.arrange(
+  c_grob,
+  d_grob,
+  arrangeGrob(e_grob, f_grob, ncol = 2),  
+  heights = c(1, 1, 1),                  
+  ncol = 1                      
+) 
+
+final_plot <- ggdraw(combined_plot) + 
+  draw_label("Distance (km)", 
+             x = 0.5,  # Adjust x position (0-1 scale)
+             y = 0.025,  # Adjust y position (0-1 scale)
+             size = 10,
+             fontfamily = "sans serif")
+
+ggsave(final_plot, file="./output/WS_review_Fig5.png", dpi=300, width=135, height=135, units=c("mm")) ### size correct for WS format
+```
+
+```{r wrangle marking and survey data for plotting fig6}
+marked <- data4 %>% separate_rows(marking, sep = ",") ### df to long format based on marking data
+marked$marking <- factor(marked$marking, levels=c("GPS or satellite tracking released birds", "Radio tracking released birds", "Individual colour marking released birds", "Cohort colour marking released birds", "Metal ringing released birds")) ### order data
+
+surv <- data4 %>% separate_rows(survey, sep = ",") ### df to long format based on survey data
+surv <- surv[ !(surv$project_name %in% "UK (Norfolk Estate, Cranborne Estate, Elmley NNR)"), ]
+surv$survey <- factor(surv$survey , levels=c("Dedicated field surveys during subsequent breeding seasons", "Generic field surveys during subsequent breeding seasons", "Dedicated field surveys in the month following release", "Generic field surveys in the month following release")) ### order data
+```
+
+```{r Figure 6}
+### Colour-ringing and GPS-taggin
+m1 <- ggplot(marked, aes(x = factor (marking, level = c("GPS or satellite tracking released birds", "Radio tracking released birds", "Individual colour marking released birds", "Cohort colour marking released birds", "Metal-ringing released birds")))) +
+    geom_bar(position="stack", fill = "#66c2a5") + 
+    scale_y_continuous(name = "", expand = c(0, 0), limits = c(0, 10), breaks = seq(0, 10, 2)) +
+    scale_x_discrete(name = "", labels = function(marking) str_wrap(c("GPS or satellite tracking released birds" = "GPS- or satellite-tracking released birds", "Radio tracking released birds" = "Radio-tracking released birds", "Individual colour marking released birds" = "Individual colour-marking released birds", "Cohort colour marking released birds" = "Cohort colour-marking released birds", "Metal ringing released birds" = "Metal-ringing released birds"), width = 47)) +
+    coord_flip() +
+    theme_classic() + 
+    theme(axis.title=element_text(size=10),
+        axis.text = element_text(size=8),
+        axis.line = element_line(linewidth=0.4), 
+        plot.margin = margin(r = 10, l = 0, t = 5, b = 5),
+        text = element_text(family = "sans serif"))
+
+### Survey methods
+m2 <- ggplot(surv, aes(x = survey)) +
+    geom_bar(position="stack", fill = "#66c2a5") + 
+    scale_y_continuous(name = "No. of projects", expand = c(0, 0), limits = c(0, 10), breaks = seq(0, 10, 2)) +
+    scale_x_discrete(name = "", labels = function(survey) str_wrap(survey, width = 42)) +
+    coord_flip() +
+    theme_classic() + 
+    theme(axis.title=element_text(size=10),
+        axis.text = element_text(size=8),
+        axis.line = element_line(linewidth=0.4), 
+        plot.margin = margin(r = 10, l = 0, t = 5, b = 5), 
+        text = element_text(family = "sans serif"))
+
+mont <- ggarrange(m1, m2, ncol = 1)
+
+### add plot labels
+mont2 <- ggdraw(mont) + 
+  draw_plot_label(
+    label = c("(a)", "(b)"), 
+    x = c(0, 0),  
+    y = c(1, 0.52),
+    size = 10, 
+    fontface = "bold"
+  )
+
+mont2
+
+ggsave(mont2, file="./output/WS_review_Fig6.png", dpi=300, width=120, height=100, units=c("mm")) ### size correct for WS format
+```
+
+####################################################### SUPPLEMENTARY MATERIAL ########################################################
+
+```{r wrangle data for plotting figS1}
+egg_coll <- subset(data3, select = -c(number_of_eggs_hatched, number_of_chicks_released))
+egg_hatch <- subset(data3, select = -c(number_of_eggs_collected, number_of_chicks_released))
+egg_release <- subset(data3, select = -c(number_of_eggs_collected, number_of_eggs_hatched))
+
+
+eggs1 <- egg_coll %>% rename(eggs = number_of_eggs_collected)
+eggs2 <- egg_hatch %>% rename(eggs = number_of_eggs_hatched)
+eggs3 <- egg_release %>% rename(eggs = number_of_chicks_released)
+
+eggs1$source <- "collected"
+eggs2$source <- "hatched"
+eggs3$source <- "released"
+
+eggs4 <- rbind(eggs1, eggs2, eggs3)
+
+eggs4$source <- factor(eggs4$source, levels=c("collected", "hatched", "released"))
+```      
+      
+```{r Figure S1}
+g9 <- ggplot(subset(eggs4, group %in% c(10)), aes(x = source, y = eggs, fill = source)) +
+  geom_bar(stat="identity", width = 0.5) + 
+  facet_wrap(~year, nrow = 1, strip.position = "bottom") +
+    scale_fill_manual(values = c("#abdda4", "#3288bd", "#5e4fa2")) +
+    scale_y_continuous(name = "Number of eggs/chicks", expand = c(0, 0), limits = c(0, 300), breaks = seq(0, 300, 50)) +
+    ggtitle("Poland") +
+    theme_half_open() + 
+    theme(text = element_text(size = 15), 
+          axis.text = element_text(size = 15), 
+          axis.title.x = element_blank(),
+          axis.text.x = element_blank(),
+          axis.title.y = element_text(colour = "white"),
+          plot.title = element_text(size = 12, face = "bold"),
+          strip.background = element_blank(),
+          strip.placement = "outside",
+          legend.text = element_blank(),
+          legend.position = "none")
+
+g1 <- ggplot(subset(eggs4, group %in% c(1)), aes(x = source, y = eggs, fill = source)) +
+  geom_bar(stat="identity", width = 0.3) + 
+  facet_wrap(~year, nrow = 1, strip.position = "bottom") +
+  scale_fill_manual(values = c("#abdda4", "#3288bd", "#5e4fa2")) +
+    scale_y_continuous(name = "Number of eggs/chicks", expand = c(0, 0), limits = c(0, 300), breaks = seq(0, 300, 50)) +
+    ggtitle("UK (Sussex, Dorset, Kent)") +
+    theme_half_open() + 
+    theme(text = element_text(size = 15), 
+          axis.text = element_text(size = 15), 
+          axis.title.x = element_blank(),
+          axis.text.x = element_blank(),
+          axis.title.y = element_blank(),
+          axis.text.y = element_blank(),
+          plot.title = element_text(size = 12, face = "bold"),
+          strip.background = element_blank(),
+          strip.placement = "outside",
+          legend.text = element_blank(),
+          legend.position = "none")
+
+g5 <- ggplot(subset(eggs4, group %in% c(6)), aes(x = source, y = eggs, fill = source)) +
+  geom_bar(stat="identity", width = 0.5) + 
+  facet_wrap(~year, nrow = 1, strip.position = "bottom") +
+  scale_fill_manual(values = c("#abdda4", "#3288bd", "#5e4fa2")) +
+    scale_y_continuous(name = "Number of eggs/chicks", expand = c(0, 0), limits = c(0, 300), breaks = seq(0, 300, 50)) +
+    ggtitle("UK (Norfolk)") +
+    theme_half_open() + 
+    theme(text = element_text(size = 15), 
+          axis.text = element_text(size = 15), 
+          axis.title.x = element_blank(),
+          axis.text.x = element_blank(),
+          axis.title.y = element_blank(),
+          axis.text.y = element_blank(),
+          plot.title = element_text(size = 12, face = "bold"),
+          strip.background = element_blank(),
+          strip.placement = "outside",
+          legend.text = element_blank(),
+          legend.position = "none")
+
+g8 <- ggplot(subset(eggs4, group %in% c(9)), aes(x = source, y = eggs, fill = source)) +
+  geom_bar(stat="identity", width = 0.5) + 
+  facet_wrap(~year, nrow = 1, strip.position = "bottom") +
+  scale_fill_manual(values = c("#abdda4", "#3288bd", "#5e4fa2")) +
+    scale_y_continuous(name = "No. of eggs/chicks", expand = c(0, 0), limits = c(0, 75), breaks = seq(0, 75, 25)) +
+    ggtitle("Poland (Wielkopolska)") +
+    theme_half_open() + 
+    theme(text = element_text(size = 15), 
+          axis.text = element_text(size = 15), 
+          axis.title.x = element_blank(),
+          axis.text.x = element_blank(),
+          plot.title = element_text(size = 12, face = "bold"),
+          strip.background = element_blank(),
+          strip.placement = "outside",
+          legend.text = element_blank(),
+          legend.position = "none")
+
+g7 <- ggplot(subset(eggs4, group %in% c(8)), aes(x = source, y = eggs, fill = source)) +
+  geom_bar(stat="identity", width = 0.5) + 
+  facet_wrap(~year, nrow = 1, strip.position = "bottom") +
+  scale_fill_manual(values = c("#abdda4", "#3288bd", "#5e4fa2")) +
+    scale_y_continuous(name = "Number of eggs/chicks", expand = c(0, 0), limits = c(0, 75), breaks = seq(0, 75, 25)) +
+    ggtitle("UK (Shropshire)") +
+    theme_half_open() + 
+    theme(text = element_text(size = 15), 
+          axis.text = element_text(size = 15), 
+          axis.title.x = element_blank(),
+          axis.text.x = element_blank(),
+          axis.title.y = element_blank(),
+          axis.text.y = element_blank(),
+          plot.title = element_text(size = 12, face = "bold"),
+          strip.background = element_blank(),
+          strip.placement = "outside",
+          legend.text = element_blank(),
+          legend.position = "none")
+
+g6 <- ggplot(subset(eggs4, group %in% c(7)), aes(x = source, y = eggs, fill = source)) +
+  geom_bar(stat="identity", width = 0.3) + 
+  facet_wrap(~year, nrow = 1, strip.position = "bottom") +
+  scale_fill_manual(values = c("#abdda4", "#3288bd", "#5e4fa2")) +
+    scale_y_continuous(name = "Number of eggs/chicks", expand = c(0, 0), limits = c(0, 75), breaks = seq(0, 75, 25)) +
+    ggtitle("UK (Severn and Avon)") +
+    theme_half_open() + 
+    theme(text = element_text(size = 15), 
+          axis.text = element_text(size = 15), 
+          axis.title.x = element_blank(),
+          axis.text.x = element_blank(),
+          axis.title.y = element_blank(),
+          axis.text.y = element_blank(),
+          plot.title = element_text(size = 12, face = "bold"),
+          strip.background = element_blank(),
+          strip.placement = "outside",
+          legend.text = element_blank(),
+          legend.position = "none")
+
+g2 <- ggplot(subset(eggs4, group %in% c(2)), aes(x = source, y = eggs, fill = source)) +
+  geom_bar(stat="identity", width = 0.5) + 
+  facet_wrap(~year, nrow = 1, strip.position = "bottom") +
+  scale_fill_manual(values = c("#abdda4", "#3288bd", "#5e4fa2")) +
+    scale_y_continuous(name = "Number of eggs/chicks", expand = c(0, 0), limits = c(0, 50), breaks = seq(0, 50, 10)) +
+    ggtitle("Ireland") +
+    theme_half_open() + 
+    theme(text = element_text(size = 15), 
+          axis.text = element_text(size = 15), 
+          axis.title.x = element_blank(),
+          axis.text.x = element_blank(),
+          axis.title.y = element_text(colour = "white"),
+          plot.title = element_text(size = 12, face = "bold"),
+          strip.background = element_blank(),
+          strip.placement = "outside",
+          legend.text = element_blank(),
+          legend.position = "none")
+
+g3 <- ggplot(subset(eggs4, group %in% c(3)), aes(x = source, y = eggs, fill = source)) +
+  geom_bar(stat="identity", width = 0.5) + 
+  facet_wrap(~year, nrow = 1, strip.position = "bottom") +
+  scale_fill_manual(values = c("#abdda4", "#3288bd", "#5e4fa2")) +
+    scale_y_continuous(name = "Number of eggs/chicks", expand = c(0, 0), limits = c(0, 50), breaks = seq(0, 50, 10)) +
+    ggtitle("UK (Dartmoor)") +
+    theme_half_open() + 
+    theme(text = element_text(size = 15), 
+          axis.text = element_text(size = 15), 
+          axis.title.x = element_blank(),
+          axis.text.x = element_blank(),
+          axis.title.y = element_blank(),
+          axis.text.y = element_blank(),
+          plot.title = element_text(size = 12, face = "bold"),
+          strip.background = element_blank(),
+          strip.placement = "outside",
+          legend.text = element_blank(),
+          legend.position = "none")
+
+g4 <- ggplot(subset(eggs4, group %in% c(5)), aes(x = source, y = eggs, fill = source)) +
+  geom_bar(stat="identity", width = 0.5) + 
+  facet_wrap(~year, nrow = 1, strip.position = "bottom") +
+  scale_fill_manual(values = c("#abdda4", "#3288bd", "#5e4fa2")) +
+    scale_y_continuous(name = "Number of eggs/chicks", expand = c(0, 0), limits = c(0, 50), breaks = seq(0, 50, 10)) +
+    ggtitle("Belgium") +
+    theme_half_open() + 
+    theme(text = element_text(size = 15), 
+          axis.text = element_text(size = 15), 
+          axis.title.x = element_blank(),
+          axis.text.x = element_blank(),
+          axis.title.y = element_blank(),
+          axis.text.y = element_blank(),
+          plot.title = element_text(size = 12, face = "bold"),
+          strip.background = element_blank(),
+          strip.placement = "outside",
+          legend.text = element_blank(),
+          legend.position = "none")
+
+ggarrange(g9, g1, g5, g8, g7, g6, g2, g3, g4, nrow = 3, ncol = 3)
+
+### save to fit landscape on A4
+```

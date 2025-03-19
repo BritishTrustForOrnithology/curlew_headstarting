@@ -2,7 +2,7 @@
 #
 #    NE103: Headstarted Curlew recruitment survey sampling 2023-
 #
-#    Updated 12/01/2024
+#    Updated 11/03/2025
 #
 ######################################################
 
@@ -42,8 +42,8 @@ source(file.path("code/source_setup_code_rproj.R"))
 
 # GIS working directory
 giswd <- file.path("../../GIS")
-giswd_buffers <- file.path("../../GIS/curlew/headstarting/recruitment_surveys/survey_zones_2024")
-giswd_breed <- file.path("../../GIS/curlew/git_shapefiles")
+giswd_buffers <- file.path("../../GIS/projects/curlew/headstarting/recruitment_surveys/survey_zones_2024")
+giswd_breed <- file.path("../../GIS/projects/curlew/git_shapefiles")
 
 
 
@@ -138,12 +138,18 @@ shp_survey_strata <- st_read(file.path(giswd_buffers, "stratified_survey_zones_s
 # curtail the random distribution to the 95th percentile
 # group the rnorm values into the buffer strata divisions to get the number of samples per strata
 # generate two lots of strata sample totals:
-# one to sum to ca. 50 samples (the number of tetrads that will actually be searched)
-# one of ca. 80 samples to provide 'back up' options should the randomly selected tetrads from sample of ca. 50 above not meet the minimum suitable habitat criteria
+# one to sum to ca. 50 samples (n_small_sample) the number of tetrads that will actually be searched)
+# one of ca. 80 samples (n_large_sample) to provide 'back up' options should the randomly selected tetrads from sample of ca. 50 above not meet the minimum suitable habitat criteria
+
+# in 2023 and 2024, n_small_sample was 50 and large sample was 80
+# in 2025, we are changing the methodology to reduce the number of randomly sampled tetrads and increase survey time at known breeding sites
+# 2025, small sample should be ca. 24, and the large sample ca. 40
+n_small_sample <- 24
+n_large_sample <- 40
 
 # set sample sizes per buffer strata to end up with ca. 50 tetrads (55 is a good ballpark)
 set.seed(1)
-r_samp <- truncnorm::rtruncnorm(55, a = 0, mean  = 4, sd = 12)
+r_samp <- truncnorm::rtruncnorm(n_small_sample, a = 0, mean  = 4, sd = 12)
 hist(r_samp)
 
 r_samp_ci <- r_samp[r_samp <= quantile(r_samp, 0.95)] %>% sort
@@ -159,7 +165,7 @@ prop_samp_buffer_zones_50 <- samp_buffer_zones %>% group_by(BUFFER) %>% tally %>
 # set sample sizes per buffer strata to end up with ca. 80 tetrads
 # this is to have 'back up' tetrads if randomly selected ones do not meet minimum suitable habitat criteria
 set.seed(1)
-r_samp <- truncnorm::rtruncnorm(80, a = 0, mean  = 4, sd = 12)
+r_samp <- truncnorm::rtruncnorm(n_large_sample, a = 0, mean  = 4, sd = 12)
 hist(r_samp)
 
 quantile(r_samp, 0.05)
@@ -173,6 +179,7 @@ samp_buffer_zones <- r_samp_ci %>%
   mutate(BUFFER = ifelse(value <= 5, 5, ifelse(value > 5 & value <= 10, 10, ifelse(value > 10 & value <= 20, 20, 30))))
 samp_buffer_zones %>% as.data.frame()
 prop_samp_buffer_zones_extras <- samp_buffer_zones %>% group_by(BUFFER) %>% tally %>% mutate(prop = n / sum(n))
+
 
 # 2024 code ---------
 
@@ -232,13 +239,24 @@ shp_buffer_all %>% group_by(select) %>% tally
 # write shapefile for all buffers with random selection values added
 st_write(shp_buffer_all,
          dsn = giswd_buffers,
-         layer = "stratified_survey_zones_selected_tetrads_longlist_2024.shp",
+         layer = "stratified_survey_zones_selected_tetrads_longlist_2025.shp",
          driver = "ESRI Shapefile")
 
-write.csv(prop_samp_buffer_zones_50, file.path(giswd_buffers, "n_tetrads_strata_shortlist.csv"), row.names = FALSE)
+write.csv(prop_samp_buffer_zones_50, file.path(giswd_buffers, "n_tetrads_strata_shortlist_2025.csv"), row.names = FALSE)
 
 
-# =======================    Step 3: Shortlist tetrads in QGIS   =================
+# ==============  Step 3a: Tidy CORRECT selected tetrads for output in QGIS===================
+
+# *****NOTE*****
+# the tetrad and fid_1 values were INCORRECTLY assigned when producing the file stratified_survey_zones_selectable_tetrads_2025, though the geometry location is correct
+# it was fixed by using Join Attributes by Location between the layers: stratified_survey_zones_selected_tetrads_longlist_2025.shp, GB002kmgrid_survey_area_land_all_selectable_tetrads_2024.shp
+# before joining, label the tetrad values in stratified_survey_zones_selected_tetrads_longlist_2025.shp as TETRAD_X (X = incorrect), as the join will then add the TETRAD field from GB002kmgrid_survey_area_land_all_selectable_tetrads_2024, which are correct
+# select predicate = intersects, type = 1:1 join, take attributes of feature with largest overlap only, tick discard records which could not be joined
+
+
+
+
+# =======================    Step 3b: Shortlist tetrads in QGIS   =================
 
 # Work in QGIS using the Brecks / Wild Sands Atlas breeding evidence layer and the longlist of randomly selected tetrads per strata layer created in Step 2
 # For each strata, priority criteria #1 is to select any tetrad with previous Atlas breeding evidence / known or suspected breeding evidence 2021-23
@@ -246,7 +264,7 @@ write.csv(prop_samp_buffer_zones_50, file.path(giswd_buffers, "n_tetrads_strata_
 
 
 # Create exported shp files of selected tetrads per buffer strata
-# stratified_survey_zones_selected_tetrads_shortlist_2024.shp
+# stratified_survey_zones_selected_tetrads_shortlist_2025.shp
 # use PRIORITY field, together with SUITABLE field (SUITABLE = habitat & access have been assessed as suitable for surveying methodology)
 # if both PRIORITY = Y and SUITABLE = Y, then shortlist
 # if SUITABLE = N?, then leave until the end and assess if there is time
@@ -256,38 +274,30 @@ write.csv(prop_samp_buffer_zones_50, file.path(giswd_buffers, "n_tetrads_strata_
 # ======================  Step 4: Tidy selected tetrads for output  =========================
 
 # read in shp files of selected tetrads created above in QGIS
-shp_select_survey <- st_read(file.path(giswd_buffers, "stratified_survey_zones_selected_tetrads_shortlist_2024.shp"))
+shp_select_survey <- st_read(file.path(giswd_buffers, "stratified_survey_zones_selected_tetrads_shortlist_2025.shp"))
 
 shp_select_survey_final <- shp_select_survey %>%
-  filter(PRIORITY == "Y" & SUITABLE == "Y") %>% 
+  filter(PRIORITY == "Y" & SUITABLE == "Y") %>%
   rename(SELECT_NUM = select)
 
 st_write(shp_select_survey_final,
          dsn = giswd_buffers,
-         layer = "stratified_survey_zones_selected_tetrads_final_2024.shp",
+         layer = "stratified_survey_zones_selected_tetrads_final_2025.shp",
          driver = "ESRI Shapefile")
 
-write.csv(shp_select_survey_final %>% st_drop_geometry() %>% dplyr::select(TETRAD, BUFFER, SELECT_NUM, PRIORITY, SUITABLE), file.path(giswd_buffers, "stratified_survey_zones_selected_tetrads_final_2024.csv"), row.names = FALSE)
+write.csv(shp_select_survey_final %>% st_drop_geometry() %>% dplyr::select(TETRAD, BUFFER, SELECT_NUM, PRIORITY, SUITABLE), file.path(giswd_buffers, "stratified_survey_zones_selected_tetrads_final_2025.csv"), row.names = FALSE)
 
 prop_samp_buffer_zones_50
 
 
-
-# ==============  Step 5: Tidy CORRECT selected tetrads for output in QGIS===================
-
-# *****NOTE*****
-# the tetrad and fid_1 values were INCORRECTLY assigned when producing the file stratified_survey_zones_selectable_tetrads_2024, though the geometry location is correct
-# it was fixed by using Join Attributes by Location between the layers: stratified_survey_zones_selected_tetrads_final_2024, GB002kmgrid_survey_area_land_all_selectable_tetrads_2024
-# before joining, label the tetrad values in stratified_survey_zones_selected_tetrads_final_2024 as TETRAD_X (X = incorrect), as the join will then add the TETRAD field from GB002kmgrid_survey_area_land_all_selectable_tetrads_2024, which are correct
-# select predicate = intersects, type = 1:1 join, take attributes of feature with largest overlap only, tick discard records which could not be joined
-
-
-# ==============  Step 6: Tidy CORRECT selected tetrads for output in QGIS===================
-
-# read in shp files of selected tetrads created above in QGIS
-shp_select_survey <- st_read(file.path(giswd_buffers, "stratified_survey_zones_selected_tetrads_final_correct_2024.shp"))
-
-write.csv(shp_select_survey %>% st_drop_geometry() %>% dplyr::select(TETRAD, BUFFER, SELECT_NUM, PRIORITY, SUITABLE), file.path(giswd_buffers, "stratified_survey_zones_selected_tetrads_final_correct_2024.csv"), row.names = FALSE)
+# # ==============  Step 6: Tidy CORRECT selected tetrads for output in QGIS===================
+# 
+# # not needed as correction to TETRAD field happens in 3a now
+# 
+# # read in shp files of selected tetrads created above in QGIS
+# shp_select_survey <- st_read(file.path(giswd_buffers, "stratified_survey_zones_selected_tetrads_final_correct_2024.shp"))
+# 
+# write.csv(shp_select_survey %>% st_drop_geometry() %>% dplyr::select(TETRAD, BUFFER, SELECT_NUM, PRIORITY, SUITABLE), file.path(giswd_buffers, "stratified_survey_zones_selected_tetrads_final_correct_2024.csv"), row.names = FALSE)
 
 
 
