@@ -23,11 +23,7 @@
 # package_details <- c("package name 1", "package name 2")
 
 project_details <- list(project_name="curlew_headstarting", output_version_date="2025-06", workspace_version_date="2025-06")
-package_details <- c("sf","tidyverse","move2","ggmap","RColorBrewer","viridisLite","rcartocolor","lubridate","suncalc","cowplot","sfheaders", "maptiles", "tidyterra","rnaturalearth","rnaturalearthdata","basemaps","suncalc")
-
-# install moveVis package
-# remotes::install_github("16eagle/moveVis")
-library(moveVis)
+package_details <- c("sf","tidyverse","move2","ggmap","RColorBrewer","viridisLite","rcartocolor","lubridate","suncalc","cowplot","sfheaders", "maptiles", "tidyterra","rnaturalearth","rnaturalearthdata","basemaps","suncalc","ggspatial","gganimate")
 
 seed_number <- 1
 
@@ -57,11 +53,13 @@ source(file.path("code/source_setup_code_rproj.R"))
 
 # =======================    Control values   =================
 
+new_mb_download <- FALSE
+
 select_year <- c(2021:2024)
 today_date <- Sys.Date()
 
 # filtering criteria birds
-filter_birds <- FALSE # filter birds for mapping to only show active tags
+filter_birds <- TRUE # filter birds for mapping to only show active tags
 filter_year <- TRUE # filter birds for mapping to only show particular year cohorts
 
 # mapping criteria
@@ -70,7 +68,8 @@ wash_obs_only <- FALSE # show only Wash-area GPS data on map
 
 # filtering criteria dates
 filter_by_date <- TRUE # filter GPS data by date
-filter_last_60_days <- FALSE # filter data to last 60 days
+filter_last_x_days <- TRUE # filter data to last x days
+x_days_filter <- 30
 set_first_date <- "2024-01-01" # in format "yyyy-mm-dd"
 set_last_date <- "2025-06-04"
 
@@ -78,7 +77,7 @@ set_last_date <- "2025-06-04"
 filter_height_speed <- FALSE # filter flight heights & speeds
 
 # data management criteria
-update_gdrive_data <- TRUE # download fresh data from google drive
+update_gdrive_data <- FALSE # download fresh data from google drive
 
 # ====  Load functions  =================================
 
@@ -129,25 +128,30 @@ mb_study_animals <- movebank_download_deployment(mb_study_id)
 # download all active tagged birds
 mb_individual_id <- mb_study_animals[grep(paste(dt_meta_tags$flag_id, collapse = "|"), mb_study_animals$individual_local_identifier), "individual_local_identifier"] %>% pull %>% as.character
 
-# automatic Movebank download - live or recently live tags only
-# (doesn't work if tags are redeployed - not sure if this applies in move2 packages)
-all_tags <- movebank_download_study(
-  study_id = mb_study_id,
-  sensor_type_id  = "gps",
-  individual_local_identifier = mb_individual_id #,
-  # as.POSIXct("2008-08-01 00:00:00"),
-  # timestamp_end = as.POSIXct("2008-08-03 00:00:00"),
-  # removeDuplicatedTimestamps = TRUE
-)
-
-# # save as rds file
-# if (filter_birds) saveRDS(all_tags, file = file.path(workspacewd, "movebank_live_tags_download.rds"))
-# if (!filter_birds) saveRDS(all_tags, file = file.path(workspacewd, "movebank_all_tags_download.rds"))
-
-# # read in Movebank data as last downloaded RDS file (can be used if Movebank is down)
-# # load rds file
-# if (filter_birds) all_tags <- readRDS(file.path(workspacewd, "movebank_live_tags_download.rds"))
-# if (!filter_birds) all_tags <- readRDS(file.path(workspacewd, "movebank_all_tags_download.rds"))
+if (new_mb_download) {
+  # automatic Movebank download - live or recently live tags only
+  # (doesn't work if tags are redeployed - not sure if this applies in move2 packages)
+  all_tags <- movebank_download_study(
+    study_id = mb_study_id,
+    sensor_type_id  = "gps",
+    individual_local_identifier = mb_individual_id #,
+    # as.POSIXct("2008-08-01 00:00:00"),
+    # timestamp_end = as.POSIXct("2008-08-03 00:00:00"),
+    # removeDuplicatedTimestamps = TRUE
+  )
+  
+  # save as rds file
+  if (filter_birds) saveRDS(all_tags, file = file.path(workspacewd, "movebank_live_tags_download.rds"))
+  if (!filter_birds) saveRDS(all_tags, file = file.path(workspacewd, "movebank_all_tags_download.rds"))
+  
+} else {
+  
+  # read in Movebank data as last downloaded RDS file (can be used if Movebank is down)
+  # load rds file
+  if (filter_birds) all_tags <- readRDS(file.path(workspacewd, "movebank_live_tags_download.rds"))
+  if (!filter_birds) all_tags <- readRDS(file.path(workspacewd, "movebank_all_tags_download.rds"))
+  
+}
 
 # summarise tag data per tag (first & last dates, total number of fixes)
 all_tags_summary <- all_tags %>% 
@@ -229,10 +233,10 @@ if (filter_by_date) {
   
   # Filter to last 60 days of data (per tag) if required
   # Otherwise, use other custom date range
-  if (filter_last_60_days) {
+  if (filter_last_x_days) {
     all_tags_date_range <- all_tags_summary %>% 
       rename(last_date = max_date) %>% 
-      mutate(first_date = last_date - 60*86400) %>% 
+      mutate(first_date = last_date - x_days_filter*86400) %>% 
       dplyr::select(individual_local_identifier, first_date, last_date)
   } else {
     all_tags_date_range <- all_tags_summary %>% 
@@ -241,7 +245,7 @@ if (filter_by_date) {
       mutate(last_date = as.POSIXct(set_last_date, tz = "UTC")) %>% 
       dplyr::select(individual_local_identifier, first_date, last_date)
   }
-
+  
 } else {
   
   all_tags_date_range <- all_tags_summary %>% 
