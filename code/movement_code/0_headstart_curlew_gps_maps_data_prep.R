@@ -55,7 +55,7 @@ source(file.path("code/source_setup_code_rproj.R"))
 
 new_mb_download <- FALSE
 
-select_year <- c(2021:2024)
+select_year <- c(2021:2023)
 today_date <- Sys.Date()
 
 # filtering criteria birds
@@ -69,9 +69,9 @@ wash_obs_only <- FALSE # show only Wash-area GPS data on map
 # filtering criteria dates
 filter_by_date <- TRUE # filter GPS data by date
 filter_last_x_days <- TRUE # filter data to last x days
-x_days_filter <- 30
-set_first_date <- "2024-01-01" # in format "yyyy-mm-dd"
-set_last_date <- "2025-06-04"
+x_days_filter <- 60
+set_first_date <- "2025-05-25" # in format "yyyy-mm-dd"
+set_last_date <- "2025-06-05"
 
 # filtering criteria other
 filter_height_speed <- FALSE # filter flight heights & speeds
@@ -301,6 +301,8 @@ all_tags_filtered <- all_tags_filtered %>%
   arrange(individual_local_identifier, timestamp)
 
 
+
+all_tags_summary
 
 
 

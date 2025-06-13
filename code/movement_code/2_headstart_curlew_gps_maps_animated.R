@@ -26,19 +26,16 @@
 
 # =======================    Control values   =================
 
-set_fix_rate <- 240 # fix rate in minutes e.g. 120 = 1 point every 2 hours
+set_fix_rate <- "4 hours" # fix rate in minutes e.g. 120 = 1 point every 2 hours
 
 # set which vis to output
 # animate_multiple <- FALSE
 # animate_individuals <- TRUE
 
 # map aesthetic output controls
-file_format <- "mp4"   # various formats available in MoveVis package, if you've got a long animation, gif file size is huge, mp4s are much smaller
 map_service <- "esri"   # choose which map service, use esri to match static maps
 map_style <- "world_imagery" # choose map style, world_imagery matches static maps
 set_fps <- 25 # frame rate for animation
-confidential <- TRUE   # strips lat/lon axis labels from map
-no_labels <- TRUE
 
 
 # =======================    Plot data - ANIMATED   =================
@@ -65,33 +62,34 @@ frames[[100]] # preview one of the frames, e.g. the 100th frame
 animate_frames(frames, fps = 10, out_file = file.path(outputwd, "moveVis.gif"), overwrite = TRUE)
 
 
-# List of birds to create maps for  -----------------
 
-bird_flag_list <- unique(all_tags_filtered$flag_id)
-bird_flag_list
-
-
-# Animate birds individually  ----------------
 
 # List of birds to create maps for  -----------------
 
-bird_flag_list <- unique(all_tags_filtered$flag_id)
+bird_flag_list <- all_tags_filtered %>% 
+  pull(flag_id) %>% unique
 bird_flag_list
 
-if (animate_individuals) {
+
+if (!animate_individuals) {
   
   
   # 1. Set up dataset
   # transform to epsg 3857 to be able to use units of metres for the basemap
-  anim_dt <- all_tags_filtered %>% st_transform(anim_dt, crs = 3857)
+  anim_dt <- all_tags_filtered %>% st_transform(crs = 3857)
   
   # choose a date range to animate
-  date_range <- as.POSIXct(c("2025-05-25", "2025-06-05"))
+  date_range <- c(min(mt_time(anim_dt)), max(mt_time(anim_dt)))
+  date_range <- as.POSIXct(c("2025-04-15", "2025-06-05"))
+  
   
   # add rounded timestamps column
   anim_dt <- anim_dt %>% 
     mutate(round_datetime = lubridate::round_date(timestamp, "30 mins") %>% 
              format("%Y-%m-%d %H:%M") %>% as.POSIXct(.))
+  
+  # # subset data by time windows
+  # anim_dt <- mt_filter_per_interval(anim_dt, unit = set_fix_rate)
   
   # set the column to define time as the rounded time column
   mt_time(anim_dt) <- "round_datetime"
@@ -133,7 +131,7 @@ if (animate_individuals) {
     geom_sf(data = mt_track_lines(data_interpolated), color = "lightyellow") +
     theme_linedraw() +
     geom_sf(
-      data = data_interpolated, size = 3,
+      data = data_interpolated, size = 5,
       aes(color = individual_local_identifier)
     ) +
     scale_color_viridis_d(option = "viridis") +
@@ -152,537 +150,69 @@ if (animate_individuals) {
     coord_sf(expand = FALSE) +
     theme_void() +
     theme(plot.margin = margin(t = 0, r = 0.5, b = 0, l = 0.5, "cm"),
-      axis.text = element_blank(),
-      axis.ticks = element_blank(),
-      panel.border = element_blank()
+          axis.text = element_blank(),
+          axis.ticks = element_blank(),
+          panel.border = element_blank(),
+          plot.title = element_text(size = 18, hjust = 0, vjust = 1),
+          plot.subtitle = element_text(size = 16, hjust = 0, vjust = 1)
     ) +
-
+    
     gganimate::transition_time(round_datetime) +
     
-    labs(title = "Headstart curlew movements",
-         subtitle = "{frame_time}") +
+    labs(title = "Headstart curlew movements\n\n",
+         subtitle = "{format(frame_time, '%Y-%m-%d %H:%M:%S')}\n\n") +
     
-    shadow_wake(0.2, exclude_layer = 6)
+    shadow_wake(0.3, exclude_layer = 6)
   
   
-  system.time(birds_animate <- animate(animation,
-                                       # nframes = 10 * 24 * 2 + 1,
-                                       nframes = 10
-                                       # detail = 5
-                                       # height = 800
-                                       # width = 800
-                                       # units = "px"
-                                       # res = 150
-  ))
+  system.time(
+    birds_animate_short <- animate(animation,
+                                   # nframes = 10 * 24 * 2 + 1,
+                                   nframes = 20,
+                                   # fps = 25,
+                                   # duration = 30, # length of animation in sec
+                                   # detail = 5,
+                                   height = 800,
+                                   width = 800,
+                                   units = "px"
+                                   # res = 150
+    ))
   
-  anim_save("live_tags_test.gif", birds_animate, 
+  anim_save("live_tags_short.gif",
+            birds_animate_short, 
             path = outputwd)
+  
+  
+  system.time(
+    birds_animate_long <- animate(animation,
+                                  # nframes = 60 * 24,
+                                  # nframes = 100,
+                                  fps = 25,
+                                  duration = 45, # length of animation in sec
+                                  # detail = 5,
+                                  height = 800,
+                                  width = 800,
+                                  units = "px"
+                                  # res = 150
+    ))
+  
+  saveRDS(birds_animate_long, file.path(workspacewd, "live_tags_60_day_animation.rds"))
+  
+  anim_save("live_tags_long.gif", 
+            birds_animate_long, 
+            path = outputwd)
+  
   
   
   ############################
   
-  # set up dataset
-  
-  date_range <- as.POSIXct(c("2025-05-25", "2025-06-05"))
-  # date_range <- as.POSIXct(c(min(data$timestamp), max(data$timestamp)))
-  # date_range <- ymd_hms(c(min(bird_df_sf_3857$timestamp), max(bird_df_sf_3857$timestamp)))
-  
-  
-  # add rounded timestamps column
-  bird_df_sf_3857 <- bird_df_sf_3857 %>% 
-    mutate(round_datetime = lubridate::round_date(timestamp, "30 mins") %>% 
-             format("%Y-%m-%d %H:%M") %>% as.POSIXct(.))
-  
-  # set the column to define time as the rounded time column
-  mt_time(bird_df_sf_3857) <- "round_datetime"
-  ts <- mt_time(bird_df_sf_3857) # retrieve timestamps of locations
-  
-  # extract vector of times for each location
-  times <- sort(unique((c(date_range, ts[ts < max(date_range) & ts > min(date_range)]))))
-  
-  
-  # create interpolated data
-  data_interpolated <-
-    mt_interpolate(
-      bird_df_sf_3857[!sf::st_is_empty(bird_df_sf_3857), ],
-      times,
-      omit = TRUE
-    )
-  
-  label_df <- data.frame(
-    round_datetime = date_range,
-    display_time = lubridate::with_tz(date_range, "UTC"))
-  
-  
-  animation <- basemap +
-    # basemap_main$map +
-    geom_sf(data = mt_track_lines(bird_df_sf_3857), color = "lightyellow") +
-    theme_linedraw() +
-    geom_sf(
-      data = data_interpolated, size = 3,
-      aes(color = individual_local_identifier)
-    ) +
-    # scale_color_brewer(palette = "Set1") +
-    scale_color_viridis_d(option = "viridis") +
-    guides(color = "none") +
-    xlab("") +
-    ylab("") +
-    
-    # geom_text(
-    #   data = label_df,
-    #   aes(label = paste0(format(display_time, "%Y-%m-%d %H:%M:%S")), x = xlims[1]+(map_buffer_km*1000), y = ylims[1]+((map_buffer_km*1000))),
-    #   color = "lightyellow", size = 3, hjust = 0, vjust = 0
-    # ) +
-    # 
-    
-    coord_sf(xlim = xlims, ylim = ylims) +
-    theme_void() +
-    
-    gganimate::transition_time(round_datetime) +
-    
-    labs(title = "       Headstart curlew movements",
-         subtitle = "    {frame_time}") +
-    
-    shadow_wake(0.2, exclude_layer = 6)
-  
-  
-  system.time(birds_animate <- animate(animation,
-                                       # nframes = 10 * 24 * 2 + 1,
-                                       nframes = 10,
-                                       # detail = 5
-                                       # height = 200,
-                                       # width = 350,
-                                       # units = "mm",
-                                       # res = 150
-  ))
-  
-  anim_save("live_tags_test.gif", birds_animate, 
-            path = outputwd)
   
   ##################################
   
-  test_map <- ggplot() +
-    ggspatial::annotation_map_tile("cartodark", progress = "none") +
-    ggspatial::annotation_scale(bar_cols = c("gray80", "gray40"), text_col = "gray80") +
-    geom_sf(data = mt_track_lines(data), color = "grey40") +
-    theme_linedraw() +
-    geom_sf(
-      data = data_interpolated, size = 3,
-      aes(color = individual_local_identifier)
-    ) +
-    scale_color_brewer(palette = "Set1") +
-    guides(color = "none") +
-    xlab("") +
-    ylab("") +
-    # geom_text(
-    #   data = label_df,
-    #   aes(label = display_time, x = , y = ),
-    #   color = "grey80", size = 3, hjust = 0
-    # ) +
-    
-    
-    #--- use annotate to add texts on the map ---#
-    annotate(
-      geom = "text",
-      x = 100000000,
-      y = 10000,
-      size = 5,
-      label = "test",
-      color = "grey80",
-      vjust = -5
-    )
-  
-  test_map
-  
-  geom_text(
-    data = label_df,
-    aes(label = display_time, x = -10100000, y = -1370000),
-    color = "grey80", size = 3, hjust = 0
-  ) 
-  
-  
-  for (b in bird_flag_list) {
-    
-    fix_rate <- set_fix_rate
-    
-    # filter movement data to site, cohort
-    bird_df <- all_tags_filtered %>% 
-      filter(flag_id %in% b)
-    
-    # skip to next bird if no data from the last month
-    if (nrow(bird_df) < 1) next
-    
-    num_days_vis <- floor(max(bird_df$timestamp) - min(bird_df$timestamp))
-    
-    message("Creating visualisation for ", b, " using a fix rate of ", fix_rate, " minutes.\n\nVisualisation runs from ", min(bird_df$timestamp), " to ", max(bird_df$timestamp), " over a time period of ", num_days_vis, " days.........\n\n\n")
-    
-    
-    
-    # TESTING NEW BBOX METHOD
-    
-    test_df <- bird_df
-    
-    # Union with expanded bbox
-    result <- union_with_expanded_bbox(test_df$geometry, x_factor = 0.5, y_factor = 0.2)
-    
-    test_df$geometry <- result
-    
-    x2 <- test_df; class(x2) <- class(test_df) %>% setdiff("move2")
-    
-    bird_df_move2_bbox <- mt_as_move2(x2, time_column = "timestamp", track_id_column = "individual_local_identifier")
-    
-    # convert move2 data to move class
-    bird_df_move <- to_move(bird_df_move2_bbox)
-    
-    
-    # convert move2 data to move class
-    bird_df_move <- to_move(test_df)
-    
-    # convert move2 data to move class
-    bird_df_move <- to_move(bird_df)
-    
-    
-    st_as_sf(test_df) %>% mt_as_move2()
-    
-    
-    
-    # align move_data to a uniform time scale
-    m <- align_move(bird_df_move, res = fix_rate, unit = "mins")
-    
-    # set map aesthetics
-    path_colours <- "orangered"
-    tail_trace_col <- "orange"
-    
-    
-    # CODE TO CHANGE BOUNDING BOX  ################
-    
-    
-    # Function to expand bbox and union with geometry
-    union_with_expanded_bbox <- function(sf_obj, x_factor = 0.1, y_factor = 0.1) {
-      # Original bbox
-      bbox <- st_bbox(sf_obj)
-      
-      # Extend bbox
-      x_range <- bbox["xmax"] - bbox["xmin"]
-      y_range <- bbox["ymax"] - bbox["ymin"]
-      
-      expanded_bbox <- bbox
-      expanded_bbox["xmin"] <- bbox["xmin"] - x_range * x_factor
-      expanded_bbox["xmax"] <- bbox["xmax"] + x_range * x_factor
-      expanded_bbox["ymin"] <- bbox["ymin"] - y_range * y_factor
-      expanded_bbox["ymax"] <- bbox["ymax"] + y_range * y_factor
-      
-      # Convert bbox to polygon
-      bbox_poly <- st_as_sfc(expanded_bbox)
-      st_crs(bbox_poly) <- st_crs(sf_obj)
-      
-      # Union original geometry with expanded bbox
-      union_geom <- st_union(sf_obj, bbox_poly)
-      
-      return(union_geom)
-    }
-    
-    # Union with expanded bbox
-    result <- union_with_expanded_bbox(pts, x_factor = 0.2, y_factor = 0.2)
-    
-    # Plot result
-    plot(result, col = 'lightgray', border = 'black')
-    plot(st_geometry(pts), add = TRUE, col = 'blue', pch = 16)
-    
-    
-    # CODE TO CHANGE BOUNDING BOX  ################
-    
-    # # create square bbox around centroid of existing m bbox, with edge lengths equal to the length of the long edge of the existing bbox
-    # 
-    # 
-    # 
-    # # create square bbox around centroid of existing m bbox, with edge lengths equal to the length of the long edge of the existing bbox
-    # 
-    # # 2. Convert bbox to polygon
-    # bbox_geom <- st_as_sfc(st_bbox(m))
-    # 
-    # # 3. Compute centroid
-    # centroid_wgs84 <- st_centroid(bbox_geom)
-    # 
-    # # 2. Example: existing bbox in WGS84
-    # # Let's say this bbox surrounds a feature (e.g., a rectangle around the Colosseum)
-    # bbox_wgs84 <- st_bbox(c(xmin = 12.491, xmax = 12.494, ymin = 41.889, ymax = 41.891), crs = st_crs(4326))
-    # 
-    # # 3. Convert bbox to polygon for projection
-    # bbox_polygon <- st_as_sfc(st_bbox(m))
-    # 
-    # # 4. Choose appropriate projected CRS (e.g., UTM Zone 33N for Rome)
-    # proj_crs <- 3035
-    # 
-    # # 5. Project both bbox and centroid to meters
-    # bbox_proj <- st_transform(bbox_polygon, proj_crs)
-    # centroid_proj <- st_transform(centroid_wgs84, proj_crs)
-    # 
-    # # 6. Measure bbox width and height in meters
-    # bbox_coords <- st_bbox(bbox_proj)
-    # width <- bbox_coords["xmax"] - bbox_coords["xmin"]
-    # height <- bbox_coords["ymax"] - bbox_coords["ymin"]
-    # side_length <- max(width, height)
-    # half_side <- side_length / 2
-    # 
-    # # 7. Get centroid coordinates in projected CRS
-    # centroid_coords <- st_coordinates(centroid_proj)
-    # x <- centroid_coords[1]
-    # y <- centroid_coords[2]
-    # 
-    # # 8. Build square bbox in projected CRS
-    # square_bbox_proj <- st_polygon(list(rbind(
-    #   c(x - half_side, y - half_side),
-    #   c(x - half_side, y + half_side),
-    #   c(x + half_side, y + half_side),
-    #   c(x + half_side, y - half_side),
-    #   c(x - half_side, y - half_side)
-    # ))) |> 
-    #   st_sfc(crs = proj_crs)
-    # 
-    # # 9. Transform back to WGS84
-    # square_bbox_wgs84 <- st_transform(square_bbox_proj, 4326)
-    # 
-    # # 10. Optional: convert to sf for plotting or export
-    # square_bbox_sf <- st_sf(geometry = square_bbox_wgs84)
-    # 
-    # # 11. Convert to st_bbox
-    # square_bbox <- st_bbox(square_bbox_wgs84)
-    # 
-    # # set map extent, conditional on if bird has migrated away from Wash
-    # centroid_wash <- data.frame(long = 0.33104897, lat = 52.921168)
-    # 
-    # # if (b %in% "9L") {
-    # #   set_extent <- extent(centroid_wash$long - 10, 
-    # #                        centroid_wash$long + 3,
-    # #                        centroid_wash$lat - 7, 
-    # #                        centroid_wash$lat + 3)
-    # # } else {
-    # #   set_extent <- extent(centroid_wash$long - 0.5,
-    # #                        centroid_wash$long + 0.6,
-    # #                        centroid_wash$lat - 0.25, 
-    # #                        centroid_wash$lat + 0.25)
-    # # }
-    # # 
-    # # if (b %in% "6Y") {
-    # #   set_extent <- extent(centroid_wash$long - 12,
-    # #                        centroid_wash$long + 2,
-    # #                        centroid_wash$lat - 5, 
-    # #                        centroid_wash$lat + 3)
-    # # } else {
-    #   set_extent <- raster::extent(centroid_wash$long - 0.5,
-    #                        centroid_wash$long + 0.6,
-    #                        centroid_wash$lat - 0.25,
-    #                        centroid_wash$lat + 0.25)
-    # # }
-    # 
-    # current_extent <- st_bbox(m)
-    # 
-    # set_extent <- c(current_extent[1] - 0.05,
-    #                 current_extent[2] + 0.05,
-    #                 current_extent[3] - 0.02, 
-    #                 current_extent[4] + 0.02)
-    # 
-    # 
-    # set_extent <- c(current_extent[1] - 1,
-    #                 current_extent[2] + 0,
-    #                 current_extent[3] + 1,
-    #                 current_extent[4] + 0
-    #                 )
-    # 
-    # 
-    # # trace_colours <- viridis(length(bird_df %>%
-    # #                                   distinct(plot_label) %>%
-    # #                                   pull),
-    # #                          alpha = 0.2
-    # # )
-    # 
-    # ext <- raster::extent(m)
-    # ext@xmin <- ext@xmin - (ext@xmin*5)
-    # ext@xmax <- ext@xmax + (ext@xmax*5)
-    # ext
-    # frames <- frames_spatial(m, map_service = "osm", map_type = "streets", alpha = 0.5, ext=ext)
-    # frames[[200]]
-    # 
-    # 
-    # # transform data from epsg 4326 (move2 object default) to epsg 3857 (units in metres)
-    # # units in metres easier for adding buffer to bounding box
-    # # 3857 is projected CRS for rendering tile mapping
-    # bird_df_sf_3857 <- st_transform(bird_df, crs = 3857)
-    # 
-    # # convert move2 data to move class
-    # bird_df_move <- to_move(bird_df_sf_3857)
-    # 
-    # # align move_data to a uniform time scale
-    # m <- align_move(bird_df_move, res = fix_rate, unit = "mins")
-    # 
-    # bird_df_sf_3857 <- bird_df_sf_3857 %>% 
-    #   mutate(lon_3857 = st_coordinates(bird_df_sf_3857)[,1],
-    #          lat_3857 = st_coordinates(bird_df_sf_3857)[,2])
-    # 
-    # basemap_alpha <- 0.5
-    # map_buffer_km <-  10
-    # # create basemaps for main & inset maps
-    # basemap_main <- make_basemap(sf_data = bird_df_sf_3857,
-    #                              buff_dist = map_buffer_km*1000,
-    #                              map_type = "main",
-    #                              map_provider = "Esri.WorldImagery",
-    #                              alpha_level = basemap_alpha)
-    # 
-    # 
-    # # convert move2 data to move class
-    # bird_df_move <- to_move(bird_df)
-    # 
-    # # align move_data to a uniform time scale
-    # m <- align_move(bird_df_move, res = fix_rate, unit = "mins")
-    # 
-    # # automatic Movebank download - doesn't work if tags are redployedMore actions
-    # mb_study_name <- move::searchMovebankStudies(x="Curlews - headstarted", login=loginStored)
-    # 
-    # temp_tags <- getMovebankData(
-    #   study = "BTO-NE-Pensthorpe - Eurasian Curlews - headstarted",
-    #   # login = loginStored,
-    #   sensorID = "GPS",
-    #   # animalName = mb_individual_id,
-    #   removeDuplicatedTimestamps = TRUE
-    # )
-    # 
-    # temp_tags <- as_tibble(temp_tags)
-    # 
-    # bird_df <- temp_tags %>% filter(tag_local_identifier %in% 203287)
-    # 
-    # bird_df <- tail(bird_df, 1500)
-    # 
-    # bird_df_move <- bird_df %>%
-    # filter(gps_satellite_count >= 3) %>% 
-    #   # dplyr::select(plot_label, new_datetime, location_lat, location_long) %>% 
-    #   df2move(proj = "+init=epsg:4326 +proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0",
-    #           x = "location_long",
-    #           y = "location_lat",
-    #           time = "timestamp",
-    #           track_id = "tag_local_identifier"
-    #   )
-    # 
-    # # align move_data to a uniform time scale
-    # m <- align_move(bird_df_move, res = fix_rate, unit = "mins")
-    # 
-    # frames <- frames_spatial(
-    #   m
-    #   # path_colours = path_colours,
-    #   # map_service = map_service, 
-    #   # map_type = map_style,
-    #   # equidistant = FALSE,
-    #   # path_legend = FALSE,
-    #   # tail_size = 0.8,
-    #   # trace_show = TRUE,
-    #   # ext = raster::extent(0,1,51,52)
-    #   # trace_colour = tail_trace_col
-    # )
-    # frames[[100]]
-    # 
-    # frames <- frames_spatial(
-    #   m,
-    #   # path_colours = path_colours,
-    #   # map_service = map_service, 
-    #   # map_type = map_style,
-    #   equidistant = FALSE,
-    #   # path_legend = FALSE,
-    #   # tail_size = 0.8,
-    #   # trace_show = TRUE,
-    #   ext = raster::extent(-2,5,51,52)
-    #   # trace_colour = tail_trace_col
-    # )
-    # 
-    # frames[[100]]
-    
-    
-    
-    
-    # CREATE FRAMES  ############
-    
-    
-    
-    frames <- frames_spatial(m,
-                             path_colours = path_colours,
-                             map_service = map_service, 
-                             map_type = map_style,
-                             map_token = ifelse(map_service == "mapbox", "pk.eyJ1Ijoic2ZyYW5rczgyIiwiYSI6ImNrcmZkb2QybDVla2wyb254Y2ptZnlqb3UifQ.YNOfGD1SeRMZJDur73Emyg", ""),
-                             alpha = 0.8,
-                             equidistant = FALSE,
-                             path_legend = FALSE,
-                             tail_size = 0.8,
-                             trace_show = TRUE,
-                             # ext = ext,
-                             trace_colour = tail_trace_col
-                             
-    ) %>%
-      
-      # add some customizations, such as axis labels
-      # add_labels(x = "Longitude", y = "Latitude") %>% 
-      # add_northarrow() %>%
-      add_scalebar() %>%
-      add_timestamps(type = "label") %>%
-      add_progress() %>% 
-      add_gg(gg = expr(list(
-        theme(axis.text = element_blank(),
-              axis.title = element_blank(),
-              axis.ticks = element_blank()
-        ))))
-    
-    # bto_logo <- png::readPNG(file.path(datawd, "C1-BTO-master-logo-portrait-(no-strap).png"))
-    # bto_rast <- grid::rasterGrob(bto_logo, interpolate=TRUE)
-    # 
-    # frames <- frames %>% 
-    #   add_gg(frames,
-    #          gg = expr(list(
-    #            annotation_custom(bto_rast,
-    #                              xmin=max(m$x)+0.002, xmax= max(m$x) + 0.009,
-    #                              ymin= max(m$y)-0.005, ymax= max(m$y) + 0.008)
-    #          )))
-    
-    if (!no_labels) {
-      frames <- frames %>% 
-        add_gg(gg = expr(list(
-          labs(
-            caption="\u00A9 British Trust for Ornithology" ,
-            title = paste0(unique(bird_df$flag_id), ": ", unique(bird_df$year), " cohort")
-          )
-        )))
-    }
-    
-    
-    # preview one of the frames, e.g. the 100th frame
-    frames[[length(frames)]]
-    
-    
-    
-    if (file_format %in% "gif") {
-      animate_frames(frames,
-                     out_file = file.path(outputwd, paste0("anim_", b, "_", map_style, "_with-longer-tail_", today_date, ".", file_format)),
-                     # height = 800,
-                     width = 800
-      )
-      
-    }
-    
-    if (file_format %in% "mp4") {
-      
-      # animate frames
-      animate_frames(frames,
-                     out_file = file.path(outputwd, paste0("anim_", b, "_", map_style, "_with-longer-tail_", today_date, ".", file_format)),
-                     overwrite = TRUE,
-                     # height = 800,
-                     width = 800,
-                     fps = set_fps
-      )
-    }
-    
-    rm(frames)
-    gc()
-    
-  }
   
 }
+
+
 
 # Animate migration of migrants only  ----------------
 
