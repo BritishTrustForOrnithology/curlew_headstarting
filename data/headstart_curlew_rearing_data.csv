@@ -1,265 +1,324 @@
-year,clutch_num,date_hatched,clutch_egg_num,rear_colour_ring,name,weight_hatch,weight_shell,date_moved_polytunnel,weight_moved_polytunnel,notes,flag_id
-2022,6,20/05/2022,3,Green 10/Blue,,60.2,7.6,26/05/2022,103.3,,6V
-2022,6,20/05/2022,1,Green 11,,58.6,7.1,26/05/2022,91.3,,6X
-2022,6,21/05/2022,4,Green 12/Red,,62.3,4.7,26/05/2022,120.8,,6Y
-2022,1,23/05/2022,1,L Blue 20,,59.4,6.0,28/05/2022,90.0,,7A
-2022,1,23/05/2022,2,D Blue 20/Yellow,,57.5,7.4,28/05/2022,90.6,,7C
-2022,1,24/05/2022,3,White 20,,52.3,6.9,03/06/2022,109.7,,7H
-2022,4,25/05/2022,1,Red 19,,64.7,6.7,30/05/2022,94.3,,7E
-2022,4,25/05/2022,3,D Blue 19,,63.3,6.9,30/05/2022,99.0,wings taped 2/6 for 1.5 day,8K
-2022,4,26/05/2022,2,White 19,,61.3,6.9,03/06/2022,112.3,"didn’t hatch well, unabsorbed yolk sak",8C
-2022,8,26/05/2022,4,Green 18,,64.0,8.5,01/06/2022,90.0,,7N
-2022,8,26/05/2022,1,White 18,,66.6,8.9,01/06/2022,92.8,,8P
-2022,8,27/05/2022,2,Red 18,,58.5,7.6,01/06/2022,83.4,,7X
-2022,8,27/05/2022,3,L Blue 18,,61.7,7.0,01/06/2022,79.9,,8A
-2022,2,26/05/2022,2,L Blue 12,,58.3,7.7,01/06/2022,82.6,,7P
-2022,2,27/05/2022,4,White 12,,55.8,6.0,01/06/2022,73.4,,7Y
-2022,2,27/05/2022,3,Red 12,,58.0,5.6,01/06/2022,82.6,,7U
-2022,5,26/05/2022,4,Green 15,,60.0,7.0,01/06/2022,95.0,,8J
-2022,5,27/05/2022,3,L Blue 15,,54.8,6.0,03/06/2022,97.5,,7K
-2022,5,28/05/2022,1,D Blue 15,,58.3,6.6,03/06/2022,93.1,"Bent outside toe, left foot/slightly splayed legs ",7V
-2022,7,28/05/2022,4,L Blue 17,,57.8,7.3,03/06/2022,92.5,,7T
-2022,7,28/05/2022,3,White 17,,55.2,6.8,03/06/2022,104.5,strapped wing overnight at 10 days old,7J
-2022,7,28/05/2022,2,Green 17,,58.4,6.4,03/06/2022,92.5,,8N
-2022,7,29/05/2022,1,Red 17,,53.6,7.3,04/06/2022,83.1,,7L
-2022,3,29/05/2022,1,Pink 9,,60.0,8.9,04/06/2022,102.4,,8L
-2022,3,29/05/2022,3,Green 9,,60.5,8.3,04/06/2022,102.9,,
-2022,3,30/05/2022,4,Red 9 ,,60.1,8.5,04/06/2022,89.4,X,
-2022,12,12/06/2022,4,Red 8,,54.9,6.6,17/06/2022,102.5,X,
-2022,12,12/06/2022,3,D Blue 8,,58.7,6.9,17/06/2022,82.3,,8E
-2022,10,14/06/2022,1,L Blue 10,,48.9,6.4,20/06/2022,81.2,,8V
-2022,10,16/06/2022,3,White 10,,50.1,7.3,20/06/2022,70.5,,8H
-2022,9,17/06/2022,1,D Blue 10,,62.0,5.3,22/06/2022,97.2,,8X
-2022,9,17/06/2022,3,5,,,6.9,27/06/2022,117.7,,9C
-2022,9,18/06/2022,4,D Blue 11,,60.6,8.1,22/06/2022,88.1,,8T
-2022,11,17/06/2022,2,Red 15,,60.0,7.1,22/06/2022,91.2,,8Y
-2022,11,18/06/2022,3,White 7 (Clarance),,58.7,7.7,27/06/2022,94.8,,
-2022,11,19/06/2022,4,White 8,,56.9,6.6,27/06/2022,114.7,,9K
-2022,11,20/06/2022,1,,,,6.7,X,X,X,
-2022,13,17/06/2022,3,L Blue 4,,52.2,6.5,22/06/2022,73.9,,8U
-2022,13,18/06/2022,1,L. Blue 5,,55.9,7.6,22/06/2022,74.8,X,
-2022,13,18/06/2022,4,L Blue 6,,56.3,5.4,22/06/2022,65.9,,9A
-2022,13,18/06/2022,2,L Blue 7,,51.4,5.0,22/06/2022,69.1,,9H
-2022,15,21/06/2022,2,Red 11,,53.8,6.4,27/06/2022,94.8,,9E
-2022,15,21/06/2022,3,Red 10,,56.3,6.1,27/06/2022,89.5,,9J
-2022,15,22/06/2022,4,Red 14,,55.4,5.8,27/06/2022,93.4,,9L
-2022,15,22/06/2022,1,Red 16,,57.3,4.3,27/06/2022,96.1,X,
-2022,14,21/06/2022,2,Green 16,,56.3,6.1,27/06/2022,88.8,X,
-2022,14,21/06/2022,3,Green 19,,57.6,5.6,27/06/2022,87.6,X,
-2022,14,22/06/2022,1,Green 14,,51.1,4.0,27/06/2022,88.7,X,
-2021,3,12/05/2021,1,Blue L,,46.9,4.7,18/05/2021,,,0E
-2021,3,12/05/2021,2,Red L ,,45.1,5.3,18/05/2021,,,0C
-2021,3,12/05/2021,3,Green L,,46.8,6.3,18/05/2021,,,0J
-2021,1,16/05/2021,1,Pink 1 Right,,,,22/05/2021,,,0A
-2021,1,16/05/2021,2,Pink 2 Left,,,,22/05/2021,,,0L
-2021,1,16/05/2021,3,Pink 3 Right,,,,22/05/2021,,,0U
-2021,2,18/05/2021,4,Black 1,,,,25/05/2021,78.7,egg 2/1 off ,0K
-2021,2,19/05/2021,2,Black 2,,,,25/05/2021,77.2,,0N
-2021,2,19/05/2021,3,Black 3,,,,25/05/2021,81.9,"Went off legs outside, briought in and given solulite.  Recovered after two days in with Grey 3 and 4 out again 31/05",2A
-2021,5,20/05/2021,1,Yellow 2,,,,25/05/2021,68.8,,2E
-2021,5,20/05/2021,2,Yellow 3,,,,25/05/2021,71.5,,2T
-2021,5,21/05/2021,3,Yellow 4,,,,25/05/2021,65.0,,0V
-2021,5,22/05/2021,4,Yellow 1,,,,28/05/2021,88.5,small so moved in with 4/3 and 14/2 on 24/05,0P
-2021,4,23/05/2021,3,Pink 5 ,,47.1,4.8,28/05/2021,71.7,,2U
-2021,4,24/05/2021,2,Pink 4,,51.1,5.4,28/05/2021,62.2,,0T
-2021,4,25/05/2021,1,Pink 6,,52.5,4.5,,,Euthanised 31/05 - on day 3 went off legs ,
-2021,4,26/05/2021,4,Pink 7,,47.8,5.7,02/06/2021,69.0,Slow growing moved back,3P
-2021,14,23/05/2021,2,Grey 2,,51.4,7.0,28/05/2021,73.1,,2J
-2021,14,24/05/2021,3,Grey 1,,56.6,7.9,28/05/2021,68.4,,0X
-2021,14,25/05/2021,1,Grey 3,,54.2,7.2,31/05/2021,,,2N
-2021,14,26/05/2021,4,Grey 4,,54.8,5.4,31/05/2021,,,2C
-2021,13,26/05/2021,2,Orange 2 ,,54.4,7.7,01/06/2021,63.6,very slight feather problem,3L
-2021,13,26/05/2021,4,Orange 3,,49.1,8.9,01/06/2021,82.5,,2K
-2021,13,27/05/2021,3,Orange 4,,51.3,7.2,01/06/2021,68.4,,3U
-2021,13,27/05/2021,1,Orange 5,,56.9,6.3,01/06/2021,67.0,,3E
-2021,8,28/05/2021,1,Pink 10,,50.0,7.5,02/06/2021,69.2,,3C
-2021,8,28/05/2021,2,Pink 9/Green left,,51.7,7.6,02/06/2021,86.5,Bill curved slightly to left last cm,2H
-2021,8,28/05/2021,4,Pink 8,,51.6,7.2,02/06/2021,84.4,,2V
-2021,6,27/05/2021,2,Black 4,,53.9,7.7,02/06/2021,74.0,,2L
-2021,6,29/05/2021,4,Black 5,,54.9,9.6,04/06/2021,90.3,,0Y
-2021,9,30/05/2021,1,yellow 5,,62.0,8.1,04/06/2021,93.4,,2X
-2021,9,30/05/2021,3,yellow 6,,61.9,9.6,04/06/2021,104.3,,2P
-2021,9,30/05/2021,4,yellow 7,,61.0,10.3,04/06/2021,81.5,,2Y
-2021,9,01/06/2021,2,yellow 8 ,,60.2,8.3,06/06/2021,93.9,,3A
-2021,23,31/05/2021,1,Orange 6,,59.7,8.9,04/06/2021,75.3,injury to toe on ringing (recent but not fresh),3K
-2021,23,31/05/2021,3,Orange 7,,55.2,9.0,04/06/2021,69.2,,3Y
-2021,23,31/05/2021,4,Orange 8,,55.1,7.7,04/06/2021,53.8,,4E
-2021,23,31/05/2021,2,Orange 10,,55.4,7.2,04/06/2021,59.4,,3H
-2021,12,01/06/2021,2,Grey 7,,54.4,9.5,06/06/2021,77.8,,3T
-2021,12,01/06/2021,3,Grey 8,,56.3,9.7,06/06/2021,78.9,,3V
-2021,12,02/06/2021,1,Grey 9,,56.4,9.3,06/06/2021,75.4,,4A
-2021,12,02/06/2021,4,Grey 10,,54.5,6.9,06/06/2021,75.1,,3N
-2021,10,05/06/2021,4,Black 7,,58.9,7.7,10/06/2021,88.4,White on primary feathers like others. Sheaths prened off properly itself,3J
-2021,10,05/06/2021,2,Black 8,,62.1,7.2,10/06/2021,81.8,,4C
-2021,10,06/06/2021,3,Black 6/Green left,,60.3,5.5,10/06/2021,77.4,,3X
-2021,15,07/06/2021,4,Grey 5,,52.6,8.1,12/06/2021,72.9,,5H
-2021,15,07/06/2021,3,Grey 6,,61.3,6.5,12/06/2021,73.1,Euthanised 15/6,
-2021,15,07/06/2021,1,Black 9,,47.7,6.9,12/06/2021,71.4,,4K
-2021,15,07/06/2021,2,Black 10,,52.0,4.5,12/06/2021,62.5,,4L
-2021,11,10/06/2021,2,Orange 1 ,,60.8,9.1,14/06/2021,85.8,,
-2021,11,10/06/2021,3,Orange 9,,61.2,9.3,14/06/2021,89.5,,4X
-2021,11,10/06/2021,1,Yellow 9,,61.2,8.2,14/06/2021,76.1,,5A
-2021,11,10/06/2021,4,Yellow 10,,61.4,8.2,14/06/2021,63.5,,6E
-2021,17,12/06/2021,2,Green Rt,,55.7,6.3,17/06/2021,76.2,,4U
-2021,17,12/06/2021,3,Green Left,,54.8,8.1,17/06/2021,73.6,,4V
-2021,17,12/06/2021,1,Double Green,,54.9,6.4,17/06/2021,74.9,,4N flag removed
-2021,16,13/06/2021,3,Blue Left,,57.7,8.4,18/06/2021,94.0,,4T
-2021,16,13/06/2021,1,Blue Rt,,58.0,8.1,18/06/2021,89.3,,4Y
-2021,16,13/06/2021,4,Double Blue,,55.9,9.8,18/06/2021,76.0,,4H
-2021,16,14/06/2021,2,Blue/Blue Rt,,59.3,8.5,18/06/2021,70.0,,5J
-2021,27,14/06/2021,1,Yellow Left,,56.1,6.0,19/06/2021,81.4,,5C
-2021,27,14/06/2021,2,Yellow Rt,,52.7,6.1,19/06/2021,71.5,,4J
-2021,27,14/06/2021,3,Double Yellow,,52.5,6.4,19/06/2021,74.0,,4P
-2021,18,15/06/2021,1,Double Red,,55.3,5.5,19/06/2021,74.6,,6H
-2021,18,15/06/2021,2,Red Left,,51.9,8.0,19/06/2021,72.2,Treated for limp ,6U
-2021,18,15/06/2021,3,Red Rt,,54.8,6.2,19/06/2021,86.3,,5E
-2021,19,15/06/2021,2,Red 1,,46.6,5.2,21/06/2021,70.8,,6C
-2021,19,16/06/2021,1,Red 2,,48.1,5.9,21/06/2021,71.1,,6K
-2021,19,16/06/2021,3,Red 3,,47.5,4.4,21/06/2021,72.2,,5T
-2021,20,16/06/2021,1,White 1,,53.4,5.9,21/06/2021,90.0,,
-2021,21,16/06/2021,1,D Blue 1,,55.5,5.5,20/01/1900,78.1,,5V
-2021,21,16/06/2021,3,D Blue 2,,55.1,7.3,21/06/2021,74.9,,5L
-2021,22,16/06/2021,2,Green 1,,49.5,8.0,21/06/2021,81.7,,5U
-2021,25,16/06/2021,1,White 3,,44.1,5.6,22/06/2021,73.5,died 27/6. Brought ,
-2021,25,16/06/2021,4,White 2,,45.1,6.9,22/06/2021,74.5,Found dead 25/6 (62.6g),
-2021,25,17/06/2021,2,White 4,,44.0,5.5,23/06/2021,73.5,,6J
-2021,25,17/06/2021,3,White 5,,45.0,6.0,23/06/2021,66.0,,5P
-2021,26,16/06/2021,1,L Blue 1,,58.8,9.1,21/06/2021,85.2,,6P
-2021,26,17/06/2021,2,L blue 2,,55.5,6.9,22/06/2021,80.4,,5N
-2021,24,17/06/2021,1,Green 2,,49.1,5.2,23/06/2021,71.4,Brought in 1/7 as gone off legs. Died 2/7,
-2021,24,17/06/2021,3,Green 3,,46.0,6.6,23/06/2021,74.4,,5K
-2021,30,18/06/2021,4,Red 4,,59.1,6.6,22/06/2021,79.9,,6N
-2021,30,19/06/2021,1,Red 5,,57.6,5.9,22/06/2021,72.3,,5Y
-2021,28,20/06/2021,3,Green 4,,51.8,9.3,26/06/2021,87.4,,6A
-2021,28,20/06/2021,1,Green 7,,52.8,6.8,26/06/2021,58.2,,6T
-2021,28,20/06/2021,4,Green 5,,53.6,6.4,26/06/2021,91.2,,5X
-2021,28,20/06/2021,2,Green 6,,50.8,7.1,26/06/2021,74.6,,6L
-2023,1,20/05/2023,3,Dark Blue 5 (L),Charles,54.9,6.0,26/05/2023,69.1,,KA
-2023,9,28/05/2023,3,Red 13,Captain,50.0,,03/06/2023,64.0,,KC
-2023,1,20/05/2023,4,Dark Blue 4 (L),Clive,53.3,6.0,26/05/2023,65.9,,KE
-2023,1,20/05/2023,2,Dark Blue 6 (R),Curly,51.9,,26/05/2023,66.5,,KH
-2023,23,23/06/2023,1,L.blue 23,Clio,41.4,,27/06/2023,60.0,,KJ
-2023,18,22/06/2023,2,Red 23,Cherry,50.3,6.0,26/06/2023,60.6,"Scoliosis and slight rasping when breathing but may be due to stress, upper respiritory",KK
-2023,18,22/06/2023,3,Pink 30,Calendula,47.9,4.7,25/06/2023,62.4,,KL
-2023,19,22/06/2023,1,Green 23,Cloudberry,51.5,8.2,25/06/2023,58.3,slight bumble foot on right foot,KN
-2023,23,23/06/2023,2,Pink 23,Cassiopeia,44.1,,26/06/2023,54.7,Slight bumble foot on left. Slight abrasion from catching. Slightly worn primary tips,KP
-2023,23,23/06/2023,4,Purple23,Cousteau,42.1,,27/06/2023,66.4,Very minor bumble foot on left foot and slightly thinner than other checked birds,KT
-2023,14,05/06/2023,3,Yellow (R),Cicero,56.8,8.3,09/06/2023,63.2,,KU
-2023,12,01/06/2023,4,White 6,Cohen,54.8,5.9,07/06/2023,63.4,"Very fast heart rate, put back initially to calm down. Heart rate recovered",KV
-2023,16,09/06/2023,4,Blue/yellow,Ceto,52.2,5.9,13/06/2023,60.0,"bumble foot both feet, bad wing",LA
-2023,13,06/06/2023,2,Green/Blue,Crumpet,56.2,5.5,11/06/2023,62.9,,LC
-2023,1,21/05/2023,1,Dark Blue 7 (R),Camilla,51.3,4.4,26/05/2023,67.2,"Slightly tatty primaries on left, slightly bent primaries on right. Slight bilateral bumble foot. Bent tarsus. Good body condition.",LE
-2023,21,18/06/2023,2,Purple 30,Chester,56.0,6.8,22/06/2023,74.5,,LJ
-2023,10,29/05/2023,1,L.blue 13,Callisto,54.5,6.8,03/06/2023,61.5,,LK
-2023,24,07/06/2023,3,Pink 29,Christmas Ceilidh,,,12/06/2023,81.1,4/8/23 concave wing,LL
-2023,13,07/06/2023,1,Orange 27,Clodhopper,58.4,5.1,13/06/2023,67.9,"Bad leg left - barely hot - vet says good to go, slight bumblefoot on right leg",LN
-2023,22,27/06/2023,1,Purple 22,Corvus,59.4,6.7,01/07/2023,63.8,Feathers growing back well,LP
-2023,20,06/06/2023,2,Red 26,Chough,62.5,6.1,10/06/2023,69.9,,LT
-2023,23,22/06/2023,3,Pink 26,Chronos,42.6,4.4,26/06/2023,55.7,slight bumble foot left,LU
-2023,22,28/06/2023,2,Yellow 22,Cheese,56.2,6.7,01/07/2023,62.0,,LV
-2023,21,19/06/2023,4,Pink 22,Clyde,57.3,5.3,22/06/2023,68.0,Abrasions on lower beak from catching,LX
-2023,18,22/06/2023,4,D.blue21,Cockle,48.6,5.6,25/06/2023,60.9,,LY
-2023,5,25/05/2023,3,Red 9 (R),Cleopatra,64.7,11.0,29/05/2023,74.9,,XA
-2023,5,25/05/2023,1,D.Blue 9 (R),Crumble,61.2,9.0,29/05/2023,67.0,"No active blistering but short primary feathers on both wings (prev pulled), growing, secondary at right wing joint twisted but not pulled,",XC
-2023,10,28/05/2023,4,D.blue 18,Cyrus,57.7,5.7,03/06/2023,62.7,,XE
-2023,5,25/05/2023,2,White 9 (R),Calypso,64.9,9.0,29/05/2023,73.7,,XH
-2023,3,21/05/2023,2,White 14 (R),Copernicus,60.0,5.7,26/05/2023,75.3,Spot on,XJ
-2023,8,02/06/2023,2,Red (L),Coleslaw,60.0,6.8,07/06/2023,64.9,"Found dead at sandringham pen 6/8/23 Right and left wing primary and secondary feathers joint level, growing back without blistering, two secondaries from the left wing joint level were pulled, bumble feet on middle digit & mild lesion at centre of foot",LH
-2023,12,02/06/2023,3,Yellow 26,Chloe,51.6,5.3,08/06/2023,59.2,"Dead 3/8/23 Spot on, 1 feather pulled from each wing, slight bumblefoot on both feet, secondaries regrowing back well",YT
-2023,8,02/06/2023,1,Black (R),Cupcake,60.0,7.9,08/06/2023,65.5,euthanised on 20.07.2023,.
-2023,12,03/06/2023,1,White (R),Cucumber,53.0,6.5,08/06/2023,59.4,,
-2023,14,04/06/2023,1,Double green,Claudio,58.8,7.7,09/06/2023,65.6,euthanised on 20.07.2023,
-2023,20,05/06/2023,3,Red (R),Chips,66.5,5.7,09/06/2023,72.8,,
-2023,3,21/05/2023,3,White 15 (R),Caesar,58.9,5.2,26/05/2023,70.0,,XK
-2023,14,05/06/2023,2,Black (L),Caius,58.3,7.5,09/06/2023,70.1,euthanised on 20.07.2023,
-2023,20,05/06/2023,4,Blue (R),Cuckoo,61.1,9.9,10/06/2023,73.4,Wing broken - euthanised 21/07 sent for PM 26/07,
-2023,20,05/06/2023,1,White (L),Corncrake,65.1,10.0,10/06/2023,70.0,euthanised on 20.07.2023,
-2023,11,25/05/2023,3,White 16,Cecil,61.7,5.9,30/05/2023,67.0,,XL
-2023,15,06/06/2023,1,Double blue,Cerberus,58.8,6.1,11/06/2023,73.9,,
-2023,17,06/06/2023,4,Double black,Caduceus,56.2,6.0,13/06/2023,68.1,,
-2023,17,06/06/2023,1,Double yellow,Cupid,54.3,7.9,11/06/2023,68.7,euthanised on 20.07.2023,
-2023,14,06/06/2023,4,D. blue 27,Cooper,59.3,5.8,11/06/2023,71.9,euthanised on 20.07.2023,
-2023,11,26/05/2023,2,D.blue 14,Custard,55.7,6.7,01/06/2023,63.9,"Primary feathers on tip of left wing short still growing, bumblefoot lesions on both",XP
-2023,17,06/06/2023,3,N/A,Calais,54.1,5.8,,,,
-2023,5,25/05/2023,4,L.Blue 3 (R),Curie,62.3,10.0,29/05/2023,70.7,,XT
-2023,13,07/06/2023,3,Green/Red,Clanger,55.2,6.0,13/06/2023,61.4,euthanised on 20.07.2023,
-2023,11,25/05/2023,4,L.blue 8,Chalice,59.7,6.7,30/05/2023,72.3,Primaries on both wings quite short and still growing,XU
-2023,4,25/05/2023,2,D.blue 16,Chad,55.3,7.7,01/06/2023,59.9,"Scraped upper beak in the box, bumblefeet both feet, tips of primaries growing on both wings, primary and secondaries at joint level growing on right wing, previously pulled",XV
-2023,10,28/05/2023,2,Pink 21,Chetney,59.1,7.2,03/06/2023,64.2,"Pulled feathers growing back nicely, second primary at tip of the wing was shorter",XX
-2023,10,28/05/2023,3,L.blue 16,Circe,55.9,5.5,03/06/2023,62.2,Bumblefoot on both feet,XY
-2023,2,26/05/2023,2,L. Blue 19,Calliope,57.7,4.8,01/06/2023,73.9,"2 primaries pulled from right wing and left wing, left wing at joint level, secondaries unsure if still growing, both wings previously pulled primary feathers have grown out but blistering on first two primaries at tip of wing been pulled, bumble foot",YA
-2023,4,26/05/2023,1,L.blue 6,Callum,57.9,,01/06/2023,61.7,,YC
-2023,9,28/05/2023,2,White 11,Chocs away,53.6,6.4,03/06/2023,59.9,,YE
-2023,21,19/06/2023,1,Orange 21,Christopher,51.3,5.9,22/06/2023,63.1,,
-2023,11,26/05/2023,1,Red 7,Cosmos,53.6,7.9,01/06/2023,60.2,All good,YH
-2023,9,28/05/2023,1,Green 20,Carswell,52.1,4.2,03/06/2023,56.1,,YJ
-2023,2,25/05/2023,1,D.Blue 12 (R),Cassandra,59.1,6.3,30/05/2023,70.4,,YK
-2023,19,22/06/2023,2,Yellow21,Celia,52.7,5.5,25/06/2023,60.0,,
-2023,24,07/06/2023,,Pink 28,Carol,,,20/06/2023,,,YL
-2023,12,02/06/2023,2,Green 21,Carrot,53.0,5.6,08/06/2023,63.4,Vet needs to check swelling next time.,YN
-2023,9,27/05/2023,4,D.blue 17,Chief,50.5,5.5,03/06/2023,59.7,,YP
-2023,24,07/06/2023,2,Purple 26,Crescent,,,10/06/2023,52.8,,YU
-2023,24,07/06/2023,1,Black 28,Curlew,,,10/06/2023,70.0,,YV
-2023,16,08/06/2023,1,Red/Yellow,Chutney,52.4,6.3,13/06/2023,65.8,,YX
-2023,19,23/06/2023,3,Orange 22,Coco,57.5,9.0,27/06/2023,70.1,,
-2023,8,01/06/2023,3,L.blue 11,Colossus,59.2,9.3,07/06/2023,58.3,,YY
-2023,22,28/06/2023,4,L.blue 22,Cumberbatch,58.8,7.9,01/07/2023,54.7,euthanised on 20.07.2023,
-2023,8,01/06/2023,4,Blue left,Colin,62.4,6.8,07/06/2023,68.4,,
-2023,22,28/06/2023,3,Green 22,Chocolate,51.3,4.1,01/07/2023,53.6,euthanised 26/7/23,
-2024,3,18/05/2024,2,White 27,Dorris,58.7,7.5,,,Hatch: . Ringing: Feathers taken 19/06/24. Vet: Grade 1 podo on each foot,JE
-2024,3,18/05/2024,4,Black 21,Dobby,61.8,8.8,,,Hatch: . Ringing: Feathers taken 19/06/24. Vet: Grade 1 podo left foot,JK
-2024,3,18/05/2024,3,D. Blue 30,Daffy,62.8,9.3,,,Hatch: . Ringing: Feathers taken 19/06/24. Vet: Limpy bird. No obvious sign. To monitor at release pen.,JH
-2024,3,19/05/2024,1,Red 24,Dill,60.0,6.8,,,"Hatch: screamed lots, slightly bent neck to the right. Ringing: Feathers taken 19/06/24. Vet:",JC
-2024,8,20/05/2024,1,Yellow 25,Divian,58.3,8.0,,,Hatch: . Ringing: Feathers taken 19/06/24. Vet: Grade 1 podo on both feet. Feathers taken 03/07/24,JA
-2024,8,20/05/2024,3,Green 26,Drogo,61.8,4.7,,,Hatch: . Ringing: Feathers taken 19/06/24. Vet: Grade 1 pododermititus (left),JL
-2024,8,21/05/2024,2,Purple 28,Dakota,59.5,5.7,,,Hatch: slightly bent toes. Ringing: Feathers taken 19/06/24. Vet: Grade 1 podo on each foot,JJ
-2024,2,24/05/2024,1,Orange 24,Desiato,52.2,9.0,,,Hatch: . Ringing: . Vet: Feathers taken 03/07/24,JU
-2024,2,24/05/2024,3,Green 25,,51.2,7.1,,,Hatch: Found dead in polytunnel 09/06. Ringing: . Vet:,
-2024,2,24/05/2024,4,Purple 29,Dino,53.1,5.7,,,Hatch: . Ringing: Needs feathers taking. Vet: Need vet notes. Not moved to release site. Still needs feathers taking. Moved back to polytunnel.,JT
-2024,11,24/05/2024,1,D.Blue 22,Densel,64.3,7.4,,,"Hatch: . Ringing: Given 0.8ml metacam in hand, moved to flight pens but not flagged.. Vet: Grade 1 podo, both feet. Feathers taken 03/07/24",NP
-2024,2,24/05/2024,2,Pink 25,Duckling,51.4,6.0,,,Hatch: . Ringing: . Vet: Feathers taken 03/07/24,JV
-2024,11,24/05/2024,4,White 25,Doreen,63.6,9.3,,,Hatch: bent toes. Ringing: Enthuanised by vet Lucy.. Vet: Need vet notes. Not moved to release site. Still needs feathers taking. Moved back to polytunnel.,JP
-2024,11,25/05/2024,3,Black 23,Dottie,64.9,5.8,,,Hatch: didgit 4 slightly bent both feet. Ringing: . Vet: Feathers taken 03/07/24,JN
-2024,4,25/05/2024,1,L.Blue 27,Dracula,50.0,5.7,,,"Hatch: prolapsed yolk sac - F10 cream applied. Need to change ring when put outside.. Ringing: Bumblefoot, both feet. Feathers taken 26/06/24. Vet:",NC
-2024,4,25/05/2024,3,L.Blue 24,Declan,48.3,5.2,,,Hatch: . Ringing: Feathers taken 26/06/24. Vet:,NL
-2024,4,25/05/2024,4,Green 24,Dorian,48.5,4.4,,,Hatch: . Ringing: Feathers taken 26/06/24. Vet:,NN
-2024,4,26/05/2024,2,Orange 28,Dexter,42.1,4.7,,,"Hatch: prolapsed yolk sac. F10 cream applied.. Ringing: Feathers taken 26/06/24. Vet: Wing broken upon vet check, wing popped out, flapped and snapped at joint. Enuthanised by Sophie.",JX
-2024,1,26/05/2024,2,Red 22,Digby,56.9,6.0,,,Hatch: very slightly prolapsed yolk sac. Ringing: Feathers taken 26/06/24. Vet:,JY
-2024,11,26/05/2024,2,D.Blue 25,Davina,53.2,6.4,,,Hatch: left foot very slightly bent toes. Ringing: Bumblefoot (right). Vet: Feathers taken 03/07/24,NK
-2024,1,26/05/2024,4,Yellow 28,Daphne,51.1,8.4,,,Hatch: . Ringing: . Vet: Feathers taken 03/07/24,NH
-2024,1,26/05/2024,1,Black 27,Dario,58.2,8.1,,,Hatch: left foot slightly bent toes. Ringing: . Vet: Feathers taken 03/07/24,NA
-2024,1,27/05/2024,3,N/A,,56.2,7.0,,,"Hatch: wry neck, both feet not right. Chick couldn’t stand unassisted, neck braced but decision made to euthanise due to issues at 16:30pm. Body to be sent off for post mortem.. Ringing: . Vet:",
-2024,5,28/05/2024,1,Purple24,Diego,52.0,7.4,,,Hatch: long thin egg. Ringing: . Vet: Feathers taken 03/07/24,NE
-2024,5,28/05/2024,2,White26,Dufus,53.5,6.6,,,Hatch: . Ringing: . Vet: Feathers taken 03/07/24,NJ
-2024,6,04/06/2024,2,Red 21,Demi,57.1,7.3,,,Hatch: . Ringing: Need feathers taking. Vet: Feathers taken 24/07/24.,PL
-2024,10,04/06/2024,3,L.Blue 29,Destiny,54.0,7.6,,,Hatch: . Ringing: Need feathers taking. Vet: Feathers taken 24/07/24.,PU
-2024,10,04/06/2024,1,Orange 29,Dynamo,53.7,7.9,,,Hatch: . Ringing: Need feathers taking. Vet: Feathers taken 24/07/24.,PV
-2024,10,05/06/2024,4,Yellow 23,Debs,58.8,7.7,,,Hatch: . Ringing: Feathers taken 05/07/24. Vet:,PT
-2024,10,05/06/2024,2,D.Blue 28,Dylan,53.7,6.9,,,Hatch: . Ringing: Need feathers taking. Vet: Feathers taken 24/07/24.,PN
-2024,6,05/06/2024,1,Pink 24,Deidre,58.5,7.1,,,Hatch: . Ringing: Need feathers taking. Vet: Feathers taken 24/07/24. Still had down upon move to release site. Only gained 20g in 18 days.,PP
-2024,6,05/06/2024,4,White 23,Drew,59.2,5.7,,,Hatch: wings hanging?. Ringing: Need to take feathers. Vet: Feathers taken 24/07/24.,PA
-2024,12,05/06/2024,4,Purple 27,Darcy,52.9,7.1,,,Hatch: . Ringing: Need to take feathers . Vet: Feathers taken 24/07/24.,NU
-2024,12,05/06/2024,1,Black 24,Dale,51.1,6.9,,,Hatch: . Ringing: Need to take feathers. Vet: Feathers taken 24/07/24. Bird GPS tagged but extremely unsettled and stressed. Removed.,NY
-2024,9,06/06/2024,2,Green 30,Dora,44.6,6.5,,,Hatch: . Ringing: Need to take feathers . Vet: Feathers taken 24/07/24.,NV
-2024,12,06/06/2024,3,Orange 30,Dory,50.7,6.0,,,Hatch: wryneck. Ringing: Need to take feathers. Noticed the flag. Pecking. Vet: Feathers taken 24/07/24.,NX
-2024,12,06/06/2024,2,L. blue 26,Daisy,51.3,6.0,,,Hatch: . Ringing: Need to take feathers . Vet: Feathers taken 24/07/24.,NT
-2024,9,06/06/2024,1,Green 29,Dean,51.8,5.9,,,"Hatch: small prolapse, caught around leg in hatcher. F10 cream. . Ringing: Need to take feathers. Vet: Feathers taken 24/07/24.",PH
-2024,9,06/06/2024,4,Red 25,Diablo,52.1,5.6,,,Hatch: Jumped out of tub in hatcher. Angry chick.. Ringing: Need to take feathers. Vet: Feathers taken 24/07/24. Stressed in hand. Open mouth breathing.,PK
-2024,9,06/06/2024,3,Black 22,Drax,47.7,4.6,,,Hatch: . Ringing: Need to take feathers. 300g. Crossbill. Not rung. Moved to flight pens but not flagged.. Vet: Crossbill has corrected itself. Vet approved for release. Flagged 48 days. Feathers taken 24/07/24.,PX
-2024,7,07/06/2024,1,White 22,Dixie,52.4,5.4,,,Hatch: . Ringing: Need to take feathers. Vet: Feathers taken 24/07/24.,PE
-2024,13,07/06/2024,3,D. blue 23,Dawn,51.4,5.8,,,Hatch: don’t know whose shell whose. Ringing: Need to take feathers. Vet: Feathers taken 24/07/24.,PJ
-2024,13,07/06/2024,2,L. blue 25,Draco,51.2,5.6,,,Hatch: don’t know whose shell whose. Ringing: Need to take feathers. Vet: Feathers taken 24/07/24.,PC
-2024,20,22/06/2024,2,White29,Doneese,49.9,6.1,,,Hatch: . Ringing: Feathers taken 12/08/24. Was a very thin bird(330g). Held back. Ivermectin given 29/07. Moved to flight pen.. Vet: Feathers already taken,TU
-2024,20,22/06/2024,3,Green28,Daniel,48.6,6.3,,,Hatch: . Ringing: Need to take feathers. Wings were strapped at one point. Wings all good. Vet:,TC
-2024,20,23/06/2024,1,n/a,,,6.6,,,"Hatch: Very severe prolapse upon hatch. Assisted to tie off. Euthanised midday 27/06. Lethargic, not feeding or drinking. Extremely dehydrated. . Ringing: . Vet:",
-2024,16,24/06/2024,1,Yellow29,Domiscus,42.2,5.3,,,Hatch: . Ringing: Need to take feathers. Very thin legs.. Vet:,TJ
-2024,16,24/06/2024,2,Orange23,Denver,47.4,7.2,,,Hatch: Long beak. Ringing: Need to take feathers. Wings all good. Vet:,TH
-2024,15,27/06/2024,4,Black25,Dermot,54.3,5.5,,,Hatch: . Ringing: Need to take feathers. Wings all good . Vet:,PY
-2024,15,27/06/2024,2,L.blue21,Delta,61.4,8.2,,,Hatch: Slightly prolapsed yolk sac. Neck slightly to the right. Not 100%. Ringing: Need to take feathers. Had blistering. Feathers coming through. Missing some. Not stuck. Will moult out.. Vet:,TE
-2024,14,28/06/2024,2,Red28,Dudley,42.1,4.9,,,Hatch: Assisted hatch (being slow). Ringing: Need to take feathers. Wings all good . Vet:,TA
-2024,14,29/06/2024,1,Purple25,Daedelus,44.5,4.9,,,Hatch: . Ringing: Need to take feathers. Wings all good . Vet:,TK
-2024,18,04/07/2024,1,Green27,Drummer,39.1,3.5,,,Hatch: 1st digit both feet slightly bent toes. Ringing: Feathers taken 12/08/24. Vet: Feathers already taken,TN
-2024,18,04/07/2024,2,D.Blue26,Devesie,42.1,5.0,,,Hatch: . Ringing: Feathers taken 12/08/24. Vet: Feathers already taken,TT
-2024,17,04/07/2024,3,White30,Delilah,47.1,5.0,,,Hatch: . Ringing: Feathers taken 12/08/24. Vet: Feathers already taken,TL
-2024,17,04/07/2024,1,Yellow27,Deedee,47.4,6.8,,,Hatch: Very bent toes. Ringing: Feathers taken 12/08/24. Vet: Feathers already taken,TV
-2024,17,04/07/2024,2,Red30,Dazzle,45.5,5.1,,,Hatch: . Ringing: Feathers taken 12/08/24. Vet: Feathers already taken,TP
+Year,Group,Clutch,Date_hatched,Egg_no,Time_of_hatch,Initial_colour_ring,Second_Colour_ring,Dry_weight,Shell_weight,Pen,Hatch_weight,Date_moved_outside,Weight_movedout_g,Weight_perc_increase_per_day,Flight_pen_no,Date_rung,Age_rung_days,Weight_at_ring,BTO_ring,Flag,GPS,Satelite_tag,Sex,Date_moved_release_site,Age_moved_release_site,Weight_moved_release_site_day,Release_site,Release_date,Age_at_release,Extra_weight_day_release,Notes,Notes_early_hatch,Ringing_notes,Notes_moving,Vet_notes_move_releasesite,Outcome,Name,Base
+2021,,3,12/05/2021,3/1,,Blue L,,46.9,4.7,,,18/05/2021,,,,10/06/2021,29,530,,0E,Yes,,Female,24/06/2021,43,629.6,Sandringham,06/07/2021,55,,,,,,,,,
+2021,,3,12/05/2021,3/2,,Red L,,45.1,5.3,,,18/05/2021,,,,10/06/2021,29,360,,0C,No,,Male,24/06/2021,43,417.9,Sandringham,06/07/2021,55,,,,,,,,,
+2021,,3,12/05/2021,3/3,,Green L,,46.8,6.3,,,18/05/2021,,,,10/06/2021,29,465,,0J,Yes,,Male,24/06/2021,43,579.8,Sandringham,06/07/2021,55,,,,,,,,,
+2021,,1,16/05/2021,1/1,,Pink 1 Right,,,,,,22/05/2021,,,,10/06/2021,25,480,,0A,No,,Male,24/06/2021,39,433.1,Sandringham,06/07/2021,51,,,,,,,,,
+2021,,1,16/05/2021,1/2,,Pink 2 Left,,,,,,22/05/2021,,,,10/06/2021,25,300,,0L,No,,Male,24/06/2021,39,416.9,Sandringham,06/07/2021,51,,,,,,,,,
+2021,,1,16/05/2021,1/3,,Pink 3 Right,,,,,,22/05/2021,,,,10/06/2021,25,350,,0U,No,,Male,24/06/2021,39,474.7,Sandringham,06/07/2021,51,,,,,,,,,
+2021,,2,18/05/2021,2/4,,Black 1,,,,,,25/05/2021,78.7,,,10/06/2021,23,320,,0K,No,,Female,24/06/2021,37,465.9,Sandringham,06/07/2021,49,,egg 2/1 off,,,,,,,
+2021,,2,19/05/2021,2/2,,Black 2,,,,,,25/05/2021,77.2,,,10/06/2021,22,280,,0N,No,,Female,24/06/2021,36,427.8,Sandringham,06/07/2021,48,,,,,,,,,
+2021,,2,19/05/2021,2/3,,Black 3,,,,,,25/05/2021,81.9,,,26/06/2021,38,528,,2A,No,,Female,08/07/2021,50,,Ken Hill 1,15/07/2021,57,,"Went off legs outside, briought in and given solulite. Recovered after two days in with Grey 3 and 4 out again 31/05",,,,,,,
+2021,,5,20/05/2021,5/1,,Yellow 2,,,,,,25/05/2021,68.8,,,26/06/2021,37,454,,2E,No,,Female,08/07/2021,49,,Ken Hill 1,15/07/2021,56,,,,,,,,,
+2021,,5,20/05/2021,5/2,,Yellow 3,,,,,,25/05/2021,71.5,,,26/06/2021,37,378,,2T,No,,Female,17/07/2021,58,,Ken Hill 1,22/07/2021,63,,,,,,,,,
+2021,,5,21/05/2021,5/3,,Yellow 4,,,,,,25/05/2021,65,,,26/06/2021,36,395,,0V,No,,Male,08/07/2021,48,,Ken Hill 1,15/07/2021,55,,,,,,,,,
+2021,,5,22/05/2021,5/4,,Yellow 1,,,,,,28/05/2021,88.5,,,26/06/2021,35,506,,0P,No,,Female,08/07/2021,47,,Ken Hill 1,15/07/2021,54,,small so moved in with 4/3 and 14/2 on 24/05,,,,,,,
+2021,,4,23/05/2021,4/3,,Pink 5,,47.1,4.8,,,28/05/2021,71.7,,,26/06/2021,34,410,,2U,No,,Female,08/07/2021,46,,Ken Hill 1,15/07/2021,53,,,,,,,,,
+2021,,4,24/05/2021,4/2,,Pink 4,,51.1,5.4,,,28/05/2021,62.2,,,26/06/2021,33,418,,0T,No,,Female,08/07/2021,45,,Ken Hill 1,15/07/2021,52,,,,,,,,,
+2021,,4,25/05/2021,4/1,,Pink 6,,52.5,4.5,,,,,,,26/06/2021,32,,,,,,,08/07/2021,44,,,15/07/2021,51,,Euthanised 31/05 - on day 3 went off legs,,,,,,,
+2021,,4,26/05/2021,4/4,,Pink 7,,47.8,5.7,,,02/06/2021,69,,,10/07/2021,45,381,,3P,No,,Male,20/07/2021,55,,Sandringham,27/07/2021,62,,Slow growing moved back,,,,,,,
+2021,,14,23/05/2021,14/2,,Grey 2,,51.4,7,,,28/05/2021,73.1,,,26/06/2021,34,460,,2J,No,,Male,08/07/2021,46,,Ken Hill 1,15/07/2021,53,,,,,,,,,
+2021,,14,24/05/2021,14/3,,Grey 1,,56.6,7.9,,,28/05/2021,68.4,,,26/06/2021,33,430,,0X,No,,Male,08/07/2021,45,,Ken Hill 1,15/07/2021,52,,,,,,,,,
+2021,,14,25/05/2021,14/1,,Grey 3,,54.2,7.2,,,31/05/2021,,,,26/06/2021,32,440,,2N,No,,Male,08/07/2021,44,,Ken Hill 1,15/07/2021,51,,,,,,,,,
+2021,,14,26/05/2021,14/4,,Grey 4,,54.8,5.4,,,31/05/2021,,,,26/06/2021,31,401,,2C,No,,Male,08/07/2021,43,,Ken Hill 1,15/07/2021,50,,,,,,,,,
+2021,,13,26/05/2021,13/2,,Orange 2,,54.4,7.7,,,01/06/2021,63.6,,,10/07/2021,45,464,,3L,No,,Male,17/07/2021,52,,Ken Hill 1,22/07/2021,57,,very slight feather problem,,,,,,,
+2021,,13,26/05/2021,13/4,,Orange 3,,49.1,8.9,,,01/06/2021,82.5,,,26/06/2021,31,413,,2K,No,,Female,08/07/2021,43,,Ken Hill 1,15/07/2021,50,,,,,,,,,
+2021,,13,27/05/2021,13/3,,Orange 4,,51.3,7.2,,,01/06/2021,68.4,,,10/07/2021,44,494,,3U,No,,Female,17/07/2021,51,,Ken Hill 1,22/07/2021,56,,,,,,,,,
+2021,,13,27/05/2021,13/1,,Orange 5,,56.9,6.3,,,01/06/2021,67,,,10/07/2021,44,499,,3E,No,,Male,17/07/2021,51,,Ken Hill 1,22/07/2021,56,,,,,,,,,
+2021,,8,28/05/2021,8/1,,Pink 10,,50,7.5,,,02/06/2021,69.2,,,10/07/2021,43,403,,3C,No,,Male,20/07/2021,53,,Sandringham,27/07/2021,60,,,,,,,,,
+2021,,8,28/05/2021,8/2,,Pink 9,green left,51.7,7.6,,,02/06/2021,86.5,,,26/06/2021,29,420,,2H,No,,Female,08/07/2021,41,,Ken Hill 1,15/07/2021,48,,Bill curved slightly to left last cm,,,,,,,
+2021,,8,28/05/2021,8/4,,Pink 8,,51.6,7.2,,,02/06/2021,84.4,,,26/06/2021,29,328,,2V,No,,Female,08/07/2021,41,,Ken Hill 1,15/07/2021,48,,,,,,,,,
+2021,,6,27/05/2021,6/2,,Black 4,,53.9,7.7,,,02/06/2021,74,,,26/06/2021,30,401,,2L,No,,Female,08/07/2021,42,,Ken Hill 1,15/07/2021,49,,,,,,,,,
+2021,,6,29/05/2021,6/4,,Black 5,,54.9,9.6,,,04/06/2021,90.3,,,26/06/2021,28,401,,0Y,No,,Female,08/07/2021,40,,Ken Hill 1,15/07/2021,47,,,,,,,,,
+2021,,9,30/05/2021,9/1,,yellow 5,,62,8.1,,,04/06/2021,93.4,,,26/06/2021,27,365,,2X,No,,Male,08/07/2021,39,,Ken Hill 1,15/07/2021,46,,,,,,,,,
+2021,,9,30/05/2021,9/3,,yellow 6,,61.9,9.6,,,04/06/2021,104.3,,,26/06/2021,27,439,,2P,No,,Female,08/07/2021,39,,Ken Hill 1,15/07/2021,46,,,,,,,,,
+2021,,9,30/05/2021,9/4,,yellow 7,,61,10.3,,,04/06/2021,81.5,,,10/07/2021,41,503,,2Y,No,,Male,17/07/2021,48,,Ken Hill 1,22/07/2021,53,,,,,,,,,
+2021,,9,01/06/2021,9/2,,yellow 8,,60.2,8.3,,,06/06/2021,93.9,,,10/07/2021,39,509,,3A,No,,Male,17/07/2021,46,,Ken Hill 1,22/07/2021,51,,,,,,,,,
+2021,,23,31/05/2021,23/1,,Orange 6,,59.7,8.9,,,04/06/2021,75.3,,,10/07/2021,40,490,,3K,No,,Female,20/07/2021,50,,Sandringham,27/07/2021,57,,injury to toe on ringing (recent but not fresh),,,,,,,
+2021,,23,31/05/2021,23/3,,Orange 7,,55.2,9,,,04/06/2021,69.2,,,10/07/2021,40,471,,3Y,No,,Female,20/07/2021,50,,Sandringham,27/07/2021,57,,,,,,,,,
+2021,,23,31/05/2021,23/4,,Orange 8,,55.1,7.7,,,04/06/2021,53.8,,,10/07/2021,40,336,,4E,No,,Male,20/07/2021,50,,Sandringham,27/07/2021,57,,,,,,,,,
+2021,,23,31/05/2021,23/2,,Orange 10,,55.4,7.2,,,04/06/2021,59.4,,,10/07/2021,40,359,,3H,No,,Female,,,,,,,,Held back from release,,,,,,,
+2021,,12,01/06/2021,12/2,,Grey 7,,54.4,9.5,,,06/06/2021,77.8,,,10/07/2021,39,474,,3T,No,,Female,20/07/2021,49,,Sandringham,27/07/2021,56,,,,,,,,,
+2021,,12,01/06/2021,12/3,,Grey 8,,56.3,9.7,,,06/06/2021,78.9,,,10/07/2021,39,464,,3V,No,,Female,20/07/2021,49,,Sandringham,27/07/2021,56,,,,,,,,,
+2021,,12,02/06/2021,12/1,,Grey 9,,56.4,9.3,,,06/06/2021,75.4,,,10/07/2021,38,462,,4A,No,,Female,20/07/2021,48,,Sandringham,27/07/2021,55,,,,,,,,,
+2021,,12,02/06/2021,12/4,,Grey 10,,54.5,6.9,,,06/06/2021,75.1,,,10/07/2021,38,408,,3N,No,,Male,20/07/2021,48,,Sandringham,27/07/2021,55,,,,,,,,,
+2021,,10,05/06/2021,10/4,,Black 7,,58.9,7.7,,,10/06/2021,88.4,,,10/07/2021,35,507,,3J,No,,Male,17/07/2021,42,,Ken Hill 1,22/07/2021,47,,White on primary feathers like others. Sheaths prened off properly itself,,,,,,,
+2021,,10,05/06/2021,10/2,,Black 8,,62.1,7.2,,,10/06/2021,81.8,,,10/07/2021,35,411,,4C,No,,Male,20/07/2021,45,,Sandringham,27/07/2021,52,,,,,,,,,
+2021,,10,06/06/2021,10/3,,Black 6,green left,60.3,5.5,,,10/06/2021,77.4,,,10/07/2021,34,407,,3X,No,,Female,20/07/2021,44,,Sandringham,27/07/2021,51,,,,,,,,,
+2021,,15,07/06/2021,15/4,,Grey 5,,52.6,8.1,,,12/06/2021,72.9,,,20/07/2021,43,424,,5H,No,,Male,29/07/2021,52,,Ken Hill 1,03/08/2021,57,,,,,,,,,
+2021,,15,07/06/2021,15/3,,Grey 6,,61.3,6.5,,,12/06/2021,73.1,,,,,,,,,,,,,,,,,,Euthanised 15/6,,,,,Euthanised,,
+2021,,15,07/06/2021,15/1,,Black 9,,47.7,6.9,,,12/06/2021,71.4,,,20/07/2021,43,507,,4K,No,,Female,29/07/2021,52,,Ken Hill 1,03/08/2021,57,,,,,,,,,
+2021,,15,07/06/2021,15/2,,Black 10,,52,4.5,,,12/06/2021,62.5,,,20/07/2021,43,442,,4L,No,,Male,29/07/2021,52,,Ken Hill 1,03/08/2021,57,,,,,,,,,
+2021,,11,10/06/2021,11/2,,Orange 1,,60.8,9.1,,,14/06/2021,85.8,,,29/07/2021,49,,,,,,,,,,,,,,,,,,,,,
+2021,,11,10/06/2021,11/3,,Orange 9,,61.2,9.3,,,14/06/2021,89.5,,,20/07/2021,40,485,,4X,No,,Female,29/07/2021,49,,Ken Hill 1,03/08/2021,54,,,,,,,,,
+2021,,11,10/06/2021,11/1,,Yellow 9,,61.2,8.2,,,14/06/2021,76.1,,,20/07/2021,40,541,,5A,No,,Female,29/07/2021,49,,Ken Hill 1,03/08/2021,54,,,,,,,,,
+2021,,11,10/06/2021,11/4,,Yellow 10,,61.4,8.2,,,14/06/2021,63.5,,,29/07/2021,49,539,,6E,No,,Male,03/08/2021,54,,Sandringham,10/08/2021,61,,,,,,,,,
+2021,,17,12/06/2021,17/2,,Green Rt,,55.7,6.3,,,17/06/2021,76.2,,,20/07/2021,38,426,,4U,No,,Male,29/07/2021,47,,Ken Hill 1,03/08/2021,52,,,,,,,,,
+2021,,17,12/06/2021,17/3,,Green Left,,54.8,8.1,,,17/06/2021,73.6,,,20/07/2021,38,450,,4V,No,,Male,29/07/2021,47,,Ken Hill 1,03/08/2021,52,,,,,,,,,
+2021,,17,12/06/2021,17/1,,Double Green,,54.9,6.4,,,17/06/2021,74.9,,,20/07/2021,38,435,,4N_Flag_removed,No,,Male,03/08/2021,52,,Sandringham,10/08/2021,59,,,,,,,,,
+2021,,16,13/06/2021,16/3,,Blue Left,,57.7,8.4,,,18/06/2021,94,,,20/07/2021,37,540.3,,4T,No,,Female,03/08/2021,51,,Sandringham,10/08/2021,58,,,,,,,,,
+2021,,16,13/06/2021,16/1,,Blue Rt,,58,8.1,,,18/06/2021,89.3,,,20/07/2021,37,475,,4Y,No,,Female,03/08/2021,51,,Sandringham,10/08/2021,58,,,,,,,,,
+2021,,16,13/06/2021,16/4,,Double Blue,,55.9,9.8,,,18/06/2021,76,,,20/07/2021,37,556,,4H,No,,Female,29/07/2021,46,,Ken Hill 1,03/08/2021,51,,,,,,,,,
+2021,,16,14/06/2021,16/2,,Blue/Blue Rt,,59.3,8.5,,,18/06/2021,70,,,29/07/2021,45,567,,5J,No,,Female,03/08/2021,50,,Sandringham,10/08/2021,57,,,,,,,,,
+2021,,27,14/06/2021,27/1,,Yellow Left,,56.1,6,,,19/06/2021,81.4,,,20/07/2021,36,390,,5C,No,,Male,29/07/2021,45,,Ken Hill 1,03/08/2021,50,,,,,,,,,
+2021,,27,14/06/2021,27/2,,Yellow Rt,,52.7,6.1,,,19/06/2021,71.5,,,20/07/2021,36,394,,4J,No,,Male,03/08/2021,50,,Sandringham,10/08/2021,57,,,,,,,,,
+2021,,27,14/06/2021,27/3`,,Double Yellow,,52.5,6.4,,,19/06/2021,74,,,20/07/2021,36,402,,4P,No,,Male,29/07/2021,45,,Ken Hill 1,03/08/2021,50,,,,,,,,,
+2021,,18,15/06/2021,18/1,,Double Red,,55.3,5.5,,,19/06/2021,74.6,,,29/07/2021,44,455,,6H,No,,Male,03/08/2021,49,,Sandringham,10/08/2021,56,,,,,,,,,
+2021,,18,15/06/2021,18/2,,Red Left,,51.9,8,,,19/06/2021,72.2,,,29/07/2021,,,,6U,No,,,10/08/2021,56,,Ken Hill 1,14/08/2021,60,,Treated for limp,,,,,,,
+2021,,18,15/06/2021,18/3,,Red Rt,,54.8,6.2,,,19/06/2021,86.3,,,20/07/2021,35,454,,5E,No,,Male,29/07/2021,44,,Ken Hill 1,03/08/2021,49,,,,,,,,,
+2021,,19,15/06/2021,19/2,,Red 1,,46.6,5.2,,,21/06/2021,70.8,,,29/07/2021,44,528,,6C,No,,Female,03/08/2021,49,,Sandringham,10/08/2021,56,,,,,,,,,
+2021,,19,16/06/2021,19/1,,Red 2,,48.1,5.9,,,21/06/2021,71.1,,,29/07/2021,43,528,,6K,No,,Male,03/08/2021,48,,Sandringham,10/08/2021,55,,,,,,,,,
+2021,,19,16/06/2021,19/3,,Red 3,,47.5,4.4,,,21/06/2021,72.2,,,29/07/2021,43,577,,5T,No,,Female,10/08/2021,55,,Ken Hill 1,14/08/2021,59,,,,,,,,,
+2021,,20,16/06/2021,20/1,,White 1,,53.4,5.9,,,21/06/2021,90,,,29/07/2021,43,,,,,,,,,,,,,,,,,,,,,
+2021,,21,16/06/2021,21/1,,D Blue 1,,55.5,5.5,,,21/06/2021,78.1,,,29/07/2021,43,565,,5V,No,,Female,10/08/2021,55,,Ken Hill 1,14/08/2021,59,,,,,,,,,
+2021,,21,16/06/2021,21/3,,D Blue 2,,55.1,7.3,,,21/06/2021,74.9,,,29/07/2021,43,569,,5L,No,,Female,03/08/2021,48,,Sandringham,10/08/2021,55,,,,,,,,,
+2021,,22,16/06/2021,22/2,,Green 1,,49.5,8,,,21/06/2021,81.7,,,29/07/2021,43,497,,5U,No,,Male,10/08/2021,55,,Ken Hill 1,14/08/2021,59,,,,,,,,,
+2021,,25,16/06/2021,25/1,,White 3,,44.1,5.6,,,22/06/2021,73.5,,,29/07/2021,43,,,,,,,,,,,,,,died 27/6. Brought,,,,,Died,,
+2021,,25,16/06/2021,25/4,,White 2,,45.1,6.9,,,22/06/2021,74.5,,,,,,,,,,,,,,,,,,Found dead 25/6 (62.6g),,,,,Died,,
+2021,,25,17/06/2021,25/2,,White 4,,44,5.5,,,23/06/2021,73.5,,,29/07/2021,42,497,,6J,No,,Female,10/08/2021,54,,Ken Hill 1,14/08/2021,58,,,,,,,,,
+2021,,25,17/06/2021,25/3,,White 5,,45,6,,,23/06/2021,66,,,29/07/2021,42,565,,5P,No,,Female,10/08/2021,54,,Ken Hill 1,14/08/2021,58,,,,,,,,,
+2021,,26,16/06/2021,26/1,,L Blue 1,,58.8,9.1,,,21/06/2021,85.2,,,29/07/2021,43,517,,6P,No,,Male,03/08/2021,48,,Sandringham,10/08/2021,55,,,,,,,,,
+2021,,26,17/06/2021,26/2,,L blue 2,,55.5,6.9,,,22/06/2021,80.4,,,29/07/2021,42,572,,5N,No,,Female,10/08/2021,54,,Ken Hill 1,14/08/2021,58,,,,,,,,,
+2021,,24,17/06/2021,24/1,,Green 2,,49.1,5.2,,,23/06/2021,71.4,,,,,,,,,,,,,,,,,,Brought in 1/7 as gone off legs. Died 2/7,,,,,Died,,
+2021,,24,17/06/2021,24/3,,Green 3,,46,6.6,,,23/06/2021,74.4,,,29/07/2021,42,599,,5K,No,,Female,03/08/2021,47,,Sandringham,10/08/2021,54,,,,,,,,,
+2021,,30,18/06/2021,30/4,,Red 4,,59.1,6.6,,,22/06/2021,79.9,,,29/07/2021,41,498,,6N,No,,Female,10/08/2021,53,,Ken Hill 1,14/08/2021,57,,,,,,,,,
+2021,,30,19/06/2021,30/1,,Red 5,,57.6,5.9,,,22/06/2021,72.3,,,29/07/2021,40,483,,5Y,No,,Female,10/08/2021,52,,Ken Hill 1,14/08/2021,56,,,,,,,,,
+2021,,28,20/06/2021,28/3,,Green 4,,51.8,9.3,,,26/06/2021,87.4,,,29/07/2021,39,532,,6A,No,,Female,10/08/2021,51,,Ken Hill 1,14/08/2021,55,,,,,,,,,
+2021,,28,20/06/2021,28/1,,Green 7,,52.8,6.8,,,26/06/2021,58.2,,,29/07/2021,39,416,,6T,No,,Male,10/08/2021,51,,Ken Hill 1,14/08/2021,55,,,,,,,,,
+2021,,28,20/06/2021,28/4,,Green 5,,53.6,6.4,,,26/06/2021,91.2,,,29/07/2021,39,551,,5X,No,,Female,10/08/2021,51,,Ken Hill 1,14/08/2021,55,,,,,,,,,
+2021,,28,20/06/2021,28/2,,Green 6,,50.8,7.1,,,26/06/2021,74.6,,,29/07/2021,39,548,,6L,No,,Female,10/08/2021,51,,Ken Hill 1,14/08/2021,55,,,,,,,,,
+2022,,6,20/05/2022,6/3,,Green 10/Blue,,,7.6,,60.2,26/05/2022,103.3,,,24/06/2022,35,632.1,,6V,No,,Female,14/07/2022,55,761,Sandringham,20/07/2022,61,,,,,,,,,
+2022,,6,20/05/2022,6/1,,Green 11,,,7.1,,58.6,26/05/2022,91.3,,,24/06/2022,35,537.7,,6X,No,yes,Male,14/07/2022,55,657,Ken Hill 1,20/07/2022,61,,,,,,,,,
+2022,,6,21/05/2022,6/4,,Green 12/Red,,,4.7,,62.3,26/05/2022,120.8,,,24/06/2022,34,547.5,,6Y,No,yes,Male,14/07/2022,54,628,Sandringham,20/07/2022,60,,,,,,,,,
+2022,,1,23/05/2022,1/1,,L. Blue 20,,,6,,59.4,28/05/2022,90,,,24/06/2022,32,544.3,,7A,No,,Male,14/07/2022,52,703,Sandringham,20/07/2022,58,,,,,,,,,
+2022,,1,23/05/2022,1/2,,D. Blue 20/Yellow,,,7.4,,57.5,28/05/2022,90.6,,,24/06/2022,32,503.7,,7C,No,,Male,14/07/2022,52,674,Ken Hill 1,20/07/2022,58,,,,,,,,,
+2022,,1,24/05/2022,1/3,,White 20,,,6.9,,52.3,03/06/2022,109.7,,,24/06/2022,31,402.2,,7H,No,,Male,14/07/2022,51,492,Ken Hill 1,20/07/2022,57,,,,,,,,,
+2022,,4,25/05/2022,4/1,,Red 19,,,6.7,,64.7,30/05/2022,94.3,,,24/06/2022,30,594.8,,7E,No,yes,Female,14/07/2022,50,787,Ken Hill 1,20/07/2022,56,,,,,,,,,
+2022,,4,25/05/2022,4/3,,D. blue 19,,,6.9,,63.3,30/05/2022,99,,,20/07/2022,56,490.3,,8K,No,yes,Male,03/08/2022,70,529.5,Sandringham,09/08/2022,76,,wings taped 2/6 for 1.5 day,,,,,,,
+2022,,4,26/05/2022,4/2,,White 19,,,6.9,,61.3,03/06/2022,112.3,,,20/07/2022,55,502.1,,8C,No,,Male,03/08/2022,69,537.8,Sandringham,09/08/2022,75,,"didn’t hatch well, unabsorbed yolk sak",,,,,,,
+2022,,8,26/05/2022,8/4,,Green 18,,,8.5,,64,01/06/2022,90,,,24/06/2022,29,498.9,,7N,No,,Female,14/07/2022,49,617,Ken Hill 1,20/07/2022,55,,,,,,,,,
+2022,,8,26/05/2022,8/1,,White 18,,,8.9,,66.6,01/06/2022,92.8,,,20/07/2022,55,507.5,,8P,No,,Male,09/08/2022,75,504,Ken Hill 1,,,,,"3/8(retained, flight feathers still growing FP1), 9/8 (Lost wieght (429) and condition. Very thin, noisy breathing. Lucy health check and retained on own in FP1. (Observe for 48 hours). Died 11/8 sent for PM",,,,Died,,
+2022,,8,27/05/2022,8/2,,Red 18,,,7.6,,58.5,01/06/2022,83.4,,,24/06/2022,28,424.2,,7X,No,,Male,14/07/2022,48,535,Sandringham,20/07/2022,54,,,,,,,,,
+2022,,8,27/05/2022,8/3,,L. Blue 18,,,7,,61.7,01/06/2022,79.9,,,24/06/2022,28,369.1,,8A,No,,Male,14/07/2022,48,499,Ken Hill 1,20/07/2022,54,,,,,,,,,
+2022,,2,26/05/2022,2/2,,L Blue 12,,,7.7,,58.3,01/06/2022,82.6,,,24/06/2022,29,500.7,,7P,No,,Female,14/07/2022,49,695,Ken Hill 1,20/07/2022,55,,,,,,,,,
+2022,,2,27/05/2022,2/4,,White 12,,,6,,55.8,01/06/2022,73.4,,,24/06/2022,28,402.4,,7Y,No,yes,Female,14/07/2022,48,666,Sandringham,20/07/2022,54,,,,,,,,,
+2022,,2,27/05/2022,2/3,,Red 12,,,5.6,,58,01/06/2022,82.6,,,24/06/2022,28,450.6,,7U,No,yes,Female,14/07/2022,48,613,Ken Hill 1,20/07/2022,54,,,,,,,,,
+2022,,5,26/05/2022,5/4,,Green 15,,,7,,60,01/06/2022,95,,,20/07/2022,55,538,,8J,No,,Male,03/08/2022,69,635,Sandringham,09/08/2022,75,,,,,,,,,
+2022,,5,27/05/2022,5/3,,L.Blue 15,,,6,,54.8,03/06/2022,97.5,,,24/06/2022,28,431.7,,7K,No,yes,Male,14/07/2022,48,548,Sandringham,20/07/2022,54,,,,,,,,,
+2022,,5,28/05/2022,5/1,,D. Blue 15,,,6.6,,58.3,03/06/2022,93.1,,,24/06/2022,27,418.1,,7V,No,,Male,14/07/2022,47,552,Sandringham,20/07/2022,53,,"Bent outside toe, left foot/slightly splayed legs",,,,,,,
+2022,,7,28/05/2022,7/4,,L. Blue 17,,,7.3,,57.8,03/06/2022,92.5,,,24/06/2022,27,456.3,,7T,No,,Female,14/07/2022,47,618,Sandringham,20/07/2022,53,,,,,,,,,
+2022,,7,28/05/2022,7/3,,White 17,,,6.8,,55.2,03/06/2022,104.5,,,24/06/2022,27,477.1,,7J,No,,Female,14/07/2022,47,650,Ken Hill 1,20/07/2022,53,,strapped wing overnight at 10 days old,,,,,,,
+2022,,7,28/05/2022,7/2,,Green 17,,,6.4,,58.4,03/06/2022,92.5,,,20/07/2022,53,676.8,,8N,No,,Female,03/08/2022,67,805,Sandringham,09/08/2022,73,,,,,,,,,
+2022,,7,29/05/2022,7/1,,Red 17,,,7.3,,53.6,04/06/2022,83.1,,,24/06/2022,26,463.2,,7L,No,,Female,14/07/2022,46,603,Sandringham,20/07/2022,52,,,,,,,,,
+2022,,3,29/05/2022,3/1,,Pink 9,,,8.9,,60,04/06/2022,102.4,,,20/07/2022,52,569,,8L,No,yes,Female,03/08/2022,66,749,Sandringham,09/08/2022,72,,,,,,,,,
+2022,,3,29/05/2022,3/3,,Green 9,,,8.3,,60.5,04/06/2022,102.9,,,24/06/2022,26,,,,,,,,,,,,,,,Limpy,,,,,,
+2022,,3,30/05/2022,3/4,,Red 9,,,8.5,,60.1,04/06/2022,89.4,,,24/06/2022,25,,,,,,,,,,,,,,,,,,,,,
+2022,,12,12/06/2022,12/4,,Red 8,,,6.6,,54.9,17/06/2022,102.5,,,,,,,,,,,,,,,,,,,,,,,,,
+2022,,12,12/06/2022,12/3,,D. Blue 8,,,6.9,,58.7,17/06/2022,82.3,,,20/07/2022,38,482,,8E,No,yes,Male,03/08/2022,52,539,Sandringham,09/08/2022,58,,,,,,,,,
+2022,,10,14/06/2022,10/1,,L. Blue 10,,,6.4,,48.9,20/06/2022,81.2,,,03/08/2022,50,564,,8V,No,,Male,09/08/2022,56,529.2,Ken Hill 1,13/08/2022,60,,,,,,,,,
+2022,,10,16/06/2022,10/3,,White 10,,,7.3,,50.1,20/06/2022,70.5,,,20/07/2022,34,419,,8H,No,,Male,03/08/2022,48,509,Sandringham,09/08/2022,54,,,,,,,,,
+2022,,9,17/06/2022,9/1,,D. Blue 10,,,5.3,,62,22/06/2022,97.2,,,03/08/2022,47,655,,8X,No,yes,Female,09/08/2022,53,699.8,Ken Hill 1,13/08/2022,57,,,,,,,,,
+2022,,9,17/06/2022,9/3,,No. 5,,,6.9,,,27/06/2022,117.7,,,03/08/2022,47,473.2,,9C,No,,Male,09/08/2022,53,487.6,Ken Hill 1,13/08/2022,57,,,,,,,,,
+2022,,9,18/06/2022,9/4,,D. Blue 11,,,8.1,,60.6,22/06/2022,88.1,,,03/08/2022,46,532.2,,8T,No,,Male,09/08/2022,52,587.6,Ken Hill 1,13/08/2022,56,,,,,,,,,
+2022,,11,17/06/2022,11/2,,Red 15,,,7.1,,60,22/06/2022,91.2,,,03/08/2022,47,536.4,,8Y,No,,Male,09/08/2022,53,580,Ken Hill 1,13/08/2022,57,,,,,,,,,
+2022,,11,18/06/2022,11/3,,White 7 (Clarance),,,7.7,,58.7,27/06/2022,94.8,,,,,,,,,,,,,,,,,,,,,,,,,
+2022,,11,19/06/2022,11/4,,white 8,,,6.6,,56.9,27/06/2022,114.7,,,03/08/2022,45,478.8,,9K,No,,Male,15/08/2022,57,,Ken Hill 1,22/08/2022,64,,,,,,,,,
+2022,,11,20/06/2022,11/1,,,,,6.7,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+2022,,13,17/06/2022,13/3,,L. Blue 4,,,6.5,,52.2,22/06/2022,73.9,,,03/08/2022,47,597,,8U,No,,Female,15/08/2022,59,611.8,Ken Hill 1,13/08/2022,57,,,,,,,,,
+2022,,13,18/06/2022,13/1,,L. Blue 5,,,7.6,,55.9,22/06/2022,74.8,,,,,,,,,,,,,,,,,,,,,,,,,
+2022,,13,18/06/2022,13/4,,L. Blue 6,,,5.4,,56.3,22/06/2022,65.9,,,03/08/2022,46,547.3,,9A,No,,Female,15/08/2022,58,,Ken Hill 1,22/08/2022,65,,,,,,,,,
+2022,,13,18/06/2022,13/2,,L. Blue 7,,,5,,51.4,22/06/2022,69.1,,,03/08/2022,46,493.8,,9H,No,,Male,15/08/2022,58,,Ken Hill 1,22/08/2022,65,,,,,,,,,
+2022,,15,21/06/2022,15/2,,Red 11,,,6.4,,53.8,27/06/2022,94.8,,,03/08/2022,43,534,,9E,No,,Male,15/08/2022,55,,Ken Hill 1,22/08/2022,62,,,,,,,,,
+2022,,15,21/06/2022,15/3,,Red10,,,6.1,,56.3,27/06/2022,89.5,,,03/08/2022,43,581.4,,9J,No,yes,Male,15/08/2022,55,,Ken Hill 1,22/08/2022,62,,,,,,,,,
+2022,,15,22/06/2022,15/4,,Red 14,,,5.8,,55.4,27/06/2022,93.4,,,03/08/2022,42,655.6,,9L,No,yes,Female,15/08/2022,54,,Ken Hill 1,22/08/2022,61,,,,,,,,,
+2022,,15,22/06/2022,15/1,,Red 16,,,4.3,,57.3,27/06/2022,96.1,,,,,,,,,,,,,,,,,,,,,,,,,
+2022,,14,21/06/2022,14/2,,Green 16,,,6.1,,56.3,27/06/2022,88.8,,,,,,,,,,,,,,,,,,,,,,,,,
+2022,,14,21/06/2022,14/3,,Green 19,,,5.6,,57.6,27/06/2022,87.6,,,,,,,,,,,,,,,,,,,,,,,,,
+2022,,14,22/06/2022,14/1,,Green 14,,,4,,51.1,27/06/2022,88.7,,,,,,,,,,,,,,,,,,,,,,,,,
+2023,,1,20/05/2023,1-4,12:00:00,Dark Blue 4 (L),,,6,R,53.3,26/05/2023,65.9,1.036,,17/08/2023,89,722.5,,KE,No,,Female,25/08/2023,,,Sandringham,01/09/2023,104,,,,,,,,Clive,
+2023,,1,20/05/2023,1-3,13:00:00,Dark Blue 5 (L),,,6,FP,54.9,26/05/2023,69.1,1.039085,,17/08/2023,89,,,KA,No,,Female,,,,,,,,Eutanised 13/10/23,,,,,Euthanised,Charles,
+2023,,1,20/05/2023,1-2,14:10:00,Dark Blue 6 (R),,,,Ken Hill,51.9,26/05/2023,66.5,1.042179,,17/08/2023,89,,,KH,No,,Female,,,,,,,,,Assisted hatching as membrane stuck to chick,,,,,Curly,
+2023,,1,21/05/2023,1-1,08:00:00,Dark Blue 7 (R),,,4.4,R,51.3,26/05/2023,67.2,1.055481,,04/08/2023,75,,,LE,No,,,13/10/2023,,,Ken Hill 1,26/10/2023,158,,,,,,,,Camilla,
+2023,,3,21/05/2023,3-2,08:00:00,White 14 (R),,,5.7,R,60,26/05/2023,75.3,1.046475,,26/06/2023,36,573.9,,XJ,Yes,,Female,19/07/2023,59,778.9,Sandringham,27/07/2023,67,,,,,,,,Copernicus,
+2023,,3,21/05/2023,3-3,08:00:00,White 15 (R),,,5.2,R,58.9,26/05/2023,70,1.035134,,26/06/2023,36,408.9,,XK,No,,Male,19/07/2023,59,561.7,Sandringham,27/07/2023,67,,"Scoliosis and slight rasping when breathing but may be due to stress, upper respiritory",Do not tag - spine issue?,,,,,Caesar,
+2023,,5,25/05/2023,5-2,07:00:00,White 9 (R),,,9,R,64.9,29/05/2023,73.7,1.032299,,26/06/2023,32,448.5,,XH,Yes,,Male,19/07/2023,55,628.2,Sandringham,27/07/2023,63,,,,,,,,Calypso,
+2023,,5,25/05/2023,5-4,09:30:00,L.Blue 3 (R),,,10,R,62.3,29/05/2023,70.7,1.032126,,26/06/2023,32,416.6,,XT,Yes,,Male,21/07/2023,57,510.8,Ken Hill 1,27/07/2023,63,,slight bumble foot on right foot,,,,,,Curie,
+2023,,5,25/05/2023,5-1,11:00:00,D.Blue 9 (R),,,9,R,61.2,29/05/2023,67,1.022895,,26/06/2023,32,456.1,,XC,No,,Female,19/07/2023,55,657.9,Sandringham,27/07/2023,63,,Slight bumble foot on left. Slight abrasion from catching. Slightly worn primary tips,,,,,,Crumble,
+2023,,5,25/05/2023,5-3,11:00:00,Red 9 (R),,,11,R,64.7,29/05/2023,74.9,1.037276,,26/06/2023,32,465.6,,XA,Yes,,Female,19/07/2023,55,677.6,Sandringham,27/07/2023,63,,Very minor bumble foot on left foot and slightly thinner than other checked birds,,,,,,Cleopatra,
+2023,,11,25/05/2023,11-4,11:00:00,L.blue 8,,,6.7,R,59.7,30/05/2023,72.3,1.039041,,26/06/2023,32,449.7,,XU,Yes,,Female,21/07/2023,57,723.5,Ken Hill 1,27/07/2023,63,,,bent toes right foot digit 4,,,,,Chalice,
+2023,,2,25/05/2023,2-1,15:00:00,D.Blue 12 (R),,,6.3,R,59.1,30/05/2023,70.4,1.035612,,03/06/2023,39,553.7,,YK,Yes,,Female,19/07/2023,55,672.2,Sandringham,27/07/2023,63,,"Very fast heart rate, put back initially to calm down. Heart rate recovered",,,,,,Cassandra,
+2023,,4,25/05/2023,4-2,18:30:00,D.blue 16,,,7.7,R,55.3,01/06/2023,59.9,1.01148,,26/06/2023,32,385.2,,XV,No,,Female,21/07/2023,57,638.1,Ken Hill 1,27/07/2023,63,,"bumble foot both feet, bad wing",Slight distended yolk sac. Bad wings - later,,,,,Chad,
+2023,,11,25/05/2023,11-3,21:00:00,White 16,,,5.9,R,61.7,30/05/2023,67,1.016618,,26/06/2023,32,365.3,,XL,Yes,,Male,19/07/2023,55,620.3,Sandringham,27/07/2023,63,,,bent toes right foot digit 4 left foot not fully flattening claw like bent digits 3 and 4 (4 worse),,,,,Cecil,
+2023,,2,26/05/2023,2-2,07:00:00,L. Blue 19,,,4.8,R,57.7,01/06/2023,73.9,1.042105,,03/06/2023,38,591,,YA,No,,Female,19/07/2023,54,685.3,Sandringham,27/07/2023,62,,"Slightly tatty primaries on left, slightly bent primaries on right. Slight bilateral bumble foot. Bent tarsus. Good body condition.",bent legs - later,,,,,Calliope,
+2023,,11,26/05/2023,11-1,12:00:00,Red 7,,,7.9,R,53.6,01/06/2023,60.2,1.019542,,03/06/2023,38,439.7,,YH,Yes,,Female,21/07/2023,56,566.5,Ken Hill 1,27/07/2023,62,,,Bad feet,,,,,Cosmos,
+2023,,11,26/05/2023,11-2,13:00:00,D.blue 14,,,6.7,R,55.7,01/06/2023,63.9,1.023154,,26/06/2023,31,395.6,,XP,Yes,,Female,21/07/2023,56,621.3,Ken Hill 1,27/07/2023,62,,,Bad feet,,,,,Custard,
+2023,,4,26/05/2023,4-1,07:12:00,L.blue 6,,,,R,57.9,01/06/2023,61.7,1.010651,,03/06/2023,38,374.1,,YC,No,,Male,04/08/2023,70,,Ken Hill 2,10/08/2023,76,,4/8/23 concave wing,Assisted hatch. Bad wings - later,,,,,Callum,
+2023,,9,27/05/2023,9-4,19:00:00,D.blue 17,,,5.5,R,50.5,03/06/2023,59.7,1.024196,,21/07/2023,55,484.3,,YP,No,,Male,04/08/2023,69,536.4,Ken Hill 2,10/08/2023,75,,"Bad leg left - barely hot - vet says good to go, slight bumblefoot on right leg",Bad wings - later,,,,,Chief,
+2023,,10,28/05/2023,10-3,05:00:00,L.blue 16,,,5.5,R,55.9,03/06/2023,62.2,1.017958,,03/07/2023,36,439.8,,XY,No,,Male,21/07/2023,54,555.1,Ken Hill 1,27/07/2023,60,,Feathers growing back well,Slightly distended yolk sac. Bad wings - later,,,,,Circe,
+2023,,9,28/05/2023,9-1,05:00:00,Green 20,,,4.2,R,52.1,03/06/2023,56.1,1.012405,,03/07/2023,36,438.4,,YJ,Yes,,Male,21/07/2023,54,499.9,Ken Hill 1,27/07/2023,60,,,,,,,,Carswell,
+2023,,10,28/05/2023,10-2,08:45:00,Pink 21,,,7.2,R,59.1,03/06/2023,64.2,1.013891,,03/07/2023,36,452.5,,XX,Yes,,Male,21/07/2023,54,546.9,Ken Hill 1,27/07/2023,60,,slight bumble foot left,Staring at sky and both feet & all toes bent and claw like. Bad wings - later,,,,,Chetney,
+2023,,9,28/05/2023,9-2,09:45:00,White 11,,,6.4,R,53.6,03/06/2023,59.9,1.018694,,03/07/2023,36,365.1,,YE,No,,Female,04/08/2023,68,708.6,Ken Hill 2,10/08/2023,74,,,,,,,,Chocs away,
+2023,,10,28/05/2023,10-4,14:00:00,D.blue 18,,,5.7,R,57.7,03/06/2023,62.7,1.013947,,26/06/2023,30,432.5,,XE,Yes,,Female,19/07/2023,52,679.4,Sandringham,27/07/2023,60,,Abrasions on lower beak from catching,,,,,,Cyrus,
+2023,,9,28/05/2023,9-3,18:00:00,Red 13,,,,Ken Hill,50,03/06/2023,64,1.042001,,17/08/2023,81,,,KC,No,,Male,,,,,,,,,"Distended yolk sac, assisted hatching. Bad wings - later",,,,,Captain,
+2023,,10,29/05/2023,10-1,07:00:00,L.blue 13,,,6.8,R,54.5,03/06/2023,61.5,1.024462,,04/08/2023,67,,,LK,No,623.8 4/8/23,,10/08/2023,73,,Ken Hill 1,17/08/2023,80,,,"Bad wings - later, metal ring earlier",,,,,Callisto,
+2023,,8,01/06/2023,8-3,12:15:00,L.blue 11,,,9.3,R,59.2,07/06/2023,58.3,0.99745,,27/07/2023,50,547.1,,YY,No,,Female,13/10/2023,134,,Ken Hill 1,26/10/2023,147,,"No active blistering but short primary feathers on both wings (prev pulled), growing, secondary at right wing joint twisted but not pulled,",,,,,,Colossus,
+2023,,8,01/06/2023,8-4,17:00:00,Blue left,,,6.8,,62.4,07/06/2023,68.4,1.015419,,,,,,,,,,,,,,,,,Euthanised 13/10/23,,,,,Euthanised,Colin,
+2023,,12,01/06/2023,12-4,21:00:00,White 6,,,5.9,FP,54.8,07/06/2023,63.4,1.024593,,17/08/2023,77,,,KV,No,,Male,,,,,,,,,,,,,,Cohen,
+2023,,12,02/06/2023,12-2,07:10:00,Green 21,,,5.6,R,53,08/06/2023,63.4,1.030312,,21/07/2023,49,594.8,,YN,Yes,,Female,04/08/2023,63,621.6,Ken Hill 2,10/08/2023,69,,Spot on,,,,,,Carrot,
+2023,,8,02/06/2023,8-2,07:00:00,Red (L),,,6.8,,60,07/06/2023,64.9,1.015825,,04/08/2023,63,,,LH,No,,,04/08/2023,63,,Sandringham,,,,"Found dead at sandringham pen 6/8/23 Right and left wing primary and secondary feathers joint level, growing back without blistering, two secondaries from the left wing joint level were pulled, bumble feet on middle digit & mild lesion at centre of foot",,,,,Died,Coleslaw,
+2023,,12,02/06/2023,12-3,09:30:00,Yellow 26,,,5.3,,51.6,08/06/2023,59.2,1.023164,,21/07/2023,49,430.1,,YT,No,,,,,,,,,,"Dead 3/8/23 Spot on, 1 feather pulled from each wing, slight bumblefoot on both feet, secondaries regrowing back well",Air bubble on hatch,,,,Died,Chloe,
+2023,,8,02/06/2023,8-1,14:30:00,Black (R),,,7.9,,60,08/06/2023,65.5,1.014725,,,,,,,,,,,,,,,,,euthanised on 20.07.2023,,,,,Euthanised,Cupcake,
+2023,,12,03/06/2023,12-1,16:15:00,White (R),,,6.5,,53,08/06/2023,59.4,1.023062,,,,,,,,,,,,,,,,,PTS ?,Assisted hatch,,,,Euthanised,Cucumber,
+2023,,14,04/06/2023,14-1,19:00:00,Double green,,,7.7,,58.8,09/06/2023,65.6,1.022128,,,,,,,,,,,,,,,,,euthanised on 20.07.2023,,,,,Euthanised,Claudio,
+2023,,20,05/06/2023,20-3,06:30:00,Red (R),,,5.7,,66.5,09/06/2023,72.8,1.022886,,,,,,,,,,,,,,,,,PTS - was doing downhill,dead 23/6/23,,,,Euthanised,Chips,
+2023,,14,05/06/2023,14-3,06:30:00,Yellow (R),,,8.3,,56.8,09/06/2023,63.2,1.027051,,17/08/2023,73,,,KU,No,,Female,,,,,,,,euthanised on 13/10/23,"Bent toes left foot, taped",,,,Euthanised,Cicero,
+2023,,14,05/06/2023,14-2,10:00:00,Black (L),,,7.5,,58.3,09/06/2023,70.1,1.047158,,,,,,,,,,,,,,,,,euthanised on 20.07.2023,,,,,Euthanised,Caius,
+2023,,20,05/06/2023,20-4,14:00:00,Blue (R),,,9.9,,61.1,10/06/2023,73.4,1.037364,,,,,,,,,,,,,,,,,Wing broken - euthanised 21/07 sent for PM 26/07,,,,,Euthanised,Cuckoo,
+2023,,20,05/06/2023,20-1,15:30:00,White (L),,,10,,65.1,10/06/2023,70,1.01462,,,,,,,,,,,,,,,,,euthanised on 20.07.2023,,,,,Euthanised,Corncrake,
+2023,,20,06/06/2023,20-2,07:00:00,Red 26,,,6.1,FP,62.5,10/06/2023,69.9,1.02837,,17/08/2023,72,,,LT,No,,,,,,,,,,,,,,,,Chough,
+2023,,15,06/06/2023,15-1,07:00:00,Double blue,,,6.1,,58.8,11/06/2023,73.9,1.046775,,,,,,,,,,,,,,,,,,"Euthanised 19/7, bloods taken by ZSL vets",,,,Euthanised,Cerberus,
+2023,,17,06/06/2023,17-4,08:00:00,Double black,,,6,,56.2,13/06/2023,68.1,1.027817,,,,,,,,,,,,,,,,,,"Euthanised 19/7, bloods taken by ZSL vets",,,,Euthanised,Caduceus,
+2023,,17,06/06/2023,17-1,10:20:00,Double yellow,,,7.9,,54.3,11/06/2023,68.7,1.048169,,,,,,,,,,,,,,,,,euthanised on 20.07.2023,,,,,Euthanised,Cupid,
+2023,,14,06/06/2023,14-4,10:30:00,D. blue 27,,,5.8,,59.3,11/06/2023,71.9,1.039285,,,,,,,,,,,,,,,,,euthanised on 20.07.2023,,,,,Euthanised,Cooper,
+2023,,13,06/06/2023,13-2,17:40:00,Green/Blue,,,5.5,R,56.2,11/06/2023,62.9,1.022782,,21/07/2023,45,468.6,,LC,No,,Male,04/08/2023,59,556.7,Sandringham,17/08/2023,72,,"Primary feathers on tip of left wing short still growing, bumblefoot lesions on both",,,,,,Crumpet,
+2023,,17,06/06/2023,17-3,21:00:00,N/A,,,5.8,,54.1,,,,,,,,,,,,,,,,,,,,,Wryneck - dead,,,,Died,Calais,
+2023,,13,07/06/2023,13-1,07:00:00,Orange 27,,,5.1,R,58.4,13/06/2023,67.9,1.025438,,04/08/2023,58,,,LN,No,636.5 4/8/23,,10/08/2023,64,602.6,Ken Hill 1,17/08/2023,71,,,,,,,,Clodhopper,
+2023,,13,07/06/2023,13-3,10:00:00,Green/Red,,,6,,55.2,13/06/2023,61.4,1.017899,,,,,,,,,,,,,,,,,euthanised on 20.07.2023,,,,,Euthanised,Clanger,
+2023,,24,07/06/2023,24-1,,Black 28,,,,FP,,10/06/2023,70,,,21/07/2023,44,496.4,,YV,No,,Male,,,546.3,,,,,Primaries on both wings quite short and still growing,Wild chick approximately 1 day old 48g when came in,,,,,Curlew,
+2023,,16,08/06/2023,16-1,13:00:00,Red/Yellow,,,6.3,R,52.4,13/06/2023,65.8,1.046596,,21/07/2023,43,497.4,,YX,Yes,,Female,04/08/2023,57,625,Sandringham,17/08/2023,70,,"Scraped upper beak in the box, bumblefeet both feet, tips of primaries growing on both wings, primary and secondaries at joint level growing on right wing, previously pulled",,,,,,Chutney,
+2023,,16,09/06/2023,16-4,07:00:00,Blue/yellow,,,5.9,R,52.2,13/06/2023,60,1.035429,,21/07/2023,42,415.6,,LA,Yes,,Male,04/08/2023,56,528.6,Sandringham,17/08/2023,69,,"Pulled feathers growing back nicely, second primary at tip of the wing was shorter",,,,,,Ceto,
+2023,,24,07/06/2023,24-2,,Purple 26,,,,R,,10/06/2023,52.8,,,04/08/2023,44,643.4,,YU,Yes,,Female,04/08/2023,58,710.2,Ken Hill 2,10/08/2023,64,,Bumblefoot on both feet,44.3 on 9/6/23 wild chick likely sibling of 24-1,,,,,Crescent,
+2023,,24,07/06/2023,24-3,,Pink 29,,,,R,,12/06/2023,81.1,,,04/08/2023,58,575.1,,LL,No,575.0 4/8/23,male,10/08/2023,64,552.2,Ken Hill 1,17/08/2023,71,,"2 primaries pulled from right wing and left wing, left wing at joint level, secondaries unsure if still growing, both wings previously pulled primary feathers have grown out but blistering on first two primaries at tip of wing been pulled, bumble foot",81.1 on 12/6/23 wild chick likely sibling of 24-1 and 24-2,,,,,Christmas Ceilidh,
+2023,,21,18/06/2023,21-2,13:00:00,Purple 30,,,6.8,R,56,22/06/2023,74.5,1.07397,,04/08/2023,47,,,LJ,Yes,655.8 4/8/23,,10/08/2023,53,644.5,Ken Hill 1,17/08/2023,60,,,,,,,,Chester,
+2023,,21,19/06/2023,21-4,06:30:00,Pink 22,,,5.3,R,57.3,22/06/2023,68,1.058729,,17/08/2023,59,,,LX,No,,Male,05/09/2023,78,,Ken Hill 1,09/09/2023,82,,,,,,,,Clyde,
+2023,,21,19/06/2023,21-1,06:30:00,Orange 21,,,5.9,,51.3,22/06/2023,63.1,1.071447,,,,,,,,,,,,,,,,,Euthaised 20.07.2023,"Euthanised 19/7, bloods taken by ZSL vets",,,,Euthanised,Christopher,
+2023,,24,07/06/2023,,,Pink 28,,,,R,,20/06/2023,,,,21/07/2023,44,537.1,,YL,No,,Male,04/08/2023,58,571.2,Ken Hill 2,10/08/2023,64,,All good,Not weighed in on 20/06,,,,,Carol,
+2023,,18,22/06/2023,18-3,06:30:00,Pink 30,,,4.7,R,47.9,25/06/2023,62.4,1.092152,,17/08/2023,56,,,KL,No,,Male,25/08/2023,64,,Sandringham,01/09/2023,71,,,,,,,,Calendula,
+2023,,18,22/06/2023,18-4,06:30:00,D.blue21,,,5.6,Ken Hill,48.6,25/06/2023,60.9,1.078103,,17/08/2023,56,,,LY,No,,Female,,,,,,,,,,,,,,Cockle,
+2023,,19,22/06/2023,19-2,07:30:00,Yellow21,,,5.5,FP,52.7,25/06/2023,60,1.044192,,,,,,,,,,,,,,,,,,"Died 5th July - 13 days old,found wet and cold in the pen in the morning. Heavy rain during night, other chicks under heat",,,,Died,Celia,
+2023,,19,22/06/2023,19-1,13:00:00,Green 23,,,8.2,FP,51.5,25/06/2023,58.3,1.042206,,17/08/2023,56,,,KN,No,,Male,,,,,,,,,,,,,,Cloudberry,
+2023,,18,22/06/2023,18-2,17:15:00,Red 23,,,6,R,50.3,26/06/2023,60.6,1.047674,,17/08/2023,56,,,KK,No,metal ring on left leg,Female,13/10/2023,113,,Ken Hill 1,26/10/2023,126,,Vet needs to check swelling next time.,,,,,,Cherry,
+2023,,23,22/06/2023,23-3,19:10:00,Pink 26,,,4.4,R,42.6,26/06/2023,55.7,1.069329,,17/08/2023,56,,,LU,yes,,,25/08/2023,64,,Sandringham,01/09/2023,71,,,,,,,,Chronos,
+2023,,23,23/06/2023,23-1,06:30:00,L.blue 23,,,,,41.4,27/06/2023,60,1.097205,,17/08/2023,55,,,KJ,No,,Male,,,,,,,,Eutanised 13/10/23,,,,,Euthanised,Clio,
+2023,,23,23/06/2023,23-2,06:30:00,Pink 23,,,,R,44.1,26/06/2023,54.7,1.074442,,17/08/2023,55,,,KP,No,,Male,05/09/2023,74,536.9,Ken Hill 1,09/09/2023,78,,,,,,,,Cassiopeia,
+2023,,23,23/06/2023,23-4,06:30:00,Purple23,,,,FP,42.1,27/06/2023,66.4,1.120654,,17/08/2023,55,,,KT,No,,Female,,,,,,,,,,,,,,Cousteau,
+2023,,19,23/06/2023,19-3,13:30:00,Orange 22,,,9,,57.5,27/06/2023,70.1,1.050782,,,,,,,,,,,,,,,,,"Euthanised 19/7, bloods taken by ZSL vets","Euthanised 19/7, bloods taken by ZSL vets",,,,Euthanised,Coco,
+2023,,22,27/06/2023,22-1,17:30:00,Purple 22,,,6.7,R,59.4,01/07/2023,63.8,1.018025,,04/08/2023,38,,,LP,Yes,600.7 4/8/23,,10/08/2023,44,632.7,Ken Hill 1,17/08/2023,51,,,,,,,,Corvus,
+2023,,22,28/06/2023,22-4,07:00:00,L.blue 22,,,7.9,,58.8,01/07/2023,54.7,0.976195,,,,,,,,,,,,,,,,,euthanised on 20.07.2023,,,,,Euthanised,Cumberbatch,
+2023,,22,28/06/2023,22-2,08:00:00,Yellow 22,,,6.7,R,56.2,01/07/2023,62,1.033281,,17/08/2023,50,549.3,,LV,Yes,,Female,05/09/2023,69,,Ken Hill 1,09/09/2023,73,,,,,,,,Cheese,
+2023,,22,28/06/2023,22-3,19:00:00,Green 22,,,4.1,,51.3,01/07/2023,53.6,1.014727,,,,,,,,,,,,,,,,,euthanised 26/7/23,assisted hatch,,,,Euthanised,Chocolate,
+2024,1,3,18/05/2024,3-2,08:00:00,White 27,,,7.5,,58.7,,,,,19/06/2024,33,490,,JE,No,,Male,03/07/2024,47,620,Ken Hill 1,12/07/2024,55,,,,Feathers taken 19/06/24,,Grade 1 podo on each foot,,,
+2024,1,3,18/05/2024,3-4,12:40:00,Black 21,,,8.8,,61.8,,,,,19/06/2024,33,520,,JK,No,,Male,03/07/2024,47,630,Ken Hill 1,12/07/2024,55,,,,Feathers taken 19/06/24,,Grade 1 podo left foot,,,
+2024,1,3,18/05/2024,3-3,17:45:00,D. Blue 30,,,9.3,,62.8,,,,,19/06/2024,33,570,,JH,No,,Female,03/07/2024,47,660,Ken Hill 1,12/07/2024,55,,,,Feathers taken 19/06/24,,Limpy bird. No obvious sign. To monitor at release pen.,,,
+2024,1,3,19/05/2024,3-1,05:30:00,Red 24,,,6.8,,60,,,,,19/06/2024,32,540,,JC,Yes,243330,Female,03/07/2024,46,640,Ken Hill 1,12/07/2024,54,,,"screamed lots, slightly bent neck to the right",Feathers taken 19/06/24,,,,,
+2024,1,8,20/05/2024,8-1,Overnight,Yellow 25,,,8,,58.3,,,,,19/06/2024,31,540,,JA,No,,Female,03/07/2024,45,620,Ken Hill 1,12/07/2024,53,,,,Feathers taken 19/06/24,,Grade 1 podo on both feet. Feathers taken 03/07/24,,,
+2024,1,8,20/05/2024,8-3,07:45:00,Green 26,,,4.7,,61.8,,,,,19/06/2024,31,500,,JL,No,,Male,03/07/2024,45,570,Ken Hill 1,12/07/2024,53,,,,Feathers taken 19/06/24,,Grade 1 pododermititus (left),,,
+2024,1,8,21/05/2024,8-2,07:30:00,Purple 28,,,5.7,,59.5,,,,,19/06/2024,30,570,,JJ,YES,234321,Female,03/07/2024,44,640,Ken Hill 1,12/07/2024,52,,,slightly bent toes,Feathers taken 19/06/24,,Grade 1 podo on each foot,,,
+2024,2,2,24/05/2024,2-1,Early morn,Orange 24,,,9,,52.2,,,,,19/06/2024,27,330,,JU,No,,Male,03/07/2024,41,530,Ken Hill 2,18/07/2024,55,,,,,,Feathers taken 03/07/24,,,
+2024,2,2,24/05/2024,2-3,07:20:00,Green 25,,,7.1,,51.2,,,,,,,,,,,,,,,,,,,,,Found dead in polytunnel 09/06,,,,Died,,
+2024,2,2,24/05/2024,2-4,13:30:00,Purple 29,,,5.7,,53.1,,,,,19/06/2024,27,370,,JT,No,,,,,,,,,,Euthanased 21/08,,Needs feathers taking,,Need vet notes. Not moved to release site. Still needs feathers taking. Moved back to polytunnel.,Euthanised,,
+2024,2,11,24/05/2024,11-1,13:30:00,D.Blue 22,,,7.4,,64.3,,,,,,,,,NP,No,,Male,03/07/2024,41,570,Ken Hill 2,18/07/2024,55,,,,"Given 0.8ml metacam in hand, moved to flight pens but not flagged.",,"Grade 1 podo, both feet. Feathers taken 03/07/24",,,
+2024,2,2,24/05/2024,2-2,16:30:00,Pink 25,,,6,,51.4,,,,,19/06/2024,27,400,,JV,No,,Male,03/07/2024,41,590,Ken Hill 2,18/07/2024,55,,,,,,Feathers taken 03/07/24,,,
+2024,2,11,24/05/2024,11-4,19:00:00,White 25,,,9.3,,63.6,,,,,19/06/2024,27,340,,JP,No,,,,,,,,,,,bent toes,Enthuanised by vet Lucy.,,Need vet notes. Not moved to release site. Still needs feathers taking. Moved back to polytunnel.,Euthanised,,
+2024,2,11,25/05/2024,11-3,Overnight,Black 23,,,5.8,,64.9,,,,,19/06/2024,26,410,,JN,No,,Female,03/07/2024,40,710,Ken Hill 2,18/07/2024,54,,,didgit 4 slightly bent both feet,,,Feathers taken 03/07/24,,,
+2024,3,4,25/05/2024,4-1,Early morn,L.Blue 27,,,5.7,,50,,,,,26/06/2024,33,450,,NC,No,,Male,03/07/2024,40,530,Sandringham,18/07/2024,54,,,prolapsed yolk sac - F10 cream applied. Need to change ring when put outside.,"Bumblefoot, both feet. Feathers taken 26/06/24",,,,,
+2024,3,4,25/05/2024,4-3,15:00:00,L.Blue 24,,,5.2,,48.3,,,,,26/06/2024,33,490,,NL,Yes,234331,Female,03/07/2024,40,630,Sandringham,18/07/2024,54,,,,Feathers taken 26/06/24,,,,,
+2024,3,4,25/05/2024,4-4,19:00:00,Green 24,,,4.4,,48.5,,,,,26/06/2024,33,420,,NN,No,,Male,03/07/2024,40,530,Sandringham,18/07/2024,54,,,,Feathers taken 26/06/24,,,,,
+2024,3,4,26/05/2024,4-2,Overnight,Orange 28,,,4.7,,42.1,,,,,26/06/2024,32,420,,JX,No,,Male,03/07/2024,39,,,,,,,prolapsed yolk sac. F10 cream applied.,Feathers taken 26/06/24,,"Wing broken upon vet check, wing popped out, flapped and snapped at joint. Enuthanised by Sophie.",Euthanised,,
+2024,3,1,26/05/2024,1-2,Overnight,Red 22,,,6,,56.9,,,,,26/06/2024,32,490,,JY,No,,Male,03/07/2024,39,530,Ken Hill 2,18/07/2024,53,,,very slightly prolapsed yolk sac,Feathers taken 26/06/24,,,,,
+2024,4,11,26/05/2024,11-2,11:00:00,D.Blue 25,,,6.4,,53.2,,,,,26/06/2024,32,390,,NK,No,,Male,03/07/2024,39,450,Sandringham,18/07/2024,53,,,left foot very slightly bent toes,Bumblefoot (right),,Feathers taken 03/07/24,,,
+2024,4,1,26/05/2024,1-4,12:00 MID,Yellow 28,,,8.4,,51.1,,,,,26/06/2024,32,,,NH,Yes,234326,Female,03/07/2024,39,610,Sandringham,18/07/2024,53,,,,Incorrect weight,,Feathers taken 03/07/24,,,
+2024,4,1,26/05/2024,1-1,16:00:00,Black 27,,,8.1,,58.2,,,,,26/06/2024,32,520,,NA,No,,Male,03/07/2024,39,580,Ken Hill 2,18/07/2024,53,,,left foot slightly bent toes,,,Feathers taken 03/07/24,,,
+2024,4,1,27/05/2024,1-3,Overnight,N/A,,,7,,56.2,,,,,,,,,,,,,,,,,,,,,"wry neck, both feet not right. Chick couldn’t stand unassisted, neck braced but decision made to euthanise due to issues at 16:30pm. Body to be sent off for post mortem.",,,,Euthanised,,
+2024,4,5,28/05/2024,5-1,Overnight,Purple24,,,7.4,,52,,,,,26/06/2024,30,450,,NE,No,,Female,03/07/2024,37,560,Sandringham,18/07/2024,51,,,long thin egg,,,Feathers taken 03/07/24,,,
+2024,4,5,28/05/2024,5-2,11:05:00,White26,,,6.6,,53.5,,,,,26/06/2024,30,480,,NJ,No,,Male,03/07/2024,37,550,Sandringham,18/07/2024,51,,,,,,Feathers taken 03/07/24,,,
+2024,5,6,04/06/2024,6-2,14:50:00,Red 21,,,7.3,,57.1,,,,,05/07/2024,32,450,,PL,No,,Male,24/07/2024,50,560,Ken Hill 1,01/08/2024,58,,,,Need feathers taking,,Feathers taken 24/07/24.,,,
+2024,5,10,04/06/2024,10-3,16:45:00,L.Blue 29,,,7.6,,54,,,,,05/07/2024,32,480,,PU,Yes,234320,Female,24/07/2024,50,670,Ken Hill 1,01/08/2024,58,,,,Need feathers taking,,Feathers taken 24/07/24.,,,
+2024,5,10,04/06/2024,10-1,21:00:00,Orange 29,,,7.9,,53.7,,,,,05/07/2024,32,450,,PV,No,,Male,24/07/2024,50,560,Ken Hill 1,01/08/2024,58,,,,Need feathers taking,,Feathers taken 24/07/24.,,,
+2024,5,10,05/06/2024,10-4,Overnight,Yellow 23,,,7.7,,58.8,,,,,05/07/2024,31,470,,PT,No,,Male,24/07/2024,49,590,Ken Hill 1,01/08/2024,57,,,,Feathers taken 05/07/24,,,,,
+2024,5,10,05/06/2024,10-2,Overnight,D.Blue 28,,,6.9,,53.7,,,,,05/07/2024,31,470,,PN,No,,Female,24/07/2024,49,570,Ken Hill 1,01/08/2024,57,,,,Need feathers taking,,Feathers taken 24/07/24.,,,
+2024,5,6,05/06/2024,6-1,Overnight,Pink 24,,,7.1,,58.5,,,,,05/07/2024,31,460,,PP,No,,Female,24/07/2024,49,480,Ken Hill 1,01/08/2024,57,,,,Need feathers taking,,Feathers taken 24/07/24. Still had down upon move to release site. Only gained 20g in 18 days.,,,
+2024,6,6,05/06/2024,6-4,11:00:00,White 23,,,5.7,,59.2,,,,,05/07/2024,31,520,,PA,No,,Female,24/07/2024,49,740,Sandringham,01/08/2024,57,,,wings hanging?,Need to take feathers,,Feathers taken 24/07/24.,,,
+2024,6,12,05/06/2024,12-4,16:15:00,Purple 27,,,7.1,,52.9,,,,,05/07/2024,31,390,,NU,No,,Male,24/07/2024,49,650,Sandringham,01/08/2024,57,,,,Need to take feathers,,Feathers taken 24/07/24.,,,
+2024,6,12,05/06/2024,12-1,19:30:00,Black 24,,,6.9,,51.1,,,,,05/07/2024,31,490,,NY,Removed_before_release,,Female,24/07/2024,49,710,Sandringham,01/08/2024,57,,,,Need to take feathers,,Feathers taken 24/07/24. Bird GPS tagged but extremely unsettled and stressed. Removed.,,,
+2024,6,9,06/06/2024,9-2,09:45:00,Green 30,,,6.5,,44.6,,,,,05/07/2024,30,340,,NV,No,,Female,24/07/2024,48,700,Sandringham,01/08/2024,56,,,,Need to take feathers,,Feathers taken 24/07/24.,,,
+2024,6,12,06/06/2024,12-3,16:00:00,Orange 30,,,6,,50.7,,,,,05/07/2024,30,420,,NX,No,,Male,24/07/2024,48,660,Sandringham,01/08/2024,56,,,wryneck,Need to take feathers. Noticed the flag. Pecking,,Feathers taken 24/07/24.,,,
+2024,6,12,06/06/2024,12-2,16:30:00,L. blue 26,,,6,,51.3,,,,,05/07/2024,30,460,,NT,Yes,234328,Female,24/07/2024,48,740,Sandringham,01/08/2024,56,,,,Need to take feathers,,Feathers taken 24/07/24.,,,
+2024,7,9,06/06/2024,9-1,19:30:00,Green 29,,,5.9,,51.8,,,,,05/07/2024,30,390,,PH,No,,Male,24/07/2024,48,620,Ken Hill 1,01/08/2024,56,,,"small prolapse, caught around leg in hatcher. F10 cream.",Need to take feathers,,Feathers taken 24/07/24.,,,
+2024,7,9,06/06/2024,9-4,20:00:00,Red 25,,,5.6,,52.1,,,,,05/07/2024,30,410,,PK,No,,Male,24/07/2024,48,580,Ken Hill 1,01/08/2024,56,,,Jumped out of tub in hatcher. Angry chick.,Need to take feathers,,Feathers taken 24/07/24. Stressed in hand. Open mouth breathing.,,,
+2024,7,9,06/06/2024,9-3,23:00:00,Black 22,,,4.6,,47.7,,,,,,,560,,PX,No,,Female,24/07/2024,48,560,Sandringham,01/08/2024,56,,,,Need to take feathers. 300g. Crossbill. Not rung. Moved to flight pens but not flagged.,,Crossbill has corrected itself. Vet approved for release. Flagged 48 days. Feathers taken 24/07/24.,,,
+2024,7,7,07/06/2024,7-1,14:30:00,White 22,,,5.4,,52.4,,,,,05/07/2024,29,400,,PE,No,,Female,24/07/2024,47,600,Sandringham,01/08/2024,55,,,,Need to take feathers,,Feathers taken 24/07/24.,,,
+2024,7,13,07/06/2024,13-3,21:00:00,D. blue 23,,,5.8,,51.4,,,,,05/07/2024,29,420,,PJ,No,,Female,24/07/2024,47,630,Sandringham,01/08/2024,55,,,don’t know whose shell whose,Need to take feathers,,Feathers taken 24/07/24.,,,
+2024,7,13,07/06/2024,13-2,Late Evening,L. blue 25,,,5.6,,51.2,,,,,05/07/2024,29,420,,PC,Yes,234329,Female,24/07/2024,47,650,Ken Hill 1,01/08/2024,55,,,don’t know whose shell whose,Need to take feathers,,Feathers taken 24/07/24.,,,
+2024,8,20,22/06/2024,20-2,13:30:00,White29,,,6.1,,49.9,,,,,12/08/2024,51,580,,TU,Yes,,Male,28/08/2024,,610,Ken Hill 1,04/09/2024,74,,,,Feathers taken 12/08/24. Was a very thin bird(330g). Held back. Ivermectin given 29/07. Moved to flight pen.,,Feathers already taken,,,
+2024,8,20,22/06/2024,20-3,14:00:00,Green28,,,6.3,,48.6,,,,,29/07/2024,37,460,,TC,Yes,,Female,14/08/2024,54,640,Sandringham,21/08/2024,60,,,,Need to take feathers. Wings were strapped at one point. Wings all good,,Feathers taken 14/08/24,,,
+2024,8,20,23/06/2024,20-1,Overnight,n/a,,,6.6,,,,,,,,,,,,,,,,,,,,,,,"Very severe prolapse upon hatch. Assisted to tie off. Euthanised midday 27/06. Lethargic, not feeding or drinking. Extremely dehydrated.",,,,Euthanised,,
+2024,8,16,24/06/2024,16-1,Overnight,Yellow29,,,5.3,,42.2,,,,,29/07/2024,35,440,,TJ,No,,Male,14/08/2024,52,530,Sandringham,21/08/2024,58,,,,Need to take feathers. Very thin legs.,,Feathers taken 14/08/24,,,
+2024,8,16,24/06/2024,16-2,13:00:00,Orange23,,,7.2,,47.4,,,,,29/07/2024,35,520,,TH,No,,Female,14/08/2024,52,660,Sandringham,21/08/2024,58,,,Long beak,Need to take feathers. Wings all good,,Feathers taken 14/08/24,,,
+2024,9,15,27/06/2024,15-4,11:00:00,Black25,,,5.5,,54.3,,,,,29/07/2024,32,540,,PY,Yes,,Female,14/08/2024,49,750,Sandringham,21/08/2024,55,,,,Need to take feathers. Wings all good,,Feathers taken 14/08/24.,,,
+2024,9,15,27/06/2024,15-2,11:00:00,L.blue21,,,8.2,,61.4,,,,,29/07/2024,32,540,,TE,No,,,,,,,,,,Euthanased 21/08,Slightly prolapsed yolk sac. Neck slightly to the right. Not 100%,Need to take feathers. Had blistering. Feathers coming through. Missing some. Not stuck. Will moult out.,,Kept back due to blistering. Feathers moulted and not grown back. Needs feathers taking. Stayed in flight pens. 510g,Euthanised,,
+2024,9,14,28/06/2024,14-2,09:00:00,Red28,,,4.9,,42.1,,,,,29/07/2024,31,420,,TA,No,,Male,14/08/2024,48,600,Sandringham,21/08/2024,54,,Euthanased 21/08,Assisted hatch (being slow),Need to take feathers. Wings all good,,Feathers taken 14/08/24.,,,
+2024,9,14,29/06/2024,14-1,Overnight,Purple25,,,4.9,,44.5,,,,,29/07/2024,30,530,,TK,No,,Male,14/08/2024,47,550,Sandringham,21/08/2024,53,,,,Need to take feathers. Wings all good,,Feathers taken 14/08/24.,,,
+2024,10,18,04/07/2024,18-1,Overnight,Green27,,,3.5,,39.1,,,,,12/08/2024,40,600,,TN,No,,Male,28/08/2024,,600,Ken Hill 1,04/09/2024,62,,,1st digit both feet slightly bent toes,Feathers taken 12/08/24,,Feathers already taken,,,
+2024,10,18,04/07/2024,18-2,Overnight,D.Blue26,,,5,,42.1,,,,,12/08/2024,40,430,,TT,No,,Male,,,660,Ken Hill 1,,,,Euthanased 20/08/24 after being found on back in aviary.,,Feathers taken 12/08/24,,Feathers already taken,Euthanised,,
+2024,10,17,04/07/2024,17-3,Early morn,White30,,,5,,47.1,,,,,12/08/2024,40,660,,TL,Yes,,Female,28/08/2024,,800,Ken Hill 1,04/09/2024,62,,,,Feathers taken 12/08/24,,Feathers already taken,,,
+2024,10,17,04/07/2024,17-1,08:00:00,Yellow27,,,6.8,,47.4,,,,,12/08/2024,40,620,,TV,No,,Female,28/08/2024,,600,Ken Hill 1,04/09/2024,62,,,Very bent toes,Feathers taken 12/08/24,,Feathers already taken,,,
+2024,10,17,04/07/2024,17-2,13:00:00,Red30,,,5.1,,45.5,,,,,12/08/2024,40,530,,TP,No,,Male,28/08/2024,,600,Ken Hill 1,04/09/2024,62,,,,Feathers taken 12/08/24,,Feathers already taken,,,
+2025,,1,24/05/2025,1/3,13:30:00,Light Blue 1,,,5.9,,60.3,30/05/2025,,,1,27/06/2025,34,630,,UJ,Yes,,Female,08/07/2025,45,720,Sandringham,23/07/2025,60,,Didn't get weight.,External pip 23rd May,Pot. female,,,Released,Edwina,Leeming
+2025,,1,25/05/2025,1/2,Overnight,Yellow 1,,,6.8,,59.1,30/05/2025,,,1,27/06/2025,33,470,,9X,No,,Male,08/07/2025,44,560,Ken Hill 1,23/07/2025,59,570,,External pip 22nd May,Slight bumble foot,,,Released,Earl,Leeming
+2025,,5,25/05/2025,5/3,Overnight,Red 1,,,5.7,,55.2,30/05/2025,,,1,27/06/2025,33,470,,UC,Yes,,Male,08/07/2025,44,620,Ken Hill 1,23/07/2025,59,560,,External pip 22nd May,Bent right primary 10,,,Released,Eric,Lakenheath
+2025,,1,25/05/2025,1/4,Overnight,Black 1,,,9.2,,64,30/05/2025,,,1,27/06/2025,33,500,,9V,No,,Male,08/07/2025,44,550,Ken Hill 1,23/07/2025,59,590,,External pip 23rd May,,,,Released,Edgar,Leeming
+2025,,11,26/05/2025,11/2,19:00:00,White 1,,,7.6,,56.4,31/05/2025,79.1,,1,27/06/2025,32,570,,UN,Yes,,Female,08/07/2025,43,700,Sandringham,23/07/2025,58,670,,External pip 23th May,,,,Released,Eden,Coningsby
+2025,,11,27/05/2025,11/1,Overnight,Pink 1,,,7.3,,54.4,31/05/2025,67.8,,1,27/06/2025,31,630,,9T,Yes,,Female,08/07/2025,42,700,Ken Hill 1,23/07/2025,57,680,,External pip 24th May,Pot. Female,,,Released,Edith,Coningsby
+2025,,11,27/05/2025,11/3,08:00:00,Orange 1,,,6.9,,56.1,31/05/2025,77.1,,1,27/06/2025,31,560,,9N,Yes,,Male,08/07/2025,42,670,Sandringham,23/07/2025,57,540,,External pip 23rd May - assisted hatch,,,,Released,Ernie,Coningsby
+2025,,2,27/05/2025,2/4,11:00:00,Green 1,,,5.9,,54.7,31/05/2025,64,,1,27/06/2025,31,510,,UT,Yes,,Female,08/07/2025,42,630,Ken Hill 1,23/07/2025,57,630,,External pip 25th May,,,,Released,Elizabeth,Barkston
+2025,,11,27/05/2025,11/4,12:30:00,Grey 1,,,7.2,,50.5,02/06/2025,95.5,,1,27/06/2025,31,530,,KY,No,,Male,08/07/2025,42,580,Ken Hill 1,23/07/2025,57,580,,External pip 25th May,,,,Released,Edmund,Coningsby
+2025,,2,27/05/2025,2/2,13:00:00,No ring,,,5.8,,57.7,02/06/2025,92.1,,2,27/06/2025,31,540,,KX,Yes,,Female,08/07/2025,42,670,Sandringham,23/07/2025,57,640,,"Wryneck hatch - splayed legs, braced neck overnight",Slight bumble foot,,,Released,Elfreda,Barkston
+2025,,2,27/05/2025,2/3,22:15:00,Yellow 2,,,4.6,,54.2,02/06/2025,78.8,,1,27/06/2025,31,470,,UP,Yes,,Male,08/07/2025,42,600,Ken Hill 1,23/07/2025,57,610,,External pip 25th May,,,,Released,Edward,Barkston
+2025,,2,27/05/2025,2/1,Overnight,White 2,,,5.6,,56.8,02/06/2025,87,,1,27/06/2025,31,480,,UE,No,,Male,08/07/2025,42,550,Ken Hill 1,23/07/2025,57,540,,,,,,Released,Edris,Barkston
+2025,,15,28/05/2025,15/2,Overnight,Brown 1,,,5.1,,60,02/06/2025,84.5,,2,27/06/2025,30,410,,9Y,No,,Male,08/07/2025,41,500,Sandringham,23/07/2025,56,,,,Pot. Male,,,Released,Evan,Wittering
+2025,,15,28/05/2025,15/1,Overnight,Light Blue 2,,,5.6,,54.2,02/06/2025,78.2,,2,27/06/2025,30,480,,UL,No,,Female,08/07/2025,41,530,Sandringham,23/07/2025,56,,,,,,,Released,Eirian,Wittering
+2025,,15,28/05/2025,15/4,09:00:00,Black 2,,,7.8,,56.8,03/06/2025,81,,2,27/06/2025,30,440,,9P,No,,Male,08/07/2025,41,550,Sandringham,23/07/2025,56,,,,Pot. male,,In pin,Released,Elmer,Wittering
+2025,,14,28/05/2025,14/4,12:00:00,Red 2,,,6.7,,53.3,04/06/2025,88.4,,3,27/06/2025,30,290,FJ84878,VK,No,,Male,25/07/2025,58,690,Sandringham,30/07/2025,63,,,,Slight bumble foot,,"bcs 2, slight old scrape on top of bill",Released,Elton,Fairford
+2025,,10,28/05/2025,10/2,16:30:00,Grey 2,,,7.8,,57.1,03/06/2025,75.5,,2,27/06/2025,30,460,,UK,No,,Female,08/07/2025,41,530,Sandringham,23/07/2025,56,,,,,,"Slightly bent lower mandible, in pin",Released,Ezme,Marham
+2025,,14,28/05/2025,14/1,14:00:00,Pink 2,,,6.1,,52.8,03/06/2025,89.6,,2,27/06/2025,30,460,,TX,Yes,,Female,08/07/2025,41,680,Sandringham,23/07/2025,56,630,,,Slight bumble foot,,Slightly in pin,Released,Evelyn,Fairford
+2025,,15,28/05/2025,15/3,16:30:00,Green 2,,,6.5,,,03/06/2025,75.5,,2,27/06/2025,30,460,,UU,No,,Male,08/07/2025,41,570,Sandringham,23/07/2025,56,,,,Slight bumble foot on right foot,,"F10 cream on bill, due to scrape",Released,Emrys,Wittering
+2025,,14,29/05/2025,14/3,Overnight,Red 10,,,6.4,,52.5,03/06/2025,79.2,,2,27/06/2025,29,450,,TY,No,,Female,,,,,,,,,,,,Euthanised - broken beak,Euthanised,,Fairford
+2025,,10,29/05/2025,10/4,Overnight,Green 10,,,6.3,,57.3,04/06/2025,92.7,,3,27/06/2025,29,410,FJ84880,VL,No,,Male,25/07/2025,57,590,Sandringham,30/07/2025,62,,,,,,"bcs 4, slight thickening on both toes",Released,Euan,Marham
+2025,,4,29/05/2025,4/2,Overnight,Light Blue 10,,,5.6,,57.3,04/06/2025,84.7,,3,27/06/2025,29,470,FJ84873,UV,No,,Female,25/07/2025,57,630,Sandringham,30/07/2025,62,,,,Slight thickening of right foot,,"bcs 2, slight old damage to upper and lower mandible",Released,Elodie,Barkston
+2025,,3,29/05/2025,3/1,Overnight,Orange 10,,,5.9,,58.1,03/06/2025,87.4,,2,27/06/2025,29,600,,9U,No,,Female,08/07/2025,40,670,,,,,,,,,Euthanised - broken foot,Euthanised,,Barkston
+2025,,10,29/05/2025,10/3,Overnight,Black 10,,,5.1,,52.3,03/06/2025,73.8,,2,27/06/2025,29,530,,UA,Yes,,Female,08/07/2025,40,650,Sandringham,23/07/2025,55,680,Very jumpy inbox,,,"Required assistance after attempting to eat plantain head with approx. 3"" of stalk still attached",,Released,Edie,Marham
+2025,,4,29/05/2025,4/3,Overnight,White 10,,,7.9,,51.9,03/06/2025,73.2,,2,27/06/2025,29,400,,UH,No,,Male,08/07/2025,40,520,Sandringham,23/07/2025,55,,,Interally pipped 25th May,,,In pin,Released,Enzo,Barkston
+2025,,8,29/05/2025,8/3,11:20:00,Yellow 10,,,5,,50,04/06/2025,78.6,,3,27/06/2025,29,490,FJ84877,VC,No,,Male,25/07/2025,57,550,Ken Hill 1,30/07/2025,62,,,,Thickening on left foot,,bcs 2,Released,Einstein,Topcliffe
+2025,,14,29/05/2025,14/2,14:30:00,Pink 10,,,5.8,,51.8,05/06/2025,81,,3,27/06/2025,29,420,FJ84876,VA,No,,Female,25/07/2025,57,800,Ken Hill 1,30/07/2025,62,,,,,,bcs 4,Released,Elinor,Fairford
+2025,,10,29/05/2025,10/1,16:30:00,Red 3,,,7.3,,56.3,04/06/2025,84.6,,3,27/06/2025,29,530,FJ84875,VE,No,,Male,25/07/2025,57,650,Sandringham,30/07/2025,62,,,,,,bcs 2,Released,Ernest,Marham
+2025,,3,29/05/2025,3/3,22:00:00,Green 3,,,7.9,,53,04/06/2025,87.9,,3,27/06/2025,29,430,FJ84874,UX,No,,Male,25/07/2025,57,630,Sandringham,30/07/2025,62,,,,Pot. Male - Slight thickening of right foot,,"bcs 3, slight growth deformity on 1st primary both wings",Released,Edison,Barkston
+2025,,4,30/05/2025,4/1,08:00:00,Green 4,,,6.3,,51.1,05/06/2025,71,,3,27/06/2025,28,380,FJ84882,VJ,No,,Male,25/07/2025,56,540,Sandringham,30/07/2025,61,,,,Thickening on feet,,"bcs 2, healed but recent abrasion to top of bill",Released,Elijah,Barkston
+2025,,8,30/05/2025,8/2,14:00:00,Light blue 3,,,5.1,,53.7,05/06/2025,83.5,,3,27/06/2025,28,420,FJ84881,VH,No,,Male,25/07/2025,56,530,Sandringham,30/07/2025,61,,,,"Slight bumble foot, noted to be limping after flagging",,"bcs 3, noted to be panting slightly",Released,Eugene,Topcliffe
+2025,,8,31/05/2025,8/1,Overnight,Black 3,,,4,,51.9,06/06/2025,65.7,,4,03/07/2025,33,420,FJ84892,2E,No,,Female,25/07/2025,55,610,Ken Hill 1,30/07/2025,60,,,External pip 29th May,Slight thickening on left foot,,bcs 2,Released,Estella,Topcliffe
+2025,,7,31/05/2025,7/4,10:00:00,White 3,,,6.1,,61.9,05/06/2025,85,,4,03/07/2025,33,510,FJ84889,VY,No,,Male,25/07/2025,55,590,Ken Hill 1,30/07/2025,60,,,External pip 29th May - Taped toes,,,bcs 3,Released,Egbert,Topcliffe
+2025,,6,31/05/2025,6/3,13:20:00,Orange 2,,,6.7,,51.8,06/06/2025,74.7,,4,03/07/2025,33,500,FJ84884,VP,No,,Female,25/07/2025,55,730,Sandringham,30/07/2025,60,,,External pip 29th May,Slight thickening on left foot,,"bcs 4, abrasion of top of bill",Released,Enid,Leeming
+2025,,7,31/05/2025,7/1,13:30:00,Pink 3,,,7.6,,60.7,05/06/2025,76.1,,3,27/06/2025,27,490,FJ84875,UY,No,,Male,25/07/2025,55,570,Sandringham,30/07/2025,60,,,External pip 29th May,Pot. Male - Slight thickening on feet,,bcs 3,Released,Ebenezer,Topcliffe
+2025,,6,31/05/2025,6/2,15:10:00,Yellow 3,,,8.1,,56.5,06/06/2025,96.4,,4,03/07/2025,33,550,FJ84886,VU,No,,Male,25/07/2025,55,560,Sandringham,30/07/2025,60,,,External pip 29th May,Slight thickening on right middle toe,,bcs 3,Released,Ennis,Leeming
+2025,,6,31/05/2025,6/4,16:10:00,Red 4,,,7,,61.7,05/06/2025,75.8,,4,03/07/2025,33,530,FJ84891,0J,No,,Female,25/07/2025,55,700,Sandringham,30/07/2025,60,,,External pip 29th May - Taped toes,,,"bcs 3, slight abrasion on underside of bill",Released,Emma,Leeming
+2025,,7,31/05/2025,7/3,18:30:00,Orange 3,,,7.4,,57.8,06/06/2025,78,,4,03/07/2025,33,490,FJ84883,VN,Yes,,Male,25/07/2025,55,620,Ken Hill 1,30/07/2025,60,,,Interally pipped 29th May,Slight thickening on right foot,,bcs 3,Released,Elliot,Topcliffe
+2025,,6,01/06/2025,6/1,Overnight,Pink 4,,,4.5,,50.8,06/06/2025,78,,4,03/07/2025,32,510,FJ84887,V V,No,,Female,25/07/2025,54,570,Sandringham,30/07/2025,59,,,External pip 29th May,Slight thickening on middle toe,,"bcs 2, old abrasion on top of bill (healed)",Released,Ethel,Leeming
+2025,,7,01/06/2025,7/2,10:00:00,Green 5,,,4.8,,59,06/06/2025,81.1,,4,03/07/2025,32,490,FJ84893,3K,No,,Female,25/07/2025,54,760,Ken Hill 1,30/07/2025,59,,,Internally pipped 29th May,Slight thickening on toes of both feet,"Required assistance after attempting to eat plantain head with approx. 4"" of stalk still attached","bcs 3, feathers taken for sexing",Released,Emilie,Topcliffe
+2025,,12,02/06/2025,12/1,19:00:00,Yellow 4,,,5.1,,53,10/06/2025,112.4,,4,03/07/2025,31,460,FJ84885,VT,No,,Female,25/07/2025,53,670,Sandringham,30/07/2025,58,,,,Slim,,"bcs 3, slight thickening on right foot, slight abrasion on tip of bill (minor)",Released,Elsa,Mildenhall
+2025,,12,03/06/2025,12/3,06:00:00,Black 4,,,5.6,,53.4,10/06/2025,98.2,,4,03/07/2025,30,460,FJ84890,0H,No,,Male,25/07/2025,52,540,Sandringham,30/07/2025,57,,,,,,"bcs 2, subjued and sat in corner when caught, mint green poo noted at cloaca",Released,Eddie,Mildenhall
+2025,,12,03/06/2025,12/2,09:15:00,Light Blue 5,,,4.3,,49.5,10/06/2025,93.3,,4,03/07/2025,30,540,FJ84888,VX,Removed_before_release,,Female,25/07/2025,52,750,Ken Hill 1,30/07/2025,57,,Tag removed as hadn't checkedin with network,External pip 1st June,"Slight twist in left leg,",,bcs 2,Released,Eilish,Mildenhall
+2025,,9,04/06/2025,9/2,14:00:00,Orange 4,,,5.1,,45.4,11/06/2025,80,,1,08/07/2025,34,530,FJ84897,2J,Yes,,Female,01/08/2025,58,710,Sandringham,06/08/2025,63,,,,,,,Released,Erin,Barkston
+2025,,9,04/06/2025,9/1,Overnight,no ring,,,3.9,,,13/06/2025,77.3,,1,08/07/2025,34,510,FJ84900,3H,Yes,,Female,01/08/2025,58,630,Sandringham,06/08/2025,63,,,"Distended yolk stack, vet assisted treatment",Secondary 1 stunted feather on both wings,held back - ligature on distension,Feathers through as normal,Released,Effie,Barkston
+2025,,13,05/06/2025,13/4,Overnight,Red 5,,,4.5,,50.4,10/06/2025,63.5,,1,08/07/2025,33,400,FJ84895,4H,No,,Male,01/08/2025,57,410,Sandringham,06/08/2025,62,,,,,,,Released,Everett,Leeming
+2025,,13,05/06/2025,13/1,Overnight,Pink 5,,,5.2,,49.2,10/06/2025,62.1,,1,08/07/2025,33,450,FJ84899,5V,No,,Male,01/08/2025,57,600,Sandringham,06/08/2025,62,,extra weight 480g 25/07,,"1 barred feather, missing primarys, flagged 25/07-primaries short but grown through",,Scraped bill,Released,Ewok,Leeming
+2025,,13,05/06/2025,13/2,09:00:00,Yellow 5,,,6.8,,52,10/06/2025,,,1,08/07/2025,33,420,FJ84898,3A,No,,Male,01/08/2025,57,500,Sandringham,06/08/2025,62,,,,,,,Released,Ezra,Leeming
+2025,,13,07/06/2025,13/3,07:00:00,Green 8,,,5.8,,50.9,13/06/2025,92.6,,1,08/07/2025,31,470,FJ76821,5E,No,,Female,01/08/2025,55,560,Sandringham,06/08/2025,60,,,,,,,Released,Esther,Leeming
+2025,,19,14/06/2025,19/2,overnight,Black 5,,,4.6,,51.9,,,,1,08/07/2025,24,370,FJ84896,5X,No,,Male,15/08/2025,62,570,Ken Hill 1,21/08/2025,68,,extra weight 510g 25/07,,"Returned to polytunnel, too small to flag - blisters, 25/07 feathers growing through slowly",,"bcs 2, wings look good, p9 right wing slightly blistered and short",Released,Eeyore,Barkston
+2025,,19,14/06/2025,19/1,11:00:00,White 7,,,8.6,,58.8,,,,1,08/07/2025,24,440,FJ84894,8K,No,,Male,15/08/2025,62,560,Ken Hill 1,,,,extra weight 500g 25/07. flight pen 1,,"Returned to polytunnel, too small to flag - blisters, 25/07 feathers growing through slowly","Returned to Deepdale, due to ill health. Passed away AM 20/08","bcs 2, wings look good",Died,Elmo,Barkston
+2025,,18,24/06/2025,18/2,07:00:00,Light Blue 4,,,5.8,,56.7,,,,2-4,01/08/2025,38,540,FJ76825,JP,No,,Female,15/08/2025,52,630,Ken Hill 1,21/08/2025,58,,Flight pen 2-4,,"bcs 2, black dots noted in back of throat",,"bcs 3, no black spots",Released,Emerald,Cranwell
+2025,,18,24/06/2025,18/1,13:30:00,Orange 5,,,5.7,,50.7,,,,2-4,01/08/2025,38,480,FJ76828,KA,No,,Male,15/08/2025,52,510,Ken Hill 1,21/08/2025,58,,Flight pen 2-4,,"bcs 2, slight thickening on middle toe right foot",,"bcs 2, small structured bird",Released,Ellis,Cranwell
+2025,,18,25/06/2025,18/3,08:21:00,Brown 2,,,6.5,,49.3,,,,2-4,01/08/2025,37,400,FJ76827,JT,Yes,,Female,15/08/2025,51,570,Ken Hill 1,21/08/2025,57,,Flight pen 2-4,,bcs 2,,bcs 2,Released,Ember,Cranwell
+2025,,17,25/06/2025,17/1,11:15:00,Yellow 7,,,6.8,,58.6,,,,2-4,01/08/2025,37,520,FJ76823,9C,Yes,,Female,15/08/2025,51,630,Ken Hill 1,21/08/2025,57,,Flight pen 2-4,,bcs 2,,bcs 2,Released,Ebony,Benson
+2025,,17,26/06/2025,17/2,Overnight,Pink 7,,,4.7,,56.5,,,,2-4,01/08/2025,36,520,FJ76824,JJ,No,,Male,15/08/2025,50,620,Ken Hill 1,21/08/2025,56,,Flight pen 2-4,,"Both legs bent, but strong, bcs 1.5",,bcs 3,Released,Ethan,Benson
+2025,,17,26/06/2025,17/3,08:00:00,Red 7,,,6,,60.5,,,,2-4,01/08/2025,36,530,FJ76829,KJ,No,,Female,15/08/2025,50,640,Ken Hill 1,21/08/2025,56,,Flight pen 2-4,,bcs 2,,"bcs 2, small abrasion on top mandible",Released,Edna,Benson
+2025,,17,26/06/2025,17/4,11:00:00,Green 7,,,5.6,,55.4,,,,2-4,01/08/2025,36,530,FJ76826,JX,No,,Male,15/08/2025,50,580,Ken Hill 1,21/08/2025,56,,Flight pen 2-4,,"Slight bend in both legs, bcs 2",,"bcs 2, fault bar is right wing tertiaries",Released,Elvis,Benson
+2025,,18,26/06/2025,18/4,11:00:00,Black 7,,,4.8,,49.1,,,,2-4,01/08/2025,36,510,FJ76822,8P,No,,Female,15/08/2025,50,600,Ken Hill 1,21/08/2025,56,,Flight pen 2-4,,"Left leg is bent, bcs2",,"bcs 1.5, left leg still bent, right fine, p1 short on both wings",Released,Eileen,Cranwell

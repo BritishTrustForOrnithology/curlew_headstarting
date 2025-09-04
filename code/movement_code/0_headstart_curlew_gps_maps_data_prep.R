@@ -22,8 +22,8 @@
 # project_details <- list(project_name, output_version_name, workspace_version_name)
 # package_details <- c("package name 1", "package name 2")
 
-project_details <- list(project_name="curlew_headstarting", output_version_date="2025-06", workspace_version_date="2025-06")
-package_details <- c("sf","tidyverse","move2","ggmap","RColorBrewer","viridisLite","rcartocolor","lubridate","suncalc","cowplot","sfheaders", "maptiles", "tidyterra","rnaturalearth","rnaturalearthdata","basemaps","suncalc","ggspatial","gganimate")
+project_details <- list(project_name="curlew_headstarting", output_version_date="2025-09", workspace_version_date="2025-09")
+package_details <- c("sf","tidyverse","move2","ggmap","RColorBrewer","viridisLite","rcartocolor","lubridate","suncalc","cowplot","sfheaders", "maptiles", "tidyterra","rnaturalearth","rnaturalearthdata","basemaps","suncalc","ggspatial","gganimate","adehabitatHR","eks")
 
 seed_number <- 1
 
@@ -53,13 +53,13 @@ source(file.path("code/source_setup_code_rproj.R"))
 
 # =======================    Control values   =================
 
-new_mb_download <- FALSE
+new_mb_download <- TRUE
 
-select_year <- c(2021:2023)
+select_year <- c(2021:2025)
 today_date <- Sys.Date()
 
 # filtering criteria birds
-filter_birds <- TRUE # filter birds for mapping to only show active tags
+filter_birds <- FALSE # filter birds for mapping to only show active tags
 filter_year <- TRUE # filter birds for mapping to only show particular year cohorts
 
 # mapping criteria
@@ -77,7 +77,7 @@ set_last_date <- "2025-06-05"
 filter_height_speed <- FALSE # filter flight heights & speeds
 
 # data management criteria
-update_gdrive_data <- FALSE # download fresh data from google drive
+update_gdrive_data <- TRUE # download fresh data from google drive
 
 # ====  Load functions  =================================
 
@@ -122,11 +122,11 @@ source(file.path(codewd, "movebank_log.R"))
 # get info out of movebank - 'live' or recently live tags only
 # study ID for headstarting project = 1678739528
 # mb_study_name <- movebank_download_study_info (x="Curlews - headstarted", login=loginStored)
-mb_study_id <- movebank_get_study_id("BTO-NE-Pensthorpe - Eurasian Curlews - headstarted")
+mb_study_id <- movebank_get_study_id("BTO - Eurasian Curlews - headstarted")
 mb_study_animals <- movebank_download_deployment(mb_study_id)
 
 # download all active tagged birds
-mb_individual_id <- mb_study_animals[grep(paste(dt_meta_tags$flag_id, collapse = "|"), mb_study_animals$individual_local_identifier), "individual_local_identifier"] %>% pull %>% as.character
+mb_individual_id <- mb_study_animals[grep(paste(dt_meta_tags$year_flag, collapse = "|"), mb_study_animals$individual_local_identifier), "individual_local_identifier"] %>% pull %>% as.character
 
 if (new_mb_download) {
   # automatic Movebank download - live or recently live tags only
@@ -160,7 +160,7 @@ all_tags_summary <- all_tags %>%
   summarise(min_date = min(timestamp), max_date = max(timestamp)) %>% 
   left_join(all_tags %>% st_drop_geometry %>% group_by(individual_local_identifier) %>% tally, by = "individual_local_identifier")
 
-all_tags_summary
+print(all_tags_summary, n=nrow(all_tags_summary))
 
 
 # ---- Merge with individual metadata -----------
@@ -169,7 +169,7 @@ all_tags_summary
 all_tags_meta <- all_tags %>% 
   mutate(flag_id = substr(individual_local_identifier, 4, 5)) %>%
   right_join(.,dt_meta_tags, by="flag_id") %>%
-  mutate(plot_label = paste(release_location, flag_id, name, sep="_")) %>%
+  mutate(plot_label = paste(release_location, year_flag, name, sep="_")) %>%
   mutate(plot_label = str_replace_all(plot_label, " ", "_")) # %>% 
 # mutate(lon = st_coordinates(.)[,1],
 #        lat = st_coordinates(.)[,2])
@@ -222,7 +222,7 @@ all_tags_summary <- all_tags_filtered %>%
   summarise(min_date = min(timestamp), max_date = max(timestamp)) %>% 
   left_join(all_tags_filtered %>% st_drop_geometry %>% group_by(individual_local_identifier) %>% tally, by = "individual_local_identifier")
 
-all_tags_summary
+print(all_tags_summary, n=nrow(all_tags_summary))
 
 
 # ----  Filter by date if required  -----------------
@@ -302,7 +302,6 @@ all_tags_filtered <- all_tags_filtered %>%
 
 
 
-all_tags_summary
 
 
 

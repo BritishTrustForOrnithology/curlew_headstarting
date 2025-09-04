@@ -57,3 +57,12 @@ googledrive::drive_download(
   overwrite = TRUE,
   path = file.path(datawd, "headstart_curlew_rearing_data.csv")
 )
+
+# study month data
+googledrive::drive_download(
+  file = "https://docs.google.com/spreadsheets/d/1cHDUD_W7jz0udB-dOt6KBTNC12zPKUdp37ZirjDRFIg/edit?usp=sharing",
+  type = "csv",
+  overwrite = TRUE,
+  path = file.path(datawd, "headstart_curlew_study_month.csv")
+  
+)

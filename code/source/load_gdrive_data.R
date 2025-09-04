@@ -23,6 +23,9 @@ dt_eggs <- read.csv(file.path(datawd, "headstart_curlew_egg_collection_data.csv"
 # Load rearing data
 dt_rearing <- read.csv(file.path(datawd, "headstart_curlew_rearing_data.csv"), header = TRUE, stringsAsFactors = FALSE)
 
+# Load study month data
+dt_study_month <- read.csv(file.path(datawd, "headstart_curlew_study_month.csv"), header = TRUE, stringsAsFactors = FALSE)
+
 # ----- Create output for DemOn data entry  -----
 
 # Rename biometric fields
