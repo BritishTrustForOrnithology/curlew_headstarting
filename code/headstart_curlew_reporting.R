@@ -13,7 +13,7 @@
 # project_details <- list(project_name, output_version_name, workspace_version_name)
 # package_details <- c("package name 1", "package name 2")
 
-project_details <- list(project_name="curlew", output_version_date="2024_headstarting", workspace_version_date="2024_headstarting")
+project_details <- list(project_name="curlew", output_version_date="2025_headstarting", workspace_version_date="2025_headstarting")
 package_details <- c("sf","tidyverse","patchwork","move","RColorBrewer","viridisLite","rcartocolor","lubridate", "nlme", "lme4", "ggeffects", "broom.mixed", "patchwork")
 seed_number <- 1
 
@@ -43,7 +43,7 @@ source(file.path("code/source_setup_code_rproj.R"))
 
 # =======================    Control values   =================
 
-current_year <- 2024
+current_year <- 2025
 
 # TRUE = fresh download of google drive data
 update_gdrive_data <- TRUE
@@ -64,6 +64,9 @@ today_date <- format(Sys.Date(), "%d-%b-%Y")
 if (update_gdrive_data) source(file.path("code", "source", "download_gdrive_data.R"))
 source(file.path("code", "source", "load_gdrive_data.R"))
 
+# Load demon bulk upload field ref template
+dt_demon_ref <- read.csv(file.path(datawd, "demon_bulk_upload_field_reference.csv"), header = TRUE, stringsAsFactors = FALSE)
+
 
 # =======================    Prepare data   =================
 
@@ -80,8 +83,18 @@ dt <- dt_all %>%
 dt <- dt %>% 
   mutate(date = as.POSIXct(strptime(paste(day, month, year, sep="/"), format = "%d/%m/%Y", tz="UTC")))%>%
   mutate(release_date = as.POSIXct(strptime(release_date, format = "%d/%m/%Y", tz="UTC"))) %>% 
-  mutate(tagged_date = as.POSIXct(strptime(tagged_date, format = "%d/%m/%Y", tz="UTC"))) %>% 
-  mutate(age_released = as.integer(days_age + (release_date - date)))
+  mutate(tagged_date = as.POSIXct(strptime(tagged_date, format = "%d/%m/%Y", tz="UTC")))
+
+
+# ----- Age released  -----
+
+# create an age_released dataset with 'H' records only (adding an age_released column as below doesn't work when there are NAs in days_age, even if you use an ifelse statement - all 'H' records should have a days age attached)
+age_released <- dt %>% 
+  filter(type %in% "H") %>% 
+  mutate(age_released = ifelse(is.na(days_age), NA, as.integer(days_age + (release_date - date)))) %>% 
+  dplyr::select(year, ring, flag_id, year_flag, sex, cohort_num, tag_gps_radio_none, release_location, release_date, age_released)
+
+
 
 # ----- Create output for DemOn data entry  -----
 
@@ -101,37 +114,58 @@ dt_easy_demon <- dt_all %>%
   arrange(ring) %>%
   mutate(scheme = "GBT",
          species = "Curlew",
-         sexing_method = "DNA",
+         sexing_method = "D",
          capture_time = "12:00",
          condition = "H",
          capture_method = "H",
          metal_mark_info = "N",
-         colour_mark_info = "U"
-         ) %>%
-  dplyr::select(entered_demon, type, ring, scheme, species, age, sex, sexing_method, release_date, capture_time, release_location, condition, capture_method, metal_mark_info, wing_initials, colour_mark_info, LB, RB, LA, RA, tag_gps_radio_none, tag_serial)
+         colour_mark_info = "U",
+         LB = "")
 
 # Code all 'type' and 'condition' = H
+# Code locations
+# Code habitat_1 codes for each location: KH-pen-01 = C6, all Sandringham pens = E2
 dt_easy_demon <- dt_easy_demon %>%
-  rename(vist_date = release_date,
+  rename(visit_date = release_date,
          location = release_location,
          extra_text = tag_gps_radio_none) %>%
-  mutate(location = ifelse(location %in% "Ken Hill 1", "KH-pen-01", ifelse(location %in% "Ken Hill 2", "KH-pen-02", "SH-pen-02")))
+  # mutate(location = ifelse(location %in% "Ken Hill 1", "KH-pen-01", ifelse(location %in% "Ken Hill 2", "KH-pen-02", "SH-pen-02"))) # 2024
+  mutate(location = ifelse(location %in% "Ken Hill 1", "KH-pen-01", "SH-pen-03")) %>% # 2025
+  mutate(habitat_1 = ifelse(location %in% "KH-pen-01", "C6", "E2"))
 
-# Modify all GPS / radio tagged birds to type and condition = M
+
+# Modify all GPS / radio tagged birds to type and condition = M add add extra text field with comments containing tag serial number
+# for demon bulk upload:
+# add field warning_fc_rehabilitated for record/condition = H, comment can be same as in 'extra_text' field
+# add warning_fc_special_method for record/condition = M - populate this field with code 'GPSH' for GPS logger (harness), and keep the comment 'headstarted, tag serial # etc' in the extra_text field
 dt_easy_demon <- dt_easy_demon %>% 
   mutate(type = ifelse(extra_text %in% c("gps", "radio"), "M", type)) %>% 
   mutate(condition = ifelse(type %in% "M", "M", condition)) %>% 
   mutate(extra_text = ifelse(extra_text %in% "gps", "headstarted, gps tag serial", ifelse(extra_text %in% "radio", "radio tag serial", ""))) %>% 
   mutate(extra_text = ifelse(extra_text %in% "", "", paste(extra_text, tag_serial, sep = " = "))) %>% 
+  mutate(extra_text = ifelse(extra_text %in% "", "headstarted", extra_text)) %>% 
   mutate(LA = str_replace(LA, fixed(")O"), "),O")) %>% 
-  dplyr::select(-tag_serial)
+  rename(record_type = type,
+         ring_no = ring,
+         location_code = location,
+         ringer_initials = wing_initials,
+         left_leg_below = LB,
+         right_leg_below = RB,
+         left_leg_above = LA,
+         right_leg_above = RA) %>% 
+  dplyr::select(-tag_serial) %>% 
+  mutate(warning_fc_special_method = ifelse(record_type == "M" & condition == "M", "GPSH", "")) %>% 
+  mutate(warning_fc_rehabilitated = "headstarted")
 
 if (all(is.na(dt_easy_demon$LB))) dt_easy_demon <- dt_easy_demon %>% mutate(LB = "")
 
-dt_easy_demon
+dt_easy_demon <-  dt_easy_demon %>% 
+  dplyr::select(record_type, ring_no, scheme, species, age, sex, sexing_method, visit_date, capture_time, location_code, habitat_1, condition, capture_method, metal_mark_info, ringer_initials, colour_mark_info, left_leg_below, right_leg_below, left_leg_above, right_leg_above, extra_text, warning_fc_rehabilitated, warning_fc_special_method)
+
+head(dt_easy_demon)
 
 # Output csv file
-# write.csv(dt_easy_demon, file.path(outputwd, "easy_demon_data_entry_2024.csv"), row.names = FALSE)
+write.csv(dt_easy_demon, file.path(outputwd, "headstart_curlew_easy_demon_data_entry_2025.csv"), row.names = FALSE)
 
 
 # ----- Merge dt_easy_demon with dt_biometric  -----
