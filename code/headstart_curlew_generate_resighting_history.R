@@ -15,9 +15,10 @@
 
 # =======================    Set individual(s)   =================
 
-# which individual(s) for resighting history
+# which individual(s) for resighting history. 
+# Updated Sept 2025 to include year_flag instead to account for re-used flag combinations from 2025.
 
-individual_id_list <- c("PV")
+individual_id_list <- c("25_UP", "21_2X", "24_JA", "22_6X", "23_LN", "23_XP", "24_TP", "25_VY" ,"25_5V" ,"22_6X")
 
 
 # =======================    Control values   =================
@@ -39,7 +40,7 @@ focus_resightings_no_release_site <- FALSE
 # project_details <- list(project_name, output_version_name, workspace_version_name)
 # package_details <- c("package name 1", "package name 2")
 
-project_details <- list(project_name="curlew", output_version_date="resighting_histories", workspace_version_date="2023-07")
+project_details <- list(project_name="curlew", output_version_date="resighting_histories", workspace_version_date="2025-09")
 package_details <- c("sf","tidyverse","patchwork","move","RColorBrewer","viridisLite","rcartocolor","lubridate","rnrfa", "RStoolbox", "cowplot", "maptiles", "tidyterra")
 seed_number <- 1
 
@@ -80,6 +81,7 @@ today_date <- format(Sys.Date(), "%d-%b-%Y")
 # Toggle logic value above if fresh download of google drive data is needed
 # will need to provide authentication for R to access Google Drive
 if (update_gdrive_data) source(file.path("code", "source", "download_gdrive_data.R"))
+# KMB note: on first try after restarting R, wait for above line of code to run before running line below as have to select my email directly.
 source(file.path("code", "source", "load_gdrive_data.R"))
 
 
@@ -100,6 +102,7 @@ source(file.path("code", "source", "load_gdrive_data.R"))
 resighting_field_names <- c(
   "qa_qc_comments",
   "flag_id",
+  "year_flag",
   "timestamp",
   "observer",
   "date",
@@ -121,6 +124,7 @@ names(dt_resighting) <- resighting_field_names
 dt_resighting_filtered <- dt_resighting %>% 
   filter(flag_id != "")
 
+
 # =======================    Generate history text file  =================
 
 
@@ -130,9 +134,9 @@ for (individual_id in individual_id_list) {
   
   # Filter to only required columns, individual, R-friendly datetime
   dt_history <- dt_resighting_filtered %>% 
-    filter(flag_id == individual_id) %>% 
+    filter(year_flag == individual_id) %>% 
     mutate(time = ifelse(time %in% "", "12:00:00", time)) %>% 
-    dplyr::select(flag_id, date, time, location) %>% 
+    dplyr::select(flag_id, year_flag, date, time, location) %>% 
     mutate(datetime = paste(date, time)) %>% 
     mutate(new_datetime = strptime(datetime, format = "%d/%m/%Y %H:%M:%S", tz="UTC")) %>% 
     arrange(new_datetime)
@@ -167,7 +171,7 @@ for (individual_id in individual_id_list) {
     cbind(str_split_fixed(dt_lat_lon$lat_lon_dec_new, ",", n=2) %>% 
             as.data.frame() %>% 
             rename(lat = V1, lon = V2)) %>% 
-    dplyr::select(flag_id, date, time, lat, lon, new_datetime)
+    dplyr::select(flag_id, year_flag, date, time, lat, lon, new_datetime)
   
   # convert any OSGB grid references into eastings and northings
   if (dt_location %>% 
@@ -186,7 +190,7 @@ for (individual_id in individual_id_list) {
       as.data.frame() %>% 
       rename(lat = Y, lon = X) %>% 
       cbind(dt_osgb) %>% 
-      dplyr::select(flag_id, date, time, lat, lon, new_datetime)
+      dplyr::select(flag_id, year_flag, date, time, lat, lon, new_datetime)
     
     
     # rbind former grid refs back together with lat-lon rows and arrange earliest to most recent sighting
@@ -212,13 +216,16 @@ for (individual_id in individual_id_list) {
   # Sandringham 2 10km square = TF73; Great Bircham lat lon = 52.861603, 0.625233
   # Ken Hill 1 and 2 10km square = TF63; Ken Hill estate office lat lon = 52.893391, 0.497013
   
+  # Update Sept 2025 - removing any meta data lines for birds that are fate == dead.
+  
   dt_all <- dt_meta %>%
-    filter(flag_id == individual_id) %>% 
+    filter(year_flag == individual_id) %>% 
+    filter(fate != "dead") %>%
     rename(date = release_date) %>% 
     mutate(lat = ifelse("Sandringham 1" %in% release_location, 52.828315, ifelse("Sandringham 2" %in% release_location, 52.861603, 52.893391))) %>% 
     mutate(lon = ifelse("Sandringham 1" %in% release_location, 0.456422, ifelse("Sandringham 2" %in% release_location, 0.625233, 0.497013))) %>% 
-    dplyr::select(flag_id, date, lat, lon) %>% 
-    rbind(., dt_resight_all %>% dplyr::select(flag_id, date, lat, lon)) %>% 
+    dplyr::select(flag_id, year_flag, date, lat, lon) %>% 
+    rbind(., dt_resight_all %>% dplyr::select(flag_id, year_flag, date, lat, lon)) %>% 
     mutate(date = strptime(date, format = "%d/%m/%Y", tz="UTC")) %>%
     arrange(date)
   
