@@ -18,7 +18,7 @@
 # which individual(s) for resighting history. 
 # Updated Sept 2025 to include year_flag instead to account for re-used flag combinations from 2025.
 
-individual_id_list <- c("25_UP", "21_2X", "24_JA", "22_6X", "23_LN", "23_XP", "24_TP", "25_VY" ,"25_5V" ,"22_6X")
+individual_id_list <- c("25_3H")
 
 
 # =======================    Control values   =================
