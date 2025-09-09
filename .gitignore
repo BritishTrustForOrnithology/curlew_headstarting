@@ -9,6 +9,7 @@ output/*
 exported_map/*
 media/*
 gis/*
+rosm.cache/*
 
 # specific files (.ini from KMB computer)
 movebank_log.R
